@@ -37,7 +37,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D3 | replaced by D11 | – |
 | D4 | Own review view, directly inside the app | decided |
 | D5 | Instagram/TikTok: description and screenshot are the default; video download only as an optional plug-in, off by default, not shipped in the repo | proposal, please confirm |
-| D6 | AI: local first (Ollama, Whisper), free cloud only as a fallback and only with the user's own key. From phase 2 a simple AI setting in `.env` (Ollama on the Mac or own key); profiles follow in phase 7 | decided |
+| D6 | AI: local first (Ollama, Whisper), free cloud only as a fallback and only with the user's own key. From phase 2 via Mealie's AI provider management (Ollama on the Mac or own key, D25); profiles follow in phase 7 | decided |
 | D7 | Code, identifiers and comments in English (matches Mealie); guides in German and English | decided |
 | D8 | Tech = Mealie's stack: FastAPI, SQLAlchemy, Alembic, Nuxt 4, Vue 3, TypeScript | decided |
 | D9 | Project name | open (T7) |

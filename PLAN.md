@@ -35,7 +35,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D3 | ersetzt durch D11 | – |
 | D4 | Eigene Prüfansicht, direkt im Programm | beschlossen |
 | D5 | Instagram/TikTok: Beschreibung und Screenshot sind der Standard; Video-Download nur als optionales Plug-in, standardmäßig aus, nicht im Repo mitgeliefert | Vorschlag, bitte bestätigen |
-| D6 | KI: lokal zuerst (Ollama, Whisper), Gratis-Cloud nur als Reserve und nur mit eigenem Key. Ab Phase 2 einfache KI-Einstellung in `.env` (Ollama auf dem Mac oder eigener Key), Profile folgen in Phase 7 | beschlossen |
+| D6 | KI: lokal zuerst (Ollama, Whisper), Gratis-Cloud nur als Reserve und nur mit eigenem Key. Ab Phase 2 über Mealies KI-Anbieter-Verwaltung (Ollama auf dem Mac oder eigener Key, D25), Profile folgen in Phase 7 | beschlossen |
 | D7 | Code, Bezeichner und Kommentare auf Englisch (passt zu Mealie); Anleitungen auf Deutsch und Englisch | beschlossen |
 | D8 | Technik = Mealies Stack: FastAPI, SQLAlchemy, Alembic, Nuxt 4, Vue 3, TypeScript | beschlossen |
 | D9 | Projektname | offen (T7) |
