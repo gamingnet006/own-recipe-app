@@ -157,11 +157,11 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 - [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20).
 - [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi. (29 Oct 2026: `kh/ops/docker-compose.yml` and `kh/ops/.env.example` created, healthy on the Mac with 2 CPUs/2 GB after ~36 s, ~299 MB RAM; open: start on the Pi.)
-- [ ] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database from exactly this backup (D21).
+- [ ] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database from exactly this backup (D21). Mealie rejects backups from a different database version, so start the old image first, then restore.
 - [ ] Automatic upgrade test in CI: start the previous release with test recipes, update, check recipes and images; a failure blocks the release (D23).
 - [ ] Short "Install" guide in the README for this release.
 - [ ] Hide unneeded Mealie parts in UI and routes (stage 1 of the fork rules).
-- [ ] Backup container using Mealie's backup API (create, copy to the second location; `restore.sh` uses Mealie's restore): daily, retention, push message to Uptime Kuma, restore test script. Admin access only as a placeholder in `.env.example` (D21).
+- [ ] Backup container using Mealie's backup API (create, copy to the second location; `restore.sh` uses Mealie's restore): daily, retention, push message to Uptime Kuma, restore test script. Admin access only as a placeholder in `.env.example` (D21). (29 Oct 2026: `kh/ops/backup/` with `backup.sh`, `restore.sh`, cron schedule, retention, Uptime Kuma push; tests in CI; backup and restore of a test recipe verified on the Mac. Open: push to a real Uptime Kuma, automatic restore test, restore on a second device.)
 - [ ] HTTPS and tunnel for access from outside (free, no open ports; D14). Self sign-up stays off (`ALLOW_SIGNUP=false`, Mealie default); the tunnel provider is listed in "What goes where" (D22).
 - [ ] Create family accounts, sample recipes as seed data.
 - [ ] `THIRD_PARTY_NOTICES.md` and `CHANGELOG.md`.

@@ -19,3 +19,10 @@ jobs:
     uses: ./.github/workflows/test-backend.yml
   frontend:
     uses: ./.github/workflows/test-frontend.yml
+  ops:
+    name: KH ops scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Backup script tests
+        run: sh kh/ops/backup/test_backup.sh

@@ -155,11 +155,11 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 - [ ] CI baut das amd64-Image pro Tag und veröffentlicht es in der GitHub Container Registry; das arm64-Image wird auf dem Mac nativ gebaut und mit einem Befehl pro Release dorthin geschoben, solange das Repo privat ist (D20).
 - [ ] `docker-compose.yml` und `.env.example` (nur Platzhalter, keine echten Zugangsdaten); auf dem Pi starten. (29.10.2026: `kh/ops/docker-compose.yml` und `kh/ops/.env.example` angelegt, auf dem Mac mit 2 CPUs/2 GB gesund nach ~36 s, ~299 MB RAM; offen: Start auf dem Pi.)
-- [ ] `update.sh`: erst Backup, dann neue Version, Gesundheitsprüfung; bei Fehler altes Image und Datenbank aus genau diesem Backup zurück (D21).
+- [ ] `update.sh`: erst Backup, dann neue Version, Gesundheitsprüfung; bei Fehler altes Image und Datenbank aus genau diesem Backup zurück (D21). Mealie lehnt Backups einer anderen Datenbank-Version ab, darum erst das alte Image starten, dann wiederherstellen.
 - [ ] Upgrade-Test automatisch in der CI: vorheriges Release mit Testrezepten starten, aktualisieren, Rezepte und Bilder prüfen; ein Fehler blockiert das Release (D23).
 - [ ] Kurzanleitung „Installieren“ in der README für dieses Release.
 - [ ] Nicht benötigte Mealie-Teile in Oberfläche und Routen ausblenden (Stufe 1 der Fork-Regeln).
-- [ ] Backup-Container über Mealies Backup-Schnittstelle (erstellen, an den zweiten Ort kopieren; `restore.sh` nutzt Mealies Wiederherstellen): täglich, Aufbewahrung, Push-Meldung an Uptime Kuma, Restore-Test-Skript. Admin-Zugang nur als Platzhalter in `.env.example` (D21).
+- [ ] Backup-Container über Mealies Backup-Schnittstelle (erstellen, an den zweiten Ort kopieren; `restore.sh` nutzt Mealies Wiederherstellen): täglich, Aufbewahrung, Push-Meldung an Uptime Kuma, Restore-Test-Skript. Admin-Zugang nur als Platzhalter in `.env.example` (D21). (29.10.2026: `kh/ops/backup/` mit `backup.sh`, `restore.sh`, Zeitplan per cron, Aufbewahrung, Uptime-Kuma-Meldung; Tests in der CI; auf dem Mac Backup und Wiederherstellen eines Testrezepts geprüft. Offen: Meldung an ein echtes Uptime Kuma, automatischer Restore-Test, Restore auf einem zweiten Gerät.)
 - [ ] HTTPS und Tunnel für den Zugriff von unterwegs (gratis, ohne offene Ports; D14). Selbstregistrierung bleibt aus (`ALLOW_SIGNUP=false`, Mealie-Standard); der Tunnel-Anbieter steht in „Was geht wohin“ (D22).
 - [ ] Familienkonten anlegen, Beispielrezepte als Startdaten.
 - [ ] `THIRD_PARTY_NOTICES.md` und `CHANGELOG.md`.

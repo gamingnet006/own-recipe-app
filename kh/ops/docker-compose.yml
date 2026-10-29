@@ -24,3 +24,26 @@ services:
       # Self sign-up stays off; family accounts are created by the admin (D22).
       ALLOW_SIGNUP: "false"
       DB_ENGINE: sqlite
+
+  # Daily backup via Mealie's backup API, copied to a second location (D21).
+  # Run once by hand: docker compose run --rm backup backup.sh
+  # Restore:          docker compose run --rm backup restore.sh [file.zip]
+  backup:
+    image: kuechenhelfer-backup:dev
+    build: ./backup
+    restart: unless-stopped
+    depends_on:
+      - mealie
+    volumes:
+      - ${KH_DATA_DIR:-./data}/backups:/backups-src
+      - ${KH_BACKUP_DIR:-./backups}:/backups-dest
+    environment:
+      TZ: ${KH_TZ:-Europe/Berlin}
+      KH_PUID: ${KH_PUID:-1000}
+      KH_PGID: ${KH_PGID:-1000}
+      KH_BACKUP_API_TOKEN: ${KH_BACKUP_API_TOKEN:-}
+      KH_BACKUP_CRON: ${KH_BACKUP_CRON:-30 3 * * *}
+      KH_BACKUP_KEEP: ${KH_BACKUP_KEEP:-14}
+      KH_BACKUP_KEEP_LOCAL: ${KH_BACKUP_KEEP_LOCAL:-3}
+      KH_BACKUP_TIMEOUT: ${KH_BACKUP_TIMEOUT:-300}
+      KH_BACKUP_PUSH_URL: ${KH_BACKUP_PUSH_URL:-}
