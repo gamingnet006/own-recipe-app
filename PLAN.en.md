@@ -55,6 +55,9 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review) | decided |
 | D22 | Access from outside: self sign-up off, tunnel provider listed in "What goes where" (eng review) | decided |
 | D23 | Automatic upgrade test in CI; AI calls in tests only with recorded answers (eng review) | decided |
+| D24 | Our migrations as an Alembic branch `kh` (`mealie/kh/alembic/versions/`); Mealie starts with `"heads"` instead of `"head"` (`init_db.py:119`) so Mealie updates need no merge migrations (code walkthrough) | proposal, please confirm |
+| D25 | AI connection from phase 2 via Mealie's existing AI provider management (admin, per group) instead of `.env`; D6 stays the same in substance (code walkthrough) | proposal, please confirm |
+| D26 | Frontend extensions as a Nuxt layer `frontend/kh/` with one `extends` line in `nuxt.config.ts` (code walkthrough) | proposal, please confirm |
 
 ---
 
@@ -145,8 +148,8 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [ ] Take over Mealie's `CLAUDE.md`, `README.md` and `.gitignore` unchanged (done: v3.29.0 merged, `# KH` block appended; open: check in a new session that Mealie's `CLAUDE.md` is loaded as well); append our `.gitignore` lines as a marked `# KH` block; check that Claude Code additionally loads `.claude/CLAUDE.md` (D17).
 - [x] Build and start the fork locally on the Mac in Docker, run Mealie's tests (29 Oct 2026: image built, healthy with 2 CPUs/2 GB after ~33 s, ~222 MB RAM; backend pytest exit 0, frontend 602/602 tests green); enter the real commands in `.claude/CLAUDE.md` under "Commands".
 - [x] Simple CI on GitHub: lint and tests on every push (`kh-ci.yml` calls Mealie's test workflows; first run 29 Oct 2026 green: frontend, backend SQLite and Postgres; other Mealie workflows disabled in the repo).
-- [ ] Code walkthrough: document the structure (backend, frontend, data model for recipe, ingredient and step, import, parser, scaling, cooking mode, backups) in `docs/code-rundgang.md`.
-- [ ] List "keep · rework · remove · new" and the paths for our `kh` folders in `docs/code-rundgang.md`.
+- [x] Code walkthrough: document the structure (backend, frontend, data model for recipe, ingredient and step, import, parser, scaling, cooking mode, backups) in `docs/code-rundgang.md`.
+- [x] List "keep · rework · remove · new" and the paths for our `kh` folders in `docs/code-rundgang.md`.
 - [ ] Early tests T6 and T8 (section 12); the others before their phase.
 - **Done when:** the fork runs locally, tests are green, CI runs, and walkthrough and list exist.
 

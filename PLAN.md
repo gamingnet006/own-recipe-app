@@ -53,6 +53,9 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D21 | Backups über Mealies Backup-Schnittstelle; `update.sh` holt bei Fehler Image und Datenbank aus dem Backup vor dem Update zurück (Eng-Review) | beschlossen |
 | D22 | Zugang von unterwegs: Selbstregistrierung aus, Tunnel-Anbieter in „Was geht wohin“ (Eng-Review) | beschlossen |
 | D23 | Upgrade-Test automatisch in der CI; KI-Aufrufe in Tests nur mit aufgezeichneten Antworten (Eng-Review) | beschlossen |
+| D24 | Eigene Migrationen als Alembic-Zweig `kh` (`mealie/kh/alembic/versions/`), Mealie startet mit `"heads"` statt `"head"` (`init_db.py:119`), damit Mealie-Updates keine Zusammenführungs-Migrationen brauchen (Code-Rundgang) | Vorschlag, bitte bestätigen |
+| D25 | KI-Anbindung ab Phase 2 über Mealies vorhandene KI-Anbieter-Verwaltung (Admin, pro Gruppe) statt über `.env`; D6 bleibt inhaltlich gleich (Code-Rundgang) | Vorschlag, bitte bestätigen |
+| D26 | Frontend-Erweiterungen als Nuxt-Layer `frontend/kh/` mit einer `extends`-Zeile in `nuxt.config.ts` (Code-Rundgang) | Vorschlag, bitte bestätigen |
 
 ---
 
@@ -143,8 +146,8 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [ ] Mealies `CLAUDE.md`, `README.md` und `.gitignore` unverändert übernehmen (erledigt: v3.29.0 eingespielt, `# KH`-Block angehängt; offen: in einer neuen Sitzung prüfen, ob Mealies `CLAUDE.md` zusätzlich geladen wird); unsere `.gitignore`-Zeilen als markierten `# KH`-Block anhängen; prüfen, dass Claude Code `.claude/CLAUDE.md` zusätzlich lädt (D17).
 - [x] Fork lokal auf dem Mac in Docker bauen und starten, Mealies Tests laufen lassen (29.10.2026: Image gebaut, mit 2 CPUs/2 GB gesund nach ~33 s, ~222 MB RAM; Backend-pytest Exit 0, Frontend 602/602 Tests grün); die echten Befehle in `.claude/CLAUDE.md` unter „Befehle“ eintragen.
 - [x] Einfache CI auf GitHub: Lint und Tests bei jedem Push (`kh-ci.yml` ruft Mealies Test-Workflows auf; erster Lauf 29.10.2026 grün: Frontend, Backend SQLite und Postgres; übrige Mealie-Workflows im Repo deaktiviert).
-- [ ] Code-Rundgang: Aufbau notieren (Backend, Frontend, Datenmodell für Rezept, Zutat und Schritt, Import, Parser, Skalierung, Kochmodus, Backups) in `docs/code-rundgang.md`.
-- [ ] Liste „behalten · umbauen · entfernen · neu“ und die Pfade für unsere `kh`-Ordner in `docs/code-rundgang.md`.
+- [x] Code-Rundgang: Aufbau notieren (Backend, Frontend, Datenmodell für Rezept, Zutat und Schritt, Import, Parser, Skalierung, Kochmodus, Backups) in `docs/code-rundgang.md`.
+- [x] Liste „behalten · umbauen · entfernen · neu“ und die Pfade für unsere `kh`-Ordner in `docs/code-rundgang.md`.
 - [ ] Frühe Tests T6 und T8 (Abschnitt 12); die übrigen jeweils vor ihrer Phase.
 - **Fertig wenn:** Der Fork läuft lokal, die Tests sind grün, CI läuft und Rundgang und Liste stehen.
 
