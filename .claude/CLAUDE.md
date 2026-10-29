@@ -2,7 +2,7 @@
 
 Dieses Repo ist ein Fork von Mealie (AGPL-3.0). Mealies Entwicklungsanleitung gilt weiter und wird hier eingebunden:
 
-@AGENTS.md
+@../AGENTS.md
 
 Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nicht automatisch geladen: Lies vor jeder Aufgabe den Abschnitt der aktuellen Phase.
 
@@ -24,7 +24,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 6. **Sprache.** Code, Bezeichner und Kommentare auf Englisch, passend zu Mealie (D7 in `PLAN.md`); Anleitungen auf Deutsch und Englisch.
 7. **Fehler verständlich melden,** nichts still verschlucken.
 8. **Sicherheit.** Keine Schlüssel im Code oder Repo. Eingaben prüfen. Beim Abrufen fremder Seiten private Adressbereiche sperren und Größe sowie Zeit begrenzen. KI-Antworten nur nach festem Schema annehmen. Ausgaben escapen.
-9. **Tests.** Jede Funktion mit Logik bekommt mindestens einen Test. Testdaten nur selbst geschrieben oder frei lizenziert, nie echte fremde Rezepte.
+9. **Tests.** Jede Funktion mit Logik bekommt mindestens einen Test. Testdaten nur selbst geschrieben oder frei lizenziert, nie echte fremde Rezepte. KI-Aufrufe in Tests nur mit aufgezeichneten Antworten, nie mit echtem Modell oder Key (D23).
 10. **Definition of Done.** Läuft, Tests grün, Kommentare da, kein toter Code, Doku angepasst, Lizenz geprüft, Kosten weiter 0 €.
 
 ## Fork-Regeln

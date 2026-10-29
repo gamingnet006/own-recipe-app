@@ -20,7 +20,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 5. **Don't build anything twice:** first check whether Mealie or a library can already do it.
 6. **Check before saving:** no AI result lands in the collection unchecked.
 7. **Weak hardware and fully local** must work (profiles, section 8).
-8. **Code rules** in `CLAUDE.md` apply to everything.
+8. **Code rules** in `.claude/CLAUDE.md` apply to everything.
 9. **Every phase installable on its own:** the end of each phase is a release that can be installed and run without later phases (D15).
 10. **Later never changes earlier:** new phases add instead of rebuilding finished code; the tests of all earlier phases stay green (D15).
 
@@ -37,8 +37,8 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D3 | replaced by D11 | – |
 | D4 | Own review view, directly inside the app | decided |
 | D5 | Instagram/TikTok: description and screenshot are the default; video download only as an optional plug-in, off by default, not shipped in the repo | proposal, please confirm |
-| D6 | AI: local first (Ollama, Whisper), free cloud only as a fallback and only with the user's own key | proposal, please confirm |
-| D7 | Code, identifiers and comments in English (matches Mealie); guides in German and English | proposal, please confirm |
+| D6 | AI: local first (Ollama, Whisper), free cloud only as a fallback and only with the user's own key. From phase 2 a simple AI setting in `.env` (Ollama on the Mac or own key); profiles follow in phase 7 | decided |
+| D7 | Code, identifiers and comments in English (matches Mealie); guides in German and English | decided |
 | D8 | Tech = Mealie's stack: FastAPI, SQLAlchemy, Alembic, Nuxt 4, Vue 3, TypeScript | decided |
 | D9 | Project name | open (T7) |
 | D10 | Desktop app and iOS app in the store | postponed |
@@ -48,6 +48,13 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D14 | Reachability from outside the home (HTTPS, tunnel) is a task in phase 1 | decided |
 | D15 | Every phase ends with a release that installs on its own (tag, images, short guide); new phases are additive and don't change finished code of earlier phases (rules in section 5). For this, amd64/arm64 images and `update.sh` already come in phase 1 | decided |
 | D16 | Code, docs and plan live in the private repo `gamingnet006/own-recipe-app` (own repo, Mealie via `upstream`, no GitHub fork); never credentials, passwords or keys in the repo, only placeholders in `.env.example` | decided |
+| D17 | Our rules live in `.claude/CLAUDE.md`, our README in `docs/kh/` until phase 8; Mealie's `CLAUDE.md`, `README.md` and `.gitignore` stay unchanged (eng review) | decided |
+| D18 | Drafts in their own `kh` table; only approval creates a Mealie recipe (eng review) | decided |
+| D19 | Quantities in step text: text unchanged, links in a `kh` side table based on `ingredient_references` (eng review) | decided |
+| D20 | Build arm64 images on the Mac and push to GHCR while the repo is private; amd64 in CI (eng review) | decided |
+| D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review) | decided |
+| D22 | Access from outside: self sign-up off, tunnel provider listed in "What goes where" (eng review) | decided |
+| D23 | Automatic upgrade test in CI; AI calls in tests only with recorded answers (eng review) | decided |
 
 ---
 
@@ -135,7 +142,8 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 0 · Fork and code walkthrough
 
 - [ ] Bring Mealie's code into our own repo `gamingnet006/own-recipe-app`: set the remote `upstream` to Mealie and merge the latest stable version (no GitHub fork, so the repo can stay private).
-- [ ] Build and start the fork locally on the Mac in Docker, run Mealie's tests; enter the real commands in `CLAUDE.md` under "Commands".
+- [ ] Take over Mealie's `CLAUDE.md`, `README.md` and `.gitignore` unchanged; append our `.gitignore` lines as a marked `# KH` block; check that Claude Code additionally loads `.claude/CLAUDE.md` (D17).
+- [ ] Build and start the fork locally on the Mac in Docker, run Mealie's tests; enter the real commands in `.claude/CLAUDE.md` under "Commands".
 - [ ] Simple CI on GitHub: lint and tests on every push.
 - [ ] Code walkthrough: document the structure (backend, frontend, data model for recipe, ingredient and step, import, parser, scaling, cooking mode, backups) in `docs/code-rundgang.md`.
 - [ ] List "keep · rework · remove · new" and the paths for our `kh` folders in `docs/code-rundgang.md`.
@@ -144,20 +152,22 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 ### Phase 1 · Running for the family (v0.0)
 
-- [ ] CI builds images for amd64 and arm64 (arm64 natively on `ubuntu-24.04-arm`) and publishes them per tag to the GitHub Container Registry.
+- [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20).
 - [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi.
-- [ ] `update.sh`: backup first, then new version, health check, roll back on failure.
+- [ ] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database from exactly this backup (D21).
+- [ ] Automatic upgrade test in CI: start the previous release with test recipes, update, check recipes and images; a failure blocks the release (D23).
 - [ ] Short "Install" guide in the README for this release.
 - [ ] Hide unneeded Mealie parts in UI and routes (stage 1 of the fork rules).
-- [ ] Backup container: daily, second storage location, retention, `restore.sh`, push message to Uptime Kuma, restore test script.
-- [ ] HTTPS and tunnel for access from outside (free, no open ports; D14).
+- [ ] Backup container using Mealie's backup API (create, copy to the second location; `restore.sh` uses Mealie's restore): daily, retention, push message to Uptime Kuma, restore test script. Admin access only as a placeholder in `.env.example` (D21).
+- [ ] HTTPS and tunnel for access from outside (free, no open ports; D14). Self sign-up stays off (`ALLOW_SIGNUP=false`, Mealie default); the tunnel provider is listed in "What goes where" (D22).
 - [ ] Create family accounts, sample recipes as seed data.
 - [ ] `THIRD_PARTY_NOTICES.md` and `CHANGELOG.md`.
 - **Done when:** the family adds recipes from outside the home, a backup has been restored on a second device, and release `v0.0` installs on a fresh Pi using only the short guide.
 
 ### Phase 2 · Intake, review, duplicates (v0.1)
 
-- [ ] Draft stage in the data model (status "draft" or "checked", after T6); drafts don't appear in the collection.
+- [ ] Drafts in their own `kh` table including the original; only approval creates a normal recipe through Mealie's existing path and links the original. Mealie itself never has to filter drafts (D18, answers T6).
+- [ ] AI connection via `.env` (Ollama on the Mac or own key, D6).
 - [ ] Extension points for later phases: list of checks and hints in the review view, list of intake paths (phase rule 4).
 - [ ] Intake: link (existing scraper), text, photo or screenshot; result always a draft.
 - [ ] Store the original: photo, description, source, author, date, AI model.
@@ -170,7 +180,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 3 · Quantities (v0.2)
 
 - [ ] `parse_ingredient()` for German quantities (½, 1 1/2, ranges, EL, TL, pinch, bunch, packet, piece) with tests; replaces or extends Mealie's parser.
-- [ ] Placeholders for quantities in the step text (reference to an ingredient, optionally with a fraction); `link_quantities()` on import; link and unlink in the review view.
+- [ ] Quantities in the step text: the text stays unchanged; a `kh` side table stores position, ingredient and optional fraction, building on Mealie's `ingredient_references`. `link_quantities()` on import; link and unlink in the review view; after a text edit the positions are re-checked (D19).
 - [ ] Serving calculator with three ways (servings, "I only have …", baking tin) and one single display function `format_amount()` for all views.
 - [ ] Times stay fixed; hint when the factor is above 2 or below 0.5.
 - [ ] Plausibility warnings in the review view: quantities, times, temperatures, ingredient without a step, converted units (uses the parser).
@@ -225,9 +235,9 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 All quantities scale live, in the ingredient list and in the step text; times, temperatures and tin sizes stay fixed.
 
-**Basic idea.** Ingredients are structured (quantity, unit, ingredient, note). Quantities in the step text are not numbers but references to an ingredient, optionally with a fraction ("half of it"). Only fixed placeholders exist, no freely programmable template system; that is simpler and safer.
+**Basic idea.** Ingredients are structured (quantity, unit, ingredient, note). Quantities in the step text are linked to an ingredient, optionally with a fraction ("half of it"). The text itself stays unchanged; the link (position, ingredient, fraction) lives in a `kh` side table (D19). No freely programmable template system; that is simpler and safer.
 
-**On import.** The AI delivers ingredients structured and steps with placeholders. `link_quantities()` suggests a link where the text contains an ingredient quantity without a placeholder ("250 g flour"). In the review view, linked quantities are colored; tapping links or unlinks. Numbers without a link stay fixed.
+**On import.** The AI delivers ingredients structured and steps with marked quantities. `link_quantities()` suggests a link where the text contains an ingredient quantity without a link ("250 g flour"). In the review view, linked quantities are colored; tapping links or unlinks. Numbers without a link stay fixed.
 
 | Way | Input | Factor |
 |---|---|---|
@@ -261,6 +271,7 @@ Steps 1 and 2 need confirmation: the mapping is confirmed once in the review vie
 
 - **Test set** (own test folder, path after the code walkthrough): 20 self-written cases with input and expected result. A mix of web page (local HTML file with JSON-LD), text, self-made photo or screenshot, transcript, duplicate pairs (same link with extra parameters, same recipe written differently), error cases (nonsense quantities) and allergen cases with hidden ingredients (e.g. Worcestershire sauce contains fish).
 - **Quantity test cases:** ½, 1 1/2, ranges, countable items, spoons, unit switches, placeholders in text, factor 0.5 / 2 / 3, baking tin 26 → 20 cm, "I only have 300 g flour".
+- **AI in tests:** tests use recorded AI answers (self-generated, freely licensed) and check schema, review view and error cases; no AI key in CI. Real model quality is measured separately (D23).
 - **Real reels and web pages** only tested privately, never in the public repo.
 - **CI on every push:** Mealie's lint and tests plus our tests; image build for amd64 and arm64.
 - **Before every upstream sync and update:** test set, backup, short restore check.
@@ -278,6 +289,7 @@ In the profile "lokal" (local) nothing leaves the house; all other paths can be 
 | Import link | page address | the respective website | same |
 | Read text or photo | text or image | local AI (default) or cloud AI, only with a configured key | local AI only |
 | Convert video or audio | audio | local Whisper (default) | local only |
+| Access from outside | all traffic to the web app | the chosen tunnel provider (D22) | own VPN instead of a third-party tunnel |
 | Share via Telegram | link or screenshot | Telegram servers | off |
 | Share via shortcut | link | your Küchenhelfer | same |
 | Voice commands | microphone audio | nowhere, Vosk runs in the browser | same |
@@ -327,7 +339,7 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 | Telegram bot | €0 | Telegram account needed; the bot [only downloads files up to 20 MB](https://core.telegram.org/bots/faq) |
 | Nutrition: BLS 4.0 | €0 | [free since December 2025](https://heise.de/-11123877); check terms |
 | iPhone: web app and shortcut | €0 | [push only for web apps added to the home screen](https://firt.dev/notes/pwa-ios/) |
-| GitHub (public repo, CI, images) | €0 | [arm64 runners free for public repos](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/) |
+| GitHub (repo, CI, images) | €0 | [arm64 runners free only for public repos](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/); while the repo is private, build arm64 on the Mac (D20) |
 | Docker Desktop (Mac) | €0 privately | [paid in large companies](https://docs.docker.com/subscription-billing/desktop-license.md); Podman as free alternative |
 | iOS app in the store, signed Mac app | USD 99 per year | [membership required](https://developer.apple.com/support/compare-memberships); not planned |
 
@@ -350,7 +362,7 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 | Backup missing or cannot be restored | Daily to a second location, push message, restore test before every update | 1 |
 | Large third-party codebase | Code walkthrough, Mealie's `AGENTS.md`, tests first, then changes | 0 |
 | Conflicts during upstream sync | Own `kh` folders, `KH:` markers, `cherry-pick`, sync every three months | ongoing |
-| Mac and Pi behave differently | Everything in Docker, Pi check at the end of every phase (section in `CLAUDE.md`) | ongoing |
+| Mac and Pi behave differently | Everything in Docker, Pi check at the end of every phase (section in `.claude/CLAUDE.md`) | ongoing |
 | Pi too slow | Profiles, hardware test, queue, heavy builds only in CI | 7, 8 |
 | Sharing on the go needs reachability and HTTPS | Tunnel or VPN with a free tier, revocable token per device, Telegram without an open port | 1, 5, 7 |
 | Updates fail for others | `update.sh` with backup and rollback, upgrade test before every release, follow Mealie's security notices | 1 |
@@ -369,7 +381,7 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 - [ ] **T3 Whisper speed:** How long does 1 minute of audio take on the MacBook, Raspberry Pi and possibly a mini PC?
 - [ ] **T4 Instagram path:** description and screenshot versus download, with own examples.
 - [ ] **T5 BLS:** read the terms of use and clarify integration into an open project.
-- [ ] **T6 Draft stage:** where does the "draft" status fit most easily into Mealie's data model?
+- [x] **T6 Draft stage:** answered by D18 (own `kh` table, Mealie's data model stays unchanged).
 - [ ] **T7 Name:** check the project name for trademark and name conflicts.
 - [ ] **T8 Pi check:** start the official Mealie image on the Raspberry Pi and note speed and RAM.
 
@@ -377,13 +389,13 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 
 ## 13. Start prompt for Claude Code
 
-Paste in the cloned fork (with `CLAUDE.md` and `PLAN.md` in the root folder):
+Paste in the cloned fork (with `PLAN.md` in the root folder and `.claude/CLAUDE.md`):
 
 ```text
-Read CLAUDE.md and PLAN.md. We are building Küchenhelfer as a fork of Mealie.
+Read .claude/CLAUDE.md and PLAN.md. We are building Küchenhelfer as a fork of Mealie.
 Start with phase 0 and work in small steps:
 1) Briefly explain how you build and start the fork locally on my Mac in Docker,
-   and enter the real commands in CLAUDE.md under "Commands".
+   and enter the real commands in .claude/CLAUDE.md under "Commands".
 2) Run Mealie's tests and report the result.
 3) Do the code walkthrough and write docs/code-rundgang.md with the list
    "keep · rework · remove · new" and the paths for our kh folders.

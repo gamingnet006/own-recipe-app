@@ -1,12 +1,12 @@
 # CLAUDE.md – Küchenhelfer (Mealie fork) · English version
 
-> English translation of `CLAUDE.md`. If the two differ, `CLAUDE.md` (German) is authoritative.
+> English translation of `.claude/CLAUDE.md`. If the two differ, the German file is authoritative.
 
 This repo is a fork of Mealie (AGPL-3.0). Mealie's development guide still applies and is included here:
 
-@AGENTS.md
+@../../AGENTS.md
 
-The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.md`). It is not loaded automatically: read the section of the current phase before every task.
+The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.md`) in the repo root. It is not loaded automatically: read the section of the current phase before every task.
 
 ## Way of working
 
@@ -26,7 +26,7 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 6. **Language.** Code, identifiers and comments in English, matching Mealie (D7 in `PLAN.md`); guides in German and English.
 7. **Report errors clearly,** never swallow them silently.
 8. **Security.** No keys in code or repo. Validate input. When fetching external pages, block private address ranges and limit size and time. Accept AI answers only against a fixed schema. Escape output.
-9. **Tests.** Every function with logic gets at least one test. Test data only self-written or freely licensed, never real third-party recipes.
+9. **Tests.** Every function with logic gets at least one test. Test data only self-written or freely licensed, never real third-party recipes. AI calls in tests only with recorded answers, never with a real model or key (D23).
 10. **Definition of Done.** Runs, tests green, comments in place, no dead code, docs updated, license checked, cost still €0.
 
 ## Fork rules

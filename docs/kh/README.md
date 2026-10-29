@@ -4,9 +4,9 @@ A free, self-hosted family recipe app and website, based on a fork of [Mealie](h
 
 **Status:** planning. No application code yet; phase 0 brings in Mealie's code.
 
-- Plan: [PLAN.en.md](PLAN.en.md) (English) · [PLAN.md](PLAN.md) (Deutsch, authoritative)
-- Rules for development: [CLAUDE.en.md](CLAUDE.en.md) · [CLAUDE.md](CLAUDE.md)
-- Design notes: [docs/designs/kuechenhelfer-design.md](docs/designs/kuechenhelfer-design.md)
+- Plan: [PLAN.en.md](../../PLAN.en.md) (English) · [PLAN.md](../../PLAN.md) (Deutsch, authoritative)
+- Rules for development: [CLAUDE.en.md](CLAUDE.en.md) · [CLAUDE.md](../../.claude/CLAUDE.md)
+- Design notes: [docs/designs/kuechenhelfer-design.md](../designs/kuechenhelfer-design.md)
 
 Every phase ends with a release that can be installed on its own. No credentials, passwords or keys are ever stored in this repo; configuration uses placeholders in `.env.example`.
 
