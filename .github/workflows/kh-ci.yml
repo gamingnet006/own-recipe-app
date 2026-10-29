@@ -1,0 +1,21 @@
+# KH: our CI (PLAN.md phase 0). Reuses Mealie's reusable lint+test workflows
+# so upstream test changes arrive without copying. Mealie's own triggered
+# workflows are disabled in the repo settings.
+name: KH CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: kh-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    uses: ./.github/workflows/test-backend.yml
+  frontend:
+    uses: ./.github/workflows/test-frontend.yml
