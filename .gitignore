@@ -183,3 +183,4 @@ frontend/eslint.config.deprecated.js
 *.pem
 *.key
 .gstack/
+kh/ops/data/

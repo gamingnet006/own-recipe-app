@@ -154,7 +154,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 ### Phase 1 · Läuft bei der Familie (v0.0)
 
 - [ ] CI baut das amd64-Image pro Tag und veröffentlicht es in der GitHub Container Registry; das arm64-Image wird auf dem Mac nativ gebaut und mit einem Befehl pro Release dorthin geschoben, solange das Repo privat ist (D20).
-- [ ] `docker-compose.yml` und `.env.example` (nur Platzhalter, keine echten Zugangsdaten); auf dem Pi starten.
+- [ ] `docker-compose.yml` und `.env.example` (nur Platzhalter, keine echten Zugangsdaten); auf dem Pi starten. (29.10.2026: `kh/ops/docker-compose.yml` und `kh/ops/.env.example` angelegt, auf dem Mac mit 2 CPUs/2 GB gesund nach ~36 s, ~299 MB RAM; offen: Start auf dem Pi.)
 - [ ] `update.sh`: erst Backup, dann neue Version, Gesundheitsprüfung; bei Fehler altes Image und Datenbank aus genau diesem Backup zurück (D21).
 - [ ] Upgrade-Test automatisch in der CI: vorheriges Release mit Testrezepten starten, aktualisieren, Rezepte und Bilder prüfen; ein Fehler blockiert das Release (D23).
 - [ ] Kurzanleitung „Installieren“ in der README für dieses Release.
@@ -384,7 +384,7 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 - [ ] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären.
 - [x] **T6 Entwurfs-Stufe:** beantwortet durch D18 (eigene `kh`-Tabelle, Mealies Datenmodell bleibt unverändert).
 - [ ] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen.
-- [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren.
+- [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren. Wartet auf den Pi (29.10.2026 nicht erreichbar); bis dahin Ersatzwert vom Mac mit 2 CPUs/2 GB: gesund nach ~33 s, ~222 MB RAM.
 
 ---
 

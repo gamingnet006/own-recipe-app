@@ -1,0 +1,26 @@
+# KH: how Küchenhelfer runs on the Mac and on the Pi (PLAN.md phase 1).
+# Mac: builds the image from this repo. Pi: pulls the released image instead
+# (`docker compose pull`), heavy builds never run on the Pi.
+name: kuechenhelfer
+
+services:
+  mealie:
+    image: ${KH_IMAGE:-kuechenhelfer:dev}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "${KH_PORT:-9091}:9000"
+    volumes:
+      - ${KH_DATA_DIR:-./data}:/app/data
+    environment:
+      # Fixed user ID so file permissions on the data folder also match on the Pi.
+      PUID: ${KH_PUID:-1000}
+      PGID: ${KH_PGID:-1000}
+      TZ: ${KH_TZ:-Europe/Berlin}
+      BASE_URL: ${KH_BASE_URL:-http://localhost:9091}
+      # Self sign-up stays off; family accounts are created by the admin (D22).
+      ALLOW_SIGNUP: "false"
+      DB_ENGINE: sqlite

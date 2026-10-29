@@ -156,7 +156,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 1 · Running for the family (v0.0)
 
 - [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20).
-- [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi.
+- [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi. (29 Oct 2026: `kh/ops/docker-compose.yml` and `kh/ops/.env.example` created, healthy on the Mac with 2 CPUs/2 GB after ~36 s, ~299 MB RAM; open: start on the Pi.)
 - [ ] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database from exactly this backup (D21).
 - [ ] Automatic upgrade test in CI: start the previous release with test recipes, update, check recipes and images; a failure blocks the release (D23).
 - [ ] Short "Install" guide in the README for this release.
@@ -386,7 +386,7 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 - [ ] **T5 BLS:** read the terms of use and clarify integration into an open project.
 - [x] **T6 Draft stage:** answered by D18 (own `kh` table, Mealie's data model stays unchanged).
 - [ ] **T7 Name:** check the project name for trademark and name conflicts.
-- [ ] **T8 Pi check:** start the official Mealie image on the Raspberry Pi and note speed and RAM.
+- [ ] **T8 Pi check:** start the official Mealie image on the Raspberry Pi and note speed and RAM. Waiting for the Pi (not reachable on 29 Oct 2026); stand-in value from the Mac with 2 CPUs/2 GB: healthy after ~33 s, ~222 MB RAM.
 
 ---
 
