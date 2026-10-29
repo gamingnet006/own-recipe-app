@@ -35,6 +35,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 - Die Datenbank nur über Alembic-Migrationen ändern; vor jeder Migration ein Backup.
 - Upstream: Sicherheitsfixes einzeln per `cherry-pick` übernehmen, neue Mealie-Funktionen nur nach Absprache.
 - Mealies Lizenz- und Copyright-Hinweise nie entfernen.
+- GitHub Actions: Nur `kh-ci.yml` startet von selbst und ruft Mealies `test-backend.yml` und `test-frontend.yml` auf. Alle anderen Mealie-Workflows sind im Repo deaktiviert. Nach jedem Upstream-Abgleich neue Workflows mit `gh workflow disable <name>` abschalten.
 
 ## Phasen-Regeln
 

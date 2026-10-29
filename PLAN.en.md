@@ -144,7 +144,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [x] Bring Mealie's code into our own repo `gamingnet006/own-recipe-app`: set the remote `upstream` to Mealie and merge the latest stable version (no GitHub fork, so the repo can stay private).
 - [ ] Take over Mealie's `CLAUDE.md`, `README.md` and `.gitignore` unchanged (done: v3.29.0 merged, `# KH` block appended; open: check in a new session that Mealie's `CLAUDE.md` is loaded as well); append our `.gitignore` lines as a marked `# KH` block; check that Claude Code additionally loads `.claude/CLAUDE.md` (D17).
 - [x] Build and start the fork locally on the Mac in Docker, run Mealie's tests (29 Oct 2026: image built, healthy with 2 CPUs/2 GB after ~33 s, ~222 MB RAM; backend pytest exit 0, frontend 602/602 tests green); enter the real commands in `.claude/CLAUDE.md` under "Commands".
-- [ ] Simple CI on GitHub: lint and tests on every push.
+- [x] Simple CI on GitHub: lint and tests on every push (`kh-ci.yml` calls Mealie's test workflows; first run 29 Oct 2026 green: frontend, backend SQLite and Postgres; other Mealie workflows disabled in the repo).
 - [ ] Code walkthrough: document the structure (backend, frontend, data model for recipe, ingredient and step, import, parser, scaling, cooking mode, backups) in `docs/code-rundgang.md`.
 - [ ] List "keep · rework · remove · new" and the paths for our `kh` folders in `docs/code-rundgang.md`.
 - [ ] Early tests T6 and T8 (section 12); the others before their phase.

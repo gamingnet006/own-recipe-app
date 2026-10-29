@@ -37,6 +37,7 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 - Change the database only through Alembic migrations; take a backup before every migration.
 - Upstream: take security fixes individually via `cherry-pick`, new Mealie features only after agreement.
 - Never remove Mealie's license and copyright notices.
+- GitHub Actions: only `kh-ci.yml` triggers on its own and calls Mealie's `test-backend.yml` and `test-frontend.yml`. All other Mealie workflows are disabled in the repo. After every upstream sync, disable new workflows with `gh workflow disable <name>`.
 
 ## Phase rules
 
