@@ -1,0 +1,390 @@
+# Küchenhelfer – Plan (Fusion-Fassung)
+
+Stand: 29.10.2026 · Arbeitsname „Küchenhelfer“ (Name vor der Veröffentlichung prüfen, T7)
+Mockup: https://claude.ai/artifact/3STTwHpXE6DXtPGUoKQoPr
+
+Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: geprüfter Import (Link, Text, Foto, Video), Duplikat-Warnung, mitrechnende Mengen im Text, Nährwerte, Allergene, Kochmodus mit Timern und Sprachbefehlen, PDF-Familienkochbuch und automatische Backups. Alles liegt in einem Repo und ist so veröffentlichbar, dass andere es genauso nutzen können.
+
+> **Für Claude Code:** Diese Datei ist die Arbeitsgrundlage. Arbeite die Phasen der Reihe nach ab, hake Erledigtes ab (`- [x]`), trage neue Entscheidungen in Abschnitt 2 ein und ändere Ziele oder Leitplanken nie stillschweigend.
+
+---
+
+## 1. Leitplanken
+
+1. **Kostenlos:** keine Abos, keine bezahlten Bestandteile (Abschnitt 10).
+2. **Rechtlich sauber:** Abschnitt 9.
+3. **Ein Repo mit allem:** Code, Docker-Setup, Doku und Tests, reproduzierbar installierbar.
+4. **Fusion:** Mealies Code ist die Basis. Wir behalten, was passt, entfernen, was wir nicht brauchen, und bauen neu, was wir anders wollen, ohne Abstriche.
+5. **Nichts doppelt bauen:** zuerst prüfen, ob Mealie oder eine Bibliothek es schon kann.
+6. **Prüfen vor Speichern:** Kein KI-Ergebnis landet ungeprüft in der Sammlung.
+7. **Schwache Hardware und komplett lokal** müssen funktionieren (Profile, Abschnitt 8).
+8. **Code-Regeln** in `CLAUDE.md` gelten für alles.
+9. **Jede Phase eigenständig installierbar:** Das Ende jeder Phase ist ein Release, das man ohne spätere Phasen installieren und betreiben kann (D15).
+10. **Späteres ändert Früheres nicht:** Neue Phasen fügen hinzu, statt fertigen Code umzubauen; die Tests aller früheren Phasen bleiben grün (D15).
+
+**Nicht-Ziele:** öffentliche Rezeptdatenbank · Bezahl-Tarife · App-Store-Apps (die Web-App genügt) · mitgelieferter Video-Downloader · Desktop-App (zurückgestellt).
+
+---
+
+## 2. Entscheidungen
+
+| Nr. | Entscheidung | Stand |
+|---|---|---|
+| D1 | Basis ist Mealie, als Fork mit fester Version | beschlossen |
+| D2 | Das ganze Projekt steht unter AGPL-3.0; Mealies Lizenz- und Copyright-Hinweise bleiben | beschlossen |
+| D3 | ersetzt durch D11 | – |
+| D4 | Eigene Prüfansicht, direkt im Programm | beschlossen |
+| D5 | Instagram/TikTok: Beschreibung und Screenshot sind der Standard; Video-Download nur als optionales Plug-in, standardmäßig aus, nicht im Repo mitgeliefert | Vorschlag, bitte bestätigen |
+| D6 | KI: lokal zuerst (Ollama, Whisper), Gratis-Cloud nur als Reserve und nur mit eigenem Key | Vorschlag, bitte bestätigen |
+| D7 | Code, Bezeichner und Kommentare auf Englisch (passt zu Mealie); Anleitungen auf Deutsch und Englisch | Vorschlag, bitte bestätigen |
+| D8 | Technik = Mealies Stack: FastAPI, SQLAlchemy, Alembic, Nuxt 4, Vue 3, TypeScript | beschlossen |
+| D9 | Projektname | offen (T7) |
+| D10 | Desktop-App und iOS-App im Store | zurückgestellt |
+| D11 | Fusion statt Zusatz-Container, mit Code-Rundgang in Phase 0 als Prüfpunkt | beschlossen |
+| D12 | Entwicklung auf dem MacBook, Betrieb auf Raspberry Pi oder Server: alles in Docker, Images für arm64 und amd64 | beschlossen |
+| D13 | Reihenfolge: Familie nutzt den Fork ab Phase 1; Abhängiges nacheinander; was nur für Fremde nötig ist (Name, Erststart, Profile) kommt zuletzt. Keine Funktion fällt weg | beschlossen |
+| D14 | Erreichbarkeit von unterwegs (HTTPS, Tunnel) ist eine Aufgabe in Phase 1 | beschlossen |
+| D15 | Jede Phase endet mit einem eigenständig installierbaren Release (Tag, Images, Kurzanleitung); neue Phasen sind additiv und ändern fertigen Code früherer Phasen nicht (Regeln in Abschnitt 5). Dafür kommen Images für amd64/arm64 und `update.sh` schon in Phase 1 | beschlossen |
+| D16 | Code, Doku und Plan liegen im privaten Repo `gamingnet006/own-recipe-app` (eigenes Repo, Mealie per `upstream`, kein GitHub-Fork); nie Zugangsdaten, Passwörter oder Keys im Repo, nur Platzhalter in `.env.example` | beschlossen |
+
+---
+
+## 3. Architektur
+
+Eine Anwendung (unser Mealie-Fork) plus ein Backup-Container; KI und Whisper sind austauschbare Zusatzdienste.
+
+```text
+Handy · iPad · Browser  (Web-App, als App installierbar)
+        │
+Küchenhelfer = Mealie-Fork  (Backend FastAPI · Frontend Nuxt)
+  ├─ Eingang · Prüfansicht · Duplikate · Plausibilität
+  ├─ Mengen: Parser · Portionsrechner · Nährwerte · Allergene · Austausch
+  ├─ Kochmodus: Timer · Sprachbefehle · Offline
+  ├─ Teilen und Ausgabe: Kurzbefehl · Telegram · PDF
+  ├─ Betrieb: Erststart · Systemprüfung · Profile
+  └─ Datenbank (SQLite; Postgres optional) + Bilder
+        │
+        ├─ KI-Dienst       OpenAI-kompatibel: Ollama lokal oder Gratis-Cloud
+        └─ Whisper-Dienst  OpenAI-kompatibel, lokal
+Backup-Container → zweiter Speicherort → Push-Meldung an Uptime Kuma
+```
+
+**Fork-Regeln**
+
+1. Unsere Funktionen liegen in eigenen Unterordnern mit dem Kürzel `kh`; die genauen Pfade legt der Code-Rundgang in Phase 0 fest.
+2. Änderungen an Mealies vorhandenem Code bleiben klein; jede trägt den Kommentar `KH: <Grund>`, damit man sie beim Upstream-Abgleich findet.
+3. Upstream: Remote `upstream` zeigt auf Mealie. Sicherheitsfixes immer einzeln übernehmen (`cherry-pick`), neue Funktionen nur bei Bedarf, Abgleich alle drei Monate.
+4. Entfernen in zwei Stufen: erst Oberfläche und Routen ausblenden, Datenbank-Tabellen erst später per Migration.
+5. Neuer Name und neues Logo; „basiert auf Mealie“, Lizenz und Copyright bleiben; Quellcode-Link in der Oberfläche (AGPL).
+
+---
+
+## 4. Funktionen und Reihenfolge
+
+Grundsatz (D13): Die Familie nutzt es so früh wie möglich; was aufeinander aufbaut, kommt nacheinander; was nur für fremde Nutzer nötig ist, kommt zum Schluss. Keine Funktion fällt weg, sie kommt nur später.
+
+| Funktion | Priorität | Woher | Phase |
+|---|---|---|---|
+| Tägliche Backups mit Restore-Test und Meldung | Muss | neu (Container) | 1 |
+| Erreichbarkeit von unterwegs (HTTPS, Tunnel) | Muss | neu (Betrieb) | 1 |
+| Beispielrezepte (selbst geschrieben, frei lizenziert) | Kann | neu | 1 |
+| Eingang: Link, Text, Foto | Muss | umbauen: Mealies Import und KI-Import liefern einen Entwurf | 2 |
+| Prüfansicht mit Original daneben | Muss | neu | 2 |
+| Duplikat-Warnung | Muss | neu | 2 |
+| Herkunfts-Badge (Quelle, Autor, geprüft) | Soll | neu | 2 |
+| Deutscher Zutaten-Parser | Muss | umbauen (Mealies Parser) | 3 |
+| Portionsrechner mit Mengen im Text, drei Wege | Muss | umbauen (Mealies Skalierung) | 3 |
+| Plausibilitäts-Warnungen | Soll | neu | 3 |
+| Kochmodus mit klickbaren Timern, auch bei gesperrtem Handy | Soll | umbauen (Mealies Kochmodus) | 4 |
+| Sprachbefehle (weiter, zurück, Timer) | Soll | neu (Vosk im Browser) | 4 |
+| Bildschirm bleibt an, Offline-Rezepte | Soll | Mealie hat „Bildschirm an“, Offline neu | 4 |
+| PDF-Rezeptkarte und PDF-Familienkochbuch | Soll | neu | 5 |
+| Teilen per Kurzbefehl | Soll | neu | 5 |
+| Umzug aus anderen Apps | Soll | Mealie (Migrationen vorhanden) + Anleitung | 5 |
+| Umluft-Umrechner, Menü-Zeitplan | Kann | neu | 5 |
+| Nährwerte (BLS, „ca.“) | Muss | neu | 6 |
+| Allergen-Tags und Familienprofil | Soll | neu | 6 |
+| Eigene Austausch-Regeln | Soll | neu | 6 |
+| Eingang: Video (Whisper) | Muss | umbauen (vorhandener KI-Import) | 7 |
+| Telegram-Bot | Soll | neu | 7 |
+| Profile: leicht, normal, stark, lokal; Hardware-Test | Muss | neu (Konfiguration) | 7 |
+| Images für amd64/arm64 pro Release, `update.sh` | Muss | neu | 1 |
+| Name, Logo | Muss | neu | 8 |
+| Erststart-Assistent, Systemprüfung | Soll | neu | 8 |
+| Wochenplan, Einkaufsliste | Später | Mealie (vorhanden) | – |
+| Notizfeld „Nächstes Mal“ | Später | Mealie-Notizen | – |
+
+---
+
+## 5. Phasen
+
+Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie nutzt den Fork ab Phase 1 (v0.0); die erste Version mit Prüfansicht (v0.1) ist das Ende von Phase 2. Nach v1.0 gilt ein Feature-Stopp, damit die Pflege machbar bleibt.
+
+**Phasen-Regeln (D15)**
+
+1. **Release pro Phase.** Jede Phase endet mit einem Git-Tag (`v0.0`, `v0.1`, …), fertigen Images in der GitHub Container Registry, einem `CHANGELOG.md`-Eintrag und einer Kurzanleitung. Wer Tag `v0.0` installiert, hat genau die Funktionen von Phase 1, vollständig lauffähig.
+2. **Phasen bauen aufeinander auf.** Ein Release enthält seine Phase und alle davor (`v0.2` = Phasen 1 bis 3). Einzelne spätere Funktionen, die schwer sind oder Daten nach außen senden (Video, Telegram, Open Food Facts), lassen sich zusätzlich per Schalter in `.env` abschalten.
+3. **Additiv statt Umbau.** Neue Funktionen kommen in einen eigenen Ordner `kh/<funktion>/` (Backend und Frontend). Fertiger Code früherer Phasen wird nur für Fehlerbehebungen geändert, jeweils mit Test.
+4. **Erweiterungspunkte einplanen.** Wo absehbar ist, dass spätere Phasen andocken (Hinweise in der Prüfansicht, Importwege, Anzeige von Mengen), baut die frühere Phase eine einfache Liste oder einen Einhängepunkt, in den spätere Phasen sich eintragen. Nur dort, wo dieser Plan es schon vorsieht, nichts auf Vorrat.
+5. **Stabile Schnittstellen.** API-Routen, Funktionen und Datenformate früherer Phasen bleiben kompatibel. Datenbank-Migrationen sind nur additiv (neue Tabellen oder Spalten); Umbenennen oder Löschen eigener Spalten erst mit Migrationsweg und Backup.
+6. **Alte Tests bleiben grün.** Die CI führt die Tests aller Phasen aus. Ein roter Test einer früheren Phase blockiert den Merge.
+7. **Upgrade-Test.** Vor jedem Release: vorherigen Tag installieren, Daten anlegen, auf den neuen Tag aktualisieren, Daten prüfen.
+
+### Phase 0 · Fork und Code-Rundgang
+
+- [ ] Mealies Code ins eigene Repo `gamingnet006/own-recipe-app` holen: Remote `upstream` auf Mealie setzen, neueste stabile Version zusammenführen (kein GitHub-Fork, damit das Repo privat bleiben kann).
+- [ ] Fork lokal auf dem Mac in Docker bauen und starten, Mealies Tests laufen lassen; die echten Befehle in `CLAUDE.md` unter „Befehle“ eintragen.
+- [ ] Einfache CI auf GitHub: Lint und Tests bei jedem Push.
+- [ ] Code-Rundgang: Aufbau notieren (Backend, Frontend, Datenmodell für Rezept, Zutat und Schritt, Import, Parser, Skalierung, Kochmodus, Backups) in `docs/code-rundgang.md`.
+- [ ] Liste „behalten · umbauen · entfernen · neu“ und die Pfade für unsere `kh`-Ordner in `docs/code-rundgang.md`.
+- [ ] Frühe Tests T6 und T8 (Abschnitt 12); die übrigen jeweils vor ihrer Phase.
+- **Fertig wenn:** Der Fork läuft lokal, die Tests sind grün, CI läuft und Rundgang und Liste stehen.
+
+### Phase 1 · Läuft bei der Familie (v0.0)
+
+- [ ] CI baut Images für amd64 und arm64 (arm64 nativ auf `ubuntu-24.04-arm`) und veröffentlicht sie pro Tag in der GitHub Container Registry.
+- [ ] `docker-compose.yml` und `.env.example` (nur Platzhalter, keine echten Zugangsdaten); auf dem Pi starten.
+- [ ] `update.sh`: erst Backup, dann neue Version, Gesundheitsprüfung, bei Fehler zurück.
+- [ ] Kurzanleitung „Installieren“ in der README für dieses Release.
+- [ ] Nicht benötigte Mealie-Teile in Oberfläche und Routen ausblenden (Stufe 1 der Fork-Regeln).
+- [ ] Backup-Container: täglich, zweiter Speicherort, Aufbewahrung, `restore.sh`, Push-Meldung an Uptime Kuma, Restore-Test-Skript.
+- [ ] HTTPS und Tunnel für den Zugriff von unterwegs (gratis, ohne offene Ports; D14).
+- [ ] Familienkonten anlegen, Beispielrezepte als Startdaten.
+- [ ] `THIRD_PARTY_NOTICES.md` und `CHANGELOG.md`.
+- **Fertig wenn:** Die Familie trägt von unterwegs Rezepte ein, ein Backup ist auf einem zweiten Gerät wiederhergestellt und Release `v0.0` lässt sich nur mit der Kurzanleitung auf einem frischen Pi installieren.
+
+### Phase 2 · Eingang, Prüfen, Duplikate (v0.1)
+
+- [ ] Entwurfs-Stufe im Datenmodell (Status „Entwurf“ oder „geprüft“, nach T6); Entwürfe erscheinen nicht in der Sammlung.
+- [ ] Erweiterungspunkte für spätere Phasen: Liste der Prüfungen und Hinweise in der Prüfansicht, Liste der Importwege (Phasen-Regel 4).
+- [ ] Eingang: Link (vorhandener Scraper), Text, Foto oder Screenshot, Ergebnis immer als Entwurf.
+- [ ] Original mitspeichern: Foto, Beschreibung, Quelle, Autor, Datum, KI-Modell.
+- [ ] Prüfansicht wie im Mockup (Screen 2): Original und Ergebnis, Hinweise oben, Speichern, Verwerfen, Bearbeiten.
+- [ ] Duplikat-Check: normalisierter Link, Titel- und Zutaten-Ähnlichkeit; nur warnen, nie automatisch löschen.
+- [ ] Herkunfts-Badge in der Rezeptansicht.
+- [ ] Sicherheit beim Abrufen: private Adressbereiche sperren, Größe und Zeit begrenzen, KI-Antworten nur nach festem Schema, Ausgaben escapen.
+- **Fertig wenn:** Ein Foto eines handgeschriebenen Rezepts landet als Entwurf in der Prüfansicht, die Testfälle (ohne Video) ergeben prüfbare Entwürfe, nichts wird ohne Freigabe gespeichert und die Duplikat-Testfälle schlagen an. Danach Release v0.1.
+
+### Phase 3 · Mengen (v0.2)
+
+- [ ] `parse_ingredient()` für deutsche Angaben (½, 1 1/2, Bereiche, EL, TL, Prise, Bund, Pck., Stück) mit Tests; ersetzt oder ergänzt Mealies Parser.
+- [ ] Platzhalter für Mengen im Schritttext (Verweis auf eine Zutat, optional mit Bruchteil); `link_quantities()` beim Import; Verknüpfen und Lösen in der Prüfansicht.
+- [ ] Portionsrechner mit drei Wegen (Portionen, „Ich habe nur …“, Backform) und einer einzigen Anzeige-Funktion `format_amount()` für alle Ansichten.
+- [ ] Zeiten bleiben fest; Hinweis bei Faktor über 2 oder unter 0,5.
+- [ ] Plausibilitäts-Warnungen in der Prüfansicht: Mengen, Zeiten, Temperaturen, Zutat ohne Schritt, umgerechnete Einheiten (nutzt den Parser).
+- **Fertig wenn:** Die Mengen-Testfälle (Abschnitt 7) bestehen und die Plausibilitäts-Testfälle schlagen an.
+
+### Phase 4 · Kochmodus (v0.3)
+
+- [ ] Zeiten im Schritttext erkennen und anklickbar machen (auch „20–30 Min.“ und „eine halbe Stunde“).
+- [ ] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
+- [ ] Sprachbefehle mit Vosk im Browser (nach T2); große Tasten und Wischen als Rückfall.
+- [ ] Offline-Rezepte (Web-App, dafür ist HTTPS nötig; steht seit Phase 1).
+- **Fertig wenn:** Auf dem iPhone klingelt ein Timer bei gesperrtem Handy, und „weiter“ funktioniert in der Küche oder die Tasten übernehmen.
+
+### Phase 5 · Familienkochbuch und Teilen (v0.4)
+
+- [ ] PDF: Rezeptkarte und Familienkochbuch (Auswahl, Inhaltsverzeichnis, freie Schriften, nur eigene Fotos).
+- [ ] Kurzbefehl für das Teilen-Menü mit einem widerrufbaren Token pro Gerät.
+- [ ] Umzug: Anleitung für Mealies Migrationen, danach Duplikat-Scan.
+- [ ] Umluft-Umrechner und Menü-Zeitplan.
+- **Fertig wenn:** Ein Link über das Teilen-Menü landet als Entwurf in der Prüfansicht und ein Kochbuch mit 10 Rezepten ist als PDF druckbar.
+
+### Phase 6 · Nährwerte und Allergene (v0.5)
+
+- [ ] Nährwerte: BLS lokal (nach T5), Open Food Facts optional; Zuordnung bestätigen und merken; Standardgewichte; Anzeige „ca.“.
+- [ ] Allergen-Tags: feste Regeln für die 14 EU-Hauptallergene, KI nur als Vorschlag, Familienprofil als Warnung, Hinweis „ohne Gewähr“.
+- [ ] Austausch-Regeln: Standardliste plus eigene Regeln; danach Allergen-Check neu; als Variante speichern, nie das Original überschreiben.
+- **Fertig wenn:** Jeder Allergen-Tag und Nährwert ist auf eine Zutat rückführbar und die Allergen-Testfälle (Abschnitt 7) bestehen.
+
+### Phase 7 · Video, Bots und schwere KI (v0.6)
+
+- [ ] Whisper-Dienst (OpenAI-kompatibel, lokal) nach T3.
+- [ ] Eingang Video: vorhandener KI-Import mit Transkript, Ergebnis als Entwurf; Weg nach T4 (Beschreibung und Screenshot als Standard, Download nur als optionales Plug-in, D5).
+- [ ] Telegram-Bot (holt Nachrichten selbst ab, nur erlaubte IDs).
+- [ ] Profile `leicht`, `normal`, `stark`, `lokal` und Hardware-Test (1 Minute Audio messen, Profil vorschlagen).
+- **Fertig wenn:** Ein Reel-Link über das Teilen-Menü oder Telegram landet als Entwurf in der Prüfansicht und das Profil `leicht` läuft auf dem Pi.
+
+### Phase 8 · Betrieb und Veröffentlichung (v1.0)
+
+- [ ] Neuer Name und Logo (nach T7); Mealie-Hinweis, Lizenz und Quellcode-Link in der Oberfläche.
+- [ ] Erststart-Assistent (Hardware-Test, Profil, KI-Anbindung, Backup-Test) und Systemprüfung.
+- [ ] Nicht benötigte Mealie-Tabellen per Migration entfernen (Stufe 2 der Fork-Regeln).
+- [ ] README mit „Was geht wohin“ (Abschnitt 8), Installationsanleitung Deutsch und Englisch, Wartungs-Checkliste.
+- [ ] Rechts-Checkliste (Abschnitt 9), Lizenz-Scan, Name geprüft.
+- [ ] Release `v1.0`, Issue-Vorlagen.
+- **Fertig wenn:** Eine fremde Person installiert es nur mit dem README auf einem frischen Raspberry Pi.
+
+**Später:** Wochenplan und Einkaufsliste (in Mealie vorhanden, nur aufräumen) · Notizfeld „Nächstes Mal“ · Desktop-App.
+
+---
+
+## 6. Mengen: Portionen im Text und Nährwerte
+
+Alle Mengen rechnen sich live mit, in der Zutatenliste und im Schritttext; Zeiten, Temperaturen und Formgrößen bleiben fest.
+
+**Grundidee.** Zutaten stehen strukturiert da (Menge, Einheit, Zutat, Notiz). Mengen im Schritttext sind keine Zahlen, sondern Verweise auf eine Zutat, optional mit Bruchteil („die Hälfte davon“). Dafür gibt es nur feste Platzhalter, kein frei programmierbares Vorlagensystem; das ist einfacher und sicherer.
+
+**Beim Import.** Die KI liefert Zutaten strukturiert und Schritte mit Platzhaltern. `link_quantities()` schlägt eine Verknüpfung vor, wo im Text eine Zutatenmenge ohne Platzhalter steht („250 g Mehl“). In der Prüfansicht sind verknüpfte Mengen farbig, Antippen verknüpft oder löst. Zahlen ohne Verknüpfung bleiben fest.
+
+| Weg | Eingabe | Faktor |
+|---|---|---|
+| Portionen | neue Portionszahl | neu ÷ Basis |
+| „Ich habe nur …“ | Menge einer Zutat, z. B. 300 g Mehl | 300 ÷ 250 |
+| Backform | alter und neuer Durchmesser, bei Rechteck Länge × Breite | Fläche neu ÷ Fläche alt (26 → 20 cm ergibt etwa 0,59) |
+
+**Anzeige in einer Funktion `format_amount()`** (Web, Kochmodus, PDF, Einkaufsliste):
+
+- Brüche statt Dezimalzahlen: ¼, ⅓, ½, ⅔, ¾.
+- Stückware (Eier, Zwiebeln) auf halbe Stücke; bei 1½ Eiern der Hinweis „ein Ei verquirlen und die Hälfte nehmen“.
+- Einheiten wechseln: 1000 g → 1 kg, 1000 ml → 1 l, 3 TL → 1 EL.
+- Gramm ab 100 g auf 5 oder 10 runden.
+- Bereiche („2–3 EL“) skalieren an beiden Enden.
+- Fest bleiben Prise, „etwas“, „nach Geschmack“ und alle Zutaten mit Skalierungsart „fest“.
+
+**Gespeichert** wird nur die Basis (Portionen oder Ertrag wie „Backform Ø 26 cm“). Der gewählte Faktor ist reine Ansicht und gilt auch für PDF und Einkaufsliste. Nährwerte pro Portion bleiben gleich, die Gesamtsumme ändert sich.
+
+**Nährwerte, einfach erklärt**
+
+1. Jede Zutatenzeile wird einem Eintrag der Nährwert-Datenbank zugeordnet („Mehl“ → „Weizenmehl Type 405“).
+2. Die Menge wird in Gramm umgerechnet („2 EL Öl“ etwa 28 g, „1 Ei“ etwa 55 g, „500 ml Milch“ etwa 515 g).
+3. Die Datenbank nennt Werte pro 100 g; daraus wird je Zutat gerechnet.
+4. Alles wird addiert, durch die Portionen geteilt und als „ca.“ pro Portion angezeigt.
+
+Schritt 1 und 2 brauchen Bestätigung: Die Zuordnung wird einmal in der Prüfansicht bestätigt und gemerkt, dazu kommt eine Tabelle mit Standardgewichten. Start einfach: zuerst nur Zutaten mit Gramm oder Milliliter, der Rest folgt.
+
+---
+
+## 7. Qualität und Tests
+
+- **Testset** (eigener Testordner, Pfad nach dem Code-Rundgang): 20 selbst geschriebene Fälle mit Eingabe und erwartetem Ergebnis. Gemischt aus Webseite (lokale HTML-Datei mit JSON-LD), Text, selbst gemachtem Foto oder Screenshot, Transkript, Duplikat-Paaren (gleicher Link mit Zusatz, gleiches Rezept anders geschrieben), Fehlerfällen (Unsinn-Mengen) und Allergen-Fällen mit versteckten Zutaten (z. B. Worcestersauce enthält Fisch).
+- **Mengen-Testfälle:** ½, 1 1/2, Bereiche, Stückware, Löffel, Einheitenwechsel, Platzhalter im Text, Faktor 0,5 / 2 / 3, Backform 26 → 20 cm, „ich habe nur 300 g Mehl“.
+- **Echte Reels und Webseiten** nur privat testen, nie im öffentlichen Repo.
+- **CI bei jedem Push:** Mealies Lint und Tests plus unsere Tests; Image-Build für amd64 und arm64.
+- **Vor jedem Upstream-Abgleich und Update:** Testset, Backup, kurze Restore-Probe.
+- **KI-Qualität (privat):** Anteil richtig erkannter Zutaten und Mengen vor der Prüfung, pro Modell notiert.
+- **Pi-Probe:** am Ende jeder Phase auf dem echten Raspberry Pi installieren und durchklicken.
+
+---
+
+## 8. README-Vorlage: Was geht wohin, Profile
+
+Im Profil „lokal“ verlässt nichts das Haus; alle anderen Wege sind einzeln abschaltbar.
+
+| Funktion | Was wird gesendet | An wen | Profil „lokal“ |
+|---|---|---|---|
+| Link importieren | Seitenadresse | die jeweilige Webseite | gleich |
+| Text oder Foto auslesen | Text oder Bild | lokale KI (Standard) oder Cloud-KI, nur mit eingetragenem Key | nur lokale KI |
+| Video oder Audio umwandeln | Audio | lokales Whisper (Standard) | nur lokal |
+| Teilen per Telegram | Link oder Screenshot | Telegram-Server | aus |
+| Teilen per Kurzbefehl | Link | dein Küchenhelfer | gleich |
+| Sprachbefehle | Mikrofon-Audio | nirgends, Vosk läuft im Browser | gleich |
+| Nährwerte | Zutatennamen | BLS lokal; Open Food Facts online (optional) | nur BLS lokal |
+| Backups | Daten | dein zweiter Speicherort, extern nur verschlüsselt | gleich |
+| Benachrichtigungen | Kurztext | ntfy, SMTP oder Resend, je nach Wahl | ntfy oder SMTP im eigenen Netz |
+| Timer-Push | Timer-Text | Apples Push-Dienst über die Web-App | Kurzbefehl statt Push |
+
+| Profil | Gedacht für | Was läuft | Was nicht |
+|---|---|---|---|
+| leicht | Raspberry Pi, alter Mini | Text- und Screenshot-Import, Prüfansicht, Kochmodus; Videos nachts in der Warteschlange oder auf einem stärkeren Rechner | große lokale KI |
+| normal | aktueller Mini-PC, Mac | zusätzlich kleines Whisper und kleine lokale KI | große Modelle |
+| stark | Apple Silicon, Mini-PC mit viel RAM | großes Whisper und lokale KI | – |
+| lokal | beliebig, kombinierbar | alles auf eigener Hardware, kein Telegram, keine Cloud-Keys | Cloud-Funktionen |
+
+Der Hardware-Test beim ersten Start misst, wie lange 1 Minute Audio dauert, und schlägt ein Profil vor.
+
+---
+
+## 9. Rechts-Leitplanken
+
+Kein Rechtsrat; vor der Veröffentlichung einmal juristisch prüfen lassen.
+
+1. **Nur private Instanzen.** Keine fremden Rezepte, Texte oder Fotos hosten, öffentlich teilen oder im Repo ablegen; Quelle und Autor immer mitspeichern; Teilen-Links nur bewusst, standardmäßig aus.
+2. **Kein Downloader im Repo.** yt-dlp nur als optionales Plug-in, vom Nutzer selbst installiert, standardmäßig aus, mit Warnhinweis. Hintergrund: Instagram [verbietet automatisiertes Sammeln ohne Erlaubnis](https://help.instagram.com/581066165581870) und [schränkt Konten bei Scraping ein](https://help.instagram.com/740480200552298); Apples [App-Store-Regel 5.2.3](https://developer.apple.com/app-store/review/guidelines/) untersagt Apps, die Medien von Drittquellen laden.
+3. **Standardweg ohne Download:** Beschreibungstext einfügen oder Screenshot hochladen.
+4. **Lizenzen.** Das ganze Projekt steht unter AGPL-3.0; Mealies Hinweise bleiben, der Quellcode-Link steht in der Oberfläche. `THIRD_PARTY_NOTICES.md` für jede Abhängigkeit; Server-Teile mit „source-available“-Lizenz meiden. [Open Food Facts](https://support.openfoodfacts.org/help/en-gb/12-api-data-reuse/94-are-there-conditions-to-use-the-api) verlangt Namensnennung und Share-Alike; die [BLS-Bedingungen](https://heise.de/-11123877) vor dem Einbinden lesen.
+5. **Keys.** Nur eigene Keys der Nutzer, nie Keys aus dem Netz; keine Keys im Repo; Secret-Scan aktivieren.
+6. **Datenschutz.** Keine Telemetrie; kein zentraler Server, jeder hostet selbst; die Tabelle in Abschnitt 8 nennt alles, was das Haus verlässt.
+7. **Namen und Logos.** Kein TikTok, Instagram oder Mealie in Name oder Logo; Projektname auf Konflikte prüfen; Schriften nur mit freier Lizenz.
+8. **Gesundheit.** Allergen-Tags und Nährwerte sind Hinweise ohne Gewähr, nie „garantiert frei von“.
+9. **Tests und Doku** nur mit selbst geschriebenen oder frei lizenzierten Rezepten.
+10. **KI-geschriebener Code.** Abhängigkeiten per Lizenz-Scan prüfen, keine großen Fremdblöcke übernehmen, Quelle im Kommentar nennen.
+
+---
+
+## 10. Kosten-Check
+
+Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu prüfen.
+
+| Baustein | Kosten | Haken |
+|---|---|---|
+| Küchenhelfer (Fork), Backup, Uptime Kuma | 0 € | nur Strom und eigene Hardware |
+| Lokale KI (Ollama) und Whisper | 0 € | braucht Rechenleistung, darum Profile |
+| Gratis-Cloud-KI (optional) | 0 € | Limits, Änderungen, teils Datennutzung; [OpenAIs Gratis-Stufe reicht für Mealie nicht](https://mealie.io/documentation/getting-started/installation/ai-providers/) |
+| Benachrichtigungen | 0 € | ntfy und SMTP gratis; [Resend](https://www.resend.com/pricing.md) sendet nur von einer eigenen verifizierten Domain |
+| Telegram-Bot | 0 € | Telegram-Konto nötig; der Bot [lädt nur Dateien bis 20 MB](https://core.telegram.org/bots/faq) |
+| Nährwerte: BLS 4.0 | 0 € | [seit Dezember 2025 kostenfrei](https://heise.de/-11123877); Bedingungen prüfen |
+| iPhone: Web-App und Kurzbefehl | 0 € | [Push nur für zum Home-Bildschirm hinzugefügte Web-Apps](https://firt.dev/notes/pwa-ios/) |
+| GitHub (öffentliches Repo, CI, Images) | 0 € | [arm64-Runner für öffentliche Repos kostenlos](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/) |
+| Docker Desktop (Mac) | privat 0 € | [in großen Firmen kostenpflichtig](https://docs.docker.com/subscription-billing/desktop-license.md); Podman als freie Alternative |
+| iOS-App im Store, signierte Mac-App | 99 USD pro Jahr | [Mitgliedschaft nötig](https://developer.apple.com/support/compare-memberships); nicht geplant |
+
+---
+
+## 11. Risiken und Lösungen
+
+| Risiko | Lösung | Phase |
+|---|---|---|
+| KI vertut sich (Mengen, erfundene Zutaten) | Prüfansicht mit Original, Plausibilitäts-Warnungen, nichts ungeprüft speichern | 2 |
+| Reel-Import bricht (Plattformen ändern oder sperren) | Beschreibung und Screenshot als Standard, Download nur als Plug-in, „experimentell“ | 7 |
+| Rezept steht nur im Bild oder Kommentar | Beschreibung und Screenshot zuerst auswerten | 2 |
+| Duplikate schwer zu erkennen; [Mealie meldet doppelte Links nicht](https://github.com/mealie-recipes/mealie/discussions/3478) | Link normalisieren, Titel und Zutaten vergleichen, nur warnen | 2 |
+| URL-Import: Zugriff aufs Heimnetz, eingeschleuste Anweisungen, Schadcode in der Anzeige | Private Adressbereiche sperren, Schema für KI-Antworten, escapen | 2 |
+| [Mealies Parser verhaspelt sich teils, z. B. bei 1/3](https://www.github.com/mealie-recipes/mealie/issues/3318) | Eigener deutscher Parser mit Tests | 3 |
+| Nährwerte nur geschätzt | Zuordnung bestätigen und merken, Standardgewichte, „ca.“ | 6 |
+| Allergen-Tags falsch | Feste Regeln, KI nur Vorschlag, Bestätigung, „ohne Gewähr“ | 6 |
+| [Timer auf einer mobilen Webseite nicht garantierbar](https://github.com/mealie-recipes/mealie/discussions/5356) | Kurzbefehl mit Uhr-Timer, Server-Timer mit Push, Bildschirm an; früh testen (T1) | 4 |
+| [Browser-Spracherkennung läuft nicht in installierten Web-Apps](https://mobilexweb.com/ios-14.5/) | Vosk lokal im Browser, Tasten als Rückfall (T2) | 4 |
+| Backup fehlt oder lässt sich nicht einspielen | Täglich auf zweiten Ort, Push-Meldung, Restore-Test vor jedem Update | 1 |
+| Große fremde Codebasis | Code-Rundgang, Mealies `AGENTS.md`, erst Tests, dann Änderungen | 0 |
+| Konflikte beim Upstream-Abgleich | Eigene `kh`-Ordner, `KH:`-Markierung, `cherry-pick`, Abgleich alle drei Monate | laufend |
+| Mac und Pi verhalten sich unterschiedlich | Alles in Docker, Pi-Probe am Ende jeder Phase (Abschnitt in `CLAUDE.md`) | laufend |
+| Pi zu langsam | Profile, Hardware-Test, Warteschlange, schwere Builds nur in der CI | 7, 8 |
+| Teilen unterwegs braucht Erreichbarkeit und HTTPS | Tunnel oder VPN mit Gratis-Tarif, widerrufbarer Token pro Gerät, Telegram ohne offene Tür | 1, 5, 7 |
+| Updates bei anderen gehen schief | `update.sh` mit Backup und Rückweg, Upgrade-Test vor jedem Release, Sicherheits-Hinweise von Mealie verfolgen | 1 |
+| Zu viel auf einmal | Familie nutzt ab Phase 1, v0.1 nach Phase 2, Feature-Stopp nach v1.0 | laufend |
+| Spätere Phase macht Früheres kaputt | Phasen-Regeln (Abschnitt 5): additiv, Erweiterungspunkte, alte Tests in der CI, Upgrade-Test | laufend |
+| KI-geschriebener Code mit unklarer Herkunft | Lizenz-Scan, keine großen Fremdblöcke | laufend |
+| Pflege bleibt an einer Person hängen | Wenige Bausteine, automatische Tests, monatlicher Update-Termin, gute Doku | laufend |
+| Rechte-Ärger | Abschnitt 9, juristische Prüfung vor dem Release | 8 |
+
+---
+
+## 12. Frühe Tests
+
+- [ ] **T1 Timer:** Startet ein Kurzbefehl-Link bei gesperrtem iPhone einen klingelnden Uhr-Timer? Alternativ Server-Timer mit Push.
+- [ ] **T2 Sprache:** Vosk mit deutschem Modell im Browser auf dem iPhone, mit Küchengeräuschen.
+- [ ] **T3 Whisper-Tempo:** Wie lange dauert 1 Minute Audio auf MacBook, Raspberry Pi und gegebenenfalls Mini-PC?
+- [ ] **T4 Instagram-Weg:** Beschreibung und Screenshot gegen Download, mit eigenen Beispielen.
+- [ ] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären.
+- [ ] **T6 Entwurfs-Stufe:** Wo passt der Status „Entwurf“ am einfachsten in Mealies Datenmodell?
+- [ ] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen.
+- [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren.
+
+---
+
+## 13. Start-Prompt für Claude Code
+
+Im geklonten Fork (mit `CLAUDE.md` und `PLAN.md` im Hauptordner) einfügen:
+
+```text
+Lies CLAUDE.md und PLAN.md. Wir bauen den Küchenhelfer als Fork von Mealie.
+Beginne mit Phase 0 und arbeite in kleinen Schritten:
+1) Erkläre kurz, wie du den Fork lokal auf meinem Mac in Docker baust und startest,
+   und trage die echten Befehle in CLAUDE.md unter „Befehle“ ein.
+2) Lass Mealies Tests laufen und berichte das Ergebnis.
+3) Mach den Code-Rundgang und schreibe docs/code-rundgang.md mit der Liste
+   „behalten · entfernen · neu“ und den Pfaden für unsere kh-Ordner.
+Ändere in Phase 0 noch keinen Mealie-Code. Frag nach, wenn etwas unklar ist,
+und hake Erledigtes in PLAN.md ab.
+```

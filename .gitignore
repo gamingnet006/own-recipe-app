@@ -1,0 +1,10 @@
+# Secrets and local config: never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local tool state
+.gstack/
+.DS_Store
