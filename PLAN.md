@@ -139,9 +139,9 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 0 · Fork und Code-Rundgang
 
-- [ ] Mealies Code ins eigene Repo `gamingnet006/own-recipe-app` holen: Remote `upstream` auf Mealie setzen, neueste stabile Version zusammenführen (kein GitHub-Fork, damit das Repo privat bleiben kann).
-- [ ] Mealies `CLAUDE.md`, `README.md` und `.gitignore` unverändert übernehmen; unsere `.gitignore`-Zeilen als markierten `# KH`-Block anhängen; prüfen, dass Claude Code `.claude/CLAUDE.md` zusätzlich lädt (D17).
-- [ ] Fork lokal auf dem Mac in Docker bauen und starten, Mealies Tests laufen lassen; die echten Befehle in `.claude/CLAUDE.md` unter „Befehle“ eintragen.
+- [x] Mealies Code ins eigene Repo `gamingnet006/own-recipe-app` holen: Remote `upstream` auf Mealie setzen, neueste stabile Version zusammenführen (kein GitHub-Fork, damit das Repo privat bleiben kann).
+- [ ] Mealies `CLAUDE.md`, `README.md` und `.gitignore` unverändert übernehmen (erledigt: v3.29.0 eingespielt, `# KH`-Block angehängt; offen: in einer neuen Sitzung prüfen, ob Mealies `CLAUDE.md` zusätzlich geladen wird); unsere `.gitignore`-Zeilen als markierten `# KH`-Block anhängen; prüfen, dass Claude Code `.claude/CLAUDE.md` zusätzlich lädt (D17).
+- [x] Fork lokal auf dem Mac in Docker bauen und starten, Mealies Tests laufen lassen (29.10.2026: Image gebaut, mit 2 CPUs/2 GB gesund nach ~33 s, ~222 MB RAM; Backend-pytest Exit 0, Frontend 602/602 Tests grün); die echten Befehle in `.claude/CLAUDE.md` unter „Befehle“ eintragen.
 - [ ] Einfache CI auf GitHub: Lint und Tests bei jedem Push.
 - [ ] Code-Rundgang: Aufbau notieren (Backend, Frontend, Datenmodell für Rezept, Zutat und Schritt, Import, Parser, Skalierung, Kochmodus, Backups) in `docs/code-rundgang.md`.
 - [ ] Liste „behalten · umbauen · entfernen · neu“ und die Pfade für unsere `kh`-Ordner in `docs/code-rundgang.md`.

@@ -66,4 +66,26 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 
 ## Befehle
 
-<!-- In Phase 0 aus Mealies Taskfile und AGENTS.md übernehmen: einrichten, starten, Tests, Lint, Typen erzeugen, Migration anlegen, Docker-Image bauen. Keine Befehle erfinden. -->
+Alles läuft in Docker (Colima auf dem Mac, mindestens 4 CPUs und 6 GB RAM: `colima start --cpu 4 --memory 6`). Ausgeführt und geprüft in Phase 0, sofern nicht anders markiert.
+
+```bash
+# Image bauen und starten (entspricht Mealies `task docker:prod`), danach http://localhost:9091
+docker compose -f docker/docker-compose.yml -p mealie up -d --build
+# Pi-ähnliche Grenzen für den laufenden Container
+docker update --cpus 2 --memory 2g --memory-swap 2g mealie
+# Stoppen
+docker compose -f docker/docker-compose.yml -p mealie down
+
+# Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
+docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \
+  ghcr.io/astral-sh/uv:python3.14-bookworm-slim sh -c "apt-get update -qq && \
+  apt-get install -qq -y --no-install-recommends build-essential libsasl2-dev libldap2-dev libssl-dev >/dev/null && \
+  uv sync --frozen --quiet && uv run --frozen pytest -n 4 --dist loadfile -p no:cacheprovider"
+
+# Frontend-Tests (wie Mealies CI: install, `nuxt prepare`, `test:ci`); die Tests lesen auch mealie/repos/seed
+docker run --rm -v "$PWD":/src:ro node:24 sh -c "mkdir -p /work/mealie/repos && cp -r /src/frontend /work/frontend && \
+  cp -r /src/mealie/repos/seed /work/mealie/repos/ && cd /work/frontend && rm -rf node_modules .nuxt && \
+  npm install -g pnpm@11 && CI=true pnpm install --frozen-lockfile && pnpm nuxt prepare && pnpm test:ci"
+```
+
+Laut Mealies `AGENTS.md`, in unserer Docker-Variante noch nicht erprobt: Lint `task py:lint` und `task ui:lint`, Typen erzeugen `task dev:generate`, Migration anlegen `task py:migrate -- "Beschreibung"`.
