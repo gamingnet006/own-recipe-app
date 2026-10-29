@@ -53,9 +53,9 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D21 | Backups über Mealies Backup-Schnittstelle; `update.sh` holt bei Fehler Image und Datenbank aus dem Backup vor dem Update zurück (Eng-Review) | beschlossen |
 | D22 | Zugang von unterwegs: Selbstregistrierung aus, Tunnel-Anbieter in „Was geht wohin“ (Eng-Review) | beschlossen |
 | D23 | Upgrade-Test automatisch in der CI; KI-Aufrufe in Tests nur mit aufgezeichneten Antworten (Eng-Review) | beschlossen |
-| D24 | Eigene Migrationen als Alembic-Zweig `kh` (`mealie/kh/alembic/versions/`), Mealie startet mit `"heads"` statt `"head"` (`init_db.py:119`), damit Mealie-Updates keine Zusammenführungs-Migrationen brauchen (Code-Rundgang) | Vorschlag, bitte bestätigen |
-| D25 | KI-Anbindung ab Phase 2 über Mealies vorhandene KI-Anbieter-Verwaltung (Admin, pro Gruppe) statt über `.env`; D6 bleibt inhaltlich gleich (Code-Rundgang) | Vorschlag, bitte bestätigen |
-| D26 | Frontend-Erweiterungen als Nuxt-Layer `frontend/kh/` mit einer `extends`-Zeile in `nuxt.config.ts` (Code-Rundgang) | Vorschlag, bitte bestätigen |
+| D24 | Eigene Migrationen als Alembic-Zweig `kh` (`mealie/kh/alembic/versions/`), Mealie startet mit `"heads"` statt `"head"` (`init_db.py:119`), damit Mealie-Updates keine Zusammenführungs-Migrationen brauchen (Code-Rundgang) | beschlossen |
+| D25 | KI-Anbindung ab Phase 2 über Mealies vorhandene KI-Anbieter-Verwaltung (Admin, pro Gruppe) statt über `.env`; D6 bleibt inhaltlich gleich (Code-Rundgang) | beschlossen |
+| D26 | Frontend-Erweiterungen als Nuxt-Layer `frontend/kh/` mit einer `extends`-Zeile in `nuxt.config.ts` (Code-Rundgang) | beschlossen |
 
 ---
 
@@ -168,7 +168,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 ### Phase 2 · Eingang, Prüfen, Duplikate (v0.1)
 
 - [ ] Entwürfe in einer eigenen `kh`-Tabelle samt Original; erst die Freigabe legt über Mealies vorhandenen Weg ein normales Rezept an und verknüpft das Original. Mealie selbst muss keine Entwürfe ausfiltern (D18, beantwortet T6).
-- [ ] KI-Anbindung über `.env` (Ollama auf dem Mac oder eigener Key, D6).
+- [ ] KI-Anbindung über Mealies KI-Anbieter-Verwaltung (Ollama auf dem Mac oder eigener Key, D6, D25).
 - [ ] Erweiterungspunkte für spätere Phasen: Liste der Prüfungen und Hinweise in der Prüfansicht, Liste der Importwege (Phasen-Regel 4).
 - [ ] Eingang: Link (vorhandener Scraper), Text, Foto oder Screenshot, Ergebnis immer als Entwurf.
 - [ ] Original mitspeichern: Foto, Beschreibung, Quelle, Autor, Datum, KI-Modell.

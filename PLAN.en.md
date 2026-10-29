@@ -55,9 +55,9 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review) | decided |
 | D22 | Access from outside: self sign-up off, tunnel provider listed in "What goes where" (eng review) | decided |
 | D23 | Automatic upgrade test in CI; AI calls in tests only with recorded answers (eng review) | decided |
-| D24 | Our migrations as an Alembic branch `kh` (`mealie/kh/alembic/versions/`); Mealie starts with `"heads"` instead of `"head"` (`init_db.py:119`) so Mealie updates need no merge migrations (code walkthrough) | proposal, please confirm |
-| D25 | AI connection from phase 2 via Mealie's existing AI provider management (admin, per group) instead of `.env`; D6 stays the same in substance (code walkthrough) | proposal, please confirm |
-| D26 | Frontend extensions as a Nuxt layer `frontend/kh/` with one `extends` line in `nuxt.config.ts` (code walkthrough) | proposal, please confirm |
+| D24 | Our migrations as an Alembic branch `kh` (`mealie/kh/alembic/versions/`); Mealie starts with `"heads"` instead of `"head"` (`init_db.py:119`) so Mealie updates need no merge migrations (code walkthrough) | decided |
+| D25 | AI connection from phase 2 via Mealie's existing AI provider management (admin, per group) instead of `.env`; D6 stays the same in substance (code walkthrough) | decided |
+| D26 | Frontend extensions as a Nuxt layer `frontend/kh/` with one `extends` line in `nuxt.config.ts` (code walkthrough) | decided |
 
 ---
 
@@ -170,7 +170,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 2 · Intake, review, duplicates (v0.1)
 
 - [ ] Drafts in their own `kh` table including the original; only approval creates a normal recipe through Mealie's existing path and links the original. Mealie itself never has to filter drafts (D18, answers T6).
-- [ ] AI connection via `.env` (Ollama on the Mac or own key, D6).
+- [ ] AI connection via Mealie's AI provider management (Ollama on the Mac or own key, D6, D25).
 - [ ] Extension points for later phases: list of checks and hints in the review view, list of intake paths (phase rule 4).
 - [ ] Intake: link (existing scraper), text, photo or screenshot; result always a draft.
 - [ ] Store the original: photo, description, source, author, date, AI model.

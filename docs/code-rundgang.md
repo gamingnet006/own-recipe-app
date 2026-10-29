@@ -87,25 +87,25 @@ Mandanten: Alles gehört zu einer **Gruppe**, Rezepte, Wochenpläne und Einkaufs
 |---|---|---|
 | Backend-Code | `mealie/kh/<funktion>/` (Routen, Services, Modelle, Schemas je Funktion) | Router in `mealie/routes/__init__.py` (`router.include_router(kh.router)`) |
 | Datenbank-Modelle | `mealie/kh/<funktion>/models.py` | Import in `mealie/db/models/_all_models.py` |
-| Migrationen | `mealie/kh/alembic/versions/` als eigener Alembic-Zweig `kh` | `version_locations` in `mealie/alembic/alembic.ini` und `"head"` → `"heads"` in `mealie/db/init_db.py:119` (Vorschlag D24) |
+| Migrationen | `mealie/kh/alembic/versions/` als eigener Alembic-Zweig `kh` | `version_locations` in `mealie/alembic/alembic.ini` und `"head"` → `"heads"` in `mealie/db/init_db.py:119` (D24) |
 | Backend-Tests | `tests/kh/<funktion>/` | keine (pytest findet `tests/` automatisch) |
-| Frontend | `frontend/kh/` als Nuxt-Layer mit `components/`, `composables/`, `pages/` je Funktion | `extends: ["./kh"]` in `frontend/nuxt.config.ts` (Vorschlag D26) |
+| Frontend | `frontend/kh/` als Nuxt-Layer mit `components/`, `composables/`, `pages/` je Funktion | `extends: ["./kh"]` in `frontend/nuxt.config.ts` (D26) |
 | Frontend-Texte | `frontend/kh/lang/en-US.json` und `de-DE.json` | über den Layer, Mealies Übersetzungsdateien bleiben unberührt |
 | Betrieb (Phase 1) | `kh/ops/` (Backup-Container, `update.sh`, `restore.sh`, Compose-Ergänzungen) | eigene `docker-compose`-Datei neben `docker/docker-compose.yml` |
 | Doku | `docs/kh/` | keine |
 
 Das Python-Paket wird aus `mealie/` gebaut, darum liegt der Backend-Code unter `mealie/kh/` und nicht in einem eigenen Hauptordner.
 
-## 6. Befunde, die eine Entscheidung brauchen
+## 6. Befunde und Entscheidungen
 
-1. **Migrationen (Vorschlag D24).** Mealie führt beim Start `command.upgrade(alembic_cfg, "head")` aus (`mealie/db/init_db.py:119`) und kennt nur eine lineare Kette. Hängen wir unsere Migrationen in diese Kette, gibt es nach jedem Mealie-Update zwei Enden und jedes Mal eine Zusammenführung. Vorschlag: eigener Alembic-Zweig `kh` mit eigenem Ordner, beim Start `"heads"`. `db_is_at_head()` (`init_db.py:66`) vergleicht bereits Mengen von Enden und funktioniert damit.
-2. **KI-Anbindung (Vorschlag D25, betrifft D6).** Mealie verwaltet KI-Anbieter in der Admin-Oberfläche und in der Datenbank, nicht über `.env`. Vorschlag: Phase 2 nutzt diese Verwaltung (Ollama auf dem Mac oder eigener Key dort eintragen) statt einer eigenen `.env`-Einstellung. D6 selbst (lokal zuerst, eigener Key) bleibt.
-3. **Frontend als Nuxt-Layer (Vorschlag D26).** Mealies `nuxt.config.ts` nutzt noch keine Layers. Ein eigener Layer `frontend/kh/` hält unsere Seiten, Komponenten und Texte getrennt; Mealie braucht dafür nur eine `extends`-Zeile.
+1. **Migrationen (D24).** Mealie führt beim Start `command.upgrade(alembic_cfg, "head")` aus (`mealie/db/init_db.py:119`) und kennt nur eine lineare Kette. Hängen wir unsere Migrationen in diese Kette, gibt es nach jedem Mealie-Update zwei Enden und jedes Mal eine Zusammenführung. Vorschlag: eigener Alembic-Zweig `kh` mit eigenem Ordner, beim Start `"heads"`. `db_is_at_head()` (`init_db.py:66`) vergleicht bereits Mengen von Enden und funktioniert damit.
+2. **KI-Anbindung (D25, beschlossen, betrifft D6).** Mealie verwaltet KI-Anbieter in der Admin-Oberfläche und in der Datenbank, nicht über `.env`. Vorschlag: Phase 2 nutzt diese Verwaltung (Ollama auf dem Mac oder eigener Key dort eintragen) statt einer eigenen `.env`-Einstellung. D6 selbst (lokal zuerst, eigener Key) bleibt.
+3. **Frontend als Nuxt-Layer (D26).** Mealies `nuxt.config.ts` nutzt noch keine Layers. Ein eigener Layer `frontend/kh/` hält unsere Seiten, Komponenten und Texte getrennt; Mealie braucht dafür nur eine `extends`-Zeile.
 4. **Entfernen-Liste.** Die Vorschläge in Abschnitt 4 sind noch nicht beschlossen.
 
 ## 7. Bei jedem Upstream-Abgleich prüfen
 
 - Neue Workflows in `.github/workflows/` deaktivieren (`.claude/CLAUDE.md`, Fork-Regeln).
 - Alle `KH:`-Stellen auffindbar halten: `grep -rn "KH:" mealie frontend docker`.
-- Neue Migrationen von Mealie: Mit D24 entstehen keine Konflikte; ohne D24 ist eine Zusammenführungs-Migration nötig.
+- Neue Migrationen von Mealie: Dank D24 entstehen keine Konflikte mit unserem `kh`-Zweig.
 - Geänderte Import-, Parser- oder Kochmodus-Dateien aus Abschnitt 3 gegen unsere Einhängepunkte prüfen.
