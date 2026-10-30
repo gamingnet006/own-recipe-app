@@ -79,16 +79,18 @@ docker compose -f kh/ops/docker-compose.yml down
 # Backup sofort; Backups anzeigen oder eines wiederherstellen (--no-deps: Mealie nicht neu starten)
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [datei.zip]
-# Update auf ein anderes Image: Backup, Datenbank-Schnappschuss, Prüfung, bei Fehler zurück
+# Update auf ein anderes Image: Backup, Datenbank-Schnappschuss, Prüfung, bei Fehler zurück; danach Backup-Dienst und Tunnel erneuern
 kh/ops/update.sh <image>
 # Zugang von unterwegs (Cloudflare Tunnel) ein- und ausschalten; "on" prüft vorher Registrierung und Standard-Konto
 kh/ops/tunnel.sh on|off|status
+# Automatische Updates (nur stabile Releases, nachts um 4 Uhr): an, aus, Stand, Probelauf, sofort
+kh/ops/auto_update.sh on|off|status|check|run
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
 kh/ops/upgrade_test.sh <altes-image> <neues-image>
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_tunnel.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

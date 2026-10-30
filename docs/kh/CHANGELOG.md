@@ -11,6 +11,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Logins stay valid for 30 days without opening the app (`KH_TOKEN_TIME`; Mealie's default is 48 hours).
 - `tunnel.sh` rejects a pasted install command right away and asks for the key alone.
 - Mealie's RAM is capped (`KH_MEMORY_LIMIT`, default 2 GB), so it can share a machine with other services.
+- Automatic updates to stable releases (`kh/ops/auto_update.sh on|off|status|check|run`): on by default,
+  nightly at 4 am, always through `update.sh`. Release images carry the ops files (`/app/kh-bundle`).
+- `update.sh` also refreshes the backup service and a running tunnel after a successful switch.
 
 ## [v0.0-rc.2] - 2026-10-30
 
