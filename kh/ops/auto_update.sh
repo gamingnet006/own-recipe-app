@@ -4,17 +4,22 @@
 # Usage: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]
 set -eu
 
-# Loads update.sh's helpers (setting, set_env_value, image_id) without running it.
-# Loaded first, so the usage and main defined below take precedence over update.sh's own.
-load_update_helpers() {
+# Loads helpers without running their scripts: update.sh (setting, set_env_value), backup.sh
+# (push to Uptime Kuma) and check_bundle.sh (bundle_problems, BUNDLE). Loaded first, so the
+# usage, fail and main defined below take precedence over theirs.
+load_helpers() {
   set -- --lib
   . "$(dirname "$0")/update.sh"
+  . "$(dirname "$0")/backup/backup.sh"
+  . "$(dirname "$0")/check_bundle.sh"
 }
-load_update_helpers
+load_helpers
 
 CRON_MARK='# kh-auto-update'
 LOG=auto_update.log
 FAILED=.auto_update.failed
+LOCK=.auto_update.lock
+SCHEDULED=0  # 1 for the nightly cron run, whose whole output already goes to the log
 
 usage() {
   echo "Aufruf: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]" >&2
@@ -128,6 +133,115 @@ clear_failed() {
   rm -f "$FAILED"
 }
 
+# Prints a timestamped line; a manual run also appends it to the log.
+note() {  # message
+  line="$(date '+%Y-%m-%d %H:%M') $1"
+  echo "$line"
+  [ "$SCHEDULED" = 1 ] || echo "$line" >> "$LOG"
+}
+
+# Notes the result and sends it to Uptime Kuma when KH_UPDATE_PUSH_URL is set (backup.sh's push).
+report() {  # up|down message
+  note "$2"
+  (KH_BACKUP_PUSH_URL=$(setting KH_UPDATE_PUSH_URL ""); push "$1" "$2")
+}
+
+# Turns update.sh's exit code into the result: success clears a remembered failure, 3 means the
+# rollback failed too (a person must look), anything else marks the version as failed.
+finish_update() {  # rc tag
+  case "$1" in
+    0) clear_failed; report up "Aktualisiert auf $2"; return 0 ;;
+    3) report down "NOTFALL: Update auf $2 und Rückfall gescheitert, siehe Meldungen von update.sh"; return 3 ;;
+    *) mark_failed "$2"; report down "Update auf $2 fehlgeschlagen, die bisherige Version läuft weiter"; return 1 ;;
+  esac
+}
+
+# Prints the image tags of REPO. Logs in only when user and token are set; secrets reach curl
+# on stdin (-K -), so they never show up in the process list.
+registry_tags() {  # registry repo user token
+  scope="https://$1/token?scope=repository:$2:pull&service=$1"
+  if [ -n "$3" ]; then
+    answer=$(printf 'user = "%s:%s"\n' "$3" "$4" | curl -fs -m 30 -K - "$scope") || answer=""
+  else
+    answer=$(curl -fs -m 30 "$scope") || answer=""
+  fi
+  bearer=$(printf '%s\n' "$answer" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+  [ -n "$bearer" ] || { echo "Registry $1 nicht erreichbar oder Anmeldung abgelehnt" >&2; return 1; }
+  list=$(printf 'header = "Authorization: Bearer %s"\n' "$bearer" \
+    | curl -fs -m 30 -K - "https://$1/v2/$2/tags/list?n=1000") \
+    || { echo "Registry $1: die Versionsliste ist nicht abrufbar" >&2; return 1; }
+  tags_from_json "$list"
+}
+
+# Pulls REF. With user and token it uses a throwaway docker config for this one pull, so the
+# user's own docker login, keychain and compose plugin stay untouched; DOCKER_HOST keeps the
+# current context (on a Mac with Colima there is no /var/run/docker.sock).
+pull_image() {  # ref registry user token
+  if [ -z "$3" ]; then docker pull -q "$1" >/dev/null; return; fi
+  host=$(docker context inspect --format '{{.Endpoints.docker.Host}}') || return 1
+  cfg=$(mktemp -d) || return 1
+  (umask 077 && docker_auth_json "$2" "$3" "$4" > "$cfg/config.json") || { rm -rf "$cfg"; return 1; }
+  rc=0
+  DOCKER_HOST="$host" DOCKER_CONFIG="$cfg" docker pull -q "$1" >/dev/null || rc=$?
+  rm -rf "$cfg"
+  return "$rc"
+}
+
+# Copies the ops files out of the new image into STAGING and checks them like check_bundle.sh.
+extract_bundle() {  # ref staging
+  cid=$(docker create "$1") || return 1
+  rc=0
+  docker cp "$cid:$BUNDLE/." "$2" >/dev/null 2>&1 || rc=1
+  docker rm "$cid" >/dev/null 2>&1 || true
+  [ "$rc" -eq 0 ] || { echo "Im Image $1 fehlen die Betriebsdateien ($BUNDLE)" >&2; return 1; }
+  problems=$(bundle_problems "$(cd "$2" && find . -type f | sed 's|^\./||')")
+  [ -z "$problems" ] || { printf '%s\n' "$problems" >&2; return 1; }
+}
+
+# Shows what run would do and changes nothing; works with the switch off too.
+check_cmd() {
+  if auto_update_enabled; then echo "Automatische Updates: an"; else echo "Automatische Updates: aus"; fi
+  ref=$(setting KH_IMAGE kuechenhelfer:dev)
+  echo "Laufende Version: $ref"
+  parts=$(parse_image "$ref") || { echo "Entwicklungs-Image, keine automatischen Updates."; return 0; }
+  set -- $parts  # registry repo version arch
+  failed=$(failed_tag)
+  [ -z "$failed" ] || echo "Fehlgeschlagen und nachts übersprungen: $failed"
+  tags=$(registry_tags "$1" "$2" "$(setting KH_REGISTRY_USER "")" "$(setting KH_REGISTRY_TOKEN "")") || exit 1
+  next=$(newest_stable "$tags" "$4" "$3")
+  if [ -n "$next" ]; then echo "Würde aktualisieren auf $1/$2:$next"; else echo "Nichts Neueres als $3."; fi
+}
+
+# One update run (spec D29, "Ablauf von run"): switch, version list, newest stable release, pull,
+# ops files from the image, update.sh. Returns 0 done or nothing to do, 1 failed, 3 emergency.
+run_cmd() {  # [--scheduled]
+  case "${1:-}" in "") ;; --scheduled) SCHEDULED=1 ;; *) usage ;; esac
+  take_lock "$LOCK" || { note "Ein anderer Lauf ist noch aktiv, dieser endet."; return 0; }
+  WORK=""
+  trap 'release_lock "$LOCK"; [ -z "$WORK" ] || rm -rf "$WORK"' EXIT
+  auto_update_enabled || { note "Automatische Updates sind aus (KH_AUTO_UPDATE), nichts zu tun."; return 0; }
+  ref=$(setting KH_IMAGE kuechenhelfer:dev)
+  parts=$(parse_image "$ref") || { note "Entwicklungs-Image $ref, keine automatischen Updates."; return 0; }
+  set -- $parts  # registry repo version arch
+  user=$(setting KH_REGISTRY_USER "")
+  token=$(setting KH_REGISTRY_TOKEN "")
+  tags=$(registry_tags "$1" "$2" "$user" "$token") \
+    || { report down "Versionsliste nicht abrufbar, nichts geändert"; return 1; }
+  skip=""
+  [ "$SCHEDULED" = 0 ] || skip=$(failed_tag)
+  next=$(newest_stable "$tags" "$4" "$3" "$skip")
+  [ -n "$next" ] || { report up "Aktuell ($3), nichts zu tun"; return 0; }
+  new="$1/$2:$next"
+  note "Neue Version: $new"
+  pull_image "$new" "$1" "$user" "$token" || { report down "Herunterladen von $new fehlgeschlagen, nichts geändert"; return 1; }
+  WORK=$(mktemp -d ./.auto_update.XXXXXX) || { report down "Arbeitsordner fehlt, nichts geändert"; return 1; }
+  extract_bundle "$new" "$WORK" || { report down "Betriebsdateien in $new unvollständig, nichts geändert"; return 1; }
+  install_bundle "$WORK" ../.. || { report down "Betriebsdateien ließen sich nicht einspielen"; return 1; }
+  rc=0
+  sh ./update.sh "$new" || rc=$?
+  finish_update "$rc" "$next"
+}
+
 # Splits a release image name into "registry repo version arch". Fails for anything else
 # (local dev images, digests, other tags), so only released installs update themselves.
 parse_image() {  # ref
@@ -184,12 +298,16 @@ newest_stable() {  # tags arch current [skip]
 }
 
 main() {
+  PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"  # cron and SSH on macOS do not find docker otherwise
+  export PATH
   cd "$(dirname "$0")"
   [ $# -ge 1 ] || usage
   case "$1" in
     on) [ $# -eq 1 ] || usage; turn_on ;;
     off) [ $# -eq 1 ] || usage; turn_off ;;
     status) [ $# -eq 1 ] || usage; show_status ;;
+    check) [ $# -eq 1 ] || usage; check_cmd ;;
+    run) [ $# -le 2 ] || usage; shift; run_cmd "$@" ;;
     *) usage ;;
   esac
 }

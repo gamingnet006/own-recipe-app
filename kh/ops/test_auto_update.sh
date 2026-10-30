@@ -21,6 +21,13 @@ yes_no() {
   if "$@" >/dev/null 2>&1; then echo yes; else echo no; fi
 }
 
+# Copies auto_update.sh and the scripts it loads into DIR, a kh/ops folder of a test install.
+copy_scripts() {  # dir
+  mkdir -p "$1/backup"
+  cp "$here/auto_update.sh" "$here/update.sh" "$here/check_bundle.sh" "$1/"
+  cp "$here/backup/backup.sh" "$1/backup/"
+}
+
 # --- release-image names (only released installs update themselves) ---
 check "parse ghcr rc" "$(parse_image ghcr.io/gamingnet006/own-recipe-app:v0.0-rc.2-amd64)" "ghcr.io gamingnet006/own-recipe-app v0.0-rc.2 amd64"
 check "parse patch" "$(parse_image ghcr.io/x/y:v0.1.2-arm64)" "ghcr.io x/y v0.1.2 arm64"
@@ -76,8 +83,8 @@ check "on twice, one line" "$(crontab_with "$(crontab_with "$other" "$line")" "$
 check "off keeps other jobs" "$(crontab_without "$(crontab_with "$other" "$line")")" "$other"
 
 # --- on/off against a stand-in crontab (tests never touch the real one) ---
-onoff="$tmp/onoff/kh/ops"; mkdir -p "$onoff" "$tmp/bin"
-cp "$here/auto_update.sh" "$here/update.sh" "$onoff/"
+onoff="$tmp/onoff/kh/ops"; mkdir -p "$tmp/bin"
+copy_scripts "$onoff"
 printf 'KH_AUTO_UPDATE=false\n' > "$onoff/.env"
 printf '%s\n' '#!/bin/sh' 'case "$1" in -l) cat "$CRONTAB_FILE" 2>/dev/null || exit 1 ;; -) cat > "$CRONTAB_FILE" ;; esac' > "$tmp/bin/crontab"
 chmod +x "$tmp/bin/crontab"
@@ -128,6 +135,32 @@ FAILED="$tmp/failed"; mark_failed v0.1-amd64
 check "failed tag" "$(failed_tag)" "v0.1-amd64"
 clear_failed
 check "failed cleared" "$(failed_tag)" ""
+
+# --- check and run without network or Docker, in a copied test install ---
+inst="$tmp/inst/kh/ops"
+copy_scripts "$inst"
+run_au() { (cd "$inst" && sh ./auto_update.sh "$@" 2>&1); }
+printf 'KH_AUTO_UPDATE=false\nKH_IMAGE=ghcr.io/x/y:v0.0-amd64\n' > "$inst/.env"
+check "switch off" "$(run_au run | grep -c 'aus')" "1"
+check "switch off logged" "$(grep -c 'aus' "$inst/auto_update.log")" "1"
+printf 'KH_IMAGE=kuechenhelfer:dev\n' > "$inst/.env"
+check "dev image" "$(run_au run --scheduled | grep -c 'Entwicklungs-Image')" "1"
+printf 'KH_IMAGE=127.0.0.1:9/x/y:v0.0-amd64\n' > "$inst/.env"
+check "registry down: exit" "$( (cd "$inst" && sh ./auto_update.sh check >/dev/null 2>&1) && echo 0 || echo $?)" "1"
+check "registry down: message" "$(run_au check | grep -c 'nicht erreichbar')" "1"
+check "registry down: run exit" "$( (cd "$inst" && sh ./auto_update.sh run --scheduled >/dev/null 2>&1) && echo 0 || echo $?)" "1"
+check "registry down: nothing marked" "$(yes_no test -e "$inst/.auto_update.failed")" "no"
+check "lock removed" "$(yes_no test -e "$inst/.auto_update.lock")" "no"
+check "bad option" "$( (cd "$inst" && sh ./auto_update.sh run --nightly >/dev/null 2>&1) && echo 0 || echo $?)" "2"
+
+# --- result of update.sh (0 updated, 1 failed and old version back, 3 rollback failed) ---
+report() { echo "$1" >> "$tmp/reports"; }   # stub: records up/down instead of pushing
+FAILED="$tmp/failed2"; : > "$tmp/reports"
+check "update ok" "$(finish_update 0 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "0"
+check "update failed" "$(finish_update 1 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1v0.1-amd64"
+check "ok clears marker" "$(finish_update 0 v0.1-amd64 >/dev/null; failed_tag)" ""
+check "rollback failed" "$(finish_update 3 v0.1-amd64 && echo 0 || echo $?)" "3"
+check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down "
 
 # --- argument checks ---
 check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
