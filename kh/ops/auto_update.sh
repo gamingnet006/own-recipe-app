@@ -12,9 +12,77 @@ load_update_helpers() {
 }
 load_update_helpers
 
+CRON_MARK='# kh-auto-update'
+LOG=auto_update.log
+FAILED=.auto_update.failed
+
 usage() {
   echo "Aufruf: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]" >&2
   exit 2
+}
+
+# Stops with a clear reason; this run changed nothing.
+fail() {
+  echo "Automatische Updates: $1" >&2
+  exit 1
+}
+
+# True unless KH_AUTO_UPDATE says off (false, 0, no, off; any case). Missing means on (D29).
+auto_update_enabled() {
+  case "$(setting KH_AUTO_UPDATE true | tr '[:upper:]' '[:lower:]')" in
+    false|0|no|off) return 1 ;;
+  esac
+  return 0
+}
+
+# Prints the crontab line for the nightly run at 4:00, after the default backup at 3:30.
+cron_line() {  # ops_dir (absolute)
+  echo "0 4 * * * '$1/auto_update.sh' run --scheduled >> '$1/$LOG' 2>&1 $CRON_MARK"
+}
+
+# Prints a crontab without our line, then LINE: other jobs stay, ours exists exactly once.
+crontab_with() {  # current line
+  crontab_without "$1"
+  echo "$2"
+}
+
+# Prints a crontab without our line.
+crontab_without() {  # current
+  [ -z "$1" ] || printf '%s\n' "$1" | grep -vF "$CRON_MARK" || true
+}
+
+# Switches automatic updates on: the setting in .env plus the nightly cron job.
+turn_on() {
+  [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
+  set_env_value "$ENV_FILE" KH_AUTO_UPDATE true || fail "$ENV_FILE ließ sich nicht schreiben"
+  # Read before the pipe: a crontab that empties itself on writing would lose the other jobs.
+  current=$(crontab -l 2>/dev/null || true)
+  crontab_with "$current" "$(cron_line "$(pwd)")" | crontab - \
+    || fail "der nächtliche Job ließ sich nicht eintragen (crontab)"
+  echo "Automatische Updates an: jede Nacht um 4 Uhr, nur stabile Versionen."
+}
+
+# Switches automatic updates off: the setting in .env and the cron job; other jobs stay.
+turn_off() {
+  [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
+  set_env_value "$ENV_FILE" KH_AUTO_UPDATE false || fail "$ENV_FILE ließ sich nicht schreiben"
+  current=$(crontab -l 2>/dev/null || true)
+  crontab_without "$current" | crontab - \
+    || fail "der nächtliche Job ließ sich nicht austragen (crontab)"
+  echo "Automatische Updates aus. Von Hand geht es weiter mit: kh/ops/auto_update.sh check, dann run."
+}
+
+# Shows the switch, the cron job, the running version, a remembered failed version and the log.
+show_status() {
+  if auto_update_enabled; then echo "Automatische Updates: an"; else echo "Automatische Updates: aus"; fi
+  if crontab -l 2>/dev/null | grep -qF "$CRON_MARK"; then
+    echo "Nächtlicher Job: eingetragen (4 Uhr)"
+  else
+    echo "Nächtlicher Job: nicht eingetragen (kh/ops/auto_update.sh on)"
+  fi
+  echo "Laufende Version: $(setting KH_IMAGE kuechenhelfer:dev)"
+  [ ! -s "$FAILED" ] || echo "Fehlgeschlagen und nachts übersprungen: $(cat "$FAILED")"
+  [ ! -f "$LOG" ] || { echo "Letzte Einträge im Log:"; tail -n 5 "$LOG"; }
 }
 
 # Splits a release image name into "registry repo version arch". Fails for anything else
@@ -76,6 +144,9 @@ main() {
   cd "$(dirname "$0")"
   [ $# -ge 1 ] || usage
   case "$1" in
+    on) [ $# -eq 1 ] || usage; turn_on ;;
+    off) [ $# -eq 1 ] || usage; turn_off ;;
+    status) [ $# -eq 1 ] || usage; show_status ;;
     *) usage ;;
   esac
 }

@@ -60,4 +60,42 @@ check "already newest" "$(newest_stable "$tags" amd64 v0.10)" ""
 check "skip failed" "$(newest_stable "$tags" amd64 v0.0-rc.2 v0.10-amd64)" "v0.9-amd64"
 check "other arch" "$(newest_stable "$tags" arm64 v0.0)" "v0.1-arm64"
 
+# --- switch in .env (missing means on) ---
+ENV_FILE="$tmp/.env"; : > "$ENV_FILE"; unset KH_AUTO_UPDATE
+check "on when missing" "$(yes_no auto_update_enabled)" "yes"
+for v in true TRUE 1 yes; do printf 'KH_AUTO_UPDATE=%s\n' "$v" > "$ENV_FILE"; check "on: $v" "$(yes_no auto_update_enabled)" "yes"; done
+for v in false FALSE 0 no off; do printf 'KH_AUTO_UPDATE=%s\n' "$v" > "$ENV_FILE"; check "off: $v" "$(yes_no auto_update_enabled)" "no"; done
+
+# --- nightly cron job (other jobs of the user stay untouched) ---
+check "cron line" "$(cron_line /srv/kh/ops)" "0 4 * * * '/srv/kh/ops/auto_update.sh' run --scheduled >> '/srv/kh/ops/auto_update.log' 2>&1 # kh-auto-update"
+check "cron line with space" "$(cron_line '/Users/x/Mein Server/kh/ops')" "0 4 * * * '/Users/x/Mein Server/kh/ops/auto_update.sh' run --scheduled >> '/Users/x/Mein Server/kh/ops/auto_update.log' 2>&1 # kh-auto-update"
+line=$(cron_line /srv/kh/ops); other=$(printf 'MAILTO=""\n5 * * * * /usr/bin/true')
+check "empty crontab" "$(crontab_with "" "$line")" "$line"
+check "keeps other jobs" "$(crontab_with "$other" "$line")" "$(printf '%s\n%s' "$other" "$line")"
+check "on twice, one line" "$(crontab_with "$(crontab_with "$other" "$line")" "$line" | grep -c 'kh-auto-update')" "1"
+check "off keeps other jobs" "$(crontab_without "$(crontab_with "$other" "$line")")" "$other"
+
+# --- on/off against a stand-in crontab (tests never touch the real one) ---
+onoff="$tmp/onoff/kh/ops"; mkdir -p "$onoff" "$tmp/bin"
+cp "$here/auto_update.sh" "$here/update.sh" "$onoff/"
+printf 'KH_AUTO_UPDATE=false\n' > "$onoff/.env"
+printf '%s\n' '#!/bin/sh' 'case "$1" in -l) cat "$CRONTAB_FILE" 2>/dev/null || exit 1 ;; -) cat > "$CRONTAB_FILE" ;; esac' > "$tmp/bin/crontab"
+chmod +x "$tmp/bin/crontab"
+export CRONTAB_FILE="$tmp/crontab"
+printf '%s\n' '5 * * * * /usr/bin/true' > "$CRONTAB_FILE"
+PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
+check "on sets the switch" "$(env_value "$onoff/.env" KH_AUTO_UPDATE)" "true"
+check "on adds the job, keeps the other" "$(grep -c . "$CRONTAB_FILE") $(grep -c "/onoff/kh/ops/auto_update.sh' run --scheduled" "$CRONTAB_FILE")" "2 1"
+PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
+check "on twice, one job" "$(grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
+PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" off >/dev/null
+check "off clears the switch" "$(env_value "$onoff/.env" KH_AUTO_UPDATE)" "false"
+check "off leaves the other job" "$(cat "$CRONTAB_FILE")" "5 * * * * /usr/bin/true"
+rm -f "$CRONTAB_FILE"
+check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null 2>&1 && grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
+
+# --- argument checks ---
+check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
+check "usage unknown command" "$(sh "$here/auto_update.sh" start >/dev/null 2>&1 && echo 0 || echo $?)" "2"
+
 [ "$failures" -eq 0 ] && echo "all auto-update tests passed" || { echo "$failures check(s) failed"; exit 1; }
