@@ -299,6 +299,7 @@ In the profile "lokal" (local) nothing leaves the house; all other paths can be 
 | Read text or photo | text or image | local AI (default) or cloud AI, only with a configured key | local AI only |
 | Convert video or audio | audio | local Whisper (default) | local only |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel `kochbuch.example.org`, D27) | tunnel off: home network only or own VPN |
+| Automatic updates | Requests for the version list and the new images, with the read-only key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | off (`KH_AUTO_UPDATE=false`) |
 | Share via Telegram | link or screenshot | Telegram servers | off |
 | Share via shortcut | link | your Küchenhelfer | same |
 | Voice commands | microphone audio | nowhere, Vosk runs in the browser | same |

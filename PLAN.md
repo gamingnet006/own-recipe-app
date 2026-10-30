@@ -297,6 +297,7 @@ Im Profil „lokal“ verlässt nichts das Haus; alle anderen Wege sind einzeln 
 | Text oder Foto auslesen | Text oder Bild | lokale KI (Standard) oder Cloud-KI, nur mit eingetragenem Key | nur lokale KI |
 | Video oder Audio umwandeln | Audio | lokales Whisper (Standard) | nur lokal |
 | Zugriff von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel `kochbuch.example.org`, D27) | Tunnel aus: nur Heimnetz oder eigenes VPN |
+| Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | aus (`KH_AUTO_UPDATE=false`) |
 | Teilen per Telegram | Link oder Screenshot | Telegram-Server | aus |
 | Teilen per Kurzbefehl | Link | dein Küchenhelfer | gleich |
 | Sprachbefehle | Mikrofon-Audio | nirgends, Vosk läuft im Browser | gleich |
