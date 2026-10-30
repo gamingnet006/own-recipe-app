@@ -49,7 +49,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D17 | Unsere Regeln liegen in `.claude/CLAUDE.md`, unsere README bis Phase 8 in `docs/kh/`; Mealies `CLAUDE.md`, `README.md` und `.gitignore` bleiben unverändert (Eng-Review) | beschlossen |
 | D18 | Entwürfe in eigener `kh`-Tabelle; erst die Freigabe erzeugt ein Mealie-Rezept (Eng-Review) | beschlossen |
 | D19 | Mengen im Schritttext: Text unverändert, Verknüpfungen in `kh`-Nebentabelle auf Basis von `ingredient_references` (Eng-Review) | beschlossen |
-| D20 | arm64-Images auf dem Mac bauen und nach GHCR schieben, solange das Repo privat ist; amd64 in der CI (Eng-Review) | beschlossen |
+| D20 | arm64-Images auf dem Mac bauen und nach GHCR schieben, solange das Repo privat ist; amd64 in der CI (Eng-Review). Umsetzung: Veröffentlicht wird das App-Image als `<version>-arm64` (Pi, Apple Silicon) und `<version>-amd64` (PC); ein gemeinsamer Tag folgt, wenn die CI beide Architekturen selbst baut (Phase 8). Das kleine Backup-Image baut jedes Gerät selbst aus dem Release-Stand (Sekunden, kein schwerer Build) | beschlossen |
 | D21 | Backups über Mealies Backup-Schnittstelle; `update.sh` holt bei Fehler Image und Datenbank aus dem Backup vor dem Update zurück (Eng-Review). Umsetzung: Die Datenbank kommt aus einem Datei-Schnappschuss, der direkt vor dem Wechsel bei gestopptem Mealie entsteht; das klappt auch, wenn die neue Version die Datenbank schon umgebaut hat. Das Mealie-Backup am zweiten Ort bleibt zusätzliches Sicherheitsnetz | beschlossen |
 | D22 | Zugang von unterwegs: Selbstregistrierung aus, Tunnel-Anbieter in „Was geht wohin“ (Eng-Review) | beschlossen |
 | D23 | Upgrade-Test automatisch in der CI; KI-Aufrufe in Tests nur mit aufgezeichneten Antworten (Eng-Review) | beschlossen |
@@ -153,16 +153,16 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 1 · Läuft bei der Familie (v0.0)
 
-- [ ] CI baut das amd64-Image pro Tag und veröffentlicht es in der GitHub Container Registry; das arm64-Image wird auf dem Mac nativ gebaut und mit einem Befehl pro Release dorthin geschoben, solange das Repo privat ist (D20).
+- [ ] CI baut das amd64-Image pro Tag und veröffentlicht es in der GitHub Container Registry; das arm64-Image wird auf dem Mac nativ gebaut und mit einem Befehl pro Release dorthin geschoben, solange das Repo privat ist (D20). (30.10.2026: `.github/workflows/kh-release.yml` und `kh/ops/release.sh` angelegt, Tests grün; offen: erster echter Lauf mit `v0.0-rc.1`, braucht `write:packages` im GitHub-Login.)
 - [ ] `docker-compose.yml` und `.env.example` (nur Platzhalter, keine echten Zugangsdaten); auf dem Pi starten. (29.10.2026: `kh/ops/docker-compose.yml` und `kh/ops/.env.example` angelegt, auf dem Mac mit 2 CPUs/2 GB gesund nach ~36 s, ~299 MB RAM; offen: Start auf dem Pi.)
 - [x] `update.sh`: erst Backup, dann neue Version, Gesundheitsprüfung; bei Fehler altes Image und Datenbank zurück (D21). (30.10.2026: `kh/ops/update.sh <image>` macht Mealie-Backup, Datei-Schnappschuss der gestoppten Datenbank, Wechsel, prüft Gesundheit, laufendes Image und Rezeptzahl; bei Fehler kommen altes Image und Schnappschuss zurück. Mealies Wiederherstellen allein reicht dafür nicht, weil es eine laufende App mit derselben Datenbank-Version braucht. Tests in der CI; auf dem Mac geprüft: „läuft bereits“, Update hin und zurück, kaputte Version, die alle Rezepte löscht und abstürzt, sowie Rückfall, wenn der alte Image-Name inzwischen woanders hinzeigt.)
 - [ ] Upgrade-Test automatisch in der CI: vorheriges Release mit Testrezepten starten, aktualisieren, Rezepte und Bilder prüfen; ein Fehler blockiert das Release (D23).
-- [ ] Kurzanleitung „Installieren“ in der README für dieses Release.
+- [ ] Kurzanleitung „Installieren“ in der README für dieses Release. Darin auch: Anmeldung bei ghcr.io, solange die Images privat sind, und nach einem Update `docker compose up -d --build backup`, damit der Backup-Dienst zum Release passt.
 - [ ] Nicht benötigte Mealie-Teile in Oberfläche und Routen ausblenden (Stufe 1 der Fork-Regeln).
 - [ ] Backup-Container über Mealies Backup-Schnittstelle (erstellen, an den zweiten Ort kopieren; `restore.sh` nutzt Mealies Wiederherstellen): täglich, Aufbewahrung, Push-Meldung an Uptime Kuma, Restore-Test-Skript. Admin-Zugang nur als Platzhalter in `.env.example` (D21). (29.10.2026: `kh/ops/backup/` mit `backup.sh`, `restore.sh`, Zeitplan per cron, Aufbewahrung, Uptime-Kuma-Meldung; Tests in der CI; auf dem Mac Backup und Wiederherstellen eines Testrezepts geprüft. Offen: Meldung an ein echtes Uptime Kuma, automatischer Restore-Test, Restore auf einem zweiten Gerät.)
 - [ ] HTTPS und Tunnel für den Zugriff von unterwegs (gratis, ohne offene Ports; D14). Selbstregistrierung bleibt aus (`ALLOW_SIGNUP=false`, Mealie-Standard); der Tunnel-Anbieter steht in „Was geht wohin“ (D22).
 - [ ] Familienkonten anlegen, Beispielrezepte als Startdaten.
-- [ ] `THIRD_PARTY_NOTICES.md` und `CHANGELOG.md`.
+- [ ] `THIRD_PARTY_NOTICES.md` und `CHANGELOG.md`. (30.10.2026: `docs/kh/CHANGELOG.md` angelegt, wegen D17 nicht im Hauptordner; `release.sh` verlangt pro Version einen Abschnitt. Offen: `THIRD_PARTY_NOTICES.md`.)
 - **Fertig wenn:** Die Familie trägt von unterwegs Rezepte ein, ein Backup ist auf einem zweiten Gerät wiederhergestellt und Release `v0.0` lässt sich nur mit der Kurzanleitung auf einem frischen Pi installieren.
 
 ### Phase 2 · Eingang, Prüfen, Duplikate (v0.1)
@@ -225,6 +225,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [ ] Nicht benötigte Mealie-Tabellen per Migration entfernen (Stufe 2 der Fork-Regeln).
 - [ ] README mit „Was geht wohin“ (Abschnitt 8), Installationsanleitung Deutsch und Englisch, Wartungs-Checkliste.
 - [ ] Rechts-Checkliste (Abschnitt 9), Lizenz-Scan, Name geprüft.
+- [ ] Ein gemeinsamer Image-Tag für amd64 und arm64, sobald die CI beide Architekturen selbst baut (öffentliches Repo, D20).
 - [ ] Release `v1.0`, Issue-Vorlagen.
 - **Fertig wenn:** Eine fremde Person installiert es nur mit dem README auf einem frischen Raspberry Pi.
 

@@ -51,7 +51,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D17 | Our rules live in `.claude/CLAUDE.md`, our README in `docs/kh/` until phase 8; Mealie's `CLAUDE.md`, `README.md` and `.gitignore` stay unchanged (eng review) | decided |
 | D18 | Drafts in their own `kh` table; only approval creates a Mealie recipe (eng review) | decided |
 | D19 | Quantities in step text: text unchanged, links in a `kh` side table based on `ingredient_references` (eng review) | decided |
-| D20 | Build arm64 images on the Mac and push to GHCR while the repo is private; amd64 in CI (eng review) | decided |
+| D20 | Build arm64 images on the Mac and push to GHCR while the repo is private; amd64 in CI (eng review). Implementation: the app image is published as `<version>-arm64` (Pi, Apple Silicon) and `<version>-amd64` (PC); one shared tag follows once CI builds both architectures itself (phase 8). Each device builds the small backup image itself from the release checkout (seconds, not a heavy build) | decided |
 | D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review). Implementation: the database comes from a file snapshot taken right before the switch while Mealie is stopped; this also works when the new version has already migrated the database. The Mealie backup at the second location stays as an extra safety net | decided |
 | D22 | Access from outside: self sign-up off, tunnel provider listed in "What goes where" (eng review) | decided |
 | D23 | Automatic upgrade test in CI; AI calls in tests only with recorded answers (eng review) | decided |
@@ -155,16 +155,16 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 ### Phase 1 · Running for the family (v0.0)
 
-- [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20).
+- [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20). (30 Oct 2026: `.github/workflows/kh-release.yml` and `kh/ops/release.sh` created, tests green; open: first real run with `v0.0-rc.1`, needs `write:packages` in the GitHub login.)
 - [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi. (29 Oct 2026: `kh/ops/docker-compose.yml` and `kh/ops/.env.example` created, healthy on the Mac with 2 CPUs/2 GB after ~36 s, ~299 MB RAM; open: start on the Pi.)
 - [x] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database (D21). (30 Oct 2026: `kh/ops/update.sh <image>` makes a Mealie backup, a file snapshot of the stopped database, switches, checks health, running image and recipe count; on failure the old image and the snapshot come back. Mealie's restore alone is not enough because it needs a running app with the same database version. Tests in CI; verified on the Mac: "already running", update there and back, a broken version that deletes all recipes and crashes, and rollback when the old image name now points elsewhere.)
 - [ ] Automatic upgrade test in CI: start the previous release with test recipes, update, check recipes and images; a failure blocks the release (D23).
-- [ ] Short "Install" guide in the README for this release.
+- [ ] Short "Install" guide in the README for this release. Also covering: logging in to ghcr.io while the images are private, and `docker compose up -d --build backup` after an update so the backup service matches the release.
 - [ ] Hide unneeded Mealie parts in UI and routes (stage 1 of the fork rules).
 - [ ] Backup container using Mealie's backup API (create, copy to the second location; `restore.sh` uses Mealie's restore): daily, retention, push message to Uptime Kuma, restore test script. Admin access only as a placeholder in `.env.example` (D21). (29 Oct 2026: `kh/ops/backup/` with `backup.sh`, `restore.sh`, cron schedule, retention, Uptime Kuma push; tests in CI; backup and restore of a test recipe verified on the Mac. Open: push to a real Uptime Kuma, automatic restore test, restore on a second device.)
 - [ ] HTTPS and tunnel for access from outside (free, no open ports; D14). Self sign-up stays off (`ALLOW_SIGNUP=false`, Mealie default); the tunnel provider is listed in "What goes where" (D22).
 - [ ] Create family accounts, sample recipes as seed data.
-- [ ] `THIRD_PARTY_NOTICES.md` and `CHANGELOG.md`.
+- [ ] `THIRD_PARTY_NOTICES.md` and `CHANGELOG.md`. (30 Oct 2026: `docs/kh/CHANGELOG.md` created, kept out of the root because of D17; `release.sh` requires a section per version. Open: `THIRD_PARTY_NOTICES.md`.)
 - **Done when:** the family adds recipes from outside the home, a backup has been restored on a second device, and release `v0.0` installs on a fresh Pi using only the short guide.
 
 ### Phase 2 · Intake, review, duplicates (v0.1)
@@ -227,6 +227,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [ ] Remove unneeded Mealie tables via migration (stage 2 of the fork rules).
 - [ ] README with "What goes where" (section 8), installation guide in German and English, maintenance checklist.
 - [ ] Legal checklist (section 9), license scan, name checked.
+- [ ] One image tag for both amd64 and arm64, once CI builds both architectures itself (public repo, D20).
 - [ ] Release `v1.0`, issue templates.
 - **Done when:** a stranger installs it on a fresh Raspberry Pi using only the README.
 

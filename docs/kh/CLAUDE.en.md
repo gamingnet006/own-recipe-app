@@ -37,7 +37,7 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 - Change the database only through Alembic migrations; take a backup before every migration.
 - Upstream: take security fixes individually via `cherry-pick`, new Mealie features only after agreement.
 - Never remove Mealie's license and copyright notices.
-- GitHub Actions: only `kh-ci.yml` triggers on its own and calls Mealie's `test-backend.yml` and `test-frontend.yml`. All other Mealie workflows are disabled in the repo. After every upstream sync, disable new workflows with `gh workflow disable <name>`.
+- GitHub Actions: only our workflows trigger on their own: `kh-ci.yml` on every push (calls Mealie's `test-backend.yml` and `test-frontend.yml`) and `kh-release.yml` on version tags (builds the amd64 image). All other Mealie workflows are disabled in the repo. After every upstream sync, disable new workflows with `gh workflow disable <name>`.
 
 ## Phase rules
 
@@ -83,8 +83,10 @@ docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [file.zip]
 # Update to another image: backup, database snapshot, checks, roll back on failure
 kh/ops/update.sh <image>
+# Publish a release (Mac only): build arm64, set the tag, CI builds amd64, push arm64
+kh/ops/release.sh <version>
 # Tests of the ops scripts (also run in CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh
 
 # Backend tests (same as `task py:test`); LDAP, Postgres and long-running tests are skipped
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

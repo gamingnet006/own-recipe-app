@@ -28,3 +28,5 @@ jobs:
         run: sh kh/ops/backup/test_backup.sh
       - name: Update script tests
         run: sh kh/ops/test_update.sh
+      - name: Release script tests
+        run: sh kh/ops/test_release.sh
