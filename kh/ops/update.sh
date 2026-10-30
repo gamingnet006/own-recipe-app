@@ -6,7 +6,8 @@
 set -eu
 
 ENV_FILE=.env
-ROLLBACK_TAG=kuechenhelfer:rollback
+# One rollback image per compose project, so a test install never replaces the real one.
+ROLLBACK_TAG="${COMPOSE_PROJECT_NAME:-kuechenhelfer}:rollback"
 DB_FILES="mealie.db mealie.db-wal mealie.db-shm"
 POLL_SECONDS=3
 
@@ -31,6 +32,11 @@ rollback_failed() {
   echo "  Altes Image:              $ROLLBACK_TAG" >&2
   echo "  Mealie-Backups:           $(setting KH_BACKUP_DIR ./backups)" >&2
   exit 3
+}
+
+# True for a plain image name; nothing else reaches docker or the .env file.
+valid_image() {
+  case "$1" in ''|*[!A-Za-z0-9._/:@-]*) return 1 ;; esac
 }
 
 # Prints the value of a key from an env file (last occurrence, surrounding quotes removed).
@@ -181,7 +187,7 @@ preflight() {
 main() {
   cd "$(dirname "$0")"
   [ $# -eq 1 ] || usage
-  case "$1" in ''|*[!A-Za-z0-9._/:@-]*) usage ;; esac
+  valid_image "$1" || usage
   new_ref=$1
   preflight
 

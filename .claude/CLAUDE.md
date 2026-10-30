@@ -35,7 +35,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 - Die Datenbank nur über Alembic-Migrationen ändern; vor jeder Migration ein Backup.
 - Upstream: Sicherheitsfixes einzeln per `cherry-pick` übernehmen, neue Mealie-Funktionen nur nach Absprache.
 - Mealies Lizenz- und Copyright-Hinweise nie entfernen.
-- GitHub Actions: Nur unsere Workflows starten von selbst: `kh-ci.yml` bei jedem Push (ruft Mealies `test-backend.yml` und `test-frontend.yml` auf) und `kh-release.yml` bei Versions-Tags (baut das amd64-Image). Alle anderen Mealie-Workflows sind im Repo deaktiviert. Nach jedem Upstream-Abgleich neue Workflows mit `gh workflow disable <name>` abschalten.
+- GitHub Actions: Nur unsere Workflows starten von selbst: `kh-ci.yml` bei jedem Push (ruft Mealies `test-backend.yml` und `test-frontend.yml` auf) und `kh-release.yml` bei Versions-Tags (baut das amd64-Image, Upgrade-Test vom vorigen Release, erst dann hochladen). Alle anderen Mealie-Workflows sind im Repo deaktiviert. Nach jedem Upstream-Abgleich neue Workflows mit `gh workflow disable <name>` abschalten.
 
 ## Phasen-Regeln
 
@@ -43,7 +43,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 - Neue Funktionen kommen in `kh/<funktion>/`. Fertigen Code früherer Phasen nur für Fehlerbehebungen ändern, jeweils mit Test.
 - Spätere Phasen docken an Erweiterungspunkte an (Listen oder Einhängepunkte), statt früheren Code umzubauen.
 - API, Funktionen und Datenformate früherer Phasen bleiben kompatibel; Migrationen nur additiv.
-- Die Tests aller Phasen müssen grün bleiben. Vor jedem Release ein Upgrade-Test vom vorherigen Tag.
+- Die Tests aller Phasen müssen grün bleiben. Vor jedem Release ein Upgrade-Test vom vorherigen Tag (läuft automatisch in `kh-release.yml`, Testdaten in `kh/ops/testdata/`).
 
 ## Zugangsdaten
 
@@ -83,8 +83,10 @@ docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh
 kh/ops/update.sh <image>
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>
+# Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
+kh/ops/upgrade_test.sh <altes-image> <neues-image>
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

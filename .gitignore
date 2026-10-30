@@ -186,3 +186,4 @@ frontend/eslint.config.deprecated.js
 kh/ops/data/
 kh/ops/backups/
 kh/ops/data.pre-update/
+kh/ops/.upgrade-test.*/

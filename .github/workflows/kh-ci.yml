@@ -30,3 +30,5 @@ jobs:
         run: sh kh/ops/test_update.sh
       - name: Release script tests
         run: sh kh/ops/test_release.sh
+      - name: Upgrade test logic
+        run: sh kh/ops/test_upgrade.sh

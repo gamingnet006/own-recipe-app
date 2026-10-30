@@ -6,6 +6,16 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v0.0-rc.2] - 2026-10-30
+
+Second release candidate, to try out the upgrade test in CI. Not meant for the family yet.
+
+- Upgrade test (D23): the release workflow installs the previous release with self-made test
+  recipes and a test image, updates with `update.sh` and compares; only then the amd64 image is
+  pushed. Also runs by hand: `kh/ops/upgrade_test.sh <old-image> <new-image>`.
+- `update.sh`: the rollback image is named after the compose project, so a test install never
+  replaces the rollback image of the real one.
+
 ## [v0.0-rc.1] - 2026-10-30
 
 First release candidate, to try out the release pipeline. Not meant for the family yet:

@@ -1,5 +1,6 @@
-# KH: release images (PLAN.md phase 1, D20). A version tag builds the amd64 app image and pushes
-# it to GHCR as <tag>-amd64. kh/ops/release.sh on the Mac adds <tag>-arm64.
+# KH: release images (PLAN.md phase 1, D20, D23). A version tag builds the amd64 app image, runs the
+# upgrade test from the previous release and only then pushes it to GHCR as <tag>-amd64.
+# kh/ops/release.sh on the Mac waits for this run and adds <tag>-arm64.
 name: KH Release
 
 on:
@@ -14,21 +15,27 @@ jobs:
   amd64:
     name: amd64 image
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.ref_name }}
+      IMAGE: ghcr.io/${{ github.repository }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # all tags, to find the previous release for the upgrade test
       - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v4
-      - uses: docker/build-push-action@v7
+      - name: Build amd64 image
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
           target: production
           platforms: linux/amd64
-          push: true
+          load: true
           # Plain image without attestation manifests (they would show up as extra untagged versions).
           provenance: false
           sbom: false
@@ -38,3 +45,7 @@ jobs:
             org.opencontainers.image.version=${{ github.ref_name }}
           build-args: |
             COMMIT=${{ github.sha }}
+      - name: Upgrade test from the previous release
+        run: sh kh/ops/upgrade_test.sh --previous-release "$TAG" "$IMAGE" "$IMAGE:$TAG-amd64"
+      - name: Push amd64 image
+        run: docker push "$IMAGE:$TAG-amd64"

@@ -70,6 +70,10 @@ check "restore fails without a snapshot" "$(restore_db "$tmp/nothing" "$data" 2>
 check "failed restore leaves the data alone" "$(cat "$data/mealie.db")" "v1"
 check "restore fails when the data folder is unusable" "$(restore_db "$snap" "$tmp/a-file/data" 2>/dev/null && echo ok || echo failed)" "failed"
 
+# --- rollback image name: one per compose project, so a test install never touches the real one ---
+check "rollback tag of the default project" "$(env -u COMPOSE_PROJECT_NAME sh -c 'set -- --lib; . "$0"; echo "$ROLLBACK_TAG"' "$here/update.sh")" "kuechenhelfer:rollback"
+check "rollback tag follows COMPOSE_PROJECT_NAME" "$(COMPOSE_PROJECT_NAME=kh-upgrade-test sh -c 'set -- --lib; . "$0"; echo "$ROLLBACK_TAG"' "$here/update.sh")" "kh-upgrade-test:rollback"
+
 # --- argument checks (stop before touching Docker) ---
 check "no image is a usage error" "$(sh "$here/update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "an invalid image name is a usage error" "$(sh "$here/update.sh" 'bad|image' >/dev/null 2>&1 && echo 0 || echo $?)" "2"

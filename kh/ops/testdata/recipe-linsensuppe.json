@@ -1,0 +1,20 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  "name": "KH Test Linsensuppe",
+  "description": "Selbst geschriebenes Testrezept für den Upgrade-Test des Küchenhelfers.",
+  "recipeYield": "4 Portionen",
+  "recipeIngredient": [
+    "250 g braune Linsen",
+    "1 Zwiebel",
+    "2 Karotten",
+    "1 l Gemüsebrühe",
+    "2 EL Essig",
+    "Salz und Pfeffer nach Geschmack"
+  ],
+  "recipeInstructions": [
+    {"@type": "HowToStep", "text": "Zwiebel und Karotten klein schneiden und andünsten."},
+    {"@type": "HowToStep", "text": "Linsen und Brühe dazugeben und 30 Minuten köcheln lassen."},
+    {"@type": "HowToStep", "text": "Mit Essig, Salz und Pfeffer abschmecken."}
+  ]
+}

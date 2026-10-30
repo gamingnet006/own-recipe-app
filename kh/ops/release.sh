@@ -98,7 +98,7 @@ wait_for_ci() {
     waited=$((waited + POLL_SECONDS))
   done
   gh run watch "$run_id" --exit-status --interval 30 >/dev/null 2>&1 \
-    || fail "der amd64-Build in der CI ist fehlgeschlagen (Details: gh run view $run_id --log-failed)"
+    || fail "amd64-Build oder Upgrade-Test in der CI sind fehlgeschlagen, es wurde nichts veröffentlicht (Details: gh run view $run_id --log-failed)"
 }
 
 # Pushes the arm64 image with the gh token for this one push; the token is never shown or kept.
@@ -135,7 +135,7 @@ main() {
     echo "Tag $VERSION gibt es schon für diesen Stand, setze fort."
   fi
 
-  echo "3/4 Auf den amd64-Build der CI warten (etwa 10 Minuten)"
+  echo "3/4 Auf amd64-Build und Upgrade-Test der CI warten (etwa 12 Minuten)"
   wait_for_ci
 
   echo "4/4 arm64-Image hochladen und prüfen"
