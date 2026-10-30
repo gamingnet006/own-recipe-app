@@ -57,6 +57,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D25 | KI-Anbindung ab Phase 2 über Mealies vorhandene KI-Anbieter-Verwaltung (Admin, pro Gruppe) statt über `.env`; D6 bleibt inhaltlich gleich (Code-Rundgang) | beschlossen |
 | D26 | Frontend-Erweiterungen als Nuxt-Layer `frontend/kh/` mit einer `extends`-Zeile in `nuxt.config.ts` (Code-Rundgang) | beschlossen |
 | D27 | Zugang von unterwegs über Cloudflare Tunnel auf `kochbuch.example.org` (Domain bei Cloudflare, bezahlt bis 3.7.2027). Bewusst ohne Cloudflare Access, damit es für die Familie einfach bleibt; eine Anmeldung bleibt 30 Tage gültig (`TOKEN_TIME=720`). `tunnel.sh` startet den Tunnel nur, wenn die Selbstregistrierung aus ist und kein Konto mehr die Standard-E-Mail nutzt. Access lässt sich jederzeit nachrüsten | beschlossen |
+| D28 | Betrieb überall, wo Docker läuft: Raspberry Pi, alte und neue Macs, Linux, Windows (Docker Desktop mit WSL2, noch ungetestet). Wer installiert, entscheidet selbst, wo; die Images gibt es für arm64 und amd64, die Betriebs-Skripte sind POSIX-sh. Bis der Pi vom Radiowecker fertig ist, läuft Küchenhelfer auf dem Mac mini (Intel, macOS 12, Colima, `KH_MEMORY_LIMIT=768m`); entwickelt wird weiter auf dem MacBook. Umzug auf den Pi nach der Entwicklung per Backup und Wiederherstellen; der Tunnel läuft immer nur auf einem Rechner | beschlossen |
 
 ---
 

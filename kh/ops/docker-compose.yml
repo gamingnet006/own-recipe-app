@@ -11,6 +11,8 @@ services:
       dockerfile: docker/Dockerfile
       target: production
     restart: unless-stopped
+    # Upper bound for Mealie's RAM, so it never takes memory from other services on a shared machine.
+    mem_limit: ${KH_MEMORY_LIMIT:-2g}
     ports:
       - "${KH_PORT:-9091}:9000"
     volumes:

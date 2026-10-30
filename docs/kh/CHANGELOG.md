@@ -9,6 +9,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Access from outside through a Cloudflare Tunnel (`kh/ops/tunnel.sh on|off|status`); it only starts
   if self sign-up is off and no account still uses Mealie's default e-mail.
 - Logins stay valid for 30 days without opening the app (`KH_TOKEN_TIME`; Mealie's default is 48 hours).
+- `tunnel.sh` rejects a pasted install command right away and asks for the key alone.
+- Mealie's RAM is capped (`KH_MEMORY_LIMIT`, default 2 GB), so it can share a machine with other services.
 
 ## [v0.0-rc.2] - 2026-10-30
 

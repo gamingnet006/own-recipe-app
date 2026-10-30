@@ -59,6 +59,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D25 | AI connection from phase 2 via Mealie's existing AI provider management (admin, per group) instead of `.env`; D6 stays the same in substance (code walkthrough) | decided |
 | D26 | Frontend extensions as a Nuxt layer `frontend/kh/` with one `extends` line in `nuxt.config.ts` (code walkthrough) | decided |
 | D27 | Access from outside through a Cloudflare Tunnel at `kochbuch.example.org` (domain at Cloudflare, paid until 3 Jul 2027). Deliberately without Cloudflare Access to keep it simple for the family; a login stays valid for 30 days (`TOKEN_TIME=720`). `tunnel.sh` starts the tunnel only if self sign-up is off and no account still uses the default e-mail. Access can be added at any time | decided |
+| D28 | Runs wherever Docker runs: Raspberry Pi, old and new Macs, Linux, Windows (Docker Desktop with WSL2, not tested yet). Whoever installs it chooses where; images exist for arm64 and amd64, the ops scripts are POSIX sh. Until the radio alarm clock's Pi is ready, Küchenhelfer runs on the Mac mini (Intel, macOS 12, Colima, `KH_MEMORY_LIMIT=768m`); development stays on the MacBook. Moving to the Pi after development via backup and restore; the tunnel only ever runs on one machine | decided |
 
 ---
 

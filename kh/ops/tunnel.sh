@@ -36,6 +36,12 @@ email_in_use() {  # users_json email
   printf '%s' "$1" | grep -Fqi "\"email\":\"$2\""
 }
 
+# True if the value contains a space, e.g. the whole install command was pasted instead of only the key.
+has_space() {  # value
+  case "$1" in *" "*) return 0 ;; esac
+  return 1
+}
+
 # True once cloudflared reports a working connection to Cloudflare.
 tunnel_connected() {  # logs
   printf '%s' "$1" | grep -q "Registered tunnel connection"
@@ -43,7 +49,10 @@ tunnel_connected() {  # logs
 
 # Checks that the install is safe to go online; no login is attempted, so nobody gets locked out.
 check_safe() {
-  [ -n "$(setting KH_TUNNEL_TOKEN '')" ] || fail "KH_TUNNEL_TOKEN fehlt in .env (Cloudflare Zero Trust, Tunnels)"
+  tunnel_token=$(setting KH_TUNNEL_TOKEN '')
+  [ -n "$tunnel_token" ] || fail "KH_TUNNEL_TOKEN fehlt in .env (Cloudflare: Networking, Tunnels)"
+  ! has_space "$tunnel_token" \
+    || fail "KH_TUNNEL_TOKEN enthält Leerzeichen: nur die lange Zeichenkette nach --token eintragen, nicht den ganzen Befehl"
   token=$(setting KH_BACKUP_API_TOKEN '')
   [ -n "$token" ] || fail "KH_BACKUP_API_TOKEN fehlt in .env (wird für die Prüfung der Konten gebraucht)"
   [ "$(health_status)" = healthy ] || fail "der Küchenhelfer läuft nicht oder ist nicht bereit"
