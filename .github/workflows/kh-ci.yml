@@ -34,3 +34,5 @@ jobs:
         run: sh kh/ops/test_upgrade.sh
       - name: Tunnel script tests
         run: sh kh/ops/test_tunnel.sh
+      - name: Auto-update script tests
+        run: sh kh/ops/test_auto_update.sh
