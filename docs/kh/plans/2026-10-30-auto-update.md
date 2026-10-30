@@ -27,15 +27,15 @@
 
 ## Review-Schwerpunkte
 
-1. **Vorhandene Crontab:** andere Jobs bleiben erhalten, `on` zweimal ergibt genau eine Zeile, keine Crontab vorhanden ist kein Fehler (Tests in Aufgabe 2).
-2. **Pfad mit Leerzeichen** (`/Users/x/Mein Server/kh/ops`): Crontab-Zeile richtig in Anführungszeichen, Einspielen klappt (Tests in Aufgabe 2 und 4).
-3. **Registry nicht erreichbar oder Schlüssel abgelehnt:** `check` und `run` enden mit 1 und deutscher Meldung, nichts wird verändert (Test in Aufgabe 5 mit Registry `127.0.0.1:9`).
-4. **Verwaiste Sperre** nach Absturz oder Stromausfall: Der nächste Lauf übernimmt sie, statt für immer auszusetzen (Test in Aufgabe 4).
-5. **Reihenfolge der Versionen** über eine Stelle hinaus und mit `-rc`: `v0.10` > `v0.9`, `v1.0` > `v0.9.9`, `v0.1` > `v0.1-rc.3`, Tags des anderen Prozessortyps zählen nicht (Tests in Aufgabe 1).
+1. **Vorhandene Crontab:** andere Jobs bleiben erhalten, `on` zweimal ergibt genau eine Zeile, keine Crontab vorhanden ist kein Fehler (Tests in Task 2).
+2. **Pfad mit Leerzeichen** (`/Users/x/Mein Server/kh/ops`): Crontab-Zeile richtig in Anführungszeichen, Einspielen klappt (Tests in Task 2 und 4).
+3. **Registry nicht erreichbar oder Schlüssel abgelehnt:** `check` und `run` enden mit 1 und deutscher Meldung, nichts wird verändert (Test in Task 5 mit Registry `127.0.0.1:9`).
+4. **Verwaiste Sperre** nach Absturz oder Stromausfall: Der nächste Lauf übernimmt sie, statt für immer auszusetzen (Test in Task 4).
+5. **Reihenfolge der Versionen** über eine Stelle hinaus und mit `-rc`: `v0.10` > `v0.9`, `v1.0` > `v0.9.9`, `v0.1` > `v0.1-rc.3`, Tags des anderen Prozessortyps zählen nicht (Tests in Task 1).
 
 ---
 
-### Aufgabe 1: Versionslogik
+### Task 1: Versionslogik
 
 **Dateien:**
 - Neu: `kh/ops/auto_update.sh`, `kh/ops/test_auto_update.sh`
@@ -112,7 +112,7 @@ git add kh/ops/auto_update.sh kh/ops/test_auto_update.sh .github/workflows/kh-ci
 git commit -m "Auto-update: version logic for stable releases (D29)"
 ```
 
-### Aufgabe 2: Schalter und nächtlicher Job (`on`, `off`, `status`)
+### Task 2: Schalter und nächtlicher Job (`on`, `off`, `status`)
 
 **Dateien:** Ändern `kh/ops/auto_update.sh`, `kh/ops/test_auto_update.sh`, `kh/ops/.env.example`, `.gitignore`
 
@@ -147,7 +147,7 @@ check "usage unknown command" "$(sh "$here/auto_update.sh" start >/dev/null 2>&1
 
 - [ ] **Schritt 5: Commit** `git commit -m "Auto-update: switch and nightly cron job (on, off, status)"` mit den vier Dateien.
 
-### Aufgabe 3: Betriebsdateien im Image
+### Task 3: Betriebsdateien im Image
 
 **Dateien:**
 - Neu: `kh/ops/check_bundle.sh`
@@ -189,7 +189,7 @@ Expected: `Betriebsdateien im Image in Ordnung`. Danach dieselbe Probe ohne den 
 
 - [ ] **Schritt 6: Commit** `git commit -m "Release images carry the ops files; check_bundle.sh guards every upload (D29)"` mit allen Dateien der Aufgabe.
 
-### Aufgabe 4: Bausteine für einen Lauf
+### Task 4: Bausteine für einen Lauf
 
 **Dateien:** Ändern `kh/ops/auto_update.sh`, `kh/ops/test_auto_update.sh`
 
@@ -228,7 +228,7 @@ clear_failed; check "failed cleared" "$(failed_tag)" ""
 - [ ] **Schritt 4: Tests grün in sh, dash und ash.**
 - [ ] **Schritt 5: Commit** `git commit -m "Auto-update: lock, bundle install, registry auth and failed-version marker"`
 
-### Aufgabe 5: Befehle `check` und `run`
+### Task 5: Befehle `check` und `run`
 
 **Dateien:** Ändern `kh/ops/auto_update.sh`, `kh/ops/test_auto_update.sh`
 
@@ -276,7 +276,7 @@ check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down "
 - [ ] **Schritt 4: Tests grün in sh, dash und ash.**
 - [ ] **Schritt 5: Commit** `git commit -m "Auto-update: check and run commands"`
 
-### Aufgabe 6: `update.sh` aktualisiert die Begleitdienste
+### Task 6: `update.sh` aktualisiert die Begleitdienste
 
 **Dateien:** Ändern `kh/ops/update.sh` (neue Funktion, Aufruf direkt vor dem erfolgreichen `exit 0` in `main`, Kopfkommentar ergänzen), `kh/ops/upgrade_test.sh` (`run_test`, Schritt 4/4)
 
@@ -296,7 +296,7 @@ Expected: `Upgrade-Test FEHLGESCHLAGEN: der Backup-Dienst läuft nach dem Update
 - [ ] **Schritt 4: Upgrade-Test bestanden** (derselbe Befehl, Expected: `Upgrade-Test bestanden: …`); dazu `sh kh/ops/test_update.sh` und `sh kh/ops/test_upgrade.sh` grün.
 - [ ] **Schritt 5: Commit** `git commit -m "update.sh refreshes the backup service and the tunnel after a switch"`
 
-### Aufgabe 7: Doku, CI, Abschluss im Repo
+### Task 7: Doku, CI, Abschluss im Repo
 
 **Dateien:** Ändern `.claude/CLAUDE.md` und `docs/kh/CLAUDE.en.md` (Befehle: `kh/ops/auto_update.sh on|off|status|check|run`; `&& sh kh/ops/test_auto_update.sh` in der Testkette), `docs/kh/CHANGELOG.md` (Unreleased), `PLAN.md` und `PLAN.en.md` (Phase 1: Notiz zur Aufgabe D29; Installationsanleitung: Hinweis auf `docker compose up -d --build backup` streichen, `kh/ops/auto_update.sh on` und den Lese-Schlüssel ergänzen).
 
@@ -316,7 +316,7 @@ git push origin main
 
 Expected: `kh-ci` für den Commit grün (Job „KH ops scripts“ mit „Auto-update script tests“).
 
-### Aufgabe 8: Einführung auf dem Mac mini
+### Task 8: Einführung auf dem Mac mini
 
 **Dateien:** keine im Repo außer der Notiz in `PLAN.md`/`PLAN.en.md`; Gedächtnisnotiz `mac-mini-server.md`.
 
