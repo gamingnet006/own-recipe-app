@@ -26,3 +26,5 @@ jobs:
       - uses: actions/checkout@v6
       - name: Backup script tests
         run: sh kh/ops/backup/test_backup.sh
+      - name: Update script tests
+        run: sh kh/ops/test_update.sh

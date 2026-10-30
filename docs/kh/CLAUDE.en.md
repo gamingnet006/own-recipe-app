@@ -69,4 +69,33 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 
 ## Commands
 
-<!-- In phase 0, take these from Mealie's Taskfile and AGENTS.md: set up, start, tests, lint, generate types, create migration, build Docker image. Do not invent commands. -->
+Everything runs in Docker (Colima on the Mac, at least 4 CPUs and 6 GB RAM: `colima start --cpu 4 --memory 6`). All commands from the repo root; run and verified in phases 0 and 1 unless marked otherwise.
+
+```bash
+# Build and start Küchenhelfer (Mealie and the backup service from kh/ops), then http://localhost:9091
+docker compose -f kh/ops/docker-compose.yml up -d --build
+# Pi-like limits for the running container
+docker update --cpus 2 --memory 2g --memory-swap 2g kuechenhelfer-mealie-1
+# Stop
+docker compose -f kh/ops/docker-compose.yml down
+# Back up now; list backups or restore one (--no-deps: do not restart Mealie)
+docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
+docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [file.zip]
+# Update to another image: backup, database snapshot, checks, roll back on failure
+kh/ops/update.sh <image>
+# Tests of the ops scripts (also run in CI)
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh
+
+# Backend tests (same as `task py:test`); LDAP, Postgres and long-running tests are skipped
+docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \
+  ghcr.io/astral-sh/uv:python3.14-bookworm-slim sh -c "apt-get update -qq && \
+  apt-get install -qq -y --no-install-recommends build-essential libsasl2-dev libldap2-dev libssl-dev >/dev/null && \
+  uv sync --frozen --quiet && uv run --frozen pytest -n 4 --dist loadfile -p no:cacheprovider"
+
+# Frontend tests (like Mealie's CI: install, `nuxt prepare`, `test:ci`); the tests also read mealie/repos/seed
+docker run --rm -v "$PWD":/src:ro node:24 sh -c "mkdir -p /work/mealie/repos && cp -r /src/frontend /work/frontend && \
+  cp -r /src/mealie/repos/seed /work/mealie/repos/ && cd /work/frontend && rm -rf node_modules .nuxt && \
+  npm install -g pnpm@11 && CI=true pnpm install --frozen-lockfile && pnpm nuxt prepare && pnpm test:ci"
+```
+
+According to Mealie's `AGENTS.md`, not yet tried in our Docker setup: lint `task py:lint` and `task ui:lint`, generate types `task dev:generate`, create a migration `task py:migrate -- "description"`.

@@ -185,3 +185,4 @@ frontend/eslint.config.deprecated.js
 .gstack/
 kh/ops/data/
 kh/ops/backups/
+kh/ops/data.pre-update/

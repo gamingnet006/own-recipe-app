@@ -52,7 +52,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D18 | Drafts in their own `kh` table; only approval creates a Mealie recipe (eng review) | decided |
 | D19 | Quantities in step text: text unchanged, links in a `kh` side table based on `ingredient_references` (eng review) | decided |
 | D20 | Build arm64 images on the Mac and push to GHCR while the repo is private; amd64 in CI (eng review) | decided |
-| D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review) | decided |
+| D21 | Backups via Mealie's backup API; on failure `update.sh` restores image and database from the pre-update backup (eng review). Implementation: the database comes from a file snapshot taken right before the switch while Mealie is stopped; this also works when the new version has already migrated the database. The Mealie backup at the second location stays as an extra safety net | decided |
 | D22 | Access from outside: self sign-up off, tunnel provider listed in "What goes where" (eng review) | decided |
 | D23 | Automatic upgrade test in CI; AI calls in tests only with recorded answers (eng review) | decided |
 | D24 | Our migrations as an Alembic branch `kh` (`mealie/kh/alembic/versions/`); Mealie starts with `"heads"` instead of `"head"` (`init_db.py:119`) so Mealie updates need no merge migrations (code walkthrough) | decided |
@@ -145,7 +145,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 0 · Fork and code walkthrough
 
 - [x] Bring Mealie's code into our own repo `gamingnet006/own-recipe-app`: set the remote `upstream` to Mealie and merge the latest stable version (no GitHub fork, so the repo can stay private).
-- [ ] Take over Mealie's `CLAUDE.md`, `README.md` and `.gitignore` unchanged (done: v3.29.0 merged, `# KH` block appended; open: check in a new session that Mealie's `CLAUDE.md` is loaded as well); append our `.gitignore` lines as a marked `# KH` block; check that Claude Code additionally loads `.claude/CLAUDE.md` (D17).
+- [x] Take over Mealie's `CLAUDE.md`, `README.md` and `.gitignore` unchanged (done: v3.29.0 merged, `# KH` block appended; confirmed 30 Oct 2026: Claude Code loads Mealie's `CLAUDE.md` and our `.claude/CLAUDE.md` together); append our `.gitignore` lines as a marked `# KH` block; check that Claude Code additionally loads `.claude/CLAUDE.md` (D17).
 - [x] Build and start the fork locally on the Mac in Docker, run Mealie's tests (29 Oct 2026: image built, healthy with 2 CPUs/2 GB after ~33 s, ~222 MB RAM; backend pytest exit 0, frontend 602/602 tests green); enter the real commands in `.claude/CLAUDE.md` under "Commands".
 - [x] Simple CI on GitHub: lint and tests on every push (`kh-ci.yml` calls Mealie's test workflows; first run 29 Oct 2026 green: frontend, backend SQLite and Postgres; other Mealie workflows disabled in the repo).
 - [x] Code walkthrough: document the structure (backend, frontend, data model for recipe, ingredient and step, import, parser, scaling, cooking mode, backups) in `docs/code-rundgang.md`.
@@ -157,7 +157,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 - [ ] CI builds the amd64 image per tag and publishes it to the GitHub Container Registry; the arm64 image is built natively on the Mac and pushed there with one command per release while the repo is private (D20).
 - [ ] `docker-compose.yml` and `.env.example` (placeholders only, no real credentials); start on the Pi. (29 Oct 2026: `kh/ops/docker-compose.yml` and `kh/ops/.env.example` created, healthy on the Mac with 2 CPUs/2 GB after ~36 s, ~299 MB RAM; open: start on the Pi.)
-- [ ] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database from exactly this backup (D21). Mealie rejects backups from a different database version, so start the old image first, then restore.
+- [x] `update.sh`: backup first, then new version, health check; on failure restore the old image and the database (D21). (30 Oct 2026: `kh/ops/update.sh <image>` makes a Mealie backup, a file snapshot of the stopped database, switches, checks health, running image and recipe count; on failure the old image and the snapshot come back. Mealie's restore alone is not enough because it needs a running app with the same database version. Tests in CI; verified on the Mac: "already running", update there and back, a broken version that deletes all recipes and crashes, and rollback when the old image name now points elsewhere.)
 - [ ] Automatic upgrade test in CI: start the previous release with test recipes, update, check recipes and images; a failure blocks the release (D23).
 - [ ] Short "Install" guide in the README for this release.
 - [ ] Hide unneeded Mealie parts in UI and routes (stage 1 of the fork rules).

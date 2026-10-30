@@ -67,15 +67,22 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 
 ## Befehle
 
-Alles läuft in Docker (Colima auf dem Mac, mindestens 4 CPUs und 6 GB RAM: `colima start --cpu 4 --memory 6`). Ausgeführt und geprüft in Phase 0, sofern nicht anders markiert.
+Alles läuft in Docker (Colima auf dem Mac, mindestens 4 CPUs und 6 GB RAM: `colima start --cpu 4 --memory 6`). Alle Befehle aus dem Repo-Hauptordner; ausgeführt und geprüft in Phase 0 und 1, sofern nicht anders markiert.
 
 ```bash
-# Image bauen und starten (entspricht Mealies `task docker:prod`), danach http://localhost:9091
-docker compose -f docker/docker-compose.yml -p mealie up -d --build
+# Küchenhelfer bauen und starten (Mealie und Backup-Dienst aus kh/ops), danach http://localhost:9091
+docker compose -f kh/ops/docker-compose.yml up -d --build
 # Pi-ähnliche Grenzen für den laufenden Container
-docker update --cpus 2 --memory 2g --memory-swap 2g mealie
+docker update --cpus 2 --memory 2g --memory-swap 2g kuechenhelfer-mealie-1
 # Stoppen
-docker compose -f docker/docker-compose.yml -p mealie down
+docker compose -f kh/ops/docker-compose.yml down
+# Backup sofort; Backups anzeigen oder eines wiederherstellen (--no-deps: Mealie nicht neu starten)
+docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
+docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [datei.zip]
+# Update auf ein anderes Image: Backup, Datenbank-Schnappschuss, Prüfung, bei Fehler zurück
+kh/ops/update.sh <image>
+# Tests der Betriebs-Skripte (laufen auch in der CI)
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

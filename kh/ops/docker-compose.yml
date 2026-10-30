@@ -26,8 +26,9 @@ services:
       DB_ENGINE: sqlite
 
   # Daily backup via Mealie's backup API, copied to a second location (D21).
-  # Run once by hand: docker compose run --rm backup backup.sh
-  # Restore:          docker compose run --rm backup restore.sh [file.zip]
+  # Run once by hand: docker compose run --rm --no-deps backup backup.sh
+  # Restore:          docker compose run --rm --no-deps backup restore.sh [file.zip]
+  # (--no-deps keeps compose from restarting mealie on the way)
   backup:
     image: kuechenhelfer-backup:dev
     build: ./backup
