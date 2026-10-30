@@ -21,9 +21,23 @@ services:
       PGID: ${KH_PGID:-1000}
       TZ: ${KH_TZ:-Europe/Berlin}
       BASE_URL: ${KH_BASE_URL:-http://localhost:9091}
+      # Hours a login stays valid without opening the app; 30 days keep it simple for the family (D27).
+      TOKEN_TIME: ${KH_TOKEN_TIME:-720}
       # Self sign-up stays off; family accounts are created by the admin (D22).
       ALLOW_SIGNUP: "false"
       DB_ENGINE: sqlite
+
+  # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
+  # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.1
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${KH_TUNNEL_TOKEN:-}
+    depends_on:
+      - mealie
 
   # Daily backup via Mealie's backup API, copied to a second location (D21).
   # Run once by hand: docker compose run --rm --no-deps backup backup.sh

@@ -6,6 +6,10 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Access from outside through a Cloudflare Tunnel (`kh/ops/tunnel.sh on|off|status`); it only starts
+  if self sign-up is off and no account still uses Mealie's default e-mail.
+- Logins stay valid for 30 days without opening the app (`KH_TOKEN_TIME`; Mealie's default is 48 hours).
+
 ## [v0.0-rc.2] - 2026-10-30
 
 Second release candidate, to try out the upgrade test in CI. Not meant for the family yet.

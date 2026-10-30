@@ -56,6 +56,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D24 | Eigene Migrationen als Alembic-Zweig `kh` (`mealie/kh/alembic/versions/`), Mealie startet mit `"heads"` statt `"head"` (`init_db.py:119`), damit Mealie-Updates keine Zusammenführungs-Migrationen brauchen (Code-Rundgang) | beschlossen |
 | D25 | KI-Anbindung ab Phase 2 über Mealies vorhandene KI-Anbieter-Verwaltung (Admin, pro Gruppe) statt über `.env`; D6 bleibt inhaltlich gleich (Code-Rundgang) | beschlossen |
 | D26 | Frontend-Erweiterungen als Nuxt-Layer `frontend/kh/` mit einer `extends`-Zeile in `nuxt.config.ts` (Code-Rundgang) | beschlossen |
+| D27 | Zugang von unterwegs über Cloudflare Tunnel auf `kochbuch.example.org` (Domain bei Cloudflare, bezahlt bis 3.7.2027). Bewusst ohne Cloudflare Access, damit es für die Familie einfach bleibt; eine Anmeldung bleibt 30 Tage gültig (`TOKEN_TIME=720`). `tunnel.sh` startet den Tunnel nur, wenn die Selbstregistrierung aus ist und kein Konto mehr die Standard-E-Mail nutzt. Access lässt sich jederzeit nachrüsten | beschlossen |
 
 ---
 
@@ -160,7 +161,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [ ] Kurzanleitung „Installieren“ in der README für dieses Release. Darin auch: Anmeldung bei ghcr.io, solange die Images privat sind, und nach einem Update `docker compose up -d --build backup`, damit der Backup-Dienst zum Release passt.
 - [ ] Nicht benötigte Mealie-Teile in Oberfläche und Routen ausblenden (Stufe 1 der Fork-Regeln).
 - [ ] Backup-Container über Mealies Backup-Schnittstelle (erstellen, an den zweiten Ort kopieren; `restore.sh` nutzt Mealies Wiederherstellen): täglich, Aufbewahrung, Push-Meldung an Uptime Kuma, Restore-Test-Skript. Admin-Zugang nur als Platzhalter in `.env.example` (D21). (29.10.2026: `kh/ops/backup/` mit `backup.sh`, `restore.sh`, Zeitplan per cron, Aufbewahrung, Uptime-Kuma-Meldung; Tests in der CI; auf dem Mac Backup und Wiederherstellen eines Testrezepts geprüft. Offen: Meldung an ein echtes Uptime Kuma, automatischer Restore-Test, Restore auf einem zweiten Gerät.)
-- [ ] HTTPS und Tunnel für den Zugriff von unterwegs (gratis, ohne offene Ports; D14). Selbstregistrierung bleibt aus (`ALLOW_SIGNUP=false`, Mealie-Standard); der Tunnel-Anbieter steht in „Was geht wohin“ (D22).
+- [ ] HTTPS und Tunnel für den Zugriff von unterwegs (gratis, ohne offene Ports; D14). Selbstregistrierung bleibt aus (`ALLOW_SIGNUP=false`, Mealie-Standard); der Tunnel-Anbieter steht in „Was geht wohin“ (D22). (30.10.2026: Cloudflare Tunnel als Dienst `tunnel` in `kh/ops/docker-compose.yml`, `kh/ops/tunnel.sh on|off|status` mit Sicherheitsprüfung, Tests in der CI. Auf dem Mac geprüft: Die Sperre greift beim Standard-Konto, ein ungültiger Schlüssel wird abgelehnt, „Beenden“ im Desktop-Skript schaltet den Tunnel mit ab. Offen: Tunnel und Adresse in Cloudflare anlegen, Admin-E-Mail und -Passwort ändern, Test von unterwegs, Umzug auf den Pi, D27.)
 - [ ] Familienkonten anlegen, Beispielrezepte als Startdaten.
 - [ ] `THIRD_PARTY_NOTICES.md` und `CHANGELOG.md`. (30.10.2026: `docs/kh/CHANGELOG.md` angelegt, wegen D17 nicht im Hauptordner; `release.sh` verlangt pro Version einen Abschnitt. Offen: `THIRD_PARTY_NOTICES.md`.)
 - **Fertig wenn:** Die Familie trägt von unterwegs Rezepte ein, ein Backup ist auf einem zweiten Gerät wiederhergestellt und Release `v0.0` lässt sich nur mit der Kurzanleitung auf einem frischen Pi installieren.
@@ -291,7 +292,7 @@ Im Profil „lokal“ verlässt nichts das Haus; alle anderen Wege sind einzeln 
 | Link importieren | Seitenadresse | die jeweilige Webseite | gleich |
 | Text oder Foto auslesen | Text oder Bild | lokale KI (Standard) oder Cloud-KI, nur mit eingetragenem Key | nur lokale KI |
 | Video oder Audio umwandeln | Audio | lokales Whisper (Standard) | nur lokal |
-| Zugriff von unterwegs | gesamter Verkehr zur Web-App | gewählter Tunnel-Anbieter (D22) | eigenes VPN statt fremdem Tunnel |
+| Zugriff von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel `kochbuch.example.org`, D27) | Tunnel aus: nur Heimnetz oder eigenes VPN |
 | Teilen per Telegram | Link oder Screenshot | Telegram-Server | aus |
 | Teilen per Kurzbefehl | Link | dein Küchenhelfer | gleich |
 | Sprachbefehle | Mikrofon-Audio | nirgends, Vosk läuft im Browser | gleich |
@@ -342,6 +343,8 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 | Nährwerte: BLS 4.0 | 0 € | [seit Dezember 2025 kostenfrei](https://heise.de/-11123877); Bedingungen prüfen |
 | iPhone: Web-App und Kurzbefehl | 0 € | [Push nur für zum Home-Bildschirm hinzugefügte Web-Apps](https://firt.dev/notes/pwa-ios/) |
 | GitHub (Repo, CI, Images) | 0 € | [arm64-Runner nur für öffentliche Repos kostenlos](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/); solange das Repo privat ist, arm64 auf dem Mac bauen (D20) |
+| Cloudflare Tunnel | 0 € | Cloudflare sieht den Verkehr (Abschnitt 8) |
+| Domain `example.org` (aus dem Toggly-Projekt) | 0 € bis 3.7.2027 (schon bezahlt) | danach Verlängerung (etwa 10 € im Jahr) oder Wechsel auf eine kostenlose Adresse, z. B. Tailscale Funnel |
 | Docker Desktop (Mac) | privat 0 € | [in großen Firmen kostenpflichtig](https://docs.docker.com/subscription-billing/desktop-license.md); Podman als freie Alternative |
 | iOS-App im Store, signierte Mac-App | 99 USD pro Jahr | [Mitgliedschaft nötig](https://developer.apple.com/support/compare-memberships); nicht geplant |
 

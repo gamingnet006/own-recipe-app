@@ -8,7 +8,7 @@ set -eu
 TEST_PROJECT=kh-upgrade-test
 TEST_PORT=${KH_TEST_PORT:-9191}
 
-# Loads update.sh's helpers (valid_image, setting, set_env_value, wait_healthy) without running it.
+# Loads update.sh's helpers (valid_image, setting, set_env_value, wait_healthy, default_login).
 # Loaded first, so the usage, fail and main defined below take precedence over update.sh's own.
 load_update_helpers() {
   set -- --lib
@@ -31,11 +31,6 @@ fail() {
 # Prints the tags that are older than the current one; the list comes newest first.
 older_releases() {  # current_tag tags
   printf '%s\n' "$2" | awk -v current="$1" 'found && NF { print } $0 == current { found = 1 }'
-}
-
-# Reads one default login field of a fresh Mealie from its settings source.
-default_login() {  # field settings_file
-  sed -n "s/.*$1: str = \"\(.*\)\".*/\1/p" "$2" 2>/dev/null | head -n 1
 }
 
 # Content of one recipe (Mealie JSON on stdin) as one line; timestamps are left out.

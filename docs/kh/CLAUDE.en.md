@@ -83,12 +83,14 @@ docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [file.zip]
 # Update to another image: backup, database snapshot, checks, roll back on failure
 kh/ops/update.sh <image>
+# Switch access from outside (Cloudflare Tunnel) on or off; "on" first checks sign-up and the default account
+kh/ops/tunnel.sh on|off|status
 # Publish a release (Mac only): build arm64, set the tag, CI builds amd64, push arm64
 kh/ops/release.sh <version>
 # Upgrade test by hand: old version with test recipes, update, compare (throwaway install on port 9191)
 kh/ops/upgrade_test.sh <old-image> <new-image>
 # Tests of the ops scripts (also run in CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_tunnel.sh
 
 # Backend tests (same as `task py:test`); LDAP, Postgres and long-running tests are skipped
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

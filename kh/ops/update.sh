@@ -39,6 +39,12 @@ valid_image() {
   case "$1" in ''|*[!A-Za-z0-9._/:@-]*) return 1 ;; esac
 }
 
+# Reads one default login field of a fresh Mealie from its settings source (used by upgrade_test.sh
+# and tunnel.sh, which load these helpers).
+default_login() {  # field settings_file
+  sed -n "s/.*$1: str = \"\(.*\)\".*/\1/p" "$2" 2>/dev/null | head -n 1
+}
+
 # Prints the value of a key from an env file (last occurrence, surrounding quotes removed).
 env_value() {
   sed -n "s/^$2=//p" "$1" | tail -n 1 | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"

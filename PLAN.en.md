@@ -58,6 +58,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D24 | Our migrations as an Alembic branch `kh` (`mealie/kh/alembic/versions/`); Mealie starts with `"heads"` instead of `"head"` (`init_db.py:119`) so Mealie updates need no merge migrations (code walkthrough) | decided |
 | D25 | AI connection from phase 2 via Mealie's existing AI provider management (admin, per group) instead of `.env`; D6 stays the same in substance (code walkthrough) | decided |
 | D26 | Frontend extensions as a Nuxt layer `frontend/kh/` with one `extends` line in `nuxt.config.ts` (code walkthrough) | decided |
+| D27 | Access from outside through a Cloudflare Tunnel at `kochbuch.example.org` (domain at Cloudflare, paid until 3 Jul 2027). Deliberately without Cloudflare Access to keep it simple for the family; a login stays valid for 30 days (`TOKEN_TIME=720`). `tunnel.sh` starts the tunnel only if self sign-up is off and no account still uses the default e-mail. Access can be added at any time | decided |
 
 ---
 
@@ -162,7 +163,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [ ] Short "Install" guide in the README for this release. Also covering: logging in to ghcr.io while the images are private, and `docker compose up -d --build backup` after an update so the backup service matches the release.
 - [ ] Hide unneeded Mealie parts in UI and routes (stage 1 of the fork rules).
 - [ ] Backup container using Mealie's backup API (create, copy to the second location; `restore.sh` uses Mealie's restore): daily, retention, push message to Uptime Kuma, restore test script. Admin access only as a placeholder in `.env.example` (D21). (29 Oct 2026: `kh/ops/backup/` with `backup.sh`, `restore.sh`, cron schedule, retention, Uptime Kuma push; tests in CI; backup and restore of a test recipe verified on the Mac. Open: push to a real Uptime Kuma, automatic restore test, restore on a second device.)
-- [ ] HTTPS and tunnel for access from outside (free, no open ports; D14). Self sign-up stays off (`ALLOW_SIGNUP=false`, Mealie default); the tunnel provider is listed in "What goes where" (D22).
+- [ ] HTTPS and tunnel for access from outside (free, no open ports; D14). Self sign-up stays off (`ALLOW_SIGNUP=false`, Mealie default); the tunnel provider is listed in "What goes where" (D22). (30 Oct 2026: Cloudflare Tunnel as service `tunnel` in `kh/ops/docker-compose.yml`, `kh/ops/tunnel.sh on|off|status` with safety checks, tests in CI. Verified on the Mac: the guard blocks while the default account exists, an invalid token is rejected, "stop" in the desktop script stops the tunnel too. Open: create tunnel and hostname in Cloudflare, change admin e-mail and password, test from outside, move to the Pi, D27.)
 - [ ] Create family accounts, sample recipes as seed data.
 - [ ] `THIRD_PARTY_NOTICES.md` and `CHANGELOG.md`. (30 Oct 2026: `docs/kh/CHANGELOG.md` created, kept out of the root because of D17; `release.sh` requires a section per version. Open: `THIRD_PARTY_NOTICES.md`.)
 - **Done when:** the family adds recipes from outside the home, a backup has been restored on a second device, and release `v0.0` installs on a fresh Pi using only the short guide.
@@ -293,7 +294,7 @@ In the profile "lokal" (local) nothing leaves the house; all other paths can be 
 | Import link | page address | the respective website | same |
 | Read text or photo | text or image | local AI (default) or cloud AI, only with a configured key | local AI only |
 | Convert video or audio | audio | local Whisper (default) | local only |
-| Access from outside | all traffic to the web app | the chosen tunnel provider (D22) | own VPN instead of a third-party tunnel |
+| Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel `kochbuch.example.org`, D27) | tunnel off: home network only or own VPN |
 | Share via Telegram | link or screenshot | Telegram servers | off |
 | Share via shortcut | link | your Küchenhelfer | same |
 | Voice commands | microphone audio | nowhere, Vosk runs in the browser | same |
@@ -344,6 +345,8 @@ As of 28 Oct 2026; prices and limits change, re-check before publishing.
 | Nutrition: BLS 4.0 | €0 | [free since December 2025](https://heise.de/-11123877); check terms |
 | iPhone: web app and shortcut | €0 | [push only for web apps added to the home screen](https://firt.dev/notes/pwa-ios/) |
 | GitHub (repo, CI, images) | €0 | [arm64 runners free only for public repos](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/); while the repo is private, build arm64 on the Mac (D20) |
+| Cloudflare Tunnel | €0 | Cloudflare sees the traffic (section 8) |
+| Domain `example.org` (from the Toggly project) | €0 until 3 Jul 2027 (already paid) | then renewal (about €10 a year) or a switch to a free address, e.g. Tailscale Funnel |
 | Docker Desktop (Mac) | €0 privately | [paid in large companies](https://docs.docker.com/subscription-billing/desktop-license.md); Podman as free alternative |
 | iOS app in the store, signed Mac app | USD 99 per year | [membership required](https://developer.apple.com/support/compare-memberships); not planned |
 
