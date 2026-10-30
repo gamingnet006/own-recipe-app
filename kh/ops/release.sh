@@ -63,6 +63,9 @@ preflight() {
   [ -z "$(git status --porcelain)" ] || fail "es gibt nicht eingecheckte Änderungen"
   HEAD_SHA=$(git rev-parse HEAD)
   [ "$HEAD_SHA" = "$(git rev-parse origin/main)" ] || fail "main ist nicht auf dem Stand von GitHub"
+  SLUG=$(repo_slug "$(git remote get-url origin)") || fail "origin ist kein GitHub-Repo"
+  # gh would otherwise pick the upstream remote, i.e. Mealie's repo, for its run queries.
+  export GH_REPO="$SLUG"
   changelog_has "$VERSION" "$CHANGELOG" || fail "$CHANGELOG hat keinen Abschnitt \"## [$VERSION]\""
   TAG_SHA=$(git rev-parse -q --verify "refs/tags/$VERSION^{commit}" || true)
   [ -z "$TAG_SHA" ] || [ "$TAG_SHA" = "$HEAD_SHA" ] || fail "der Tag $VERSION zeigt auf einen anderen Stand"
@@ -71,7 +74,6 @@ preflight() {
   scopes=$(gh api -i /user 2>/dev/null | tr -d '\r' | sed -n 's/^[Xx]-[Oo][Aa]uth-[Ss]copes: //p')
   list_has "$scopes" write:packages \
     || fail "dem GitHub-Login fehlt write:packages (gh auth refresh -h github.com -s write:packages)"
-  SLUG=$(repo_slug "$(git remote get-url origin)") || fail "origin ist kein GitHub-Repo"
 }
 
 # Builds the arm64 image from exactly the committed source, so no local file can end up in it.
