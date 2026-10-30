@@ -42,8 +42,8 @@ Fehlt `KH_AUTO_UPDATE`, gilt `true`. Registry und Repository kommen aus `KH_IMAG
 
 ## Befehle
 
-- `on`: setzt `KH_AUTO_UPDATE=true` und trägt den nächtlichen Job in die Crontab des Benutzers ein (eine Zeile, erkennbar am Kommentar `# kh-auto-update`, ersetzt eine vorhandene). Gehört künftig zur Installation.
-- `off`: setzt `KH_AUTO_UPDATE=false` und entfernt die Zeile.
+- `on`: setzt `KH_AUTO_UPDATE=true` und trägt den nächtlichen Job in die Crontab des Benutzers ein (eine Zeile, erkennbar am Kommentar `# kh-auto-update`, ersetzt eine vorhandene). Gehört künftig zur Installation. Auf macOS stattdessen ein LaunchAgent `~/Library/LaunchAgents/kuechenhelfer.auto-update.plist`, sofort geladen (`launchctl bootstrap gui/<uid>`) und bei jeder Anmeldung: macOS lässt `crontab` nur mit Festplattenvollzugriff schreiben, und den haben SSH-Sitzungen nicht.
+- `off`: setzt `KH_AUTO_UPDATE=false` und entfernt die Zeile (auf macOS den LaunchAgent).
 - `status`: Schalter, Job eingetragen ja/nein, laufende Version, letzte Zeilen des Logs, gemerkte fehlerhafte Version.
 - `check`: Schritte 4 bis 6 von `run` ohne Änderung, auch bei ausgeschaltetem Schalter; nennt Schalter, laufende Version, die Version, die `run` nehmen würde (oder „nichts Neueres“), und eine gemerkte fehlerhafte Version.
 - `run`: der ganze Ablauf von Hand; versucht auch eine gemerkte fehlerhafte Version noch einmal.
@@ -55,7 +55,7 @@ Exit-Codes: 0 erledigt oder nichts zu tun, 1 Fehler (alte Version läuft weiter)
 
 ## Ablauf von `run`
 
-1. **PATH ergänzen** um `/usr/local/bin` und `/opt/homebrew/bin`: cron und SSH ohne Terminal kennen auf macOS sonst `docker` nicht.
+1. **PATH ergänzen** um `/usr/local/bin` und `/opt/homebrew/bin`: cron, launchd und SSH ohne Terminal kennen auf macOS sonst `docker` nicht.
 2. **Sperre** `kh/ops/.auto_update.lock` (Ordner mit PID). Läuft schon ein Lauf, endet dieser sofort; eine Sperre ohne lebenden Prozess wird übernommen.
 3. **Schalter**: `KH_AUTO_UPDATE=false` → „aus“ ins Log, Ende.
 4. **Laufendes Image** aus `KH_IMAGE` zerlegen in Registry, Repository, Version und Prozessortyp. Kein Release-Image (zum Beispiel `kuechenhelfer:dev` auf dem Entwicklungs-Mac) → „Entwicklungs-Image, keine automatischen Updates“, Ende.
@@ -108,7 +108,7 @@ Bricht `update.sh` ab, bevor es etwas geändert hat (zum Beispiel ist Mealie nic
 
 ## Tests
 
-- `test_auto_update.sh` mit selbst geschriebenen Beispieldaten: Image-Name zerlegen, stabile Tags erkennen, Versionen vergleichen (auch `-rc`), neueste Version wählen, fehlerhafte Version nur mit `--scheduled` überspringen, Tag-Liste aus der Registry-Antwort lesen, Crontab-Zeile setzen, ersetzen und entfernen, Schalter lesen, Aufruf-Fehler und Exit-Codes. In der CI im Job „ops“.
+- `test_auto_update.sh` mit selbst geschriebenen Beispieldaten: Image-Name zerlegen, stabile Tags erkennen, Versionen vergleichen (auch `-rc`), neueste Version wählen, fehlerhafte Version nur mit `--scheduled` überspringen, Tag-Liste aus der Registry-Antwort lesen, Crontab-Zeile setzen, ersetzen und entfernen, auf macOS den LaunchAgent (mit Ersatz für `launchctl`), Schalter lesen, Aufruf-Fehler und Exit-Codes. In der CI im Job „ops“.
 - `check_bundle.sh` in `kh-release.yml` (amd64) und in `release.sh` (arm64), jeweils vor dem Hochladen.
 - Von Hand: auf dem Mac mini `check` (erwartet bis `v0.0`: „nichts Neueres“), der erste echte Lauf mit Release `v0.0`.
 

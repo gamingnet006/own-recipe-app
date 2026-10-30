@@ -1,6 +1,6 @@
 #!/bin/sh
-# KH: keeps Küchenhelfer on the newest stable release (PLAN.md D29): a nightly cron job asks the
-# registry, installs the ops files shipped in the new image and switches with update.sh.
+# KH: keeps Küchenhelfer on the newest stable release (PLAN.md D29): a nightly job (cron, on macOS
+# launchd) asks the registry, installs the ops files shipped in the new image and switches with update.sh.
 # Usage: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]
 set -eu
 
@@ -16,10 +16,11 @@ load_helpers() {
 load_helpers
 
 CRON_MARK='# kh-auto-update'
+AGENT=kuechenhelfer.auto-update  # launchd label of the nightly job on macOS
 LOG=auto_update.log
 FAILED=.auto_update.failed
 LOCK=.auto_update.lock
-SCHEDULED=0  # 1 for the nightly cron run, whose whole output already goes to the log
+SCHEDULED=0  # 1 for the nightly run, whose whole output already goes to the log
 
 usage() {
   echo "Aufruf: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]" >&2
@@ -56,31 +57,93 @@ crontab_without() {  # current
   [ -z "$1" ] || printf '%s\n' "$1" | grep -vF "$CRON_MARK" || true
 }
 
-# Switches automatic updates on: the setting in .env plus the nightly cron job.
+# macOS lets crontab write only with Full Disk Access, which SSH sessions lack: Macs schedule the
+# nightly run with a launchd agent instead.
+on_mac() {
+  [ "$(uname -s)" = Darwin ]
+}
+
+# Path of the launchd agent in the user's LaunchAgents folder; launchd also loads it at login.
+agent_file() {
+  echo "$HOME/Library/LaunchAgents/$AGENT.plist"
+}
+
+# Prints the launchd agent for the nightly run at 4:00, the same job as cron_line; & < > in the
+# path are escaped for XML.
+agent_plist() {  # ops_dir (absolute)
+  agent_ops=$(printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')
+  cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$AGENT</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/sh</string><string>$agent_ops/auto_update.sh</string><string>run</string><string>--scheduled</string></array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>4</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StandardOutPath</key><string>$agent_ops/$LOG</string>
+  <key>StandardErrorPath</key><string>$agent_ops/$LOG</string>
+</dict>
+</plist>
+EOF
+}
+
+# Enters the nightly job: on macOS the launchd agent, loaded now and at every login; elsewhere
+# our crontab line.
+schedule_job() {  # ops_dir (absolute)
+  if on_mac; then
+    mkdir -p "$(dirname "$(agent_file)")" && agent_plist "$1" > "$(agent_file)" || return 1
+    # bootout first: launchctl refuses to bootstrap an agent that is still loaded
+    launchctl bootout "gui/$(id -u)/$AGENT" 2>/dev/null || true
+    launchctl bootstrap "gui/$(id -u)" "$(agent_file)"
+    return
+  fi
+  # Read before the pipe: a crontab that empties itself on writing would lose the other jobs.
+  current=$(crontab -l 2>/dev/null || true)
+  crontab_with "$current" "$(cron_line "$1")" | crontab -
+}
+
+# Removes the nightly job; other cron jobs stay.
+unschedule_job() {
+  if on_mac; then
+    launchctl bootout "gui/$(id -u)/$AGENT" 2>/dev/null || true
+    rm -f "$(agent_file)"
+    return
+  fi
+  current=$(crontab -l 2>/dev/null || true)
+  crontab_without "$current" | crontab -
+}
+
+# True while the nightly job is entered.
+job_scheduled() {
+  if on_mac; then
+    launchctl print "gui/$(id -u)/$AGENT" >/dev/null 2>&1
+  else
+    crontab -l 2>/dev/null | grep -qF "$CRON_MARK"
+  fi
+}
+
+# Switches automatic updates on: the setting in .env plus the nightly job.
 turn_on() {
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   set_env_value "$ENV_FILE" KH_AUTO_UPDATE true || fail "$ENV_FILE ließ sich nicht schreiben"
-  # Read before the pipe: a crontab that empties itself on writing would lose the other jobs.
-  current=$(crontab -l 2>/dev/null || true)
-  crontab_with "$current" "$(cron_line "$(pwd)")" | crontab - \
-    || fail "der nächtliche Job ließ sich nicht eintragen (crontab)"
+  schedule_job "$(pwd)" || fail "der nächtliche Job ließ sich nicht eintragen"
   echo "Automatische Updates an: jede Nacht um 4 Uhr, nur stabile Versionen."
 }
 
-# Switches automatic updates off: the setting in .env and the cron job; other jobs stay.
+# Switches automatic updates off: the setting in .env and the nightly job; other cron jobs stay.
 turn_off() {
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   set_env_value "$ENV_FILE" KH_AUTO_UPDATE false || fail "$ENV_FILE ließ sich nicht schreiben"
-  current=$(crontab -l 2>/dev/null || true)
-  crontab_without "$current" | crontab - \
-    || fail "der nächtliche Job ließ sich nicht austragen (crontab)"
+  unschedule_job || fail "der nächtliche Job ließ sich nicht austragen"
   echo "Automatische Updates aus. Von Hand geht es weiter mit: kh/ops/auto_update.sh check, dann run."
 }
 
-# Shows the switch, the cron job, the running version, a remembered failed version and the log.
+# Shows the switch, the nightly job, the running version, a remembered failed version and the log.
 show_status() {
   if auto_update_enabled; then echo "Automatische Updates: an"; else echo "Automatische Updates: aus"; fi
-  if crontab -l 2>/dev/null | grep -qF "$CRON_MARK"; then
+  if job_scheduled; then
     echo "Nächtlicher Job: eingetragen (4 Uhr)"
   else
     echo "Nächtlicher Job: nicht eingetragen (kh/ops/auto_update.sh on)"
@@ -300,7 +363,7 @@ newest_stable() {  # tags arch current [skip]
 }
 
 main() {
-  # cron and SSH on macOS do not find docker otherwise; appended, so the caller's PATH still wins
+  # cron, launchd and SSH on macOS do not find docker otherwise; appended, so the caller's PATH still wins
   PATH="$PATH:/usr/local/bin:/opt/homebrew/bin"
   export PATH
   cd "$(dirname "$0")"

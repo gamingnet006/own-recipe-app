@@ -87,7 +87,9 @@ onoff="$tmp/onoff/kh/ops"; mkdir -p "$tmp/bin"
 copy_scripts "$onoff"
 printf 'KH_AUTO_UPDATE=false\n' > "$onoff/.env"
 printf '%s\n' '#!/bin/sh' 'case "$1" in -l) cat "$CRONTAB_FILE" 2>/dev/null || exit 1 ;; -) cat > "$CRONTAB_FILE" ;; esac' > "$tmp/bin/crontab"
-chmod +x "$tmp/bin/crontab"
+# uname stand-in: Linux unless STUB_UNAME says Darwin, so the cron tests also run on a Mac
+printf '%s\n' '#!/bin/sh' 'echo "${STUB_UNAME:-Linux}"' > "$tmp/bin/uname"
+chmod +x "$tmp/bin/crontab" "$tmp/bin/uname"
 export CRONTAB_FILE="$tmp/crontab"
 printf '%s\n' '5 * * * * /usr/bin/true' > "$CRONTAB_FILE"
 PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
@@ -100,6 +102,41 @@ check "off clears the switch" "$(env_value "$onoff/.env" KH_AUTO_UPDATE)" "false
 check "off leaves the other job" "$(cat "$CRONTAB_FILE")" "5 * * * * /usr/bin/true"
 rm -f "$CRONTAB_FILE"
 check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null 2>&1 && grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
+
+# --- macOS: a launchd agent instead of cron (crontab needs Full Disk Access there) ---
+check "agent runs the script" "$(agent_plist /srv/kh/ops | grep -cF '<string>/bin/sh</string><string>/srv/kh/ops/auto_update.sh</string><string>run</string><string>--scheduled</string>')" "1"
+check "agent at 4:00" "$(agent_plist /srv/kh/ops | grep -cF '<key>Hour</key><integer>4</integer><key>Minute</key><integer>0</integer>')" "1"
+check "agent logs" "$(agent_plist /srv/kh/ops | grep -cF '<string>/srv/kh/ops/auto_update.log</string>')" "2"
+check "agent escapes the path" "$(agent_plist '/Users/x/Tom & Jerry <1>/kh/ops' | grep -cF '/Users/x/Tom &amp; Jerry &lt;1&gt;/kh/ops/auto_update.sh')" "1"
+if command -v plutil >/dev/null 2>&1; then  # macOS only: launchd must be able to read the file
+  agent_plist '/Users/x/Tom & Jerry <1>/kh/ops' > "$tmp/agent.plist"
+  check "agent is a valid plist" "$(yes_no plutil -lint "$tmp/agent.plist")" "yes"
+fi
+# launchctl stand-in: like the real one, bootstrap fails while loaded and bootout while not
+printf '%s\n' '#!/bin/sh' 'echo "$*" >> "$LAUNCHCTL_LOG"; loaded="$LAUNCHCTL_LOG.loaded"' \
+  'case "$1" in' \
+  '  bootstrap) [ ! -e "$loaded" ] || exit 5; [ "${STUB_BOOTSTRAP_RC:-0}" -eq 0 ] || exit "$STUB_BOOTSTRAP_RC"; touch "$loaded" ;;' \
+  '  bootout) [ -e "$loaded" ] || exit 3; rm -f "$loaded" ;;' \
+  '  print) [ -e "$loaded" ] ;;' \
+  'esac' > "$tmp/bin/launchctl"
+chmod +x "$tmp/bin/launchctl"
+# Runs the test install's auto_update.sh as on a Mac, with a test HOME and the stand-ins.
+on_test_mac() {
+  PATH="$tmp/bin:$PATH" STUB_UNAME=Darwin HOME="$tmp/home" LAUNCHCTL_LOG="$tmp/launchctl" sh "$onoff/auto_update.sh" "$@" 2>&1
+}
+agent="$tmp/home/Library/LaunchAgents/kuechenhelfer.auto-update.plist"
+: > "$CRONTAB_FILE"
+on_test_mac on >/dev/null
+check "mac on: agent written" "$(grep -cF "<string>$onoff/auto_update.sh</string>" "$agent")" "1"
+check "mac on: agent loaded" "$(grep -cx "bootstrap gui/$(id -u) $agent" "$tmp/launchctl")" "1"
+check "mac on: cron untouched" "$(grep -c . "$CRONTAB_FILE")" "0"
+check "mac status: scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: eingetragen')" "1"
+check "mac on twice" "$(on_test_mac on >/dev/null && echo ok)" "ok"
+on_test_mac off >/dev/null
+check "mac off: agent removed" "$(yes_no test -e "$agent")" "no"
+check "mac status: not scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: nicht eingetragen')" "1"
+check "mac off twice" "$(on_test_mac off >/dev/null && echo ok)" "ok"
+check "mac on: launchctl error" "$( (export STUB_BOOTSTRAP_RC=5; on_test_mac on >/dev/null) && echo 0 || echo $?)" "1"
 
 # --- ops files inside the image (check_bundle.sh) ---
 . "$here/check_bundle.sh"
