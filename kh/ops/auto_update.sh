@@ -81,8 +81,51 @@ show_status() {
     echo "Nächtlicher Job: nicht eingetragen (kh/ops/auto_update.sh on)"
   fi
   echo "Laufende Version: $(setting KH_IMAGE kuechenhelfer:dev)"
-  [ ! -s "$FAILED" ] || echo "Fehlgeschlagen und nachts übersprungen: $(cat "$FAILED")"
+  failed=$(failed_tag)
+  [ -z "$failed" ] || echo "Fehlgeschlagen und nachts übersprungen: $failed"
   [ ! -f "$LOG" ] || { echo "Letzte Einträge im Log:"; tail -n 5 "$LOG"; }
+}
+
+# Takes the run lock (a directory, created atomically). A lock whose process is gone (crash,
+# power cut) is taken over, so one bad night never stops all later ones.
+# ponytail: a lock without pid file counts as stale; two runs in the same instant could both start.
+take_lock() {  # dir
+  if ! mkdir "$1" 2>/dev/null; then
+    holder=$(cat "$1/pid" 2>/dev/null || true)
+    if [ -n "$holder" ] && kill -0 "$holder" 2>/dev/null; then return 1; fi
+    rm -rf "$1" && mkdir "$1" 2>/dev/null || return 1
+  fi
+  echo $$ > "$1/pid" || return 1
+}
+
+release_lock() {  # dir
+  rm -rf "$1"
+}
+
+# Copies the unpacked ops files over the install (the folder above kh/); everything the bundle
+# does not contain (.env, data, backups, logs) stays as it is.
+install_bundle() {  # staging root
+  cp -R "$1/." "$2/"
+}
+
+# Prints a docker config.json that logs in to REGISTRY, so one pull can use the read-only
+# token without touching the user's own docker login or keychain.
+docker_auth_json() {  # registry user token
+  printf '{"auths":{"%s":{"auth":"%s"}}}\n' "$1" "$(printf '%s:%s' "$2" "$3" | base64 | tr -d '\n')"
+}
+
+# Remembers a version whose update failed; the nightly run skips it until a newer one exists.
+mark_failed() {  # tag
+  echo "$1" > "$FAILED"
+}
+
+# Prints the remembered failed version, if any.
+failed_tag() {
+  cat "$FAILED" 2>/dev/null || true
+}
+
+clear_failed() {
+  rm -f "$FAILED"
 }
 
 # Splits a release image name into "registry repo version arch". Fails for anything else

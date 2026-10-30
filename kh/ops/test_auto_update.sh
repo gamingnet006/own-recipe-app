@@ -103,6 +103,32 @@ for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backu
   check "forbidden: $bad" "$(bundle_problems "$(printf '%s\n%s' "$ok" "$bad")")" "$bad darf nicht ins Image"
 done
 
+# --- run lock (a crash or power cut must not stop all later nights) ---
+lock="$tmp/lock"
+check "take lock" "$(yes_no take_lock "$lock")$(cat "$lock/pid")" "yes$$"
+check "held by live process" "$(yes_no take_lock "$lock")" "no"
+sh -c 'exit 0' & dead=$!; wait "$dead"; echo "$dead" > "$lock/pid"
+check "stale lock taken over" "$(yes_no take_lock "$lock")" "yes"
+release_lock "$lock"
+check "lock released" "$(yes_no test -e "$lock")" "no"
+
+# --- installing the unpacked ops files (.env and data stay) ---
+root="$tmp/Mein Server"; mkdir -p "$root/kh/ops/data" "$tmp/stage/kh/ops"
+echo secret-placeholder > "$root/kh/ops/.env"; echo db > "$root/kh/ops/data/mealie.db"; echo old > "$root/kh/ops/update.sh"
+echo new > "$tmp/stage/kh/ops/update.sh"; echo added > "$tmp/stage/kh/ops/new.sh"
+install_bundle "$tmp/stage" "$root"
+check "file replaced" "$(cat "$root/kh/ops/update.sh")" "new"
+check "file added" "$(cat "$root/kh/ops/new.sh")" "added"
+check ".env untouched" "$(cat "$root/kh/ops/.env")" "secret-placeholder"
+check "data untouched" "$(cat "$root/kh/ops/data/mealie.db")" "db"
+
+# --- registry login for one pull, and the remembered failed version ---
+check "auth json" "$(docker_auth_json ghcr.io user secret)" '{"auths":{"ghcr.io":{"auth":"dXNlcjpzZWNyZXQ="}}}'
+FAILED="$tmp/failed"; mark_failed v0.1-amd64
+check "failed tag" "$(failed_tag)" "v0.1-amd64"
+clear_failed
+check "failed cleared" "$(failed_tag)" ""
+
 # --- argument checks ---
 check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "usage unknown command" "$(sh "$here/auto_update.sh" start >/dev/null 2>&1 && echo 0 || echo $?)" "2"
