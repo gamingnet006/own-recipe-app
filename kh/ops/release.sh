@@ -126,6 +126,8 @@ main() {
 
   echo "1/4 arm64-Image auf diesem Mac bauen (etwa 6 Minuten, noch wird nichts veröffentlicht)"
   build_arm64 "$arm64" "$log" || fail "der arm64-Build ist fehlgeschlagen (Protokoll: $log)"
+  sh kh/ops/check_bundle.sh "$arm64" \
+    || fail "das arm64-Image hat keine vollständigen Betriebsdateien oder enthält private Dateien"
 
   echo "2/4 Git-Tag $VERSION setzen und hochladen (startet den amd64-Build in der CI)"
   if [ -z "$TAG_SHA" ]; then

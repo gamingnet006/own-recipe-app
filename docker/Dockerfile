@@ -167,4 +167,10 @@ EXPOSE ${APP_PORT}
 COPY ./docker/entry.sh $MEALIE_HOME/run.sh
 
 RUN chmod +x $MEALIE_HOME/run.sh
+
+# KH: ship the ops files with every image, so auto_update.sh can install the matching compose
+# file and scripts without git on the server (D29); .dockerignore keeps .env and data out.
+COPY kh/ops /app/kh-bundle/kh/ops
+COPY mealie/core/settings/settings.py /app/kh-bundle/mealie/core/settings/settings.py
+
 ENTRYPOINT ["/app/run.sh"]

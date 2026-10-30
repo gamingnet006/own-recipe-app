@@ -32,3 +32,14 @@ venv
 /mealie/frontend/
 
 crowdin.yml
+
+# KH: never put local secrets, data or working files of kh/ops into an image (D29)
+kh/ops/.env
+kh/ops/.env.*
+!kh/ops/.env.example
+kh/ops/data
+kh/ops/data.pre-update
+kh/ops/backups
+kh/ops/.upgrade-test.*
+kh/ops/auto_update.log
+kh/ops/.auto_update.*

@@ -94,6 +94,15 @@ check "off leaves the other job" "$(cat "$CRONTAB_FILE")" "5 * * * * /usr/bin/tr
 rm -f "$CRONTAB_FILE"
 check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null 2>&1 && grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
 
+# --- ops files inside the image (check_bundle.sh) ---
+. "$here/check_bundle.sh"
+ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
+check "complete bundle" "$(bundle_problems "$ok")" ""
+check "update.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/update.sh)")" "kh/ops/update.sh fehlt"
+for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/auto_update.log kh/ops/.auto_update.failed; do
+  check "forbidden: $bad" "$(bundle_problems "$(printf '%s\n%s' "$ok" "$bad")")" "$bad darf nicht ins Image"
+done
+
 # --- argument checks ---
 check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "usage unknown command" "$(sh "$here/auto_update.sh" start >/dev/null 2>&1 && echo 0 || echo $?)" "2"

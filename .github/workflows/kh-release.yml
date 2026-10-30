@@ -45,6 +45,8 @@ jobs:
             org.opencontainers.image.version=${{ github.ref_name }}
           build-args: |
             COMMIT=${{ github.sha }}
+      - name: Check the ops files in the image (complete, no .env or data)
+        run: sh kh/ops/check_bundle.sh "$IMAGE:$TAG-amd64"
       - name: Upgrade test from the previous release
         run: sh kh/ops/upgrade_test.sh --previous-release "$TAG" "$IMAGE" "$IMAGE:$TAG-amd64"
       - name: Push amd64 image
