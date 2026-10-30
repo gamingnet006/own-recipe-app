@@ -1,6 +1,7 @@
 #!/bin/sh
 # KH: updates Küchenhelfer to another image (PLAN.md phase 1, D21): Mealie backup, then a file
 # snapshot of the stopped database, switch and checks; on failure the old image and database return.
+# After a successful switch it rebuilds the backup service and recreates a running tunnel.
 # Usage: ./update.sh <image>. Exit codes: 0 updated or already current, 1 failed and nothing lost
 # (old version running), 2 usage error, 3 rollback failed (manual steps are printed).
 set -eu
@@ -159,6 +160,19 @@ start_old() {  # old_id
   start_mealie "$(setting KH_IMAGE kuechenhelfer:dev)" >/dev/null 2>&1 && wait_healthy
 }
 
+# Brings the backup service and a running tunnel in line with the release just started. Only
+# warns on failure: the app already runs in the new version. Never "up --build" with dependencies,
+# that would rebuild the Mealie image too.
+refresh_companions() {
+  { docker compose build backup >/dev/null 2>&1 && docker compose up -d --no-deps backup >/dev/null 2>&1; } \
+    || echo "Warnung: Der Backup-Dienst ließ sich nicht erneuern (docker compose build backup, dann up -d --no-deps backup)" >&2
+  if [ -n "$(docker compose --profile tunnel ps -q tunnel 2>/dev/null)" ]; then
+    docker compose --profile tunnel up -d --no-deps tunnel >/dev/null 2>&1 \
+      || echo "Warnung: Der Tunnel ließ sich nicht neu starten (kh/ops/tunnel.sh on)" >&2
+  fi
+  return 0
+}
+
 # Brings back the old image and the database snapshot after a failed switch, then exits 1.
 roll_back() {  # old_id recipes_before
   echo "Update fehlgeschlagen. Letzte Meldungen der neuen Version:" >&2
@@ -225,6 +239,7 @@ main() {
   if start_mealie "$new_ref" && wait_healthy && verify_switch "$new_id" "$before"; then
     echo "Update fertig: $new_ref läuft, alle $before Rezepte sind da."
     echo "Für den Notfall bleiben bis zum nächsten Update: $SNAP und das Image $ROLLBACK_TAG"
+    refresh_companions
     exit 0
   fi
   roll_back "$old_id" "$before"

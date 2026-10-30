@@ -141,6 +141,7 @@ run_test() {  # old_image new_image
     printf 'Vorher:\n%s\nNachher:\n%s\n' "$before" "$after" >&2
     fail "Rezepte oder Bild haben sich beim Update verändert"
   fi
+  [ -n "$(docker compose ps -q backup)" ] || fail "der Backup-Dienst läuft nach dem Update nicht"
   echo "Upgrade-Test bestanden: $1 -> $2 ($(printf '%s\n' "$slugs" | wc -l | tr -d ' ') Rezepte, Bild unverändert)"
 }
 
