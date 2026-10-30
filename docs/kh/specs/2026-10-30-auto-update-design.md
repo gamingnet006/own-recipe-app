@@ -78,6 +78,8 @@ Nach einem erfolgreichen Wechsel (vor `exit 0`) ein Schritt „Begleitdienste ak
 
 Scheitert dieser Schritt, gibt es eine Warnung, aber kein Rückfall: Die App läuft dann schon in der neuen Version.
 
+Bricht `update.sh` ab, bevor es etwas geändert hat (zum Beispiel ist Mealie nicht bereit oder das Backup scheitert), endet es mit Exit 4 statt 1. So unterscheidet `auto_update.sh` ein vorübergehendes Problem von einer Version, die nach dem Wechsel gescheitert ist.
+
 ## Fehlerfälle
 
 | Situation | Verhalten | Meldung |
@@ -87,7 +89,8 @@ Scheitert dieser Schritt, gibt es eine Warnung, aber kein Rückfall: Die App lä
 | Registry nicht erreichbar, Anmeldung falsch oder Schlüssel abgelaufen | Ende vor jeder Änderung | Log, Uptime Kuma „down“ |
 | nichts Neueres | nichts | Log, Uptime Kuma „up“ |
 | Image ohne Betriebsdateien | Ende vor jeder Änderung | Log, „down“ |
-| `update.sh` bricht ab oder springt zurück (Exit 1) | alte Version läuft weiter; Version wird in `.auto_update.failed` gemerkt; nachts erst wieder versucht, wenn es eine neuere gibt | Log, „down“ |
+| `update.sh` bricht vor jeder Änderung ab (Exit 4), etwa weil Mealie gerade nicht bereit ist oder das Backup scheitert | nichts geändert, nichts gemerkt; die nächste Nacht versucht dieselbe Version noch einmal | Log, „down“ |
+| neue Version scheitert, `update.sh` springt zurück (Exit 1) | alte Version läuft weiter; Version wird in `.auto_update.failed` gemerkt; nachts erst wieder versucht, wenn es eine neuere gibt | Log, „down“ |
 | Rückfall gescheitert (Exit 3) | Notfall, nichts weiter tun | Log „NOTFALL“, „down“, Exit 3 |
 | zweiter Lauf gleichzeitig | endet sofort | Log |
 | Erfolg | gemerkte fehlerhafte Version wird gelöscht | Log, „up“ mit neuer Version |

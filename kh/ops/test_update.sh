@@ -1,6 +1,7 @@
 #!/bin/sh
 # KH: tests the host-side parts of update.sh without Docker: reading and editing .env,
-# reading the recipe total, the database snapshot and its restore, and argument checks.
+# reading the recipe total, the database snapshot and its restore, the exit code of an abort
+# and argument checks.
 set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -78,6 +79,11 @@ check "restore fails when the data folder is unusable" "$(restore_db "$snap" "$t
 # --- rollback image name: one per compose project, so a test install never touches the real one ---
 check "rollback tag of the default project" "$(env -u COMPOSE_PROJECT_NAME sh -c 'set -- --lib; . "$0"; echo "$ROLLBACK_TAG"' "$here/update.sh")" "kuechenhelfer:rollback"
 check "rollback tag follows COMPOSE_PROJECT_NAME" "$(COMPOSE_PROJECT_NAME=kh-upgrade-test sh -c 'set -- --lib; . "$0"; echo "$ROLLBACK_TAG"' "$here/update.sh")" "kh-upgrade-test:rollback"
+
+# --- an abort before any change exits 4, so auto_update.sh tries the same version again ---
+# A copy without .env stops in the preflight, with or without Docker on this machine.
+mkdir "$tmp/install" && cp "$here/update.sh" "$tmp/install/"
+check "an abort before any change exits 4" "$(sh "$tmp/install/update.sh" example/image:v1 >/dev/null 2>&1 && echo 0 || echo $?)" "4"
 
 # --- argument checks (stop before touching Docker) ---
 check "no image is a usage error" "$(sh "$here/update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"

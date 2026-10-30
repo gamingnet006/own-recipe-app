@@ -147,11 +147,13 @@ report() {  # up|down message
 }
 
 # Turns update.sh's exit code into the result: success clears a remembered failure, 3 means the
-# rollback failed too (a person must look), anything else marks the version as failed.
+# rollback failed too (a person must look), 4 means update.sh stopped before changing anything
+# (the next night tries again), anything else marks the version as failed.
 finish_update() {  # rc tag
   case "$1" in
     0) clear_failed; report up "Aktualisiert auf $2"; return 0 ;;
     3) report down "NOTFALL: Update auf $2 und Rückfall gescheitert, siehe Meldungen von update.sh"; return 3 ;;
+    4) report down "Update auf $2 abgebrochen, nichts geändert; nächste Nacht neuer Versuch"; return 1 ;;
     *) mark_failed "$2"; report down "Update auf $2 fehlgeschlagen, die bisherige Version läuft weiter"; return 1 ;;
   esac
 }

@@ -14,6 +14,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Automatic updates to stable releases (`kh/ops/auto_update.sh on|off|status|check|run`): on by default,
   nightly at 4 am, always through `update.sh`. Release images carry the ops files (`/app/kh-bundle`).
 - `update.sh` also refreshes the backup service and a running tunnel after a successful switch.
+- `update.sh` exits with 4 (was 1) when it stops before changing anything, so the nightly update
+  tries the same version again instead of skipping it.
 
 ## [v0.0-rc.2] - 2026-10-30
 

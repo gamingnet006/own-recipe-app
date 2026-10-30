@@ -2,8 +2,9 @@
 # KH: updates Küchenhelfer to another image (PLAN.md phase 1, D21): Mealie backup, then a file
 # snapshot of the stopped database, switch and checks; on failure the old image and database return.
 # After a successful switch it rebuilds the backup service and recreates a running tunnel.
-# Usage: ./update.sh <image>. Exit codes: 0 updated or already current, 1 failed and nothing lost
-# (old version running), 2 usage error, 3 rollback failed (manual steps are printed).
+# Usage: ./update.sh <image>. Exit codes: 0 updated or already current, 1 the new version failed and
+# the old one runs again, 2 usage error, 3 rollback failed (manual steps are printed), 4 stopped
+# before anything changed.
 set -eu
 
 ENV_FILE=.env
@@ -18,10 +19,11 @@ usage() {
   exit 2
 }
 
-# Stops before the running installation was changed.
+# Stops before the running installation was changed. Exit 4, not 1: auto_update.sh then tries the
+# same version again the next night instead of skipping it as failed.
 abort() {
   echo "Update abgebrochen: $1. Die laufende Version ist unverändert." >&2
-  exit 1
+  exit 4
 }
 
 # The automatic rollback failed: says where everything for a manual restore lies.

@@ -158,14 +158,16 @@ check "registry down: nothing marked" "$(yes_no test -e "$inst/.auto_update.fail
 check "lock removed" "$(yes_no test -e "$inst/.auto_update.lock")" "no"
 check "bad option" "$( (cd "$inst" && sh ./auto_update.sh run --nightly >/dev/null 2>&1) && echo 0 || echo $?)" "2"
 
-# --- result of update.sh (0 updated, 1 failed and old version back, 3 rollback failed) ---
+# --- result of update.sh (0 updated, 1 failed and old version back, 3 rollback failed,
+# 4 stopped before any change) ---
 report() { echo "$1" >> "$tmp/reports"; }   # stub: records up/down instead of pushing
 FAILED="$tmp/failed2"; : > "$tmp/reports"
 check "update ok" "$(finish_update 0 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "0"
 check "update failed" "$(finish_update 1 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1v0.1-amd64"
 check "ok clears marker" "$(finish_update 0 v0.1-amd64 >/dev/null; failed_tag)" ""
+check "stopped before any change: not marked" "$(finish_update 4 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1"
 check "rollback failed" "$(finish_update 3 v0.1-amd64 && echo 0 || echo $?)" "3"
-check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down "
+check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down down "
 
 # --- run end to end with stand-ins for curl and docker (spec steps 7 to 11) ---
 # The bundle's auto_update.sh is longer than the running one: after cp has replaced the file in
