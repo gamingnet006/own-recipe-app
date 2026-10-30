@@ -32,6 +32,11 @@ check "set_env_value keeps other lines" "$(env_value "$ENV_FILE" KH_BACKUP_CRON)
 check "set_env_value appends a missing key" "$(set_env_value "$ENV_FILE" KH_PORT 9092 && env_value "$ENV_FILE" KH_PORT)" "9092"
 check "set_env_value keeps the file private" "$(ls -l "$ENV_FILE" | cut -c1-10)" "-rw-------"
 check "set_env_value fails on a missing .env" "$(set_env_value "$tmp/missing.env" KH_IMAGE x:1 2>/dev/null && echo ok || echo failed)" "failed"
+# Some editors save without a final newline; appending must not glue the new key to the last line.
+printf 'KH_A=1\nKH_LAST=placeholder' > "$tmp/nonl.env"
+(set_env_value "$tmp/nonl.env" KH_NEW yes)  # subshell: set_env_value uses a global $tmp
+check "append keeps a last line without newline" "$(env_value "$tmp/nonl.env" KH_LAST)" "placeholder"
+check "append after a last line without newline" "$(env_value "$tmp/nonl.env" KH_NEW)" "yes"
 
 check "setting prefers the shell environment" "$(export KH_PORT=7777; setting KH_PORT 9091)" "7777"
 check "setting falls back to .env" "$(setting KH_PORT 9091)" "9092"

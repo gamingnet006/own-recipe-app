@@ -298,7 +298,8 @@ newest_stable() {  # tags arch current [skip]
 }
 
 main() {
-  PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"  # cron and SSH on macOS do not find docker otherwise
+  # cron and SSH on macOS do not find docker otherwise; appended, so the caller's PATH still wins
+  PATH="$PATH:/usr/local/bin:/opt/homebrew/bin"
   export PATH
   cd "$(dirname "$0")"
   [ $# -ge 1 ] || usage
@@ -312,4 +313,6 @@ main() {
   esac
 }
 
-[ "${1:-}" = "--lib" ] || main "$@"
+# Exit right after main: an update replaces this very file in place, and the shell must not
+# read on into the new version (the braces are parsed in full before they run).
+[ "${1:-}" = "--lib" ] || { main "$@"; exit; }

@@ -59,7 +59,8 @@ set_env_value() {
   if grep -q "^$2=" "$1" 2>/dev/null; then
     sed "s|^$2=.*|$2=$3|" "$1" > "$tmp" || { rm -f "$tmp"; return 1; }
   else
-    { cat "$1" && printf '%s=%s\n' "$2" "$3"; } > "$tmp" || { rm -f "$tmp"; return 1; }
+    # awk 1 ends every line with a newline: some editors save the last line without one.
+    { awk 1 "$1" && printf '%s=%s\n' "$2" "$3"; } > "$tmp" || { rm -f "$tmp"; return 1; }
   fi
   cat "$tmp" > "$1" && rm -f "$tmp"
 }

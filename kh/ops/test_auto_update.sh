@@ -103,9 +103,14 @@ check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.s
 
 # --- ops files inside the image (check_bundle.sh) ---
 . "$here/check_bundle.sh"
-ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
+ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
 check "complete bundle" "$(bundle_problems "$ok")" ""
 check "update.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/update.sh)")" "kh/ops/update.sh fehlt"
+# auto_update.sh loads these at start and update.sh builds the backup image: without them the
+# next night's run would die before it could report anything.
+for need in kh/ops/check_bundle.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile; do
+  check "$need missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx "$need")")" "$need fehlt"
+done
 for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/auto_update.log kh/ops/.auto_update.failed; do
   check "forbidden: $bad" "$(bundle_problems "$(printf '%s\n%s' "$ok" "$bad")")" "$bad darf nicht ins Image"
 done
@@ -161,6 +166,49 @@ check "update failed" "$(finish_update 1 v0.1-amd64 && echo 0 || echo $?)$(faile
 check "ok clears marker" "$(finish_update 0 v0.1-amd64 >/dev/null; failed_tag)" ""
 check "rollback failed" "$(finish_update 3 v0.1-amd64 && echo 0 || echo $?)" "3"
 check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down "
+
+# --- run end to end with stand-ins for curl and docker (spec steps 7 to 11) ---
+# The bundle's auto_update.sh is longer than the running one: after cp has replaced the file in
+# place, the running shell must stop at its own end instead of reading on into the new one.
+stubs="$tmp/stubs"; mkdir -p "$stubs"
+printf '%s\n' '#!/bin/sh' 'case "$*" in *"-K -"*) cat >/dev/null ;; esac' \
+  'case "$*" in *"/token?"*) echo "{\"token\":\"t\"}" ;; *"/tags/list"*) echo "{\"name\":\"x/y\",\"tags\":[\"v0.0-amd64\",\"v0.1-amd64\",\"v0.2-rc.1-amd64\"]}" ;; *) exit 22 ;; esac' \
+  > "$stubs/curl"
+printf '%s\n' '#!/bin/sh' 'echo "$*" >> "$DOCKER_CALLS"' \
+  'case "$1" in context) echo unix:///stub.sock ;; create) echo cid1 ;; cp) cp -R "$BUNDLE_SRC/." "$3" ;; esac' \
+  > "$stubs/docker"
+chmod +x "$stubs/curl" "$stubs/docker"
+bundle="$tmp/bundle"; mkdir -p "$bundle/kh/ops/backup" "$bundle/mealie/core/settings"
+cp "$here/auto_update.sh" "$here/check_bundle.sh" "$bundle/kh/ops/"
+cp "$here/backup/backup.sh" "$bundle/kh/ops/backup/"
+echo 'echo "TAIL OF THE NEW FILE RAN"' >> "$bundle/kh/ops/auto_update.sh"
+printf '%s\n' '#!/bin/sh' 'echo "update.sh stand-in: $1"' 'exit "${STUB_UPDATE_RC:-0}"' > "$bundle/kh/ops/update.sh"
+: > "$bundle/kh/ops/backup/Dockerfile"; : > "$bundle/kh/ops/docker-compose.yml"; : > "$bundle/mealie/core/settings/settings.py"
+
+# Runs "auto_update.sh run" in a fresh test install with the stand-ins; prints the output and
+# then "exit N" with the exit code. The stand-in update.sh exits with UPDATE_RC.
+run_stubbed() {  # update_rc
+  ops="$tmp/run$1/kh/ops"; copy_scripts "$ops"
+  printf 'KH_IMAGE=registry.example.invalid/x/y:v0.0-amd64\n' > "$ops/.env"
+  rc=0
+  out=$(cd "$ops" && PATH="$stubs:$PATH" DOCKER_CALLS="$tmp/docker$1" BUNDLE_SRC="$bundle" STUB_UPDATE_RC="$1" \
+    sh ./auto_update.sh run 2>&1) || rc=$?
+  printf '%s\nexit %s\n' "$out" "$rc"
+}
+res=$(run_stubbed 0)
+check "run: update.sh gets the new image" "$(printf '%s\n' "$res" | grep -c 'update.sh stand-in: registry.example.invalid/x/y:v0.1-amd64')" "1"
+check "run: reports the update" "$(printf '%s\n' "$res" | grep -c 'Aktualisiert auf v0.1-amd64')" "1"
+check "run: running shell stops at its own end" "$(printf '%s\n' "$res" | grep -c 'TAIL OF THE NEW FILE RAN')" "0"
+check "run: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
+check "run: new files installed" "$(grep -c 'TAIL OF THE NEW FILE RAN' "$tmp/run0/kh/ops/auto_update.sh")" "1"
+check "run: lock and working folder gone" "$(ls -a "$tmp/run0/kh/ops" | grep -c '^\.auto_update\.')" "0"
+check "run: pulled the new image once" "$(grep -c '^pull -q registry.example.invalid/x/y:v0.1-amd64$' "$tmp/docker0")" "1"
+res=$(run_stubbed 1)
+check "run, update fails: exit 1" "$(printf '%s\n' "$res" | tail -1)" "exit 1"
+check "run, update fails: version marked" "$(cat "$tmp/run1/kh/ops/.auto_update.failed")" "v0.1-amd64"
+res=$(run_stubbed 3)
+check "run, rollback fails: exit 3" "$(printf '%s\n' "$res" | tail -1)" "exit 3"
+check "run, rollback fails: emergency reported" "$(printf '%s\n' "$res" | grep -c 'NOTFALL')" "1"
 
 # --- argument checks ---
 check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
