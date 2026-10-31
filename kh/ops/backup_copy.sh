@@ -22,7 +22,7 @@ JOB_MARK='# kh-backup-copy'
 JOB_HOUR=3  # a quarter of an hour after the default backup at 3:30, before the update at 4:00
 JOB_MINUTE=45
 # macOS lets a nightly job read removable drives only with Full Disk Access. The job runs with
-# dash, which nothing else on a Mac starts, so that permission stays with this job.
+# dash, which hardly anything else on a Mac starts, so that permission stays with this job.
 JOB_SHELL=/bin/dash
 JOB_PUSH_SETTING=KH_BACKUP_PUSH_URL  # one Uptime Kuma monitor for the backup and its copy
 LOG=backup_copy.log
