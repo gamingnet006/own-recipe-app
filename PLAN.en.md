@@ -63,7 +63,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D29 | Automatic updates: every install fetches the newest stable version (tags `vX.Y` or `vX.Y.Z` without `-rc`) for its CPU type at 4 am and installs it through `update.sh` (backup, snapshot, checks, rollback). On by default, switch `KH_AUTO_UPDATE` in `.env` (`kh/ops/auto_update.sh on|off|status|check|run`); the checkbox in the app comes in phase 8. The ops files ship inside the image (`/app/kh-bundle`), no git on the server. If `update.sh` stops before changing anything, the next night tries the same version again; only a version that failed after the switch is skipped. Design: `docs/kh/specs/2026-10-30-auto-update-design.md` | decided |
 | D30 | `v0.0` may be released before the Pi is ready. The install on a fresh Pi from phase 1's "done when" follows later; bugs it finds ship as `v0.0.1` (2026-10-31) | decided |
 | D31 | No sample recipes as starting data; the family starts with an empty recipe list. Family accounts come from an invite link: each person creates their own account without admin rights and sets their own password (2026-10-31) | decided |
-| D32 | The install asks where backups should go. The second location for the Mac mini is decided afterwards; until then its backups sit on the same disk as the database (2026-10-31) | decided |
+| D32 | The install asks where backups should go. The second location for the Mac mini is decided afterwards; until then its backups sit on the same disk as the database (2026-10-31). Chosen: a USB stick; set up as soon as it is plugged in (2026-10-31) | decided |
 
 ---
 
