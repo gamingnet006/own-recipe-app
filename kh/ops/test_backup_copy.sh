@@ -47,8 +47,9 @@ check "no half copy left" "$(ls -A "$tmp/dest" | tr '\n' ' ')" "a.zip.age "
 src="$tmp/Mein Server/backups"; mkdir -p "$src" "$tmp/have"
 for day in 01 02 03; do touch -t "202601${day}0000" "$src/mealie_2026.01.$day.zip"; done
 touch "$tmp/have/mealie_2026.01.02.zip.age"
-check "pending" "$(pending "$src" "$tmp/have" 3 | xargs -I{} basename {} | tr '\n' ' ')" "mealie_2026.01.03.zip mealie_2026.01.01.zip "
-check "pending, only the newest" "$(pending "$src" "$tmp/have" 2 | xargs -I{} basename {})" "mealie_2026.01.03.zip"
+check "pending" "$(pending "$src" "$tmp/have" 3 .age | xargs -I{} basename {} | tr '\n' ' ')" "mealie_2026.01.03.zip mealie_2026.01.01.zip "
+check "pending, only the newest" "$(pending "$src" "$tmp/have" 2 .age | xargs -I{} basename {})" "mealie_2026.01.03.zip"
+check "pending, plain copies" "$(pending "$src" "$tmp/have" 3 "" | xargs -I{} basename {} | tr '\n' ' ')" "mealie_2026.01.03.zip mealie_2026.01.02.zip mealie_2026.01.01.zip "
 
 # --- the drive: present only if its folder's parent exists and lies on another disk ---
 mkdir -p "$tmp/bin" "$tmp/stick" "$tmp/samedisk"
@@ -106,7 +107,19 @@ mv "$tmp/stick-away" "$tmp/stick"
 printf 'KH_BACKUP_COPY_DIR=%s\n' "$stick" > "$ops/.env"
 check "run: not set up" "$(copy run | grep -c 'nicht eingerichtet')" "1"
 
-# --- on: drive check, key on first use, nightly job (cron stand-in), first copy ---
+# --- without a password: the backups go to the drive as they are ---
+plain="$tmp/stick/Ohne"
+printf 'KH_BACKUP_KEEP=2\nKH_BACKUP_COPY_DIR=%s\nKH_BACKUP_COPY_KEY=none\n' "$plain" > "$ops/.env"
+calls=$(wc -l < "$tmp/docker_calls" | tr -d ' ')
+res=$(copy run)
+check "plain: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
+check "plain: copies the newest as they are" "$(LC_ALL=C ls "$plain" | tr '\n' ' ')" "LIESMICH.txt mealie_2026.01.03.zip mealie_2026.01.04.zip "
+check "plain: copy equals the backup, with its time" "$(cmp -s "$ops/backups/mealie_2026.01.04.zip" "$plain/mealie_2026.01.04.zip" && echo same) $(yes_no test "$ops/backups/mealie_2026.01.04.zip" -nt "$plain/mealie_2026.01.04.zip")" "same no"
+check "plain: no key, no docker" "$(yes_no test -e "$plain/$KEY_FILE") $(wc -l < "$tmp/docker_calls" | tr -d ' ')" "no $calls"
+check "plain: guide says unencrypted" "$(grep -c 'unverschlüsselt' "$plain/LIESMICH.txt")" "1"
+check "plain: run again, nothing new" "$(copy run | grep -c 'OK: 0 neu, 2 auf dem Laufwerk')" "1"
+
+# --- on: drive check, the password question, key on first use, nightly job (cron stand-in), first copy ---
 printf '%s\n' '#!/bin/sh' 'case "$1" in -l) cat "$CRONTAB_FILE" 2>/dev/null || exit 1 ;; -) cat > "$CRONTAB_FILE" ;; esac' > "$tmp/bin/crontab"
 printf '%s\n' '#!/bin/sh' 'echo Linux' > "$tmp/bin/uname"
 chmod +x "$tmp/bin/crontab" "$tmp/bin/uname"
@@ -115,7 +128,8 @@ export CRONTAB_FILE="$tmp/crontab"
 rm -f "$ops/backups/$KEY_FILE"; new="$tmp/stick/Neu"
 printf 'KH_BACKUP_KEEP=2\n' > "$ops/.env"
 check "on: drive missing" "$(copy on "$tmp/gone/Kopien" | tail -1)" "exit 1"
-res=$(copy on "$new")
+check "on: answer neither j nor n" "$(printf 'vielleicht\n' | copy on "$new" | tail -1) $(env_value "$ops/.env" KH_BACKUP_COPY_KEY)" "exit 1 "
+res=$(printf 'j\n' | copy on "$new")
 check "on: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
 check "on: key made" "$(env_value "$ops/.env" KH_BACKUP_COPY_KEY) $(cat "$ops/backups/$KEY_FILE")" "$KEY locked"
 check "on: folder set" "$(env_value "$ops/.env" KH_BACKUP_COPY_DIR)" "$new"
@@ -125,6 +139,11 @@ calls=$(grep -c age-keygen "$tmp/docker_calls")
 copy on "$new" >/dev/null
 check "on again: same key" "$(grep -c age-keygen "$tmp/docker_calls")" "$calls"
 check "off" "$(copy off | tail -1) $(grep -c kh-backup-copy "$CRONTAB_FILE")" "exit 0 0"
+printf 'KH_BACKUP_KEEP=2\n' > "$ops/.env"
+res=$(printf 'n\n' | copy on "$tmp/stick/OhneNeu")
+check "on without password" "$(printf '%s\n' "$res" | tail -1) $(env_value "$ops/.env" KH_BACKUP_COPY_KEY) $(printf '%s\n' "$res" | grep -c 'OK: 2 neu')" "exit 0 none 1"
+check "status without password" "$(copy status | grep -c 'ohne Passwort')" "1"
+check "on again keeps it" "$(copy on "$tmp/stick/OhneNeu" | tail -1) $(env_value "$ops/.env" KH_BACKUP_COPY_KEY)" "exit 0 none"
 
 # --- decrypt: into the backup folder, where restore.sh finds it ---
 # While the backup is still here, decrypt checks the copy against it and changes nothing.

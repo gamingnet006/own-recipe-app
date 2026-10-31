@@ -6,6 +6,14 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v0.0.2] - 2026-10-31
+
+The copy to a USB stick also works without a password (D33).
+
+- `backup_copy.sh on` asks once whether the copies get a password (j/n). Without one they are
+  normal Mealie backups (`KH_BACKUP_COPY_KEY=none`), copied as they are and compared with the original.
+- The guide says what to do when a stick without a password gets lost.
+
 ## [v0.0.1] - 2026-10-31
 
 Second backup location on a removable drive (D32, D33).

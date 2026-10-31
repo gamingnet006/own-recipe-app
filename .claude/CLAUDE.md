@@ -87,8 +87,8 @@ kh/ops/update.sh <image>
 kh/ops/tunnel.sh on|off|status
 # Automatische Updates (nur stabile Releases, nachts um 4 Uhr): an, aus, Stand, Probelauf, sofort
 kh/ops/auto_update.sh on|off|status|check|run
-# Verschlüsselte Kopie der Backups auf einen USB-Stick, nachts um 3:45 Uhr; "on" legt beim ersten Mal den Schlüssel an
-# (age fragt nach dem Passwort), "decrypt" holt eine Kopie zurück. Getestet, mit echtem Stick noch nicht erprobt
+# Kopie der Backups auf einen USB-Stick, nachts um 3:45 Uhr; "on" fragt beim ersten Mal, ob mit Passwort (dann mit age
+# verschlüsselt), "decrypt" öffnet eine verschlüsselte Kopie. Getestet, mit echtem Stick noch nicht erprobt
 kh/ops/backup_copy.sh on <ordner>|off|status|run|decrypt <datei.zip.age>
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>

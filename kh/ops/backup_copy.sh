@@ -1,7 +1,7 @@
 #!/bin/sh
-# KH: copies the daily backups, encrypted with age, to a removable drive such as a USB stick
-# (PLAN.md D32), so a copy survives when this machine's disk fails. Only the public key stays here;
-# the private key lies on the drive, locked with a password that is stored nowhere.
+# KH: copies the daily backups to a removable drive such as a USB stick (PLAN.md D32), so a copy
+# survives when this machine's disk fails. With a password they are encrypted with age: only the
+# public key stays here, the private key lies on the drive, locked with the password (D33).
 # Usage: kh/ops/backup_copy.sh on <folder>|off|status|run [--scheduled]|decrypt <file.zip.age>
 set -eu
 
@@ -91,10 +91,11 @@ store_file() {  # src dest [ref]
     || { rm -f "$part"; return 1; }
 }
 
-# Prints the newest N backups in SOURCE that FOLDER has no copy of yet, newest first.
-pending() {  # source folder n
+# Prints the newest N backups in SOURCE that FOLDER has no copy of yet (named like the backup plus
+# SUFFIX), newest first.
+pending() {  # source folder n suffix
   ls -1t "$1"/*.zip 2>/dev/null | head -n "$3" | while read -r zip; do
-    [ -f "$2/$(basename "$zip").age" ] || echo "$zip"
+    [ -f "$2/$(basename "$zip")$4" ] || echo "$zip"
   done
 }
 
@@ -115,7 +116,22 @@ encrypt() {  # key
 }
 
 # Prints the guide that lies on the drive next to the copies, for whoever finds the drive later.
-readme() {
+readme() {  # encrypted|plain
+  if [ "$1" = plain ]; then
+    cat <<EOF
+Küchenhelfer-Backups, unverschlüsselt
+
+*.zip  tägliche Backups, jedes ein normales Mealie-Backup
+
+Wiederherstellen: Küchenhelfer installieren (docs/kh/README.md), die .zip in den Backup-Ordner
+kh/ops/backups kopieren, dann
+  docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <backup>.zip
+
+Küchenhelfer backups, not encrypted. Each .zip is a normal Mealie backup: copy it into the backup
+folder kh/ops/backups and restore it with restore.sh as above.
+EOF
+    return
+  fi
   cat <<EOF
 Küchenhelfer-Backups, verschlüsselt mit age (https://age-encryption.org)
 
@@ -133,8 +149,8 @@ Mealie backup.
 EOF
 }
 
-# Puts the locked key and the guide on the drive if they are missing there. Never replaces a
-# different key: the copies made with it could no longer be opened.
+# Puts the locked key on the drive if it is missing there. Never replaces a different key: the
+# copies made with it could no longer be opened.
 put_key() {  # local_key folder
   if [ -f "$2/$KEY_FILE" ]; then
     cmp -s "$1" "$2/$KEY_FILE" \
@@ -142,34 +158,42 @@ put_key() {  # local_key folder
   else
     store_file "$1" "$2/$KEY_FILE" || stop_run "$(no_access "$2")"
   fi
-  [ -f "$2/$README_FILE" ] || readme > "$2/$README_FILE" || stop_run "$(no_access "$2")"
 }
 
 # One copy run: checks setup and drive, puts key and guide there, copies the backups that have no
-# copy yet, then keeps the newest KH_BACKUP_KEEP copies on the drive.
+# copy yet (encrypted, or as they are with KH_BACKUP_COPY_KEY=none), then keeps the newest
+# KH_BACKUP_KEEP copies on the drive.
 run_cmd() {  # [--scheduled]
   case "${1:-}" in "") ;; --scheduled) SCHEDULED=1 ;; *) usage ;; esac
   dir=$(setting KH_BACKUP_COPY_DIR "")
   key=$(setting KH_BACKUP_COPY_KEY "")
   src=$(setting KH_BACKUP_DIR ./backups)
   keep=$(setting KH_BACKUP_KEEP 14)
-  [ -n "$dir" ] && valid_key "$key" && [ -f "$src/$KEY_FILE" ] \
+  suffix=.age
+  [ "$key" != none ] || suffix=""
+  # plain copies need only the folder, encrypted ones also the public and the locked private key
+  [ -n "$dir" ] && { [ -z "$suffix" ] || { valid_key "$key" && [ -f "$src/$KEY_FILE" ]; }; } \
     || stop_run "nicht eingerichtet, zuerst: kh/ops/backup_copy.sh on <ordner>"
   drive_ready "$dir" "$src" || stop_run "Laufwerk fehlt: $(dirname "$dir") ist nicht da oder liegt auf der eigenen Platte"
   [ -d "$dir" ] || mkdir "$dir" 2>/dev/null || stop_run "$(no_access "$dir")"
-  put_key "$src/$KEY_FILE" "$dir"
+  if [ -n "$suffix" ]; then put_key "$src/$KEY_FILE" "$dir"; mode=encrypted; else mode=plain; fi
+  [ -f "$dir/$README_FILE" ] || readme "$mode" > "$dir/$README_FILE" || stop_run "$(no_access "$dir")"
   WORK=$(mktemp -d ./.backup_copy.XXXXXX) || stop_run "Arbeitsordner fehlt"
   trap 'rm -rf "$WORK"' EXIT
-  pending "$src" "$dir" "$keep" > "$WORK/list"
+  pending "$src" "$dir" "$keep" "$suffix" > "$WORK/list"
   new=0
   while read -r zip; do
-    encrypt "$key" < "$zip" > "$WORK/copy" && is_age_file "$WORK/copy" \
-      || stop_run "$(basename "$zip") ließ sich nicht verschlüsseln (Backup beschädigt? Fehlt age im Backup-Image: docker compose build backup)"
-    store_file "$WORK/copy" "$dir/$(basename "$zip").age" "$zip" || stop_run "$(no_access "$dir")"
+    copy="$zip"
+    if [ -n "$suffix" ]; then
+      copy="$WORK/copy"
+      encrypt "$key" < "$zip" > "$copy" && is_age_file "$copy" \
+        || stop_run "$(basename "$zip") ließ sich nicht verschlüsseln (Backup beschädigt? Fehlt age im Backup-Image: docker compose build backup)"
+    fi
+    store_file "$copy" "$dir/$(basename "$zip")$suffix" "$zip" || stop_run "$(no_access "$dir")"
     new=$((new + 1))
   done < "$WORK/list"
-  prune "$dir" "$keep" zip.age
-  report up "Kopie aufs Laufwerk OK: $new neu, $(ls -1 "$dir"/*.zip.age 2>/dev/null | wc -l | tr -d ' ') auf dem Laufwerk"
+  prune "$dir" "$keep" "zip$suffix"
+  report up "Kopie aufs Laufwerk OK: $new neu, $(ls -1 "$dir"/*.zip"$suffix" 2>/dev/null | wc -l | tr -d ' ') auf dem Laufwerk"
 }
 
 # Makes a key pair in the backup image: age asks twice for the password and locks the private key
@@ -188,18 +212,32 @@ make_key() {  # source
   echo "$pub"
 }
 
-# Switches the copy on: checks the drive, makes the key on first use, enters the nightly job and
-# starts the first copy. On macOS the first copy runs as the nightly job, which may read the drive.
+# Asks whether the copies get a password; prints "none" for no, nothing for yes.
+ask_password() {
+  echo "Kopien mit Passwort verschlüsseln? Ohne Passwort kann jeder mit dem Laufwerk die Backups lesen" >&2
+  printf "und mit dem Backup-Schlüssel darin in die App (docs/kh/README.md, Stick verloren). (j/n) " >&2
+  read -r answer || answer=""
+  case "$answer" in
+    j*|J*|y*|Y*) ;;
+    n*|N*) echo none ;;
+    *) return 1 ;;
+  esac
+}
+
+# Switches the copy on: checks the drive, asks once whether the copies get a password and then
+# makes the key, enters the nightly job and starts the first copy. On macOS the first copy runs as
+# the nightly job, which may read the drive.
 turn_on() {  # folder (absolute)
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   src=$(setting KH_BACKUP_DIR ./backups)
   drive_ready "$1" "$src" \
     || fail "$(dirname "$1") fehlt oder liegt auf derselben Platte wie $src: Laufwerk einstecken und einen Ordner darauf angeben, z. B. /Volumes/KH-Backup/Kuechenhelfer-Backups"
   key=$(setting KH_BACKUP_COPY_KEY "")
-  if ! valid_key "$key" || [ ! -f "$src/$KEY_FILE" ]; then
+  [ -n "$key" ] || key=$(ask_password) || fail "Antwort j oder n erwartet"
+  if [ "$key" != none ] && { ! valid_key "$key" || [ ! -f "$src/$KEY_FILE" ]; }; then
     key=$(make_key "$src") || fail "der Schlüssel ließ sich nicht anlegen (im Terminal aufrufen, über SSH mit ssh -t)"
-    set_env_value "$ENV_FILE" KH_BACKUP_COPY_KEY "$key" || fail "$ENV_FILE ließ sich nicht schreiben"
   fi
+  set_env_value "$ENV_FILE" KH_BACKUP_COPY_KEY "$key" || fail "$ENV_FILE ließ sich nicht schreiben"
   set_env_value "$ENV_FILE" KH_BACKUP_COPY_DIR "$1" || fail "$ENV_FILE ließ sich nicht schreiben"
   schedule_job "$(pwd)" || fail "der nächtliche Job ließ sich nicht eintragen"
   echo "Kopie aufs Laufwerk an: jede Nacht um $JOB_HOUR:$JOB_MINUTE Uhr nach $1."
@@ -222,7 +260,14 @@ turn_off() {
 show_status() {
   dir=$(setting KH_BACKUP_COPY_DIR "")
   echo "Ordner: ${dir:-nicht eingerichtet (kh/ops/backup_copy.sh on <ordner>)}"
-  if valid_key "$(setting KH_BACKUP_COPY_KEY "")"; then echo "Schlüssel: eingerichtet"; else echo "Schlüssel: fehlt"; fi
+  key=$(setting KH_BACKUP_COPY_KEY "")
+  if [ "$key" = none ]; then
+    echo "Verschlüsselung: aus (ohne Passwort)"
+  elif valid_key "$key"; then
+    echo "Verschlüsselung: an (mit Passwort)"
+  else
+    echo "Verschlüsselung: noch nicht gewählt"
+  fi
   if job_scheduled; then
     echo "Nächtlicher Job: eingetragen ($JOB_HOUR:$JOB_MINUTE Uhr)"
   else
