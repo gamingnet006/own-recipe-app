@@ -35,7 +35,7 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | 6 THIRD_PARTY_NOTICES.md | erledigt |
 | 7 Installation | erledigt, nach Anleitung auf dem MacBook geprüft |
 | 8 Release v0.0 | erledigt: Tag und beide Images veröffentlicht. Upgrade-Test von `rc.2` bestanden, für amd64 in der CI und für arm64 auf dem MacBook (in einer Wegwerf-Installation statt mit `update.sh`, damit die Entwicklungs-Installation bleibt). Der Mac mini stellt sich in der Nacht zum 1.11. um 4 Uhr um. |
-| 9 Backup-Ort Mac mini | USB-Stick gewählt (D32). `kh/ops/backup_copy.sh` kopiert jede Nacht auf den Stick, wahlweise mit Passwort (D33): `v0.0.1` immer mit, `v0.0.2` mit Frage j/n. Die Windows-Dateien vom Stick liegen gesichert auf dem Mac mini. Festplattenvollzugriff für `/bin/dash` und Formatieren hast du erledigt; offen: `on` ohne Passwort |
+| 9 Backup-Ort Mac mini | USB-Stick gewählt (D32). `kh/ops/backup_copy.sh` kopiert jede Nacht auf den Stick, wahlweise mit Passwort (D33): `v0.0.1` immer mit, `v0.0.2` mit Frage j/n. Die Windows-Dateien vom Stick liegen gesichert auf dem Mac mini. Eingerichtet ohne Passwort: Festplattenvollzugriff für `/bin/dash`, Stick formatiert, erste Kopie um 15:06 Uhr, alle 3 Backups identisch. Läuft jede Nacht um 3:45 Uhr |
 | 10 Raspberry Pi | wartet auf den Pi |
 
 ## Reihenfolge
