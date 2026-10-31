@@ -24,7 +24,7 @@ yes_no() {
 # Copies auto_update.sh and the scripts it loads into DIR, a kh/ops folder of a test install.
 copy_scripts() {  # dir
   mkdir -p "$1/backup"
-  cp "$here/auto_update.sh" "$here/update.sh" "$here/check_bundle.sh" "$1/"
+  cp "$here/auto_update.sh" "$here/update.sh" "$here/check_bundle.sh" "$here/nightly_job.sh" "$1/"
   cp "$here/backup/backup.sh" "$1/backup/"
 }
 
@@ -140,17 +140,19 @@ check "mac on: launchctl error" "$( (export STUB_BOOTSTRAP_RC=5; on_test_mac on 
 
 # --- ops files inside the image (check_bundle.sh) ---
 . "$here/check_bundle.sh"
-ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/install.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
+ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup_copy.sh kh/ops/install.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
 check "complete bundle" "$(bundle_problems "$ok")" ""
 check "update.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/update.sh)")" "kh/ops/update.sh fehlt"
 # auto_update.sh loads these at start and update.sh builds the backup image: without them the
 # next night's run would die before it could report anything.
-for need in kh/ops/check_bundle.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile; do
+for need in kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile; do
   check "$need missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx "$need")")" "$need fehlt"
 done
 # The install guide takes install.sh from the release image.
+# The nightly copy to a removable drive runs it.
+check "backup_copy.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/backup_copy.sh)")" "kh/ops/backup_copy.sh fehlt"
 check "install.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/install.sh)")" "kh/ops/install.sh fehlt"
-for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/.restore-test.x1/ops/backups/a.zip kh/ops/auto_update.log kh/ops/.auto_update.failed; do
+for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/.restore-test.x1/ops/backups/a.zip kh/ops/auto_update.log kh/ops/.auto_update.failed kh/ops/backup_copy.log kh/ops/.backup_copy.x1/copy; do
   check "forbidden: $bad" "$(bundle_problems "$(printf '%s\n%s' "$ok" "$bad")")" "$bad darf nicht ins Image"
 done
 
@@ -220,11 +222,11 @@ printf '%s\n' '#!/bin/sh' 'echo "$*" >> "$DOCKER_CALLS"' \
   > "$stubs/docker"
 chmod +x "$stubs/curl" "$stubs/docker"
 bundle="$tmp/bundle"; mkdir -p "$bundle/kh/ops/backup" "$bundle/mealie/core/settings"
-cp "$here/auto_update.sh" "$here/check_bundle.sh" "$bundle/kh/ops/"
+cp "$here/auto_update.sh" "$here/check_bundle.sh" "$here/nightly_job.sh" "$bundle/kh/ops/"
 cp "$here/backup/backup.sh" "$bundle/kh/ops/backup/"
 echo 'echo "TAIL OF THE NEW FILE RAN"' >> "$bundle/kh/ops/auto_update.sh"
 printf '%s\n' '#!/bin/sh' 'echo "update.sh stand-in: $1"' 'exit "${STUB_UPDATE_RC:-0}"' > "$bundle/kh/ops/update.sh"
-: > "$bundle/kh/ops/backup/Dockerfile"; : > "$bundle/kh/ops/docker-compose.yml"; : > "$bundle/kh/ops/install.sh"
+: > "$bundle/kh/ops/backup/Dockerfile"; : > "$bundle/kh/ops/docker-compose.yml"; : > "$bundle/kh/ops/install.sh"; : > "$bundle/kh/ops/backup_copy.sh"
 : > "$bundle/mealie/core/settings/settings.py"
 
 # Runs "auto_update.sh run" in a fresh test install with the stand-ins; prints the output and

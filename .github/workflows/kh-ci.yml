@@ -40,3 +40,5 @@ jobs:
         run: sh kh/ops/test_tunnel.sh
       - name: Auto-update script tests
         run: sh kh/ops/test_auto_update.sh
+      - name: Backup copy script tests
+        run: sh kh/ops/test_backup_copy.sh

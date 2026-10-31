@@ -12,15 +12,15 @@ usage() {
 }
 
 # Prints one line per problem in a bundle listing (file paths below the bundle, one per line):
-# a missing file auto_update.sh or a new install (install.sh) needs, or a secret, data or working
-# file that must stay local.
+# a missing file auto_update.sh, the nightly copy (backup_copy.sh) or a new install (install.sh)
+# needs, or a secret, data or working file that must stay local.
 bundle_problems() {  # listing
-  for f in kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/install.sh kh/ops/backup/backup.sh \
-    kh/ops/backup/Dockerfile kh/ops/docker-compose.yml mealie/core/settings/settings.py; do
+  for f in kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup_copy.sh \
+    kh/ops/install.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/docker-compose.yml mealie/core/settings/settings.py; do
     printf '%s\n' "$1" | grep -qxF "$f" || echo "$f fehlt"
   done
   printf '%s\n' "$1" \
-    | grep -E '^kh/ops/(\.env|\.env\..*|data/.*|backups/.*|data\.pre-update/.*|\.upgrade-test\..*|\.restore-test\..*|auto_update\.log|\.auto_update\..*)$' \
+    | grep -E '^kh/ops/(\.env|\.env\..*|data/.*|backups/.*|data\.pre-update/.*|\.upgrade-test\..*|\.restore-test\..*|auto_update\.log|\.auto_update\..*|backup_copy\.log|\.backup_copy\..*)$' \
     | grep -vxF kh/ops/.env.example \
     | sed 's/$/ darf nicht ins Image/'
 }

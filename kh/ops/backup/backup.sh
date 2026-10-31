@@ -28,9 +28,9 @@ newest_zip() {
   ls -1t "$1"/*.zip 2>/dev/null | head -n 1
 }
 
-# Keeps the newest N zip files in a folder and deletes the older ones.
-prune() {
-  ls -1t "$1"/*.zip 2>/dev/null | tail -n +"$(($2 + 1))" | while read -r old; do
+# Keeps the newest N files ending in EXT (default zip) in a folder and deletes the older ones.
+prune() {  # folder n [ext]
+  ls -1t "$1"/*."${3:-zip}" 2>/dev/null | tail -n +"$(($2 + 1))" | while read -r old; do
     rm -f "$old"
   done
 }

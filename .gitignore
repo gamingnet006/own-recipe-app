@@ -190,3 +190,5 @@ kh/ops/.upgrade-test.*/
 kh/ops/.restore-test.*/
 kh/ops/auto_update.log
 kh/ops/.auto_update.*
+kh/ops/backup_copy.log
+kh/ops/.backup_copy.*/

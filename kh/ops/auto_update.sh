@@ -5,22 +5,26 @@
 set -eu
 
 # Loads helpers without running their scripts: update.sh (setting, set_env_value), backup.sh
-# (push to Uptime Kuma) and check_bundle.sh (bundle_problems, BUNDLE). Loaded first, so the
-# usage, fail and main defined below take precedence over theirs.
+# (push to Uptime Kuma), check_bundle.sh (bundle_problems, BUNDLE) and nightly_job.sh (schedule,
+# note, report). Loaded first, so the usage, fail and main defined below take precedence over theirs.
 load_helpers() {
   set -- --lib
   . "$(dirname "$0")/update.sh"
   . "$(dirname "$0")/backup/backup.sh"
   . "$(dirname "$0")/check_bundle.sh"
+  . "$(dirname "$0")/nightly_job.sh"
 }
 load_helpers
 
-CRON_MARK='# kh-auto-update'
-AGENT=kuechenhelfer.auto-update  # launchd label of the nightly job on macOS
+JOB_SCRIPT=auto_update.sh
+JOB_LABEL=kuechenhelfer.auto-update  # launchd label of the nightly job on macOS
+JOB_MARK='# kh-auto-update'
+JOB_HOUR=4  # after the default backup at 3:30
+JOB_MINUTE=0
+JOB_PUSH_SETTING=KH_UPDATE_PUSH_URL
 LOG=auto_update.log
 FAILED=.auto_update.failed
 LOCK=.auto_update.lock
-SCHEDULED=0  # 1 for the nightly run, whose whole output already goes to the log
 
 usage() {
   echo "Aufruf: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]" >&2
@@ -39,89 +43,6 @@ auto_update_enabled() {
     false|0|no|off) return 1 ;;
   esac
   return 0
-}
-
-# Prints the crontab line for the nightly run at 4:00, after the default backup at 3:30.
-cron_line() {  # ops_dir (absolute)
-  echo "0 4 * * * '$1/auto_update.sh' run --scheduled >> '$1/$LOG' 2>&1 $CRON_MARK"
-}
-
-# Prints a crontab without our line, then LINE: other jobs stay, ours exists exactly once.
-crontab_with() {  # current line
-  crontab_without "$1"
-  echo "$2"
-}
-
-# Prints a crontab without our line.
-crontab_without() {  # current
-  [ -z "$1" ] || printf '%s\n' "$1" | grep -vF "$CRON_MARK" || true
-}
-
-# macOS lets crontab write only with Full Disk Access, which SSH sessions lack: Macs schedule the
-# nightly run with a launchd agent instead.
-on_mac() {
-  [ "$(uname -s)" = Darwin ]
-}
-
-# Path of the launchd agent in the user's LaunchAgents folder; launchd also loads it at login.
-agent_file() {
-  echo "$HOME/Library/LaunchAgents/$AGENT.plist"
-}
-
-# Prints the launchd agent for the nightly run at 4:00, the same job as cron_line; & < > in the
-# path are escaped for XML.
-agent_plist() {  # ops_dir (absolute)
-  agent_ops=$(printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')
-  cat <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key><string>$AGENT</string>
-  <key>ProgramArguments</key>
-  <array><string>/bin/sh</string><string>$agent_ops/auto_update.sh</string><string>run</string><string>--scheduled</string></array>
-  <key>StartCalendarInterval</key>
-  <dict><key>Hour</key><integer>4</integer><key>Minute</key><integer>0</integer></dict>
-  <key>StandardOutPath</key><string>$agent_ops/$LOG</string>
-  <key>StandardErrorPath</key><string>$agent_ops/$LOG</string>
-</dict>
-</plist>
-EOF
-}
-
-# Enters the nightly job: on macOS the launchd agent, loaded now and at every login; elsewhere
-# our crontab line.
-schedule_job() {  # ops_dir (absolute)
-  if on_mac; then
-    mkdir -p "$(dirname "$(agent_file)")" && agent_plist "$1" > "$(agent_file)" || return 1
-    # bootout first: launchctl refuses to bootstrap an agent that is still loaded
-    launchctl bootout "gui/$(id -u)/$AGENT" 2>/dev/null || true
-    launchctl bootstrap "gui/$(id -u)" "$(agent_file)"
-    return
-  fi
-  # Read before the pipe: a crontab that empties itself on writing would lose the other jobs.
-  current=$(crontab -l 2>/dev/null || true)
-  crontab_with "$current" "$(cron_line "$1")" | crontab -
-}
-
-# Removes the nightly job; other cron jobs stay.
-unschedule_job() {
-  if on_mac; then
-    launchctl bootout "gui/$(id -u)/$AGENT" 2>/dev/null || true
-    rm -f "$(agent_file)"
-    return
-  fi
-  current=$(crontab -l 2>/dev/null || true)
-  crontab_without "$current" | crontab -
-}
-
-# True while the nightly job is entered.
-job_scheduled() {
-  if on_mac; then
-    launchctl print "gui/$(id -u)/$AGENT" >/dev/null 2>&1
-  else
-    crontab -l 2>/dev/null | grep -qF "$CRON_MARK"
-  fi
 }
 
 # Switches automatic updates on: the setting in .env plus the nightly job.
@@ -194,19 +115,6 @@ failed_tag() {
 
 clear_failed() {
   rm -f "$FAILED"
-}
-
-# Prints a timestamped line; a manual run also appends it to the log.
-note() {  # message
-  line="$(date '+%Y-%m-%d %H:%M') $1"
-  echo "$line"
-  [ "$SCHEDULED" = 1 ] || echo "$line" >> "$LOG"
-}
-
-# Notes the result and sends it to Uptime Kuma when KH_UPDATE_PUSH_URL is set (backup.sh's push).
-report() {  # up|down message
-  note "$2"
-  (KH_BACKUP_PUSH_URL=$(setting KH_UPDATE_PUSH_URL ""); push "$1" "$2")
 }
 
 # Turns update.sh's exit code into the result: success clears a remembered failure, 3 means the

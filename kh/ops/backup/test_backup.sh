@@ -32,6 +32,12 @@ check "prune leaves other files" "$(ls "$tmp"/notes.txt >/dev/null && echo yes)"
 prune "$tmp" 5
 check "prune with fewer files than limit" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
 
+# the encrypted copies on a removable drive (backup_copy.sh) end in .zip.age
+for day in 01 02 03; do touch -t "202601${day}0000" "$tmp/mealie_v3_2026.01.$day.zip.age"; done
+prune "$tmp" 1 zip.age
+check "prune by extension" "$(ls "$tmp"/*.zip.age | xargs -n 1 basename | tr '\n' ' ')" "mealie_v3_2026.01.03.zip.age "
+check "prune by extension leaves zips" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
+
 # push: Uptime Kuma shows its push URL with an example query; pasted as is, it must not reach curl
 mkdir "$tmp/bin"
 printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$@" > "$CURL_ARGS"' > "$tmp/bin/curl"

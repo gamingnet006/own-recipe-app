@@ -6,6 +6,21 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v0.0.1] - 2026-10-31
+
+Second backup location on a removable drive (D32, D33).
+
+- Encrypted copy of the backups on a USB stick or another drive (`kh/ops/backup_copy.sh on|off|status|run|decrypt`):
+  every night at 3:45 am, encrypted with age, the newest `KH_BACKUP_KEEP` copies stay. The private key lies on
+  the drive, locked with a password that is stored nowhere. Without the drive, or when the folder lies on this
+  machine's own disk, the job writes nothing and reports it. Encrypted, because a Mealie backup holds the backup
+  service's API key in plain text.
+- On macOS the copy runs as a LaunchAgent with `/bin/dash`, which needs Full Disk Access once: macOS locks
+  removable drives for background jobs and SSH.
+- The backup image now contains age (BSD-3-Clause).
+- Release images carry `kh/ops/nightly_job.sh` (scheduling shared by the nightly update and the copy) and
+  `kh/ops/backup_copy.sh`; `check_bundle.sh` refuses an image without them.
+
 ## [v0.0] - 2026-10-31
 
 First release for the family (phase 1, PLAN.md section 5). It runs on the Mac mini with access from

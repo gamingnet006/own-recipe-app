@@ -1,0 +1,276 @@
+#!/bin/sh
+# KH: copies the daily backups, encrypted with age, to a removable drive such as a USB stick
+# (PLAN.md D32), so a copy survives when this machine's disk fails. Only the public key stays here;
+# the private key lies on the drive, locked with a password that is stored nowhere.
+# Usage: kh/ops/backup_copy.sh on <folder>|off|status|run [--scheduled]|decrypt <file.zip.age>
+set -eu
+
+# Loads helpers without running their scripts: update.sh (setting, set_env_value), backup.sh
+# (prune, push) and nightly_job.sh (schedule, report). Loaded first, so the usage, fail and main
+# defined below take precedence over theirs.
+load_helpers() {
+  set -- --lib
+  . "$(dirname "$0")/update.sh"
+  . "$(dirname "$0")/backup/backup.sh"
+  . "$(dirname "$0")/nightly_job.sh"
+}
+load_helpers
+
+JOB_SCRIPT=backup_copy.sh
+JOB_LABEL=kuechenhelfer.backup-copy  # launchd label of the nightly job on macOS
+JOB_MARK='# kh-backup-copy'
+JOB_HOUR=3  # a quarter of an hour after the default backup at 3:30, before the update at 4:00
+JOB_MINUTE=45
+# macOS lets a nightly job read removable drives only with Full Disk Access. The job runs with
+# dash, which nothing else on a Mac starts, so that permission stays with this job.
+JOB_SHELL=/bin/dash
+JOB_PUSH_SETTING=KH_BACKUP_PUSH_URL  # one Uptime Kuma monitor for the backup and its copy
+LOG=backup_copy.log
+KEY_FILE=kuechenhelfer-schluessel.age  # the private key, locked with the password
+README_FILE=LIESMICH.txt
+
+usage() {
+  echo "Aufruf: kh/ops/backup_copy.sh on <ordner>|off|status|run [--scheduled]|decrypt <datei.zip.age>" >&2
+  exit 2
+}
+
+# Stops with a clear reason.
+fail() {
+  echo "Kopie aufs Laufwerk: $1" >&2
+  exit 1
+}
+
+# Ends a copy run with a clear reason, in the log and at Uptime Kuma.
+stop_run() {  # message
+  report down "Kopie aufs Laufwerk: $1"
+  exit 1
+}
+
+# Prints an absolute path; the script changes into kh/ops before it uses one.
+abs_path() {  # path
+  case "$1" in /*) echo "$1" ;; *) echo "$(pwd)/$1" ;; esac
+}
+
+# True for an age public key: age1 and 58 more lowercase letters or digits.
+valid_key() {  # key
+  printf '%s\n' "$1" | grep -Eqx 'age1[0-9a-z]{58}'
+}
+
+# True if FILE starts like an age file.
+is_age_file() {  # file
+  [ "$(head -n 1 "$1" 2>/dev/null)" = "age-encryption.org/v1" ]
+}
+
+# Prints the file system a path lies on, as df names it.
+disk_of() {  # path
+  df -P "$1" 2>/dev/null | awk 'NR == 2 { print $1 }'
+}
+
+# True if the drive is plugged in: the folder's parent exists and lies on another disk than the
+# backups. Without the drive there is nothing, or an empty folder on this machine's own disk.
+drive_ready() {  # folder source
+  [ -d "$(dirname "$1")" ] || return 1
+  drive=$(disk_of "$(dirname "$1")")
+  [ -n "$drive" ] && [ "$drive" != "$(disk_of "$2")" ]
+}
+
+# Explains a failed write to the drive; on macOS that is usually the missing Full Disk Access.
+no_access() {  # path
+  if on_mac; then
+    echo "kein Zugriff auf $1. macOS: /bin/dash braucht Festplattenvollzugriff (docs/kh/README.md)"
+  else
+    echo "kein Zugriff auf $1"
+  fi
+}
+
+# Copies SRC to DEST under a temporary name, compares the copy and renames it only then, so a copy
+# cut off halfway never carries the final name. The file gets REF's time: pruning goes by it.
+store_file() {  # src dest [ref]
+  part="$(dirname "$2")/.$(basename "$2").part"
+  cp "$1" "$part" 2>/dev/null && cmp -s "$1" "$part" && touch -r "${3:-$1}" "$part" && mv "$part" "$2" \
+    || { rm -f "$part"; return 1; }
+}
+
+# Prints the newest N backups in SOURCE that FOLDER has no copy of yet, newest first.
+pending() {  # source folder n
+  ls -1t "$1"/*.zip 2>/dev/null | head -n "$3" | while read -r zip; do
+    [ -f "$2/$(basename "$zip").age" ] || echo "$zip"
+  done
+}
+
+# Runs a command in the backup service's image, which has age and unzip; without a terminal, so
+# stdin and stdout carry the data.
+in_backup() {  # command...
+  docker compose run --rm --no-deps -T backup "$@"
+}
+
+# Runs a command in the backup image with a terminal, so age can ask for the password.
+in_backup_tty() {  # command...
+  docker compose run --rm --no-deps backup "$@"
+}
+
+# Reads a backup zip on stdin, checks it and prints it encrypted for KEY.
+encrypt() {  # key
+  in_backup sh -c 'f=$(mktemp) && cat > "$f" && unzip -tq "$f" >/dev/null && age -r "$1" "$f"; rc=$?; rm -f "$f"; exit "$rc"' sh "$1"
+}
+
+# Prints the guide that lies on the drive next to the copies, for whoever finds the drive later.
+readme() {
+  cat <<EOF
+Küchenhelfer-Backups, verschlüsselt mit age (https://age-encryption.org)
+
+*.zip.age  tägliche Backups
+$KEY_FILE  der Schlüssel dazu, gesperrt mit dem Passwort
+
+Wiederherstellen: Küchenhelfer installieren (docs/kh/README.md), dann
+  kh/ops/backup_copy.sh decrypt <dieser Ordner>/<backup>.zip.age
+  docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <backup>.zip
+Ohne Küchenhelfer: age -d -i $KEY_FILE -o <backup>.zip <backup>.zip.age
+
+Küchenhelfer backups, encrypted with age. *.zip.age are the daily backups, $KEY_FILE is their
+key, locked with the password. Restore as above; age asks for the password. Each .zip is a normal
+Mealie backup.
+EOF
+}
+
+# Puts the locked key and the guide on the drive if they are missing there. Never replaces a
+# different key: the copies made with it could no longer be opened.
+put_key() {  # local_key folder
+  if [ -f "$2/$KEY_FILE" ]; then
+    cmp -s "$1" "$2/$KEY_FILE" \
+      || stop_run "auf dem Laufwerk liegt ein anderer Schlüssel; für einen neuen Schlüssel einen neuen Ordner nehmen"
+  else
+    store_file "$1" "$2/$KEY_FILE" || stop_run "$(no_access "$2")"
+  fi
+  [ -f "$2/$README_FILE" ] || readme > "$2/$README_FILE" || stop_run "$(no_access "$2")"
+}
+
+# One copy run: checks setup and drive, puts key and guide there, copies the backups that have no
+# copy yet, then keeps the newest KH_BACKUP_KEEP copies on the drive.
+run_cmd() {  # [--scheduled]
+  case "${1:-}" in "") ;; --scheduled) SCHEDULED=1 ;; *) usage ;; esac
+  dir=$(setting KH_BACKUP_COPY_DIR "")
+  key=$(setting KH_BACKUP_COPY_KEY "")
+  src=$(setting KH_BACKUP_DIR ./backups)
+  keep=$(setting KH_BACKUP_KEEP 14)
+  [ -n "$dir" ] && valid_key "$key" && [ -f "$src/$KEY_FILE" ] \
+    || stop_run "nicht eingerichtet, zuerst: kh/ops/backup_copy.sh on <ordner>"
+  drive_ready "$dir" "$src" || stop_run "Laufwerk fehlt: $(dirname "$dir") ist nicht da oder liegt auf der eigenen Platte"
+  [ -d "$dir" ] || mkdir "$dir" 2>/dev/null || stop_run "$(no_access "$dir")"
+  put_key "$src/$KEY_FILE" "$dir"
+  WORK=$(mktemp -d ./.backup_copy.XXXXXX) || stop_run "Arbeitsordner fehlt"
+  trap 'rm -rf "$WORK"' EXIT
+  pending "$src" "$dir" "$keep" > "$WORK/list"
+  new=0
+  while read -r zip; do
+    encrypt "$key" < "$zip" > "$WORK/copy" && is_age_file "$WORK/copy" \
+      || stop_run "$(basename "$zip") ließ sich nicht verschlüsseln (Backup beschädigt? Fehlt age im Backup-Image: docker compose build backup)"
+    store_file "$WORK/copy" "$dir/$(basename "$zip").age" "$zip" || stop_run "$(no_access "$dir")"
+    new=$((new + 1))
+  done < "$WORK/list"
+  prune "$dir" "$keep" zip.age
+  report up "Kopie aufs Laufwerk OK: $new neu, $(ls -1 "$dir"/*.zip.age 2>/dev/null | wc -l | tr -d ' ') auf dem Laufwerk"
+}
+
+# Makes a key pair in the backup image: age asks twice for the password and locks the private key
+# with it, which lands in SOURCE; prints the public key. The open private key never touches a disk.
+make_key() {  # source
+  rm -f "$1/.copy-key.pub" "$1/.copy-key.age"
+  echo "Gleich fragt age zweimal nach dem Passwort für die Kopien (Enter passphrase, Confirm passphrase)." >&2
+  echo "Ohne dieses Passwort lässt sich keine Kopie mehr öffnen: gut merken oder sicher aufschreiben." >&2
+  in_backup_tty sh -c 'key=$(age-keygen 2>/dev/null) &&
+    printf "%s\n" "$key" | age-keygen -y > /backups-dest/.copy-key.pub &&
+    printf "%s\n" "$key" | age -p -a -o /backups-dest/.copy-key.age &&
+    { chown "$KH_PUID:$KH_PGID" /backups-dest/.copy-key.pub /backups-dest/.copy-key.age 2>/dev/null || true; }' >&2 \
+    || return 1
+  pub=$(cat "$1/.copy-key.pub" 2>/dev/null) && valid_key "$pub" && mv "$1/.copy-key.age" "$1/$KEY_FILE" || return 1
+  rm -f "$1/.copy-key.pub"
+  echo "$pub"
+}
+
+# Switches the copy on: checks the drive, makes the key on first use, enters the nightly job and
+# starts the first copy. On macOS the first copy runs as the nightly job, which may read the drive.
+turn_on() {  # folder (absolute)
+  [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
+  src=$(setting KH_BACKUP_DIR ./backups)
+  drive_ready "$1" "$src" \
+    || fail "$(dirname "$1") fehlt oder liegt auf derselben Platte wie $src: Laufwerk einstecken und einen Ordner darauf angeben, z. B. /Volumes/KH-Backup/Kuechenhelfer-Backups"
+  key=$(setting KH_BACKUP_COPY_KEY "")
+  if ! valid_key "$key" || [ ! -f "$src/$KEY_FILE" ]; then
+    key=$(make_key "$src") || fail "der Schlüssel ließ sich nicht anlegen (im Terminal aufrufen, über SSH mit ssh -t)"
+    set_env_value "$ENV_FILE" KH_BACKUP_COPY_KEY "$key" || fail "$ENV_FILE ließ sich nicht schreiben"
+  fi
+  set_env_value "$ENV_FILE" KH_BACKUP_COPY_DIR "$1" || fail "$ENV_FILE ließ sich nicht schreiben"
+  schedule_job "$(pwd)" || fail "der nächtliche Job ließ sich nicht eintragen"
+  echo "Kopie aufs Laufwerk an: jede Nacht um $JOB_HOUR:$JOB_MINUTE Uhr nach $1."
+  if on_mac; then
+    launchctl kickstart "gui/$(id -u)/$JOB_LABEL" || fail "die erste Kopie ließ sich nicht starten"
+    echo "Die erste Kopie läuft. Ergebnis in einer Minute: kh/ops/backup_copy.sh status"
+  else
+    run_cmd
+  fi
+}
+
+# Switches the copy off; settings, key and the copies on the drive stay.
+turn_off() {
+  unschedule_job || fail "der nächtliche Job ließ sich nicht austragen"
+  echo "Kopie aufs Laufwerk aus. Wieder an: kh/ops/backup_copy.sh on <ordner>"
+}
+
+# Shows folder, key, nightly job and the last log entries. It does not look at the drive: over SSH,
+# macOS hides removable drives; the nightly job's log tells how the copies went.
+show_status() {
+  dir=$(setting KH_BACKUP_COPY_DIR "")
+  echo "Ordner: ${dir:-nicht eingerichtet (kh/ops/backup_copy.sh on <ordner>)}"
+  if valid_key "$(setting KH_BACKUP_COPY_KEY "")"; then echo "Schlüssel: eingerichtet"; else echo "Schlüssel: fehlt"; fi
+  if job_scheduled; then
+    echo "Nächtlicher Job: eingetragen ($JOB_HOUR:$JOB_MINUTE Uhr)"
+  else
+    echo "Nächtlicher Job: nicht eingetragen"
+  fi
+  [ ! -f "$LOG" ] || { echo "Letzte Einträge im Log:"; tail -n 5 "$LOG"; }
+}
+
+# Decrypts a copy into the backup folder, where restore.sh finds it; age asks for the password.
+# Takes the key next to the copy, or this machine's own.
+decrypt_cmd() {  # file.zip.age (absolute)
+  case "$1" in *.zip.age) ;; *) fail "keine Kopie (.zip.age): $1" ;; esac
+  [ -f "$1" ] || fail "nicht gefunden: $1"
+  src=$(setting KH_BACKUP_DIR ./backups)
+  name=$(basename "$1" .age)
+  [ ! -e "$src/$name" ] || fail "$name liegt schon in $src; wiederherstellen mit restore.sh $name"
+  keyfile="$(dirname "$1")/$KEY_FILE"
+  [ -f "$keyfile" ] || keyfile="$src/$KEY_FILE"
+  [ -f "$keyfile" ] || fail "kein Schlüssel ($KEY_FILE) neben der Kopie und keiner in $src"
+  cp "$keyfile" "$src/.decrypt-key.age" && cp "$1" "$src/.decrypt-in.age" || fail "$(no_access "$1")"
+  rc=0
+  in_backup_tty sh -c 'age -d -i /backups-dest/.decrypt-key.age -o /backups-dest/.decrypt-out.zip /backups-dest/.decrypt-in.age &&
+    unzip -tq /backups-dest/.decrypt-out.zip >/dev/null &&
+    { chown "$KH_PUID:$KH_PGID" /backups-dest/.decrypt-out.zip 2>/dev/null || true; }' || rc=1
+  rm -f "$src/.decrypt-key.age" "$src/.decrypt-in.age"
+  if [ "$rc" -ne 0 ] || ! mv "$src/.decrypt-out.zip" "$src/$name" 2>/dev/null; then
+    rm -f "$src/.decrypt-out.zip"
+    fail "Entschlüsseln fehlgeschlagen (falsches Passwort?)"
+  fi
+  echo "Entschlüsselt: $src/$name"
+  echo "Wiederherstellen: docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh $name"
+}
+
+main() {
+  # cron, launchd and SSH on macOS do not find docker otherwise; appended, so the caller's PATH still wins
+  PATH="$PATH:/usr/local/bin:/opt/homebrew/bin"
+  export PATH
+  [ $# -ge 1 ] || usage
+  path=$(abs_path "${2:-}")
+  cd "$(dirname "$0")"
+  case "$1" in
+    on) [ $# -eq 2 ] || usage; turn_on "$path" ;;
+    off) [ $# -eq 1 ] || usage; turn_off ;;
+    status) [ $# -eq 1 ] || usage; show_status ;;
+    run) [ $# -le 2 ] || usage; shift; run_cmd "$@" ;;
+    decrypt) [ $# -eq 2 ] || usage; decrypt_cmd "$path" ;;
+    *) usage ;;
+  esac
+}
+
+[ "${1:-}" = "--lib" ] || main "$@"

@@ -87,6 +87,9 @@ kh/ops/update.sh <image>
 kh/ops/tunnel.sh on|off|status
 # Automatische Updates (nur stabile Releases, nachts um 4 Uhr): an, aus, Stand, Probelauf, sofort
 kh/ops/auto_update.sh on|off|status|check|run
+# Verschlüsselte Kopie der Backups auf einen USB-Stick, nachts um 3:45 Uhr; "on" legt beim ersten Mal den Schlüssel an
+# (age fragt nach dem Passwort), "decrypt" holt eine Kopie zurück. Getestet, mit echtem Stick noch nicht erprobt
+kh/ops/backup_copy.sh on <ordner>|off|status|run|decrypt <datei.zip.age>
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
@@ -94,7 +97,7 @@ kh/ops/upgrade_test.sh <altes-image> <neues-image>
 # Restore-Test: neuestes oder angegebenes Backup mit restore.sh in eine Wegwerf-Installation einspielen, Rezepte und Dateien vergleichen (Port 9191)
 kh/ops/restore_test.sh [backup.zip]
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh && sh kh/ops/test_backup_copy.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

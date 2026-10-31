@@ -23,7 +23,7 @@ All licenses below were checked at the source on 2026-10-31, from the license da
 
 ### Packages in the backup image
 
-The backup image is built on each machine from `alpine:3.22` with `apk add --no-cache curl unzip tzdata`. It needs curl for Mealie's API and Uptime Kuma, unzip to check backups, and tzdata for the backup time. The other packages come with Alpine or with these three.
+The backup image is built on each machine from `alpine:3.22` with `apk add --no-cache curl unzip tzdata age`. It needs curl for Mealie's API and Uptime Kuma, unzip to check backups, tzdata for the backup time, and age to encrypt the copies on a removable drive (`kh/ops/backup_copy.sh`, D32). The other packages come with Alpine or with these four.
 
 Patch versions can differ a little between builds. The list below is from the build on 2026-10-31. To see the exact list on your machine:
 
@@ -36,6 +36,7 @@ docker run --rm --entrypoint apk kuechenhelfer-backup:dev list --installed
 | curl, libcurl | 8.14.1 | curl (MIT-style) |
 | unzip | 6.0 | Info-ZIP license (apk lists it as "custom") |
 | tzdata | 2026e | Public domain |
+| age (age, age-keygen) | 1.2.1 | BSD-3-Clause, [FiloSottile/age](https://github.com/FiloSottile/age) |
 | BusyBox (busybox, busybox-binsh, ssl_client; provides `sh` and `crond`) | 1.37.0 | GPL-2.0-only |
 | musl | 1.2.5 | MIT |
 | musl-utils | 1.2.5 | MIT AND BSD-2-Clause AND GPL-2.0-or-later |

@@ -23,7 +23,7 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | E3 | Kommen Beispielrezepte in die Familien-Installation? | Nein, die Familie startet leer (D31). |
 | E4 | Erscheint `v0.0` vor dem Pi-Test? | Ja. Der Pi-Test folgt; Fehler kämen als `v0.0.1` (D30). |
 
-## Stand (31.10.2026, mittags)
+## Stand (31.10.2026, nachmittags)
 
 | Paket | Stand |
 |---|---|
@@ -35,7 +35,7 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | 6 THIRD_PARTY_NOTICES.md | erledigt |
 | 7 Installation | erledigt, nach Anleitung auf dem MacBook geprüft |
 | 8 Release v0.0 | erledigt: Tag und beide Images veröffentlicht. Upgrade-Test von `rc.2` bestanden, für amd64 in der CI und für arm64 auf dem MacBook (in einer Wegwerf-Installation statt mit `update.sh`, damit die Entwicklungs-Installation bleibt). Der Mac mini stellt sich in der Nacht zum 1.11. um 4 Uhr um. |
-| 9 Backup-Ort Mac mini | Frage an dich ist gestellt |
+| 9 Backup-Ort Mac mini | USB-Stick gewählt (D32). `kh/ops/backup_copy.sh` kopiert jede Nacht verschlüsselt auf den Stick (D33), kommt mit `v0.0.1`. Die Windows-Dateien vom Stick liegen gesichert auf dem Mac mini. macOS sperrt den Stick für SSH und Hintergrund-Jobs; offen auf deiner Seite: Festplattenvollzugriff für `/bin/dash`, Stick formatieren, Passwort festlegen |
 | 10 Raspberry Pi | wartet auf den Pi |
 
 ## Reihenfolge

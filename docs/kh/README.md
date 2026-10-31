@@ -101,6 +101,11 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
   - `KH_UPDATE_PUSH_URL`
   - Danach `docker compose -f kh/ops/docker-compose.yml up -d backup`.
 - **Backup prüfen:** `kh/ops/restore_test.sh` spielt das neueste Backup in eine Wegwerf-Installation ein und vergleicht Rezepte und Dateien.
+- **Kopie auf einen USB-Stick** (D32): Jede Nacht um 3:45 Uhr kommen die neuen Backups verschlüsselt auf ein zweites Laufwerk, zum Beispiel einen USB-Stick mit exFAT. Öffnen lassen sie sich nur mit deinem Passwort, das nirgends gespeichert wird. Vergisst du es, sind die Kopien verloren.
+  1. Am Mac braucht der nächtliche Job einmal Festplattenvollzugriff, sonst sperrt macOS den Stick: Systemeinstellungen → Sicherheit & Datenschutz → Datenschutz → Festplattenvollzugriff → „+“ → ⇧⌘G → `/bin/dash`. Außer diesem Job startet nichts `dash`.
+  2. Stick einstecken und einschalten, über SSH mit `ssh -t`: `kh/ops/backup_copy.sh on /Volumes/<Stick>/Kuechenhelfer-Backups`. Beim ersten Mal fragt age zweimal nach dem Passwort. Am Pi muss der Stick eingehängt sein, zum Beispiel über `/etc/fstab`.
+  3. Stand prüfen: `kh/ops/backup_copy.sh status`. Fehlt der Stick, schreibt der Job nichts und meldet es, mit `KH_BACKUP_PUSH_URL` auch an Uptime Kuma.
+  - Zurückholen: `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age` fragt nach dem Passwort und legt das Backup in den Backup-Ordner; danach `restore.sh <backup>.zip` wie unter „Alltag“. Am Mac im Terminal am Gerät selbst aufrufen, nicht über SSH. Dieselben Schritte stehen in `LIESMICH.txt` auf dem Stick.
 
 ### Alltag
 
@@ -205,6 +210,11 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
   - `KH_UPDATE_PUSH_URL`
   - Then run `docker compose -f kh/ops/docker-compose.yml up -d backup`.
 - **Check a backup:** `kh/ops/restore_test.sh` restores the newest backup into a throwaway install and compares recipes and files.
+- **Copy to a USB stick** (D32): every night at 3:45 am the new backups go, encrypted, to a second drive such as a USB stick with exFAT. Only your password opens them; it is stored nowhere. If you forget it, the copies are lost.
+  1. On a Mac the nightly job needs Full Disk Access once, or macOS locks the stick: System Preferences → Security & Privacy → Privacy → Full Disk Access → "+" → ⇧⌘G → `/bin/dash`. Nothing but this job starts `dash`.
+  2. Plug in the stick and switch the copy on, over SSH with `ssh -t`: `kh/ops/backup_copy.sh on /Volumes/<stick>/Kuechenhelfer-Backups`. The first time, age asks for the password twice. On a Pi the stick must be mounted, for example through `/etc/fstab`.
+  3. Check: `kh/ops/backup_copy.sh status`. Without the stick the job writes nothing and reports it, with `KH_BACKUP_PUSH_URL` also to Uptime Kuma.
+  - Bring one back: `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for the password and puts the backup into the backup folder; then `restore.sh <backup>.zip` as under "Day to day". On a Mac run it in the Terminal on the machine itself, not over SSH. `LIESMICH.txt` on the stick has the same steps.
 
 ### Day to day
 
