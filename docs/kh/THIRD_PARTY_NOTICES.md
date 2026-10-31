@@ -67,4 +67,4 @@ docker run --rm --entrypoint apk kuechenhelfer-backup:dev list --installed
 
 ## Not part of Küchenhelfer
 
-Docker, Docker Compose, Colima, Uptime Kuma and the Cloudflare service are installed and used by whoever runs Küchenhelfer, under their own terms. Which data goes to which service is listed in the table „Was geht wohin“ (PLAN.md section 8).
+Docker, Docker Compose, Colima, Uptime Kuma, the Cloudflare service and Google Gemini (with a key from Google AI Studio, D35) are installed or used by whoever runs Küchenhelfer, under their own terms. Which data goes to which service is listed in the table „Was geht wohin“ in [README.md](README.md).

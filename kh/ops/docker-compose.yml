@@ -30,6 +30,14 @@ services:
       DB_ENGINE: sqlite
       # Public recipe pages by link stay off unless switched on (Leitplanke 1, mealie/kh/features).
       KH_SHARE_LINKS: ${KH_SHARE_LINKS:-false}
+      # Drafts and duplicate hints (phase 2, D35); empty keeps the defaults in mealie/kh/features/settings.py.
+      KH_DRAFT_MAX_IMAGES: ${KH_DRAFT_MAX_IMAGES:-}
+      KH_DRAFT_MAX_IMAGE_MB: ${KH_DRAFT_MAX_IMAGE_MB:-}
+      KH_DRAFT_MAX_TEXT: ${KH_DRAFT_MAX_TEXT:-}
+      KH_DRAFT_STALE_MINUTES: ${KH_DRAFT_STALE_MINUTES:-}
+      KH_DUPLICATE_TITLE: ${KH_DUPLICATE_TITLE:-}
+      KH_DUPLICATE_INGREDIENTS: ${KH_DUPLICATE_INGREDIENTS:-}
+      KH_DUPLICATE_TITLE_WITH_INGREDIENTS: ${KH_DUPLICATE_TITLE_WITH_INGREDIENTS:-}
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.

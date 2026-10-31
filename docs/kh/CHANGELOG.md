@@ -6,6 +6,18 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+Phase 2: every new recipe gets a review before it is saved (D35).
+
+- **Add recipe** takes a link, a text or photos; Mealie's import pages lead there too. The recipe is
+  recognized in the background and waits as a draft under "Drafts (n)" for anyone in the household.
+- The review shows the original next to the result (one below the other on a phone, side by side on an
+  iPad), with Save, Save and edit, Discard and Try again.
+- Possible duplicates (same link, similar title, the same ingredients) are pointed out, never deleted.
+- A saved recipe shows where it came from, with a way back to its original.
+- AI: Google Gemini with a free key, entered in Mealie's group settings; the guide explains how and
+  lists what goes where.
+- New optional settings `KH_DRAFT_*` and `KH_DUPLICATE_*`, see `kh/ops/.env.example`.
+
 ## [v0.0.2] - 2026-10-31
 
 The copy to a USB stick also works without a password (D33).

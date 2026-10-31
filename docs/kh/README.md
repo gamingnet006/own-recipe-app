@@ -90,6 +90,38 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
    kh/ops/auto_update.sh status
    ```
 
+### 7. KI einrichten (Gemini)
+
+Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Küchenhelfer nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
+
+1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Küchenhelfer „Kontingent für heute aufgebraucht“.
+2. Öffne in Küchenhelfer **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und trag ein:
+   - **Anbietername:** zum Beispiel `Gemini`
+   - **Basis-URL:** `https://generativelanguage.googleapis.com/v1beta/openai/`
+   - **API-Key:** der Schlüssel aus AI Studio
+   - **Modell:** ein Flash-Modell, genau so geschrieben, wie AI Studio es anzeigt
+   - **Supports images** anhaken
+3. Prüf die Verbindung mit **Test Connection** und speichere. Wähl den Anbieter dann als **Standard-Anbieter** und als **Bildanbieter**.
+
+Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Küchenhelfers Datenbank und damit in jedem Backup.
+
+### Rezept hinzufügen
+
+Neue Rezepte kommen über **Erstellen → Rezept hinzufügen**; auch Mealies Import-Seiten führen dorthin. Selbst eintippen geht weiter über den zweiten Eintrag im Menü **Erstellen**.
+
+- **Link:** Adresse einfügen. Hat die Seite Rezeptdaten, liest Küchenhelfer sie ohne KI, sonst liest die KI die Seite.
+- **Text:** Rezepttext einfügen, zum Beispiel aus einer Nachricht.
+- **Foto oder Screenshot:** Kamera oder Mediathek. Ein Rezept auf mehreren Seiten bekommt alle Fotos zusammen, bis zu fünf.
+
+Danach wartet das Rezept als Entwurf unter **Entwürfe (n)** und ist nach ein paar Sekunden erkannt. Jeder im Haushalt sieht alle Entwürfe und darf sie übernehmen. In der Prüfansicht steht das Original neben dem Ergebnis, am Handy untereinander:
+
+- **Übernehmen** speichert das Rezept, **Übernehmen und bearbeiten** öffnet es gleich zum Ändern.
+- **Verwerfen** löscht den Entwurf samt Original.
+- Gibt es das Rezept vielleicht schon (gleicher Link, ähnlicher Titel oder dieselben Zutaten), steht oben ein Hinweis mit Link. Gelöscht wird nie etwas von selbst.
+- Ging die Erkennung schief, steht der Grund dabei, mit **Neu versuchen**.
+
+Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehen**.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -107,7 +139,7 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
   3. Stand prüfen: `kh/ops/backup_copy.sh status`. Fehlt der Stick, schreibt der Job nichts und meldet es, mit `KH_BACKUP_PUSH_URL` auch an Uptime Kuma.
   4. Mit Passwort zur Probe eine Kopie öffnen: `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age`. Solange dasselbe Backup noch auf diesem Rechner liegt, vergleicht der Befehl nur und meldet, ob die Kopie stimmt.
   - Zurückholen: Mit Passwort fragt `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age` danach und legt das Backup in den Backup-Ordner; am Mac im Terminal am Gerät selbst aufrufen, nicht über SSH. Ohne Passwort die `.zip` vom Stick nach `kh/ops/backups` kopieren. Danach `restore.sh <backup>.zip` wie unter „Alltag“. Dieselben Schritte stehen in `LIESMICH.txt` auf dem Stick.
-  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Küchenhelfer unter Profil → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an.
+  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Küchenhelfer unter Profil → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an. Auch der KI-Schlüssel steckt im Backup: Leg in Google AI Studio einen neuen an, trag ihn unter Gruppen-Einstellungen → KI-Anbieter ein und lösch den alten in AI Studio.
 
 ### Alltag
 
@@ -123,6 +155,20 @@ docker compose -f kh/ops/docker-compose.yml up -d
 ```
 
 Auf dem Mac brauchen eigene Hintergrund-Jobs (cron, launchd) `/usr/local/bin` im PATH, sonst finden sie `docker` nicht. `auto_update.sh` ergänzt das selbst.
+
+### Was geht wohin
+
+Was Küchenhelfer heute nach draußen schickt. Telemetrie gibt es keine.
+
+| Funktion | Was wird gesendet | An wen | Abschalten |
+|---|---|---|---|
+| Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
+| KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | Google Gemini, nur mit eingetragenem Schlüssel (D35) | KI-Anbieter in den Gruppen-Einstellungen löschen |
+| Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
+| Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
+| Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
+| Backups und Kopie | alle Daten, auch der KI-Schlüssel | dein Backup-Ordner und, falls eingerichtet, der USB-Stick; verschlüsselt, wenn beim Einrichten ein Passwort gewählt wurde (D32, D33) | `kh/ops/backup_copy.sh off` für die Kopie |
+| Meldungen | ob Backup, Kopie und Update geklappt haben | dein Uptime Kuma | Push-Adressen in `kh/ops/.env` leer lassen |
 
 ---
 
@@ -201,6 +247,38 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
    kh/ops/auto_update.sh status
    ```
 
+### 7. Set up AI (Gemini)
+
+An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Küchenhelfer uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
+
+1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Küchenhelfer says "Today's AI quota is used up".
+2. In Küchenhelfer open **Profile → Group Settings → AI Provider Settings → Create Provider** and enter:
+   - **Provider Name:** for example `Gemini`
+   - **Base URL:** `https://generativelanguage.googleapis.com/v1beta/openai/`
+   - **API Key:** the key from AI Studio
+   - **Model:** a Flash model, written exactly as AI Studio shows it
+   - tick **Supports images**
+3. Check the connection with **Test Connection** and save. Then choose the provider as **Default Provider** and as **Image Provider**.
+
+On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Küchenhelfer's database and so in every backup.
+
+### Add a recipe
+
+New recipes come in through **Create → Add recipe**; Mealie's import pages lead there too. Typing a recipe yourself still works through the second entry in the **Create** menu.
+
+- **Link:** paste the address. If the page has recipe data, Küchenhelfer reads it without AI, otherwise the AI reads the page.
+- **Text:** paste the recipe text, for example from a message.
+- **Photo or screenshot:** camera or photo library. A recipe on several pages gets all its photos together, up to five.
+
+The recipe then waits as a draft under **Drafts (n)** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
+
+- **Save** stores the recipe, **Save and edit** opens it right away for changes.
+- **Discard** deletes the draft with its original.
+- If the recipe may exist already (same link, similar title or the same ingredients), a hint with a link is shown on top. Nothing is ever deleted by itself.
+- If the recognition went wrong, the reason is shown, with **Try again**.
+
+A badge on the saved recipe shows where it came from, with **View original**.
+
 ### Optional
 
 - **Access from outside** (Cloudflare Tunnel, D27):
@@ -218,7 +296,7 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
   3. Check: `kh/ops/backup_copy.sh status`. Without the stick the job writes nothing and reports it, with `KH_BACKUP_PUSH_URL` also to Uptime Kuma.
   4. With a password, open a copy as a test: `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age`. While the same backup is still on this machine, the command only compares and reports whether the copy is right.
   - Bring one back: with a password, `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for it and puts the backup into the backup folder; on a Mac run it in the Terminal on the machine itself, not over SSH. Without a password, copy the `.zip` from the stick into `kh/ops/backups`. Then `restore.sh <backup>.zip` as under "Day to day". `LIESMICH.txt` on the stick has the same steps.
-  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Küchenhelfer under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more.
+  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Küchenhelfer under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
 
 ### Day to day
 
@@ -234,3 +312,17 @@ docker compose -f kh/ops/docker-compose.yml up -d
 ```
 
 On a Mac, your own background jobs (cron, launchd) need `/usr/local/bin` in PATH, or they do not find `docker`. `auto_update.sh` adds it itself.
+
+### What goes where
+
+What Küchenhelfer sends out today. There is no telemetry.
+
+| Feature | What is sent | To whom | Switch off |
+|---|---|---|---|
+| Read a link | fetching the page and its recipe picture | the website in question | – |
+| AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | Google Gemini, only with a key entered (D35) | delete the AI provider in the group settings |
+| Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
+| Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
+| Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |
+| Backups and copy | all data, the AI key included | your backup folder and, if set up, the USB stick; encrypted when a password was chosen during setup (D32, D33) | `kh/ops/backup_copy.sh off` for the copy |
+| Reports | whether backup, copy and update worked | your Uptime Kuma | leave the push addresses in `kh/ops/.env` empty |
