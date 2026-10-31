@@ -70,6 +70,8 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 Alles läuft in Docker (Colima auf dem Mac, mindestens 4 CPUs und 6 GB RAM: `colima start --cpu 4 --memory 6`). Alle Befehle aus dem Repo-Hauptordner; ausgeführt und geprüft in Phase 0 und 1, sofern nicht anders markiert.
 
 ```bash
+# Neue Installation einrichten: fragt Backup-Ort und Adresse, schreibt .env, startet, legt den Backup-Schlüssel an (docs/kh/README.md)
+kh/ops/install.sh <image>
 # Küchenhelfer bauen und starten (Mealie und Backup-Dienst aus kh/ops), danach http://localhost:9091
 docker compose -f kh/ops/docker-compose.yml up -d --build
 # Pi-ähnliche Grenzen für den laufenden Container
@@ -92,7 +94,7 @@ kh/ops/upgrade_test.sh <altes-image> <neues-image>
 # Restore-Test: neuestes oder angegebenes Backup mit restore.sh in eine Wegwerf-Installation einspielen, Rezepte und Dateien vergleichen (Port 9191)
 kh/ops/restore_test.sh [backup.zip]
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

@@ -185,11 +185,16 @@ start_old() {  # old_id
   start_mealie "$(setting KH_IMAGE kuechenhelfer:dev)" >/dev/null 2>&1 && wait_healthy
 }
 
+# Builds the backup image and (re)starts only the backup service. Never "up --build" with
+# dependencies: that would also rebuild the Mealie image, whose sources an install does not have.
+start_backup() {
+  docker compose build backup >/dev/null 2>&1 && docker compose up -d --no-deps backup >/dev/null 2>&1
+}
+
 # Brings the backup service and a running tunnel in line with the release just started. Only
-# warns on failure: the app already runs in the new version. Never "up --build" with dependencies,
-# that would rebuild the Mealie image too.
+# warns on failure: the app already runs in the new version.
 refresh_companions() {
-  { docker compose build backup >/dev/null 2>&1 && docker compose up -d --no-deps backup >/dev/null 2>&1; } \
+  start_backup \
     || echo "Warnung: Der Backup-Dienst ließ sich nicht erneuern (docker compose build backup, dann up -d --no-deps backup)" >&2
   if [ -n "$(docker compose --profile tunnel ps -q tunnel 2>/dev/null)" ]; then
     docker compose --profile tunnel up -d --no-deps tunnel >/dev/null 2>&1 \

@@ -30,6 +30,10 @@ Notable changes per release. Every release is a git tag with the app image in GH
   `GET /api/kh/features` tells the frontend which switches are on.
 - `tunnel.sh on` also refuses to go online while a group or household is public, so recipes never
   become readable without login by accident.
+- New installs: `kh/ops/install.sh <image>` asks where the backups go (D32) and under which address the
+  app opens, writes `.env`, starts everything and creates the backup key. Release images carry it.
+- Install guide in German and English in `docs/kh/README.md`; family accounts by invite link in
+  `docs/kh/familienkonten.md` (D31).
 
 ## [v0.0-rc.2] - 2026-10-30
 

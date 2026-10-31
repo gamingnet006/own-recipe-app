@@ -72,6 +72,8 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 Everything runs in Docker (Colima on the Mac, at least 4 CPUs and 6 GB RAM: `colima start --cpu 4 --memory 6`). All commands from the repo root; run and verified in phases 0 and 1 unless marked otherwise.
 
 ```bash
+# Set up a new install: asks for the backup location and the address, writes .env, starts, creates the backup key (docs/kh/README.md)
+kh/ops/install.sh <image>
 # Build and start Küchenhelfer (Mealie and the backup service from kh/ops), then http://localhost:9091
 docker compose -f kh/ops/docker-compose.yml up -d --build
 # Pi-like limits for the running container
@@ -94,7 +96,7 @@ kh/ops/upgrade_test.sh <old-image> <new-image>
 # Restore test: restore the newest or the given backup with restore.sh into a throwaway install, compare recipes and files (port 9191)
 kh/ops/restore_test.sh [backup.zip]
 # Tests of the ops scripts (also run in CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
 
 # Backend tests (same as `task py:test`); LDAP, Postgres and long-running tests are skipped
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \
