@@ -23,6 +23,21 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | E3 | Kommen Beispielrezepte in die Familien-Installation? | Nein, die Familie startet leer (D31). |
 | E4 | Erscheint `v0.0` vor dem Pi-Test? | Ja. Der Pi-Test folgt; Fehler kämen als `v0.0.1` (D30). |
 
+## Stand (31.10.2026, morgens)
+
+| Paket | Stand |
+|---|---|
+| 1 Restore auf dem MacBook | erledigt: Rezepte, Konten und Gruppe stimmen mit dem Mac mini überein |
+| 2 Uptime Kuma | meine Seite erledigt (eingefügte Adressen mit `?status=…` funktionieren jetzt); wartet auf deine zwei Push-Monitore |
+| 3 Familie startklar | Anleitung erledigt; wartet auf deine Einladungslinks |
+| 4 Restore-Test-Skript | erledigt, auf MacBook und Mac mini bestanden |
+| 5 Mealie-Teile ausblenden | erledigt; dabei die öffentliche Gruppe der Familie entdeckt und auf privat gestellt |
+| 6 THIRD_PARTY_NOTICES.md | erledigt |
+| 7 Installation | erledigt, nach Anleitung auf dem MacBook geprüft |
+| 8 Release v0.0 | vorbereitet (CHANGELOG-Abschnitt, CI); wartet auf dein Okay für `main` |
+| 9 Backup-Ort Mac mini | Frage an dich nach dem Release |
+| 10 Raspberry Pi | wartet auf den Pi |
+
 ## Reihenfolge
 
 1. Erst die Datensicherung prüfen: Restore auf einem zweiten Gerät, Meldungen bei Fehlern.

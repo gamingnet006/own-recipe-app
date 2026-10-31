@@ -6,6 +6,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v0.0] - 2026-10-31
+
+First release for the family (phase 1, PLAN.md section 5). It runs on the Mac mini with access from
+outside, daily backups and automatic updates; new installs follow the guide in `docs/kh/README.md`.
+The install test on a fresh Raspberry Pi follows later (D30).
+
 - Access from outside through a Cloudflare Tunnel (`kh/ops/tunnel.sh on|off|status`); it only starts
   if self sign-up is off and no account still uses Mealie's default e-mail.
 - Logins stay valid for 30 days without opening the app (`KH_TOKEN_TIME`; Mealie's default is 48 hours).
