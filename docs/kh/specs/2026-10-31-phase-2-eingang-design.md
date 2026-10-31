@@ -36,7 +36,7 @@ Stand 31.10.2026, im Chat Abschnitt für Abschnitt freigegeben (Weg 1: eigene En
 | `mealie/kh/drafts/models.py` | Tabelle `kh_drafts` (Import in `mealie/db/models/_all_models.py`) |
 | `mealie/kh/alembic/versions/` | additive Migration im Zweig `kh` (D24) |
 | `mealie/kh/drafts/schemas.py` | Pydantic-Schemas mit Mealies Endungen (`DraftCreate`, `DraftOut`, …) |
-| `mealie/kh/drafts/settings.py` | Grenzen und Schwellen aus der Umgebung, wie `mealie/kh/features/settings.py` |
+| `mealie/kh/features/settings.py` (erweitert) | Grenzen und Schwellen aus der Umgebung (`KH_…`) in der vorhandenen `KhSettings`, damit alle Küchenhelfer-Einstellungen an einer Stelle stehen |
 | `mealie/kh/drafts/service.py` | Entwurf anlegen, im Hintergrund erkennen, übernehmen, verwerfen, aufräumen |
 | `mealie/kh/drafts/duplicates.py` | Link bereinigen, Titel- und Zutaten-Ähnlichkeit |
 | `mealie/kh/drafts/routes.py` | `/api/kh/drafts…`, eingehängt in `mealie/kh/__init__.py` |
