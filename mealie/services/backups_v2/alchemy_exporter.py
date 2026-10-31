@@ -66,11 +66,15 @@ class AlchemyExporter(BaseService):
         "last_made",
         "completed_date",
         "tokens_valid_after",
+        "approved_at",  # KH: kh_drafts (phase 2)
     }
     """Column names restored back into datetimes. Anything stored as a `NaiveDateTime` and missing
     here comes back from a backup as a string; `test_every_datetime_column_survives_a_backup` guards
     against forgetting to add one."""
     look_for_date = {"date_added", "date"}
+    look_for_json = {"original_files", "recipe", "warnings"}  # KH: kh_drafts (phase 2)
+    """KH: JSON columns, restored as they were saved. Mealie's own tables have none, and walking into one
+    breaks the restore; `test_every_json_column_is_restored_as_saved` guards against forgetting one."""
     look_for_time = {"scheduled_time"}
 
     class DateTimeParser(BaseModel):
@@ -114,6 +118,8 @@ class AlchemyExporter(BaseService):
         used in the context of reading a json file into a database via SQLAlchemy.
         """
         for key, value in data.items():
+            if key in self.look_for_json:
+                continue  # KH: a JSON column's content is no table to walk
             if isinstance(value, dict):
                 data = self.convert_types(value)
             elif isinstance(value, list):  # assume that this is a list of dictionaries
