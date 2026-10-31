@@ -18,6 +18,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
   tries the same version again instead of skipping it.
 - On macOS the nightly update is a LaunchAgent instead of a cron job: macOS lets `crontab` write
   only with Full Disk Access, which SSH sessions lack.
+- Uptime Kuma push URLs work when pasted with the example query Uptime Kuma shows
+  (`?status=up&msg=OK&ping=`); before, every report counted as down.
+- The backup service reaches Uptime Kuma on the same machine as `host.docker.internal`, also on Linux.
 
 ## [v0.0-rc.2] - 2026-10-30
 

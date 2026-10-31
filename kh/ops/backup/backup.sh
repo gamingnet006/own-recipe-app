@@ -8,10 +8,11 @@ SRC=/backups-src    # Mealie's data/backups folder
 DEST=/backups-dest  # second storage location
 API="${KH_MEALIE_URL:-http://mealie:9000}"
 
-# Sends status up/down to the Uptime Kuma push URL, if one is configured.
+# Sends status up/down to the Uptime Kuma push URL, if one is configured. A query pasted along
+# with the URL is dropped: with a second status, Uptime Kuma would count every report as down.
 push() {
   [ -n "${KH_BACKUP_PUSH_URL:-}" ] || return 0
-  curl -fsS -m 10 -G "$KH_BACKUP_PUSH_URL" --data-urlencode "status=$1" --data-urlencode "msg=$2" >/dev/null \
+  curl -fsS -m 10 -G "${KH_BACKUP_PUSH_URL%%\?*}" --data-urlencode "status=$1" --data-urlencode "msg=$2" >/dev/null \
     || echo "Warnung: Meldung an Uptime Kuma fehlgeschlagen" >&2
 }
 

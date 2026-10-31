@@ -32,4 +32,12 @@ check "prune leaves other files" "$(ls "$tmp"/notes.txt >/dev/null && echo yes)"
 prune "$tmp" 5
 check "prune with fewer files than limit" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
 
+# push: Uptime Kuma shows its push URL with an example query; pasted as is, it must not reach curl
+mkdir "$tmp/bin"
+printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$@" > "$CURL_ARGS"' > "$tmp/bin/curl"
+chmod +x "$tmp/bin/curl"
+(PATH="$tmp/bin:$PATH" CURL_ARGS="$tmp/curl_args" KH_BACKUP_PUSH_URL="http://kuma:3001/api/push/abc?status=up&msg=OK&ping=" push down "kaputt")
+check "push drops a pasted query" "$(grep '^http' "$tmp/curl_args")" "http://kuma:3001/api/push/abc"
+check "push sends the real status" "$(grep -c '^status=down$' "$tmp/curl_args")" "1"
+
 [ "$failures" -eq 0 ] && echo "all backup tests passed" || { echo "$failures check(s) failed"; exit 1; }

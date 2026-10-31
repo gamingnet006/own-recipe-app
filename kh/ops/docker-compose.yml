@@ -51,6 +51,9 @@ services:
     restart: unless-stopped
     depends_on:
       - mealie
+    # Uptime Kuma on the same machine answers as host.docker.internal; Linux needs this mapping.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${KH_DATA_DIR:-./data}/backups:/backups-src
       - ${KH_BACKUP_DIR:-./backups}:/backups-dest
