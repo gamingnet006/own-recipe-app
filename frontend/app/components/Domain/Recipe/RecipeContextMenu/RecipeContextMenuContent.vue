@@ -173,6 +173,7 @@ const menuItems = ref<ContextMenuItem[]>([]);
 const i18n = useI18n();
 const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
+const { $khFeatures } = useNuxtApp(); // KH: Küchenhelfer's switches (kh-features plugin)
 const { group, actions: groupActions } = useGroupSelf();
 const { household } = useHouseholdSelf();
 const { isOwnGroup } = useLoggedInState();
@@ -328,6 +329,8 @@ for (const [key, value] of Object.entries(props.useItems)) {
 
   // Skip delete if not allowed
   if (key === "delete" && !canDelete.value) continue;
+  // KH: "Share" only offers share links, which stay off unless KH_SHARE_LINKS=true
+  if (key === "share" && !$khFeatures?.shareLinks) continue;
 
   const item = defaultItems[key];
   if (item && (item.isPublic || isOwnGroup.value)) {

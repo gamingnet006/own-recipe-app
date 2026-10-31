@@ -30,6 +30,13 @@ check "default e-mail still in use" "$(yes_no email_in_use "$users" placeholder@
 check "e-mail changed" "$(yes_no email_in_use "$users" someone-else@example.invalid)" "no"
 check "partial e-mail does not count" "$(yes_no email_in_use "$users" ma@example.invalid)" "no"
 
+# --- public groups and households (compact JSON as /api/admin/groups and /api/admin/households return it) ---
+groups='{"page":1,"per_page":-1,"total":2,"items":[{"name":"Home","preferences":{"privateGroup":true,"showAnnouncements":false}},{"name":"Gäste","preferences":{"privateGroup":false}}]}'
+check "public group found" "$(yes_no public_found "$groups")" "yes"
+check "all groups private" "$(yes_no public_found "$(printf '%s' "$groups" | sed 's/"privateGroup":false/"privateGroup":true/')")" "no"
+check "public household found" "$(yes_no public_found '{"items":[{"name":"Family","preferences":{"privateHousehold":false,"recipePublic":true}}]}')" "yes"
+check "recipePublic alone is no public household" "$(yes_no public_found '{"items":[{"preferences":{"privateHousehold":true,"recipePublic":true}}]}')" "no"
+
 # --- tunnel key (the dashboard shows it inside an install command; only the key belongs in .env) ---
 check "plain key passes" "$(yes_no has_space 'eyJhIjoiMDAwIiwidCI6IjExMSIsInMiOiIyMjIifQ==')" "no"
 check "pasted install command is caught" "$(yes_no has_space 'docker run cloudflare/cloudflared:latest tunnel --no-autoupdate run --token eyJhIjoiMDAwIn0=')" "yes"

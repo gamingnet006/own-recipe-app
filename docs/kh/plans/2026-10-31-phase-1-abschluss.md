@@ -103,7 +103,19 @@ Vorschlag aus dem Code-Rundgang (E2):
 
 Die Tabellen bleiben bis Phase 8.
 
-**Dateien:** Die lege ich in einem kurzen Entwurf fest, bevor ich baue.
+**Entwurf (31.10.2026, nach dem Lesen des Codes):**
+
+- **Schalter:** `KH_SHARE_LINKS` (Standard `false`), gelesen von `KhSettings` in `mealie/kh/features/settings.py`. Mealies `settings.py` bleibt unverändert.
+- **Backend:** `GET /api/kh/features` meldet die Schalter (`mealie/kh/features/routes.py`, eingehängt über `mealie/kh/__init__.py` in `mealie/routes/__init__.py`).
+  - Ist der Schalter aus, antwortet die öffentliche Rezeptansicht per Token (`GET /api/recipes/shared/{token}`) mit 404.
+  - Die Vorschau-Seite `/g/{gruppe}/shared/r/{token}` zeigt dann keine Rezeptdaten mehr.
+- **Was bleibt:** Das Erzeugen von Tokens und die Zip-Route bleiben. Mealies Rezept-Download legt dafür selbst einen Token an, der 30 Tage gilt; der Token wird nirgends angezeigt.
+- **Frontend:** Ein eigener Nuxt-Layer `frontend/kh/` (D26) mit dem Plugin `kh-features.client.ts`, nach dem Vorbild von Mealies `app-info.client.ts`. Das Rezeptmenü lässt „Teilen“ weg, solange der Schalter aus ist.
+- **Ankündigungen:** Neue Gruppen bekommen `show_announcements = false`, geändert in Modell und Schema. Für die Familie schalte ich sie über die API ab.
+- **Explore:** keine Änderung. Ein Test sichert ab, dass eine neue Gruppe privat ist und ihre Explore-Seiten 404 liefern.
+- **Mealies Tests:** Sie nutzen Teilen-Links und schalten sie deshalb in `tests/conftest.py` ein. Unsere Tests in `tests/kh/features/` prüfen beide Stellungen.
+
+Jede Änderung an Mealies Dateien trägt einen `KH:`-Kommentar.
 
 **Fertig, wenn:** Die Tests sind grün, und auf dem MacBook ist alles im Browser geprüft.
 

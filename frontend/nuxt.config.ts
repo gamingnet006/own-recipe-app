@@ -4,6 +4,9 @@ import { defineNuxtConfig } from "nuxt/config";
 const AUTH_TOKEN = "mealie.access_token";
 
 export default defineNuxtConfig({
+  // KH: Küchenhelfer's own Nuxt layer with our plugins, components and pages (D26)
+  extends: ["./kh"],
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   // target: "static",
 

@@ -25,9 +25,11 @@ services:
       BASE_URL: ${KH_BASE_URL:-http://localhost:9091}
       # Hours a login stays valid without opening the app; 30 days keep it simple for the family (D27).
       TOKEN_TIME: ${KH_TOKEN_TIME:-720}
-      # Self sign-up stays off; family accounts are created by the admin (D22).
+      # Self sign-up stays off; family accounts come from the admin's invite links (D22, D31).
       ALLOW_SIGNUP: "false"
       DB_ENGINE: sqlite
+      # Public recipe pages by link stay off unless switched on (Leitplanke 1, mealie/kh/features).
+      KH_SHARE_LINKS: ${KH_SHARE_LINKS:-false}
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.

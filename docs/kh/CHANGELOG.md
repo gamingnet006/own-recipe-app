@@ -23,6 +23,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - The backup service reaches Uptime Kuma on the same machine as `host.docker.internal`, also on Linux.
 - Restore test (`kh/ops/restore_test.sh [backup.zip]`): restores the newest or the given backup with
   `restore.sh` into a throwaway install running the same image and checks that every recipe and file is back.
+- Share links are off by default (`KH_SHARE_LINKS=false`): the recipe menu shows no "Share", and public
+  recipe pages by token answer 404. Recipe downloads keep working.
+- New groups show no Mealie announcements (links to Mealie's docs); the switch in the group settings stays.
+- Küchenhelfer's own code starts: backend in `mealie/kh/`, frontend as the Nuxt layer `frontend/kh/` (D26);
+  `GET /api/kh/features` tells the frontend which switches are on.
+- `tunnel.sh on` also refuses to go online while a group or household is public, so recipes never
+  become readable without login by accident.
 
 ## [v0.0-rc.2] - 2026-10-30
 

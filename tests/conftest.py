@@ -10,6 +10,9 @@ from pytest import MonkeyPatch, fixture
 _WORKER_ID = os.environ.get("PYTEST_XDIST_WORKER", "")
 _TEMP_DIR = Path(__file__).parent / (f".temp/{_WORKER_ID}" if _WORKER_ID else ".temp")
 
+# KH: Mealie's own tests use share links, which Küchenhelfer switches off by default (tests/kh)
+os.environ.setdefault("KH_SHARE_LINKS", "true")
+
 
 def _clean_temp_dir():
     with contextlib.suppress(Exception):

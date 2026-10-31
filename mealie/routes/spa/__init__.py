@@ -16,6 +16,7 @@ from text_unidecode import os
 from mealie.core.config import get_app_settings
 from mealie.core.dependencies.dependencies import try_get_current_user
 from mealie.db.db_setup import generate_session
+from mealie.kh.features.settings import require_share_links
 from mealie.repos.repository_factory import AllRepositories
 from mealie.routes.spa.manifest import serve_manifest
 from mealie.schema.recipe.recipe import Recipe
@@ -263,6 +264,7 @@ async def serve_recipe_with_meta(
 
 async def serve_shared_recipe_with_meta(group_slug: str, token_id: str, session: Session = Depends(generate_session)):
     try:
+        require_share_links()  # KH: no recipe data while share links are off (KH_SHARE_LINKS)
         public_repos = AllRepositories(session, group_id=None)
         token_summary = public_repos.recipe_share_tokens.get_one(token_id)
         if token_summary is None:

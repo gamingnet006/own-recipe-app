@@ -1,7 +1,8 @@
 #!/bin/sh
 # KH: switches access from outside through the Cloudflare Tunnel on or off (PLAN.md phase 1, D27).
-# "on" starts it only if self sign-up is off and no account still uses Mealie's well-known default
-# e-mail, so a fresh install never goes online. Usage: kh/ops/tunnel.sh on|off|status
+# "on" starts it only if self sign-up is off, no account still uses Mealie's well-known default
+# e-mail and every group and household is private, so recipes never go public by accident.
+# Usage: kh/ops/tunnel.sh on|off|status
 set -eu
 
 CONNECT_TIMEOUT=60
@@ -36,6 +37,12 @@ email_in_use() {  # users_json email
   printf '%s' "$1" | grep -Fqi "\"email\":\"$2\""
 }
 
+# True if a group or household in an admin list lets strangers browse its recipes (compact JSON of
+# /api/admin/groups or /api/admin/households).
+public_found() {  # admin_list_json
+  printf '%s' "$1" | grep -Eq '"private(Group|Household)":false'
+}
+
 # True if the value contains a space, e.g. the whole install command was pasted instead of only the key.
 has_space() {  # value
   case "$1" in *" "*) return 0 ;; esac
@@ -65,6 +72,13 @@ check_safe() {
   [ -n "$email" ] || fail "Mealies Standard-E-Mail ist nicht lesbar ($SETTINGS)"
   ! email_in_use "$users" "$email" \
     || fail "ein Konto nutzt noch die Standard-E-Mail $email. In Mealie unter Profil E-Mail und Passwort ändern"
+  groups=$(curl -fsS -m 10 -H "Authorization: Bearer $token" "$url/api/admin/groups?page=1&perPage=-1") \
+    || fail "die Gruppenliste ist nicht abrufbar"
+  ! public_found "$groups" || fail "eine Gruppe ist öffentlich. In Mealie unter Gruppeneinstellungen „Private Gruppe“ einschalten"
+  households=$(curl -fsS -m 10 -H "Authorization: Bearer $token" "$url/api/admin/households?page=1&perPage=-1") \
+    || fail "die Haushaltsliste ist nicht abrufbar"
+  ! public_found "$households" \
+    || fail "ein Haushalt ist öffentlich. In Mealie unter Haushaltskonfiguration „Privater Haushalt“ einschalten"
 }
 
 # Starts cloudflared and waits until it is connected; stops it again if it never connects.
