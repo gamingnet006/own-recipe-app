@@ -148,7 +148,7 @@ check "update.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx k
 for need in kh/ops/check_bundle.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile; do
   check "$need missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx "$need")")" "$need fehlt"
 done
-for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/auto_update.log kh/ops/.auto_update.failed; do
+for bad in kh/ops/.env kh/ops/.env.pre-update kh/ops/data/mealie.db kh/ops/backups/a.zip kh/ops/data.pre-update/mealie.db kh/ops/.upgrade-test.x1/ops/.env kh/ops/.restore-test.x1/ops/backups/a.zip kh/ops/auto_update.log kh/ops/.auto_update.failed; do
   check "forbidden: $bad" "$(bundle_problems "$(printf '%s\n%s' "$ok" "$bad")")" "$bad darf nicht ins Image"
 done
 

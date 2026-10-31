@@ -41,5 +41,6 @@ kh/ops/data
 kh/ops/data.pre-update
 kh/ops/backups
 kh/ops/.upgrade-test.*
+kh/ops/.restore-test.*
 kh/ops/auto_update.log
 kh/ops/.auto_update.*

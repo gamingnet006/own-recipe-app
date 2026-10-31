@@ -32,6 +32,8 @@ jobs:
         run: sh kh/ops/test_release.sh
       - name: Upgrade test logic
         run: sh kh/ops/test_upgrade.sh
+      - name: Restore test logic
+        run: sh kh/ops/test_restore.sh
       - name: Tunnel script tests
         run: sh kh/ops/test_tunnel.sh
       - name: Auto-update script tests

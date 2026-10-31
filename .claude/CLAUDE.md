@@ -89,8 +89,10 @@ kh/ops/auto_update.sh on|off|status|check|run
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
 kh/ops/upgrade_test.sh <altes-image> <neues-image>
+# Restore-Test: neuestes oder angegebenes Backup mit restore.sh in eine Wegwerf-Installation einspielen, Rezepte und Dateien vergleichen (Port 9191)
+kh/ops/restore_test.sh [backup.zip]
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

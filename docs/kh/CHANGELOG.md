@@ -21,6 +21,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Uptime Kuma push URLs work when pasted with the example query Uptime Kuma shows
   (`?status=up&msg=OK&ping=`); before, every report counted as down.
 - The backup service reaches Uptime Kuma on the same machine as `host.docker.internal`, also on Linux.
+- Restore test (`kh/ops/restore_test.sh [backup.zip]`): restores the newest or the given backup with
+  `restore.sh` into a throwaway install running the same image and checks that every recipe and file is back.
 
 ## [v0.0-rc.2] - 2026-10-30
 

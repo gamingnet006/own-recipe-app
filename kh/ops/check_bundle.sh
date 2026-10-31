@@ -19,7 +19,7 @@ bundle_problems() {  # listing
     printf '%s\n' "$1" | grep -qxF "$f" || echo "$f fehlt"
   done
   printf '%s\n' "$1" \
-    | grep -E '^kh/ops/(\.env|\.env\..*|data/.*|backups/.*|data\.pre-update/.*|\.upgrade-test\..*|auto_update\.log|\.auto_update\..*)$' \
+    | grep -E '^kh/ops/(\.env|\.env\..*|data/.*|backups/.*|data\.pre-update/.*|\.upgrade-test\..*|\.restore-test\..*|auto_update\.log|\.auto_update\..*)$' \
     | grep -vxF kh/ops/.env.example \
     | sed 's/$/ darf nicht ins Image/'
 }
