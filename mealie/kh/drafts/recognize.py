@@ -11,10 +11,12 @@ from sqlalchemy.orm import Session
 from mealie.core.exceptions import RateLimitError
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
+from mealie.kh.drafts.duplicates import candidates, find_duplicates
 from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
+from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
 from mealie.repos.all_repositories import get_repositories
@@ -83,7 +85,8 @@ async def build(
 
 
 async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdInDB, translator: Translator) -> None:
-    """Runs after the response: recognizes a working draft and stores the result as ready or the reason as failed."""
+    """Runs after the response: recognizes a working draft and stores the result as ready, with hints on
+    possible duplicates, or the reason as failed."""
     with session_context() as session:
         repos = get_repositories(session, group_id=user.group_id, household_id=user.household_id)
         draft = drafts_repo(session, user.group_id, user.household_id).get_one(draft_id)
@@ -92,6 +95,8 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
         ai = AIRecipeService(repos, user, household, translator=translator)
         try:
             recipe, used_ai = await build(draft, ai, repos, translator)
+            recognized = recipe.model_dump(mode="json", by_alias=True)
+            warnings = find_duplicates(recognized, draft.source_url, candidates(repos, draft_id), get_kh_settings())
         except Exception as ex:
             code = error_code(ex)
             if code == DraftError.unknown:
@@ -106,6 +111,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
             draft_id,
             status=DraftStatus.ready,
             error=None,
-            recipe=recipe.model_dump(mode="json", by_alias=True),
+            recipe=recognized,
             ai_model=ai_model,
+            warnings=[warning.model_dump(mode="json", by_alias=True) for warning in warnings],
         )

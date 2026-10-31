@@ -12,6 +12,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.drafts.duplicates import candidates, find_duplicates, normalize_url
 from mealie.kh.drafts.files import (
     original_path,
     prepare_original,
@@ -22,7 +23,15 @@ from mealie.kh.drafts.files import (
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.recognize import set_fields
 from mealie.kh.drafts.repository import drafts_repo
-from mealie.kh.drafts.schemas import ApproveOut, DraftError, DraftOut, DraftSource, DraftStatus, OriginOut
+from mealie.kh.drafts.schemas import (
+    ApproveOut,
+    DraftError,
+    DraftOut,
+    DraftSource,
+    DraftStatus,
+    DraftWarning,
+    OriginOut,
+)
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
@@ -86,6 +95,7 @@ class DraftService:
                 "status": DraftStatus.working,
                 "source_type": source,
                 "source_url": url,
+                "source_url_normalized": normalize_url(url) if url else None,
                 "source_text": text,
             }
         )
@@ -157,11 +167,22 @@ class DraftService:
         """Repositories that see every group, for checks that must not miss another household's recipe."""
         return get_repositories(self.session, group_id=None, household_id=None)
 
+    def _household_repos(self):
+        """Repositories of the user's household, as Mealie's own recipe routes use them."""
+        return get_repositories(self.session, group_id=self.user.group_id, household_id=self.user.household_id)
+
+    def _new_duplicates(self, draft: DraftOut) -> list[DraftWarning]:
+        """Possible duplicates that turned up after the recognition, e.g. a recipe saved meanwhile."""
+        known = {(warning.recipe_slug, warning.draft_id) for warning in draft.warnings}
+        found = find_duplicates(
+            draft.recipe or {}, draft.source_url, candidates(self._household_repos(), draft.id), self.settings
+        )
+        return [warning for warning in found if (warning.recipe_slug, warning.draft_id) not in known]
+
     def _save_recipe(self, draft: DraftOut) -> Recipe:
         """Saves the recognized recipe the way Mealie's import does; an image draft's first original
         becomes the cover, like in Mealie's create_from_ai."""
-        repos = get_repositories(self.session, group_id=self.user.group_id, household_id=self.user.household_id)
-        recipes = RecipeService(repos, self.user, self.household, self.translator)
+        recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
         recipe = recipes.create_one(Recipe.model_validate(draft.recipe))
         if draft.source_type == DraftSource.image and draft.original_files:
             cover = original_path(draft.id, draft.original_files[0]).read_bytes()
@@ -169,13 +190,16 @@ class DraftService:
         return recipe
 
     def approve(self, draft_id: UUID4, force: bool) -> ApproveOut:
-        """Saves a ready draft as a Mealie recipe; anyone in the household may. The claim on the draft is
-        one conditional UPDATE, so of two people approving at once exactly one wins."""
+        """Saves a ready draft as a Mealie recipe; anyone in the household may. Possible duplicates that are
+        new since the recognition stop it unless FORCE. The claim on the draft is one conditional UPDATE, so
+        of two people approving at once exactly one wins."""
         draft = self.get(draft_id)
         if draft.status == DraftStatus.approved:
             raise self._already_approved(draft)
         if draft.status != DraftStatus.ready:
             raise conflict("not_ready")
+        if not force and (new := self._new_duplicates(draft)):
+            raise conflict("duplicates", warnings=[warning.model_dump(mode="json", by_alias=True) for warning in new])
         claim = self.session.execute(
             sa.update(KhDraft)
             .where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.ready)
