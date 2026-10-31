@@ -1,0 +1,16 @@
+{
+  "name": "Testkuchen",
+  "description": "Ein selbst geschriebenes Testrezept für Küchenhelfer.",
+  "recipeYield": "1 Kuchen",
+  "recipeIngredient": [
+    { "note": "200 g Mehl" },
+    { "note": "100 g Zucker" },
+    { "note": "3 Eier" },
+    { "note": "1 Prise Salz" }
+  ],
+  "recipeInstructions": [
+    { "text": "Ofen auf 180 Grad vorheizen." },
+    { "text": "Alles verrühren und in eine Form geben." },
+    { "text": "30 Minuten backen." }
+  ]
+}

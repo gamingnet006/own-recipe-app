@@ -1,0 +1,59 @@
+"""KH: the drafts API under /api/kh/drafts (phase 2). Every route needs a logged-in user and sees only
+that user's household; recognition runs after the response."""
+
+from typing import Annotated
+
+from fastapi import BackgroundTasks, File, Form, UploadFile, status
+from pydantic import UUID4
+
+from mealie.kh.drafts.recognize import recognize
+from mealie.kh.drafts.schemas import DraftOut
+from mealie.kh.drafts.service import DraftService
+from mealie.routes._base import BaseUserController, controller
+from mealie.routes._base.routers import UserAPIRouter
+
+router = UserAPIRouter(prefix="/drafts")
+
+
+@controller(router)
+class KhDraftsController(BaseUserController):
+    """Intake, list, review and retry of the household's drafts."""
+
+    @property
+    def service(self) -> DraftService:
+        """The drafts service for this request's user and household."""
+        return DraftService(self.session, self.user, self.household, self.translator)
+
+    def _recognize_later(self, tasks: BackgroundTasks, draft: DraftOut) -> None:
+        """Queues the recognition to run once the response is sent."""
+        tasks.add_task(recognize, draft.id, user=self.user, household=self.household, translator=self.translator)
+
+    @router.post("", status_code=status.HTTP_201_CREATED, response_model=DraftOut)
+    def create(
+        self,
+        tasks: BackgroundTasks,
+        url: Annotated[str | None, Form()] = None,
+        text: Annotated[str | None, Form()] = None,
+        images: list[UploadFile] = File(default_factory=list),
+    ) -> DraftOut:
+        """New draft from exactly one of a link, a text or up to KH_DRAFT_MAX_IMAGES images."""
+        draft = self.service.create(url, text, images)
+        self._recognize_later(tasks, draft)
+        return draft
+
+    @router.get("", response_model=list[DraftOut])
+    def list_open(self) -> list[DraftOut]:
+        """The household's drafts that are not approved yet, newest first."""
+        return self.service.list_open()
+
+    @router.get("/{draft_id}", response_model=DraftOut)
+    def get_one(self, draft_id: UUID4) -> DraftOut:
+        """One draft of the household."""
+        return self.service.get(draft_id)
+
+    @router.post("/{draft_id}/retry", response_model=DraftOut)
+    def retry(self, draft_id: UUID4, tasks: BackgroundTasks) -> DraftOut:
+        """Starts the recognition of a failed draft again."""
+        draft = self.service.retry(draft_id)
+        self._recognize_later(tasks, draft)
+        return draft
