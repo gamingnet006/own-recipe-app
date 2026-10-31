@@ -1,7 +1,7 @@
-// KH: the drafts UI's shared logic (phase 2): the API client, the drafts counter of the menu, and pure
-// functions for the import redirect, the review layout and the texts, so they can be tested without Vue.
+// KH: the drafts UI's shared logic (phase 2): the API client, the drafts counter of the menu, reloading while
+// a draft is recognized, and pure functions for redirects, layout, titles and texts, testable without Vue.
 import { useRequests } from "~/composables/api/api-client";
-import { KhDraftsApi, type KhOrigin } from "../lib/api/drafts";
+import { KhDraftsApi, type KhDraft, type KhDraftWarning, type KhOrigin, type KhRequestError } from "../lib/api/drafts";
 import en from "../../lang/en-US.json";
 
 type Translate = (key: string) => string;
@@ -10,6 +10,10 @@ type Translate = (key: string) => string;
 const REDIRECTED_IMPORT = /^\/g\/([^/]+)\/r\/create\/(?:url|ai|image|html|bulk)\/?$/;
 // From this width (iPad upright) original and result stand side by side
 const SIDE_BY_SIDE_FROM = 768;
+// The list and the review look again this often while a draft is being recognized
+const POLL_INTERVAL_MS = 3000;
+// A draft without recipe and link is named by the start of its text, cut to this many characters
+const TITLE_LENGTH = 60;
 const ERROR_CODES = new Set(Object.keys(en.kh.drafts.error));
 
 // One counter for the menu and the drafts pages; the app runs without server rendering, so a module ref is shared state
@@ -32,6 +36,25 @@ export function useKhDraftCount() {
   return { count, refresh };
 }
 
+/** Runs LOAD now and again every few seconds while it answers true; stops for good when the page is left. */
+export function useKhPolling(load: () => Promise<boolean>) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let left = false;
+
+  async function reload() {
+    clearTimeout(timer);
+    const again = await load();
+    if (again && !left) timer = setTimeout(reload, POLL_INTERVAL_MS); // a load still running when the page is left must not start a new round
+  }
+
+  onMounted(reload);
+  onBeforeUnmount(() => {
+    left = true;
+    clearTimeout(timer);
+  });
+  return { reload };
+}
+
 /** The intake for one of Mealie's import pages, else null. */
 export function importRedirectTarget(path: string): string | null {
   const match = REDIRECTED_IMPORT.exec(path);
@@ -46,6 +69,36 @@ export function reviewLayout(width: number): "stacked" | "side" {
 /** The sentence for an error code from the API; codes this version does not know get the general one. */
 export function errorText(code: string, t: Translate): string {
   return t(`kh.drafts.error.${ERROR_CODES.has(code) ? code : "unknown"}`);
+}
+
+/** The name of a draft in lists and headings: its recipe, else its link, else the start of its text. */
+export function draftTitle(draft: KhDraft): string {
+  if (draft.recipe?.name) return draft.recipe.name;
+  if (draft.sourceUrl) return draft.sourceUrl.replace(/^https?:\/\/(?:www\.)?/, "");
+  const firstLine = (draft.sourceText ?? "").trim().split("\n")[0] ?? "";
+  return firstLine.length > TITLE_LENGTH ? `${firstLine.slice(0, TITLE_LENGTH)}…` : firstLine;
+}
+
+/** Whether a draft is still being recognized, so the page has to look again soon. */
+export function pollingNeeded(list: KhDraft[]): boolean {
+  return list.some(draft => draft.status === "working");
+}
+
+/** Where approving leads: the saved recipe, in Mealie's edit mode for "Save and edit". */
+export function approveTarget(slug: string, groupSlug: string, edit: boolean): string {
+  return `/g/${groupSlug}/r/${slug}${edit ? "?edit=true" : ""}`;
+}
+
+/** Where a hint on a possible duplicate leads: the saved recipe, else the other draft. */
+export function warningTarget(warning: KhDraftWarning, groupSlug: string): string {
+  return warning.recipeSlug ? `/g/${groupSlug}/r/${warning.recipeSlug}` : `/g/${groupSlug}/drafts/${warning.draftId}`;
+}
+
+/** The detail of a failed drafts request, e.g. 409 with code "duplicates"; code "unknown" when there is none. */
+export function requestError(error: unknown): KhRequestError {
+  const detail = (error as { response?: { data?: { detail?: unknown } } } | null)?.response?.data?.detail;
+  const known = typeof detail === "object" && detail !== null && typeof (detail as KhRequestError).code === "string";
+  return known ? detail as KhRequestError : { code: "unknown" };
 }
 
 /** "From a photo · 31.10.2026 · Alex"; the name is left out when the user no longer exists. */

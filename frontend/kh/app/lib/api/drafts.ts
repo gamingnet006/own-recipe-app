@@ -48,6 +48,13 @@ export interface KhOrigin {
   originalCount: number;
 }
 
+/** The detail of a failed drafts request: a code, and for some codes what goes with it. */
+export interface KhRequestError {
+  code: string;
+  warnings?: KhDraftWarning[]; // 409 duplicates: the hints that are new since the recognition
+  slug?: string | null; // 409 already_approved: the saved recipe
+}
+
 export class KhDraftsApi extends BaseAPI {
   /** Hands in a link, a text or photos (form fields url, text, images); the recognition runs afterwards. */
   async create(form: FormData) {

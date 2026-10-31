@@ -3,7 +3,36 @@
     "drafts": {
       "add-recipe": "Rezept hinzufügen",
       "add-recipe-subtitle": "Aus Link, Text oder Foto",
+      "drafts": "Entwürfe",
       "drafts-count": "Entwürfe ({count})",
+      "intake-description": "Ein Link, ein Text oder ein Foto: Das Rezept wird erkannt und wartet bei den Entwürfen, bis es jemand prüft und übernimmt.",
+      "source": {
+        "link": "Link",
+        "text": "Text",
+        "image": "Foto oder Screenshot"
+      },
+      "link-label": "Link zum Rezept",
+      "text-label": "Rezepttext",
+      "add-photos": "Fotos hinzufügen",
+      "photos-chosen": "Fotos gewählt: {count}",
+      "no-drafts": "Keine offenen Entwürfe.",
+      "status": {
+        "working": "Wird erkannt …",
+        "ready": "Bereit zur Prüfung",
+        "failed": "Fehlgeschlagen",
+        "approved": "Als Rezept gespeichert"
+      },
+      "retry": "Neu versuchen",
+      "original": "Original",
+      "result": "Erkannt",
+      "working-hint": "Wird erkannt, das dauert ein paar Sekunden.",
+      "approve": "Übernehmen",
+      "approve-and-edit": "Übernehmen und bearbeiten",
+      "discard": "Verwerfen",
+      "discard-confirm": "Diesen Entwurf verwerfen? Das Original wird mit gelöscht.",
+      "duplicates-title": "Mögliche Duplikate",
+      "approve-anyway": "Trotzdem übernehmen",
+      "another-draft": "ein anderer Entwurf",
       "view-original": "Original ansehen",
       "origin": {
         "link": "Aus Link",

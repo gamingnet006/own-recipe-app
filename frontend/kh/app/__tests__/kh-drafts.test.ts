@@ -1,8 +1,22 @@
 // KH: tests for the drafts UI logic (phase 2): which Mealie import pages lead to the intake, the review
-// layout on phone and iPad, the texts for error codes and origins, and the drafts counter in the menu.
+// layout on phone and iPad, the texts, the drafts counter, and how the list and the review behave.
+import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import type { KhOrigin } from "../lib/api/drafts";
-import { errorText, importRedirectTarget, originLabel, reviewLayout, useKhDraftCount } from "../composables/use-kh-drafts";
+import { defineComponent, h } from "vue";
+import type { KhDraft, KhDraftWarning, KhOrigin } from "../lib/api/drafts";
+import {
+  approveTarget,
+  draftTitle,
+  errorText,
+  importRedirectTarget,
+  originLabel,
+  pollingNeeded,
+  requestError,
+  reviewLayout,
+  useKhDraftCount,
+  useKhPolling,
+  warningTarget,
+} from "../composables/use-kh-drafts";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -11,6 +25,15 @@ const getMock = vi.hoisted(() => vi.fn());
 vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ get: getMock }) }));
 
 const t = (key: string) => key;
+
+function mountPage(load: () => Promise<boolean>) {
+  return mount(defineComponent({
+    setup() {
+      useKhPolling(load);
+      return () => h("div");
+    },
+  }));
+}
 
 function keys(messages: object, prefix = ""): string[] {
   return Object.entries(messages)
@@ -76,5 +99,65 @@ describe("useKhDraftCount", () => {
     getMock.mockResolvedValue({ data: [{ id: "a" }], error: null });
     await useKhDraftCount().refresh();
     expect(useKhDraftCount().count.value).toBe(1);
+  });
+});
+
+describe("drafts list and review", () => {
+  test("a draft is named by its recipe, else its link, else the start of its text", () => {
+    expect(draftTitle({ recipe: { name: "Testkuchen" } } as KhDraft)).toBe("Testkuchen");
+    expect(draftTitle({ recipe: null, sourceUrl: "https://example.org/x" } as KhDraft)).toBe("example.org/x");
+    expect(draftTitle({ recipe: null, sourceUrl: null, sourceText: "Testkuchen\n200 g Mehl" } as KhDraft)).toBe("Testkuchen");
+    expect(draftTitle({ recipe: null, sourceUrl: null, sourceText: "a".repeat(80) } as KhDraft)).toBe(`${"a".repeat(60)}…`);
+  });
+
+  test("the list reloads while a draft is being recognized", () => {
+    expect(pollingNeeded([{ status: "ready" }, { status: "working" }] as KhDraft[])).toBe(true);
+    expect(pollingNeeded([{ status: "ready" }, { status: "failed" }] as KhDraft[])).toBe(false);
+  });
+
+  test("approving opens the recipe, in edit mode if asked", () => {
+    expect(approveTarget("testkuchen", "familie", false)).toBe("/g/familie/r/testkuchen");
+    expect(approveTarget("testkuchen", "familie", true)).toBe("/g/familie/r/testkuchen?edit=true");
+  });
+
+  test("a hint links to the recipe or to the other draft", () => {
+    const hint = { kind: "duplicate_link", name: "Testkuchen", recipeSlug: null, draftId: "d1" } as KhDraftWarning;
+    expect(warningTarget(hint, "familie")).toBe("/g/familie/drafts/d1");
+    expect(warningTarget({ ...hint, recipeSlug: "testkuchen", draftId: null }, "familie")).toBe("/g/familie/r/testkuchen");
+  });
+
+  test("a failed request gives its code, anything else counts as unknown", () => {
+    const conflict = { response: { data: { detail: { code: "duplicates", warnings: [] } } } };
+    expect(requestError(conflict)).toEqual({ code: "duplicates", warnings: [] });
+    expect(requestError({ response: { data: { detail: "Not Found" } } }).code).toBe("unknown");
+    expect(requestError(new Error("offline")).code).toBe("unknown");
+  });
+});
+
+describe("useKhPolling", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("looks again every 3 seconds while needed and stops when the page is left", async () => {
+    vi.useFakeTimers();
+    const load = vi.fn(async () => true);
+    const page = mountPage(load);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(load).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(load).toHaveBeenCalledTimes(2);
+
+    page.unmount();
+    await vi.advanceTimersByTimeAsync(9000);
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  test("stops once nothing is being recognized", async () => {
+    vi.useFakeTimers();
+    const load = vi.fn(async () => false);
+    mountPage(load);
+    await vi.advanceTimersByTimeAsync(9000);
+    expect(load).toHaveBeenCalledTimes(1);
   });
 });

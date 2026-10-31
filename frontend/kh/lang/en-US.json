@@ -3,7 +3,36 @@
     "drafts": {
       "add-recipe": "Add recipe",
       "add-recipe-subtitle": "From a link, a text or a photo",
+      "drafts": "Drafts",
       "drafts-count": "Drafts ({count})",
+      "intake-description": "A link, a text or a photo: the recipe is recognized and waits in the drafts until someone checks and saves it.",
+      "source": {
+        "link": "Link",
+        "text": "Text",
+        "image": "Photo or screenshot"
+      },
+      "link-label": "Link to the recipe",
+      "text-label": "Recipe text",
+      "add-photos": "Add photos",
+      "photos-chosen": "Photos chosen: {count}",
+      "no-drafts": "No drafts waiting.",
+      "status": {
+        "working": "Being recognized …",
+        "ready": "Ready for review",
+        "failed": "Failed",
+        "approved": "Saved as a recipe"
+      },
+      "retry": "Try again",
+      "original": "Original",
+      "result": "Recognized",
+      "working-hint": "Being recognized, this takes a few seconds.",
+      "approve": "Save",
+      "approve-and-edit": "Save and edit",
+      "discard": "Discard",
+      "discard-confirm": "Discard this draft? Its original is deleted as well.",
+      "duplicates-title": "Possible duplicates",
+      "approve-anyway": "Save anyway",
+      "another-draft": "another draft",
       "view-original": "View original",
       "origin": {
         "link": "From a link",
