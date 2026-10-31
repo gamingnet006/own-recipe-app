@@ -28,13 +28,13 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | Paket | Stand |
 |---|---|
 | 1 Restore auf dem MacBook | erledigt: Rezepte, Konten und Gruppe stimmen mit dem Mac mini überein |
-| 2 Uptime Kuma | meine Seite erledigt (eingefügte Adressen mit `?status=…` funktionieren jetzt); wartet auf deine zwei Push-Monitore |
+| 2 Uptime Kuma | erledigt: Push-Monitore „Küchenhelfer Backup“ (Backup und Stick-Kopie) und „Küchenhelfer“ (Update) angeschlossen, alle Meldewege getestet. Dabei Uptime Kuma auf 2.5.8 aktualisiert: Der erste Versuch scheiterte an Resten eines gelöschten Monitors, Version 1 kam aus der Sicherung zurück, der zweite Versuch mit bereinigter Kopie klappte |
 | 3 Familie startklar | Anleitung erledigt; wartet auf deine Einladungslinks |
 | 4 Restore-Test-Skript | erledigt, auf MacBook und Mac mini bestanden |
 | 5 Mealie-Teile ausblenden | erledigt; dabei die öffentliche Gruppe der Familie entdeckt und auf privat gestellt |
 | 6 THIRD_PARTY_NOTICES.md | erledigt |
 | 7 Installation | erledigt, nach Anleitung auf dem MacBook geprüft |
-| 8 Release v0.0 | erledigt: Tag und beide Images veröffentlicht. Upgrade-Test von `rc.2` bestanden, für amd64 in der CI und für arm64 auf dem MacBook (in einer Wegwerf-Installation statt mit `update.sh`, damit die Entwicklungs-Installation bleibt). Der Mac mini stellt sich in der Nacht zum 1.11. um 4 Uhr um. |
+| 8 Release v0.0 | erledigt: Tag und beide Images veröffentlicht. Upgrade-Test von `rc.2` bestanden, für amd64 in der CI und für arm64 auf dem MacBook (in einer Wegwerf-Installation statt mit `update.sh`, damit die Entwicklungs-Installation bleibt). Der Mac mini stellt sich in der Nacht zum 1.11. um 4 Uhr um. Danach `v0.0.1` und `v0.0.2` mit der Kopie auf den USB-Stick (D32, D33); beide Upgrade-Tests in der CI bestanden. |
 | 9 Backup-Ort Mac mini | USB-Stick gewählt (D32). `kh/ops/backup_copy.sh` kopiert jede Nacht auf den Stick, wahlweise mit Passwort (D33): `v0.0.1` immer mit, `v0.0.2` mit Frage j/n. Die Windows-Dateien vom Stick liegen gesichert auf dem Mac mini. Eingerichtet ohne Passwort: Festplattenvollzugriff für `/bin/dash`, Stick formatiert, erste Kopie um 15:06 Uhr, alle 3 Backups identisch. Läuft jede Nacht um 3:45 Uhr |
 | 10 Raspberry Pi | wartet auf den Pi |
 
