@@ -10,12 +10,23 @@ from mealie.schema.response import ErrorResponse
 
 
 class KhSettings(BaseSettings):
-    """Switches read from the environment, e.g. KH_SHARE_LINKS=true."""
+    """Switches and limits read from the environment, e.g. KH_SHARE_LINKS=true."""
 
-    model_config = SettingsConfigDict(env_prefix="KH_")
+    # env_ignore_empty: compose passes unset values as empty strings, which keep the defaults here
+    model_config = SettingsConfigDict(env_prefix="KH_", env_ignore_empty=True)
 
     # Public recipe pages by link; Leitplanke 1: share links only on purpose, off by default
     share_links: bool = False
+
+    # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
+    draft_max_images: int = 5
+    draft_max_image_mb: int = 20
+    draft_max_text: int = 20000
+    draft_stale_minutes: int = 15
+    # Duplicate check: similarity from 0 to 1 from which a draft gets a hint
+    duplicate_title: float = 0.85
+    duplicate_ingredients: float = 0.7
+    duplicate_title_with_ingredients: float = 0.5
 
 
 @lru_cache
