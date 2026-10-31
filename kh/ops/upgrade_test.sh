@@ -8,7 +8,7 @@ set -eu
 TEST_PROJECT=kh-upgrade-test
 TEST_PORT=${KH_TEST_PORT:-9191}
 
-# Loads update.sh's helpers (valid_image, setting, set_env_value, wait_healthy, default_login).
+# Loads update.sh's helpers (valid_image, setting, set_env_value, wait_healthy, create_token).
 # Loaded first, so the usage, fail and main defined below take precedence over update.sh's own.
 load_update_helpers() {
   set -- --lib
@@ -57,18 +57,6 @@ prepare_install() {  # old_image
   cp -R "$OPS/backup" "$WORK/ops/backup"
   printf '%s\n' "KH_IMAGE=$1" "KH_PORT=$TEST_PORT" "KH_DATA_DIR=./data" "KH_BACKUP_DIR=./backups" \
     "KH_PUID=$(id -u)" "KH_PGID=$(id -g)" "KH_BACKUP_API_TOKEN=" > "$WORK/ops/.env"
-}
-
-# Creates an admin API token on the fresh install with Mealie's default login.
-create_token() {
-  email=$(default_login _DEFAULT_EMAIL "$SETTINGS")
-  password=$(default_login _DEFAULT_PASSWORD "$SETTINGS")
-  [ -n "$email" ] && [ -n "$password" ] || return 1
-  login=$(curl -fsS -m 30 -X POST "$URL/api/auth/token" \
-    --data-urlencode "username=$email" --data-urlencode "password=$password") || return 1
-  access=$(printf '%s' "$login" | json_field access_token) || return 1
-  curl -fsS -m 30 -X POST "$URL/api/users/api-tokens" -H "Authorization: Bearer $access" \
-    -H "Content-Type: application/json" -d '{"name":"kh-upgrade-test"}' | json_field token
 }
 
 # Adds the self-made test recipes, gives the first one the test image and prints the slugs.
@@ -123,7 +111,7 @@ run_test() {  # old_image new_image
   echo "1/4 Alte Version starten: $1"
   docker compose up -d --no-build mealie >/dev/null 2>&1 || fail "die alte Version startet nicht"
   wait_healthy || fail "die alte Version wird nicht bereit"
-  token=$(create_token) || fail "auf der Testinstallation ließ sich kein API-Token anlegen"
+  token=$(create_token "$URL" "$SETTINGS" kh-upgrade-test) || fail "auf der Testinstallation ließ sich kein API-Token anlegen"
   set_env_value .env KH_BACKUP_API_TOKEN "$token"
   AUTH="Authorization: Bearer $token"
 

@@ -49,6 +49,13 @@ check "recipe_total reads total" "$(recipe_total '{"page":1,"per_page":1,"total"
 check "recipe_total ignores total_pages" "$(recipe_total '{"total_pages":3,"total":0}')" "0"
 check "recipe_total of an error answer is empty" "$(recipe_total '{"detail":"Not authenticated"}')" ""
 
+# --- json_string: string fields of Mealie's login and API token answers (create_token needs no python3) ---
+check "json_string reads access_token" "$(json_string access_token '{"access_token":"eyJ.a.b","token_type":"bearer"}')" "eyJ.a.b"
+check "json_string reads token" "$(json_string token '{"name":"kh-backup","id":3,"token":"eyJ.c.d","createdAt":"2026-10-31"}')" "eyJ.c.d"
+check "json_string token is not access_token or token_type" "$(json_string token '{"access_token":"eyJ.a.b","token_type":"bearer"}')" ""
+check "json_string with space after colon" "$(json_string token '{"token": "eyJ.e.f"}')" "eyJ.e.f"
+check "json_string of a missing field is empty" "$(json_string token '{"detail":"Unauthorized"}')" ""
+
 # --- database snapshot and restore ---
 data="$tmp/data"
 snap="$tmp/data.pre-update"

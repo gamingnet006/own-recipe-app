@@ -4,8 +4,8 @@
 # Usage: kh/ops/restore_test.sh [backup.zip]   (without an argument: the newest backup)
 set -eu
 
-# Loads the helpers of upgrade_test.sh (prepare_install, create_token, cleanup, and update.sh's
-# setting, wait_healthy, image_id) and backup.sh (newest_zip). Loaded first, so the usage, fail and
+# Loads the helpers of upgrade_test.sh (prepare_install, cleanup, and update.sh's setting,
+# wait_healthy, image_id, create_token) and backup.sh (newest_zip). Loaded first, so the usage, fail and
 # main defined below take precedence.
 load_helpers() {
   set -- --lib
@@ -75,7 +75,7 @@ run_test() {  # zip image
   echo "1/3 Wegwerf-Installation starten: $2"
   docker compose up -d --no-build mealie >/dev/null 2>&1 || fail "die Wegwerf-Installation startet nicht"
   wait_healthy || fail "die Wegwerf-Installation wird nicht bereit"
-  token=$(create_token) || fail "auf der Wegwerf-Installation ließ sich kein API-Token anlegen"
+  token=$(create_token "$URL" "$SETTINGS" kh-restore-test) || fail "auf der Wegwerf-Installation ließ sich kein API-Token anlegen"
   set_env_value .env KH_BACKUP_API_TOKEN "$token" || fail "der API-Token ließ sich nicht eintragen"
 
   echo "2/3 Backup mit restore.sh einspielen: $(basename "$1")"

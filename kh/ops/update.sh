@@ -42,10 +42,32 @@ valid_image() {
   case "$1" in ''|*[!A-Za-z0-9._/:@-]*) return 1 ;; esac
 }
 
-# Reads one default login field of a fresh Mealie from its settings source (used by upgrade_test.sh
-# and tunnel.sh, which load these helpers).
+# Reads one default login field of a fresh Mealie from its settings source (used by create_token
+# and tunnel.sh).
 default_login() {  # field settings_file
   sed -n "s/.*$1: str = \"\(.*\)\".*/\1/p" "$2" 2>/dev/null | head -n 1
+}
+
+# Value of a string field in one of Mealie's flat JSON answers (login, API token). Their values hold
+# no quotes, so sed is enough and the ops scripts need no python3.
+json_string() {  # field json
+  printf '%s' "$2" | sed -n "s/.*\"$1\":[[:space:]]*\"\([^\"]*\)\".*/\1/p"
+}
+
+# Creates an admin API token with Mealie's default login and prints it; a fresh install has no other
+# account yet. Used by install.sh and by the throwaway installs of upgrade_test.sh and restore_test.sh.
+create_token() {  # url settings_file token_name
+  email=$(default_login _DEFAULT_EMAIL "$2")
+  password=$(default_login _DEFAULT_PASSWORD "$2")
+  [ -n "$email" ] && [ -n "$password" ] || return 1
+  login=$(curl -fsS -m 30 -X POST "$1/api/auth/token" \
+    --data-urlencode "username=$email" --data-urlencode "password=$password") || return 1
+  access=$(json_string access_token "$login")
+  [ -n "$access" ] || return 1
+  answer=$(curl -fsS -m 30 -X POST "$1/api/users/api-tokens" -H "Authorization: Bearer $access" \
+    -H "Content-Type: application/json" -d "{\"name\":\"$3\"}") || return 1
+  token=$(json_string token "$answer")
+  [ -n "$token" ] && echo "$token"
 }
 
 # Prints the value of a key from an env file (last occurrence, surrounding quotes removed).
