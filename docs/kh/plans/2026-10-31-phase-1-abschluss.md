@@ -23,7 +23,7 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | E3 | Kommen Beispielrezepte in die Familien-Installation? | Nein, die Familie startet leer (D31). |
 | E4 | Erscheint `v0.0` vor dem Pi-Test? | Ja. Der Pi-Test folgt; Fehler kämen als `v0.0.1` (D30). |
 
-## Stand (31.10.2026, morgens)
+## Stand (31.10.2026, mittags)
 
 | Paket | Stand |
 |---|---|
@@ -34,8 +34,8 @@ Dazu kommen die offenen Phase-1-Aufgaben: `THIRD_PARTY_NOTICES.md`, Mealie-Teile
 | 5 Mealie-Teile ausblenden | erledigt; dabei die öffentliche Gruppe der Familie entdeckt und auf privat gestellt |
 | 6 THIRD_PARTY_NOTICES.md | erledigt |
 | 7 Installation | erledigt, nach Anleitung auf dem MacBook geprüft |
-| 8 Release v0.0 | vorbereitet (CHANGELOG-Abschnitt, CI); wartet auf dein Okay für `main` |
-| 9 Backup-Ort Mac mini | Frage an dich nach dem Release |
+| 8 Release v0.0 | erledigt: Tag und beide Images veröffentlicht. Upgrade-Test von `rc.2` bestanden, für amd64 in der CI und für arm64 auf dem MacBook (in einer Wegwerf-Installation statt mit `update.sh`, damit die Entwicklungs-Installation bleibt). Der Mac mini stellt sich in der Nacht zum 1.11. um 4 Uhr um. |
+| 9 Backup-Ort Mac mini | Frage an dich ist gestellt |
 | 10 Raspberry Pi | wartet auf den Pi |
 
 ## Reihenfolge
