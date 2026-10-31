@@ -18,9 +18,14 @@ usage() {
   exit 2
 }
 
-# Stops with a clear reason.
+# Stops with a clear reason. A .env written by this run goes again, so install.sh can simply be
+# started once more; an existing install's .env is never touched.
 fail() {
   echo "Installation abgebrochen: $1" >&2
+  if [ -n "${CREATED_ENV:-}" ]; then
+    rm -f .env
+    echo "kh/ops/.env ist wieder entfernt, install.sh kann neu gestartet werden." >&2
+  fi
   exit 1
 }
 
@@ -84,6 +89,7 @@ main() {
   storable "$backups" && storable "$url" || fail "bitte ohne | und & antworten"
   mkdir -p data "$backups" || fail "der Ordner $backups ließ sich nicht anlegen"
   colima_hint "$(cd "$backups" && pwd)"
+  CREATED_ENV=1
   write_env "$1" "$backups" "$url" || fail "kh/ops/.env ließ sich nicht schreiben"
   start_install
 

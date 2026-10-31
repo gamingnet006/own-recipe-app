@@ -51,6 +51,14 @@ check "mac, folder outside home: hint" "$(hint_lines Darwin /Volumes/USB/backups
 check "mac, folder in home: no hint" "$(hint_lines Darwin "$HOME/kuechenhelfer/kh/ops/backups")" "0"
 check "linux: no hint" "$(hint_lines Linux /mnt/usb/backups)" "0"
 
+# --- fail: a .env this run wrote is removed again, so install.sh can simply run again ---
+mkdir "$tmp/retry" && echo "KH_IMAGE=new" > "$tmp/retry/.env"
+(cd "$tmp/retry" && CREATED_ENV=1 && fail "Probe") >/dev/null 2>&1 || true
+check "failure after writing .env removes it" "$(ls -A "$tmp/retry")" ""
+echo "KH_IMAGE=old" > "$tmp/retry/.env"
+(cd "$tmp/retry" && fail "Probe") >/dev/null 2>&1 || true
+check "failure before writing keeps an existing .env" "$(cat "$tmp/retry/.env")" "KH_IMAGE=old"
+
 # --- main: one image, and an existing install is never touched ---
 check "no image: usage" "$(sh "$here/install.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "two arguments: usage" "$(sh "$here/install.sh" a/b:1 c/d:2 >/dev/null 2>&1 && echo 0 || echo $?)" "2"
