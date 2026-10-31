@@ -41,15 +41,15 @@
 
 ## Review-Schwerpunkte
 
-1. **Haushalts-Grenze an jedem Endpunkt**, auch an Originalbild und Herkunft: Ein Nutzer aus einem anderen Haushalt (`h2_user`) und einer anderen Gruppe (`g2_user`) bekommt 404. Tests in Aufgabe 2 und 3.
-2. **Aufräumen löscht nie ein echtes Rezept:** Der Erkennungsordner zur `recipe.id` des Entwurfs wird nur gelöscht, wenn es kein Rezept mit dieser ID gibt. Test in Aufgabe 3.
-3. **Hintergrund mit eigener Sitzung:** Die Erkennung öffnet ihre Datenbank-Sitzung mit `session_context()`; ein hängender Entwurf wird nach `draft_stale_minutes` zu `failed`/`interrupted`. Tests in Aufgabe 2.
-4. **Gleichzeitiges Übernehmen:** Der Wechsel auf `approved` ist eine bedingte Änderung (`WHERE status = 'ready'`); der zweite Versuch bekommt 409 `already_approved`. Test in Aufgabe 3.
-5. **Hochladen prüft den Inhalt, nicht den Namen:** Text mit Endung `.jpg` wird abgelehnt, HEIC angenommen, zu große Bilder und zu viele Bilder abgelehnt, ohne dass ein Entwurf entsteht. Tests in Aufgabe 2.
+1. **Haushalts-Grenze an jedem Endpunkt**, auch an Originalbild und Herkunft: Ein Nutzer aus einem anderen Haushalt (`h2_user`) und einer anderen Gruppe (`g2_user`) bekommt 404. Tests in Task 2 und 3.
+2. **Aufräumen löscht nie ein echtes Rezept:** Der Erkennungsordner zur `recipe.id` des Entwurfs wird nur gelöscht, wenn es kein Rezept mit dieser ID gibt. Test in Task 3.
+3. **Hintergrund mit eigener Sitzung:** Die Erkennung öffnet ihre Datenbank-Sitzung mit `session_context()`; ein hängender Entwurf wird nach `draft_stale_minutes` zu `failed`/`interrupted`. Tests in Task 2.
+4. **Gleichzeitiges Übernehmen:** Der Wechsel auf `approved` ist eine bedingte Änderung (`WHERE status = 'ready'`); der zweite Versuch bekommt 409 `already_approved`. Test in Task 3.
+5. **Hochladen prüft den Inhalt, nicht den Namen:** Text mit Endung `.jpg` wird abgelehnt, HEIC angenommen, zu große Bilder und zu viele Bilder abgelehnt, ohne dass ein Entwurf entsteht. Tests in Task 2.
 
 ---
 
-### Aufgabe 1: Einstellungen, Tabelle, Migration, Schemas
+### Task 1: Einstellungen, Tabelle, Migration, Schemas
 
 **Dateien:**
 - Ändern: `mealie/kh/features/settings.py` (neue Felder, `env_ignore_empty=True`)
@@ -101,7 +101,7 @@ def test_repo_is_scoped_to_household(session, unique_user, h2_user):
 - [ ] **Schritt 4: Tests laufen lassen.** Erwartet: PASS. Außerdem `tests/unit_tests/test_alembic.py` grün; er prüft nur `mealie/alembic/versions`.
 - [ ] **Schritt 5: Commit** `Drafts: kh_drafts table on the kh migration branch, settings and schemas`
 
-### Aufgabe 2: Eingang und Erkennung im Hintergrund
+### Task 2: Eingang und Erkennung im Hintergrund
 
 **Dateien:**
 - Neu: `mealie/kh/drafts/files.py`, `mealie/kh/drafts/recognize.py`, `mealie/kh/drafts/service.py`, `mealie/kh/drafts/routes.py`
@@ -110,7 +110,7 @@ def test_repo_is_scoped_to_household(session, unique_user, h2_user):
 - Neu, selbst geschrieben: `tests/kh/drafts/data/recipe.json` (Rezept „Testkuchen“ im `Recipe`-Schema, 4 Zutaten, 3 Schritte), `tests/kh/drafts/data/page.html` (Seite mit JSON-LD für „Testkuchen“, ohne Bildadresse, damit kein Download nötig ist)
 
 **Schnittstellen:**
-- Verbraucht: alles aus Aufgabe 1.
+- Verbraucht: alles aus Task 1.
 - Liefert:
   - `files.py`:
     - `drafts_root() -> Path`, `draft_dir(draft_id) -> Path`
@@ -171,7 +171,7 @@ def test_other_household_and_group_see_nothing(h2_user, g2_user, ...): list with
 - [ ] **Schritt 4: Tests und Lint laufen lassen.** Erwartet: PASS, Ruff ohne Meldungen.
 - [ ] **Schritt 5: Commit** `Drafts: intake for links, text and images, recognized in the background`
 
-### Aufgabe 3: Übernehmen, Verwerfen, Herkunft, Aufräumen
+### Task 3: Übernehmen, Verwerfen, Herkunft, Aufräumen
 
 **Dateien:**
 - Ändern: `mealie/kh/drafts/files.py`, `service.py`, `routes.py`, `mealie/kh/__init__.py` (Router `/recipes` für die Herkunft)
@@ -179,7 +179,7 @@ def test_other_household_and_group_see_nothing(h2_user, g2_user, ...): list with
 - Neu: `tests/kh/drafts/test_kh_drafts_approve.py`
 
 **Schnittstellen:**
-- Verbraucht: Aufgaben 1 und 2.
+- Verbraucht: Tasks 1 und 2.
 - Liefert:
   - `files.py`: `remove_draft_dir(draft_id) -> None`, `remove_recognition_dir(recipe_id, repos) -> None` (nur ohne Rezept mit dieser ID), `sweep_orphans() -> None` (eigene Sitzung, ungefiltertes Repository)
   - `DraftService`: `approve(draft_id, force: bool) -> ApproveOut`, `discard(draft_id) -> None`, `origin(recipe_id) -> OriginOut`
@@ -214,11 +214,11 @@ def test_sweep_keeps_folders_with_rows(...)
   - **Übernehmen:** Die Statusänderung läuft als `update(KhDraft).where(id == …, status == "ready")` mit `approved_by` und `approved_at`. Bei Zeilenzahl 0 kommt 409 mit dem passenden Code.
   - **Speichern:** über `RecipeService(repos, user, household, translator).create_one(Recipe.model_validate(draft.recipe))`. Bei `image` schreibt `RecipeDataService(recipe.id).write_image(<erstes Original>, "webp")` das Titelbild, wie Mealies `create_from_ai`. Danach wird `recipe_id` gesetzt. Scheitert das Speichern, geht der Stand zurück auf `ready`, und der Fehler wird gemeldet.
   - **Verwerfen** prüft den Stand, ruft dann `remove_recognition_dir`, `remove_draft_dir` und löscht den Eintrag.
-  - **„Neu versuchen“** aus Aufgabe 2 ruft vor dem Neustart `remove_recognition_dir` für die `recipe.id` des alten Ergebnisses.
+  - **„Neu versuchen“** aus Task 2 ruft vor dem Neustart `remove_recognition_dir` für die `recipe.id` des alten Ergebnisses.
 - [ ] **Schritt 4: Tests, Lint und Mealies Rezept-Tests laufen lassen** (`pytest tests/kh tests/integration_tests/user_recipe_tests -q`). Erwartet: PASS.
 - [ ] **Schritt 5: Commit** `Drafts: approve into Mealie, discard, origin and cleanup`
 
-### Aufgabe 4: Duplikat-Prüfung
+### Task 4: Duplikat-Prüfung
 
 **Dateien:**
 - Neu: `mealie/kh/drafts/duplicates.py`, `tests/kh/drafts/test_kh_drafts_duplicates.py`
@@ -263,7 +263,7 @@ def test_approve_with_new_duplicate_needs_force(...): 409 {"code": "duplicates",
 - [ ] **Schritt 4: Tests und Lint laufen lassen.** Erwartet: PASS.
 - [ ] **Schritt 5: Commit** `Drafts: duplicate check by link, title and ingredients`
 
-### Aufgabe 5: Frontend-Grundlage (Schnittstelle, Texte, Umleitung, Menü, Abzeichen)
+### Task 5: Frontend-Grundlage (Schnittstelle, Texte, Umleitung, Menü, Abzeichen)
 
 **Dateien:**
 - Ändern: `frontend/kh/nuxt.config.ts` (`i18n: { langDir: "./../lang", locales: [{ code: "en-US", file: "en-US.json" }, { code: "de-DE", file: "de-DE.json" }] }`; Codes wie in `frontend/nuxt.config.ts`)
@@ -275,7 +275,7 @@ def test_approve_with_new_duplicate_needs_force(...): 409 {"code": "duplicates",
 - Neu: `frontend/kh/app/__tests__/kh-drafts.test.ts`
 
 **Schnittstellen:**
-- Verbraucht: die Schnittstelle aus Aufgaben 2 bis 4 (camelCase-Antworten).
+- Verbraucht: die Schnittstelle aus Tasks 2 bis 4 (camelCase-Antworten).
 - Liefert:
   - `useKhDraftsApi(): KhDraftsApi` mit `create(form: FormData)`, `list()`, `get(id)`, `retry(id)`, `approve(id, force)`, `discard(id)`, `origin(recipeId)`, `originalUrl(id, n): string`
   - `useKhDraftCount(): { count: Ref<number>, refresh(): Promise<void> }` (gemeinsamer Zustand)
@@ -305,7 +305,7 @@ expect(errorText("something_new", t)).toBe(t("kh.drafts.error.unknown"));
 - [ ] **Schritt 4: Tests und Lint laufen lassen.** Erwartet: PASS, ESLint ohne Meldungen.
 - [ ] **Schritt 5: Commit** `Drafts UI: API client, texts, import redirect, menu entry and origin badge`
 
-### Aufgabe 6: Eingang, Entwurfsliste, Prüfansicht
+### Task 6: Eingang, Entwurfsliste, Prüfansicht
 
 **Dateien:**
 - Neu: `frontend/kh/app/pages/g/[groupSlug]/drafts/new.vue`, `index.vue`, `[id].vue`
@@ -313,7 +313,7 @@ expect(errorText("something_new", t)).toBe(t("kh.drafts.error.unknown"));
 - Ändern: `frontend/kh/app/__tests__/kh-drafts.test.ts`
 
 **Schnittstellen:**
-- Verbraucht: alles aus Aufgabe 5.
+- Verbraucht: alles aus Task 5.
 - Liefert: die drei Seiten.
 - Logik in reinen Funktionen:
   - `draftTitle(d: KhDraft): string`, Rezeptname oder Link oder Textanfang
@@ -344,7 +344,7 @@ expect(approveTarget("testkuchen", "familie", true)).toBe("/g/familie/r/testkuch
 - [ ] **Schritt 4: Tests und Lint laufen lassen.** Dann auf dem MacBook von Hand prüfen: `docker compose -f kh/ops/docker-compose.yml up -d --build`, im Browser in Handy- und iPad-Breite. Erwartet: PASS; alle drei Seiten in beiden Breiten bedienbar.
 - [ ] **Schritt 5: Commit** `Drafts UI: intake, list and review for phone and iPad`
 
-### Aufgabe 7: Betrieb, Anleitung, Probelauf
+### Task 7: Betrieb, Anleitung, Probelauf
 
 **Dateien:**
 - Ändern: `kh/ops/docker-compose.yml` (die sieben `KH_DRAFT_*`/`KH_DUPLICATE_*` als `${…:-}` an `mealie`), `kh/ops/.env.example` (auskommentierte Zeilen mit den Vorgaben)
@@ -364,7 +364,7 @@ expect(approveTarget("testkuchen", "familie", true)).toBe("/g/familie/r/testkuch
 - [ ] **Schritt 4:** Ganzes Backend und Frontend laufen lassen. Erwartet: alles grün.
 - [ ] **Schritt 5: Commit** `Drafts: settings passthrough, guide for Gemini, where data goes`
 
-### Aufgabe 8: Release v0.1
+### Task 8: Release v0.1
 
 - [ ] **Schritt 1:** `docs/kh/CHANGELOG.md`: `[Unreleased]` wird zu `## [v0.1] - <Datum>`.
 - [ ] **Schritt 2:** Arbeitszweig per Fast-Forward nach `main`, pushen. Danach die CI abwarten. Erwartet: alle vier Jobs grün.
