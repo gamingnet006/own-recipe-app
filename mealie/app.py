@@ -21,6 +21,7 @@ from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
 from mealie.core.settings import branding
 from mealie.core.settings.static import APP_VERSION
+from mealie.kh.drafts.files import sweep_orphans  # KH: daily cleanup of draft files (phase 2)
 from mealie.middleware.locale_context import LocaleContextMiddleware
 from mealie.routes import router, spa, utility_routes
 from mealie.routes.handlers import register_debug_handler
@@ -136,6 +137,7 @@ async def start_scheduler():
         tasks.purge_group_data_exports,
         tasks.create_mealplan_timeline_events,
         tasks.delete_old_checked_list_items,
+        sweep_orphans,  # KH: draft folders and origins whose recipe is gone (phase 2)
     )
 
     SchedulerRegistry.register_minutely(

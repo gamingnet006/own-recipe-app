@@ -1,7 +1,9 @@
 """KH: the drafts service (phase 2): checks what comes in, keeps the household's drafts, retries failed
-recognitions and marks recognitions that hang as interrupted."""
+recognitions, marks recognitions that hang as interrupted, and turns an approved draft into a Mealie
+recipe whose origin it then stays."""
 
 from datetime import timedelta
+from pathlib import Path
 from typing import Any
 
 import sqlalchemy as sa
@@ -10,15 +12,24 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models._model_utils.datetime import get_utc_now
-from mealie.kh.drafts.files import prepare_original, remove_draft_dir, store_original
+from mealie.kh.drafts.files import (
+    original_path,
+    prepare_original,
+    remove_draft_dir,
+    remove_recognition_dir,
+    store_original,
+)
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.recognize import set_fields
 from mealie.kh.drafts.repository import drafts_repo
-from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
+from mealie.kh.drafts.schemas import ApproveOut, DraftError, DraftOut, DraftSource, DraftStatus, OriginOut
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
+from mealie.repos.all_repositories import get_repositories
 from mealie.schema.household.household import HouseholdInDB
+from mealie.schema.recipe.recipe import Recipe
 from mealie.schema.user.user import PrivateUser
+from mealie.services.recipe.recipe_service import RecipeService
 
 
 def bad_request(code: str) -> HTTPException:
@@ -120,7 +131,7 @@ class DraftService:
         self.mark_stale()
         draft = self.repo.get_one(draft_id)
         if draft is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail={"code": "not_found"})
+            raise self._not_found()
         return draft
 
     def retry(self, draft_id: UUID4) -> DraftOut:
@@ -132,3 +143,86 @@ class DraftService:
             self.session, draft_id, status=DraftStatus.working, error=None, recipe=None, ai_model=None, warnings=[]
         )
         return self.get(draft_id)
+
+    def _not_found(self) -> HTTPException:
+        """404, as if the draft or origin did not exist."""
+        return HTTPException(status.HTTP_404_NOT_FOUND, detail={"code": "not_found"})
+
+    def _already_approved(self, draft: DraftOut) -> HTTPException:
+        """409 that also says where the saved recipe is."""
+        recipe = self._all_repos().recipes.get_one(draft.recipe_id, "id") if draft.recipe_id else None
+        return conflict("already_approved", slug=recipe.slug if recipe else None)
+
+    def _all_repos(self):
+        """Repositories that see every group, for checks that must not miss another household's recipe."""
+        return get_repositories(self.session, group_id=None, household_id=None)
+
+    def _save_recipe(self, draft: DraftOut) -> Recipe:
+        """Saves the recognized recipe the way Mealie's import does; an image draft's first original
+        becomes the cover, like in Mealie's create_from_ai."""
+        repos = get_repositories(self.session, group_id=self.user.group_id, household_id=self.user.household_id)
+        recipes = RecipeService(repos, self.user, self.household, self.translator)
+        recipe = recipes.create_one(Recipe.model_validate(draft.recipe))
+        if draft.source_type == DraftSource.image and draft.original_files:
+            cover = original_path(draft.id, draft.original_files[0]).read_bytes()
+            recipes.update_recipe_image(recipe.slug, cover, "webp")
+        return recipe
+
+    def approve(self, draft_id: UUID4, force: bool) -> ApproveOut:
+        """Saves a ready draft as a Mealie recipe; anyone in the household may. The claim on the draft is
+        one conditional UPDATE, so of two people approving at once exactly one wins."""
+        draft = self.get(draft_id)
+        if draft.status == DraftStatus.approved:
+            raise self._already_approved(draft)
+        if draft.status != DraftStatus.ready:
+            raise conflict("not_ready")
+        claim = self.session.execute(
+            sa.update(KhDraft)
+            .where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.ready)
+            .values(status=DraftStatus.approved, approved_by=self.user.id, approved_at=get_utc_now())
+        )
+        self.session.commit()
+        if claim.rowcount == 0:  # type: ignore[attr-defined]
+            raise self._already_approved(self.get(draft_id))
+        try:
+            recipe = self._save_recipe(draft)
+        except Exception:
+            self.session.rollback()
+            set_fields(self.session, draft_id, status=DraftStatus.ready, approved_by=None, approved_at=None)
+            raise
+        set_fields(self.session, draft_id, recipe_id=recipe.id)
+        return ApproveOut(slug=recipe.slug)
+
+    def discard(self, draft_id: UUID4) -> None:
+        """Deletes a ready or failed draft with its originals and the image folder its recognition left."""
+        draft = self.get(draft_id)
+        if draft.status == DraftStatus.working:
+            raise conflict("still_working")
+        if draft.status == DraftStatus.approved:
+            raise self._already_approved(draft)
+        remove_recognition_dir((draft.recipe or {}).get("id"), self._all_repos())
+        remove_draft_dir(draft.id)
+        self.repo.delete(draft.id)
+
+    def original_file(self, draft_id: UUID4, n: int) -> Path:
+        """The n-th original (from 1) of a draft of the household."""
+        draft = self.get(draft_id)
+        if not 1 <= n <= len(draft.original_files):
+            raise self._not_found()
+        return original_path(draft.id, draft.original_files[n - 1])
+
+    def origin(self, recipe_id: UUID4) -> OriginOut:
+        """Where a recipe of the household came from; 404 for recipes without a draft."""
+        found = self.repo.multi_query({"recipe_id": recipe_id}, limit=1)
+        if not found:
+            raise self._not_found()
+        draft = found[0]
+        return OriginOut(
+            draft_id=draft.id,
+            source_type=draft.source_type,
+            source_url=draft.source_url,
+            user_name=draft.user_name,
+            created_at=draft.created_at,
+            ai_model=draft.ai_model,
+            original_count=len(draft.original_files),
+        )

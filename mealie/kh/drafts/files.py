@@ -5,11 +5,18 @@ import io
 import shutil
 from pathlib import Path
 
+import sqlalchemy as sa
 from PIL import Image, ImageOps, UnidentifiedImageError
 from pillow_heif import register_heif_opener
 from pydantic import UUID4
 
 from mealie.core.config import get_app_dirs
+from mealie.db.db_setup import session_context
+from mealie.db.models.recipe.recipe import RecipeModel
+from mealie.kh.drafts.models import KhDraft
+from mealie.kh.drafts.schemas import DraftStatus
+from mealie.repos.repository_factory import AllRepositories
+from mealie.schema.recipe.recipe import Recipe
 
 register_heif_opener()  # iPhone photos arrive as HEIC
 
@@ -59,3 +66,32 @@ def store_original(draft_id: UUID4 | str, n: int, image: Image.Image) -> str:
 def remove_draft_dir(draft_id: UUID4 | str) -> None:
     """Deletes a draft's originals, e.g. when the draft is discarded or its creation failed."""
     shutil.rmtree(draft_dir(draft_id), ignore_errors=True)
+
+
+def remove_recognition_dir(recipe_id: UUID4 | str | None, repos: AllRepositories) -> None:
+    """Deletes the folder Mealie created for the recognized recipe's image (DATA_DIR/recipes/<id>), but only
+    while no recipe with this ID exists; REPOS must see every group, so no other household's recipe counts
+    as missing."""
+    if recipe_id is None or repos.recipes.get_one(recipe_id, "id") is not None:
+        return
+    shutil.rmtree(Recipe.directory_from_id(recipe_id), ignore_errors=True)
+
+
+def sweep_orphans() -> None:
+    """Daily cleanup: origins whose recipe is gone (SQLite does not enforce ON DELETE CASCADE, Postgres does)
+    and draft folders without a draft. Mealie's own recipe folders stay untouched."""
+    with session_context() as session:
+        recipe_exists = sa.exists().where(RecipeModel.id == KhDraft.recipe_id)
+        session.execute(
+            sa.delete(KhDraft).where(
+                KhDraft.status == DraftStatus.approved, KhDraft.recipe_id.is_not(None), ~recipe_exists
+            )
+        )
+        session.commit()
+        known = {str(draft_id) for draft_id in session.execute(sa.select(KhDraft.id)).scalars()}
+    root = drafts_root()
+    if not root.is_dir():
+        return
+    for folder in root.iterdir():
+        if folder.is_dir() and folder.name not in known:
+            shutil.rmtree(folder, ignore_errors=True)

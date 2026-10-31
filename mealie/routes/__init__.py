@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from mealie import kh  # KH: Küchenhelfer's own routes (mealie/kh)
+from mealie.kh import routes as kh_routes  # KH: Küchenhelfer's own routes (mealie/kh/routes.py)
 
 from . import (
     admin,
@@ -35,4 +35,4 @@ router.include_router(unit_and_foods.router)
 router.include_router(admin.router)
 router.include_router(validators.router)
 router.include_router(explore.router)
-router.include_router(kh.router)  # KH: Küchenhelfer's own routes (mealie/kh)
+router.include_router(kh_routes.router)  # KH: Küchenhelfer's own routes (mealie/kh/routes.py)
