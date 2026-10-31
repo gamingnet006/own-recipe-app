@@ -20,7 +20,7 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 
 1. **No dead code.** Build nothing in advance. Delete unused functions, imports and files immediately.
 2. **No repetition.** If logic appears a second time, it becomes a function called everywhere (e.g. `parse_ingredient()`, `format_amount()`, `ask_ai()`, `transcribe()`).
-3. **Check first whether it already exists:** Mealie function, then library, then own code. Every new dependency needs a reason, a license check and an entry in `THIRD_PARTY_NOTICES.md`.
+3. **Check first whether it already exists:** Mealie function, then library, then own code. Every new dependency needs a reason, a license check and an entry in `docs/kh/THIRD_PARTY_NOTICES.md`.
 4. **Stay readable.** One file, one topic. Functions mostly under about 40 lines, descriptive names. Settings only through configuration, no hidden numbers in code.
 5. **Comments explain the purpose.** Every new file starts with 1 to 3 lines on what it is for. Every function has a short description (what and why). Non-obvious spots get a short margin comment. No comments that merely restate the code.
 6. **Language.** Code, identifiers and comments in English, matching Mealie (D7 in `PLAN.md`); guides in German and English.

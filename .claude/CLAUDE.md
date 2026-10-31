@@ -18,7 +18,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 
 1. **Kein toter Code.** Nichts auf Vorrat bauen. Ungenutzte Funktionen, Importe und Dateien sofort löschen.
 2. **Keine Wiederholungen.** Taucht Logik ein zweites Mal auf, wird sie eine Funktion, die überall aufgerufen wird (z. B. `parse_ingredient()`, `format_amount()`, `ask_ai()`, `transcribe()`).
-3. **Erst prüfen, ob es das schon gibt:** Mealie-Funktion, dann Bibliothek, dann eigener Code. Jede neue Abhängigkeit braucht eine Begründung, einen Lizenz-Check und einen Eintrag in `THIRD_PARTY_NOTICES.md`.
+3. **Erst prüfen, ob es das schon gibt:** Mealie-Funktion, dann Bibliothek, dann eigener Code. Jede neue Abhängigkeit braucht eine Begründung, einen Lizenz-Check und einen Eintrag in `docs/kh/THIRD_PARTY_NOTICES.md`.
 4. **Übersichtlich bleiben.** Eine Datei, ein Thema. Funktionen meist unter etwa 40 Zeilen, sprechende Namen. Einstellungen nur über die Konfiguration, keine versteckten Zahlen im Code.
 5. **Kommentare erklären den Zweck.** Jede neue Datei beginnt mit 1 bis 3 Zeilen, wofür sie da ist. Jede Funktion hat eine Kurzbeschreibung (was und warum). Nicht offensichtliche Stellen bekommen einen kurzen Randkommentar. Keine Kommentare, die nur den Code nachsagen.
 6. **Sprache.** Code, Bezeichner und Kommentare auf Englisch, passend zu Mealie (D7 in `PLAN.md`); Anleitungen auf Deutsch und Englisch.
