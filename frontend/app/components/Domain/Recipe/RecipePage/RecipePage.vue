@@ -32,6 +32,8 @@
           @delete="deleteRecipe"
           @close="closeEditor"
         />
+        <!-- KH: where the recipe came from (phase 2) -->
+        <KhOriginBadge v-if="!isEditMode" :recipe-id="recipe.id" />
         <RecipeJsonEditor
           v-if="isEditJSON"
           v-model="recipe"

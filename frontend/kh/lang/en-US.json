@@ -1,0 +1,41 @@
+{
+  "kh": {
+    "drafts": {
+      "add-recipe": "Add recipe",
+      "add-recipe-subtitle": "From a link, a text or a photo",
+      "drafts-count": "Drafts ({count})",
+      "view-original": "View original",
+      "origin": {
+        "link": "From a link",
+        "text": "From a text",
+        "image": "From a photo"
+      },
+      "warning": {
+        "duplicate_link": "Same link as {name}",
+        "similar_title": "Similar title to {name}",
+        "similar_ingredients": "Similar ingredients to {name}"
+      },
+      "error": {
+        "no_recipe_data": "No recipe found there.",
+        "ai_not_configured": "No AI set up: Group Settings → AI Providers",
+        "quota_exceeded": "Today's AI quota is used up, try again tomorrow.",
+        "address_blocked": "This address is not allowed.",
+        "invalid_result": "The recognition did not return a valid recipe.",
+        "interrupted": "Interrupted, please try again.",
+        "unknown": "Something went wrong, please try again.",
+        "no_source": "Add a link, a text or a photo.",
+        "several_sources": "Only one at a time: a link, a text or photos.",
+        "too_many_images": "Too many photos at once.",
+        "too_large": "A photo is too large.",
+        "not_an_image": "One of the files is not a photo.",
+        "text_too_long": "The text is too long.",
+        "not_ready": "This draft is not ready yet.",
+        "not_failed": "Only drafts that failed can be tried again.",
+        "still_working": "Still being recognized, please wait a moment.",
+        "already_approved": "Already saved as a recipe.",
+        "duplicates": "This recipe may already exist.",
+        "not_found": "Draft not found."
+      }
+    }
+  }
+}

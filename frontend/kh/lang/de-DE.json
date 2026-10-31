@@ -1,0 +1,41 @@
+{
+  "kh": {
+    "drafts": {
+      "add-recipe": "Rezept hinzufügen",
+      "add-recipe-subtitle": "Aus Link, Text oder Foto",
+      "drafts-count": "Entwürfe ({count})",
+      "view-original": "Original ansehen",
+      "origin": {
+        "link": "Aus Link",
+        "text": "Aus Text",
+        "image": "Aus Foto"
+      },
+      "warning": {
+        "duplicate_link": "Gleicher Link wie {name}",
+        "similar_title": "Ähnlicher Titel wie {name}",
+        "similar_ingredients": "Ähnliche Zutaten wie {name}"
+      },
+      "error": {
+        "no_recipe_data": "Dort wurde kein Rezept gefunden.",
+        "ai_not_configured": "Keine KI eingerichtet: Gruppen-Einstellungen → KI-Anbieter",
+        "quota_exceeded": "Kontingent für heute aufgebraucht, morgen neu versuchen.",
+        "address_blocked": "Diese Adresse ist nicht erlaubt.",
+        "invalid_result": "Die Erkennung lieferte kein gültiges Rezept.",
+        "interrupted": "Unterbrochen, bitte neu versuchen.",
+        "unknown": "Etwas ist schiefgegangen, bitte neu versuchen.",
+        "no_source": "Bitte einen Link, einen Text oder ein Foto angeben.",
+        "several_sources": "Bitte nur eins auf einmal: einen Link, einen Text oder Fotos.",
+        "too_many_images": "Zu viele Fotos auf einmal.",
+        "too_large": "Ein Foto ist zu groß.",
+        "not_an_image": "Eine der Dateien ist kein Foto.",
+        "text_too_long": "Der Text ist zu lang.",
+        "not_ready": "Dieser Entwurf ist noch nicht fertig.",
+        "not_failed": "Nur fehlgeschlagene Entwürfe lassen sich neu versuchen.",
+        "still_working": "Wird noch erkannt, bitte kurz warten.",
+        "already_approved": "Schon als Rezept gespeichert.",
+        "duplicates": "Dieses Rezept gibt es vielleicht schon.",
+        "not_found": "Entwurf nicht gefunden."
+      }
+    }
+  }
+}

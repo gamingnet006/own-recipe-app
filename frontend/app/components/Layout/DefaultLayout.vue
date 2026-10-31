@@ -96,20 +96,25 @@
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { SideBarLink } from "~/types/application-types";
-import { useGroupSelf } from "~/composables/use-groups";
 import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
+import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
 
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
 const display = useDisplay();
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
-const { group } = useGroupSelf();
 
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
+
+// KH: the drafts number for the menu, loaded again on every page change (phase 2)
+const { count: khDraftCount, refresh: refreshKhDraftCount } = useKhDraftCount();
+watch(() => route.path, () => {
+  if (isOwnGroup.value) refreshKhDraftCount();
+}, { immediate: true });
 
 const cookbookPreferences = useCookbookPreferences();
 const ownCookbookStore = computed(() => isOwnGroup.value ? useCookbookStore(i18n) : null);
@@ -132,8 +137,6 @@ const cookbooks = computed(() => {
   }
   return [];
 });
-
-const showAIImport = computed(() => group.value?.aiProviderSettings?.aiEnabled);
 
 const sidebar = ref<boolean>(false);
 onMounted(() => {
@@ -194,23 +197,16 @@ const cookbookLinks = computed<SideBarLink[]>(() => {
 });
 
 const createLinks = computed(() => [
+  // KH: Mealie's "Import" and "Import with AI" become one entry for the drafts intake, where every recipe
+  // gets a review before it is saved (phase 2)
   {
     insertDivider: false,
-    icon: $globals.icons.link,
-    title: i18n.t("general.import"),
-    subtitle: i18n.t("new-recipe.import-by-url"),
-    to: `/g/${groupSlug.value}/r/create/url`,
+    icon: $globals.icons.import,
+    title: i18n.t("kh.drafts.add-recipe"),
+    subtitle: i18n.t("kh.drafts.add-recipe-subtitle"),
+    to: `/g/${groupSlug.value}/drafts/new`,
     restricted: true,
     hide: false,
-  },
-  {
-    insertDivider: false,
-    icon: $globals.icons.autoFix,
-    title: i18n.t("recipe.import-with-ai"),
-    subtitle: i18n.t("recipe.import-with-ai-subtitle"),
-    to: `/g/${groupSlug.value}/r/create/ai`,
-    restricted: true,
-    hide: !showAIImport.value,
   },
   {
     insertDivider: true,
@@ -229,6 +225,13 @@ const topLinks = computed<SideBarLink[]>(() => [
     to: `/g/${groupSlug.value}`,
     title: i18n.t("general.recipes"),
     restricted: false,
+  },
+  // KH: drafts waiting for a review, with their number (phase 2)
+  {
+    icon: $globals.icons.clipboardCheck,
+    to: `/g/${groupSlug.value}/drafts`,
+    title: i18n.t("kh.drafts.drafts-count", { count: khDraftCount.value }),
+    restricted: true,
   },
   {
     icon: $globals.icons.search,
