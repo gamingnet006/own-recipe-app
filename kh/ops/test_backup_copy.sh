@@ -127,8 +127,13 @@ check "on again: same key" "$(grep -c age-keygen "$tmp/docker_calls")" "$calls"
 check "off" "$(copy off | tail -1) $(grep -c kh-backup-copy "$CRONTAB_FILE")" "exit 0 0"
 
 # --- decrypt: into the backup folder, where restore.sh finds it ---
+# While the backup is still here, decrypt checks the copy against it and changes nothing.
 res=$(copy decrypt "$new/mealie_2026.01.04.zip.age")
-check "decrypt: result exists already" "$(printf '%s\n' "$res" | grep -c 'liegt schon')" "1"
+check "decrypt: copy matches the backup here" "$(printf '%s\n' "$res" | grep -c 'stimmt mit dem Backup') $(printf '%s\n' "$res" | tail -1)" "1 exit 0"
+echo changed > "$ops/backups/mealie_2026.01.04.zip"
+res=$(copy decrypt "$new/mealie_2026.01.04.zip.age")
+check "decrypt: copy differs from the backup here" "$(printf '%s\n' "$res" | grep -c 'weicht') $(printf '%s\n' "$res" | tail -1) $(cat "$ops/backups/mealie_2026.01.04.zip")" "1 exit 1 changed"
+check "decrypt: check leaves no files" "$(ls -A "$ops/backups" | grep -c '^\.decrypt')" "0"
 mv "$ops/backups/mealie_2026.01.04.zip" "$tmp/04.zip"
 res=$(copy decrypt "$new/mealie_2026.01.04.zip.age")
 check "decrypt: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"

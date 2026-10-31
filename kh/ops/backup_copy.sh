@@ -232,13 +232,13 @@ show_status() {
 }
 
 # Decrypts a copy into the backup folder, where restore.sh finds it; age asks for the password.
-# Takes the key next to the copy, or this machine's own.
+# While that backup is still here, it only compares the two: a check of the copy. Takes the key
+# next to the copy, or this machine's own.
 decrypt_cmd() {  # file.zip.age (absolute)
   case "$1" in *.zip.age) ;; *) fail "keine Kopie (.zip.age): $1" ;; esac
   [ -f "$1" ] || fail "nicht gefunden: $1"
   src=$(setting KH_BACKUP_DIR ./backups)
   name=$(basename "$1" .age)
-  [ ! -e "$src/$name" ] || fail "$name liegt schon in $src; wiederherstellen mit restore.sh $name"
   keyfile="$(dirname "$1")/$KEY_FILE"
   [ -f "$keyfile" ] || keyfile="$src/$KEY_FILE"
   [ -f "$keyfile" ] || fail "kein Schlüssel ($KEY_FILE) neben der Kopie und keiner in $src"
@@ -248,10 +248,16 @@ decrypt_cmd() {  # file.zip.age (absolute)
     unzip -tq /backups-dest/.decrypt-out.zip >/dev/null &&
     { chown "$KH_PUID:$KH_PGID" /backups-dest/.decrypt-out.zip 2>/dev/null || true; }' || rc=1
   rm -f "$src/.decrypt-key.age" "$src/.decrypt-in.age"
-  if [ "$rc" -ne 0 ] || ! mv "$src/.decrypt-out.zip" "$src/$name" 2>/dev/null; then
-    rm -f "$src/.decrypt-out.zip"
-    fail "Entschlüsseln fehlgeschlagen (falsches Passwort?)"
+  out="$src/.decrypt-out.zip"
+  [ "$rc" -eq 0 ] && [ -f "$out" ] || { rm -f "$out"; fail "Entschlüsseln fehlgeschlagen (falsches Passwort?)"; }
+  if [ -e "$src/$name" ]; then
+    cmp -s "$out" "$src/$name" && rc=0 || rc=1
+    rm -f "$out"
+    [ "$rc" -eq 0 ] || fail "die Kopie weicht vom Backup $src/$name ab"
+    echo "Kopie geprüft: stimmt mit dem Backup $src/$name überein."
+    return 0
   fi
+  mv "$out" "$src/$name" || { rm -f "$out"; fail "$src/$name ließ sich nicht anlegen"; }
   echo "Entschlüsselt: $src/$name"
   echo "Wiederherstellen: docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh $name"
 }

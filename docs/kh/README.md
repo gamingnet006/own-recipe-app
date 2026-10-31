@@ -105,6 +105,7 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
   1. Am Mac braucht der nächtliche Job einmal Festplattenvollzugriff, sonst sperrt macOS den Stick: Systemeinstellungen → Sicherheit & Datenschutz → Datenschutz → Festplattenvollzugriff → „+“ → ⇧⌘G → `/bin/dash`. Außer diesem Job startet nichts `dash`.
   2. Stick einstecken und einschalten, über SSH mit `ssh -t`: `kh/ops/backup_copy.sh on /Volumes/<Stick>/Kuechenhelfer-Backups`. Beim ersten Mal fragt age zweimal nach dem Passwort. Am Pi muss der Stick eingehängt sein, zum Beispiel über `/etc/fstab`.
   3. Stand prüfen: `kh/ops/backup_copy.sh status`. Fehlt der Stick, schreibt der Job nichts und meldet es, mit `KH_BACKUP_PUSH_URL` auch an Uptime Kuma.
+  4. Zur Probe eine Kopie öffnen: `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age`. Solange dasselbe Backup noch auf diesem Rechner liegt, vergleicht der Befehl nur und meldet, ob die Kopie stimmt.
   - Zurückholen: `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age` fragt nach dem Passwort und legt das Backup in den Backup-Ordner; danach `restore.sh <backup>.zip` wie unter „Alltag“. Am Mac im Terminal am Gerät selbst aufrufen, nicht über SSH. Dieselben Schritte stehen in `LIESMICH.txt` auf dem Stick.
 
 ### Alltag
@@ -214,6 +215,7 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
   1. On a Mac the nightly job needs Full Disk Access once, or macOS locks the stick: System Preferences → Security & Privacy → Privacy → Full Disk Access → "+" → ⇧⌘G → `/bin/dash`. Nothing but this job starts `dash`.
   2. Plug in the stick and switch the copy on, over SSH with `ssh -t`: `kh/ops/backup_copy.sh on /Volumes/<stick>/Kuechenhelfer-Backups`. The first time, age asks for the password twice. On a Pi the stick must be mounted, for example through `/etc/fstab`.
   3. Check: `kh/ops/backup_copy.sh status`. Without the stick the job writes nothing and reports it, with `KH_BACKUP_PUSH_URL` also to Uptime Kuma.
+  4. Open a copy as a test: `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age`. While the same backup is still on this machine, the command only compares and reports whether the copy is right.
   - Bring one back: `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for the password and puts the backup into the backup folder; then `restore.sh <backup>.zip` as under "Day to day". On a Mac run it in the Terminal on the machine itself, not over SSH. `LIESMICH.txt` on the stick has the same steps.
 
 ### Day to day

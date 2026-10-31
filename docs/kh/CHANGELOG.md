@@ -15,6 +15,8 @@ Second backup location on a removable drive (D32, D33).
   the drive, locked with a password that is stored nowhere. Without the drive, or when the folder lies on this
   machine's own disk, the job writes nothing and reports it. Encrypted, because a Mealie backup holds the backup
   service's API key in plain text.
+- `backup_copy.sh decrypt` checks a copy: while the same backup is still on this machine, it compares
+  the decrypted copy with it instead of replacing it.
 - On macOS the copy runs as a LaunchAgent with `/bin/dash`, which needs Full Disk Access once: macOS locks
   removable drives for background jobs and SSH.
 - The backup image now contains age (BSD-3-Clause).
