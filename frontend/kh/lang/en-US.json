@@ -80,7 +80,8 @@
       "collection": "Collection",
       "invite": "Invite family",
       "based-on-mealie": "based on Mealie",
-      "source": "Source code (AGPL)"
+      "source": "Source code (AGPL)",
+      "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
     }
   }
 }

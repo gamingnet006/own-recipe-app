@@ -3,6 +3,8 @@
     fluid
     class="px-0"
   >
+    <!-- KH: how many drafts wait for a review, above the search (D38) -->
+    <KhDraftHint />
     <RecipeExplorerPageSearch
       ref="searchComponent"
       @ready="onSearchReady"

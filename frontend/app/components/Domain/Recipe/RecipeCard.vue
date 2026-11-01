@@ -68,10 +68,7 @@
               />
               <div v-else class="px-1" /> <!-- Empty div to keep the layout consistent -->
 
-              <RecipeCardRating
-                :model-value="rating"
-                :recipe-id="recipeId"
-              />
+              <!-- KH: no stars, Küchenhelfer does not use ratings (D38) -->
               <v-spacer />
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <RecipeContextMenu
@@ -107,7 +104,6 @@ import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import RecipeChips from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeCardImage from "./RecipeCardImage.vue";
-import RecipeCardRating from "./RecipeCardRating.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 
 interface Props {

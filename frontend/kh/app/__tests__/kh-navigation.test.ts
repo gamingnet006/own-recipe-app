@@ -12,6 +12,7 @@ import {
 import { icons } from "~/lib/icons";
 import mealieTexts from "~/lang/messages/en-US.json";
 import khTexts from "../../lang/en-US.json";
+import khTextsDe from "../../lang/de-DE.json";
 
 /** A text by its dotted key, from our texts or Mealie's. */
 function text(key: string): unknown {
@@ -65,6 +66,12 @@ describe("destinations", () => {
       expect(typeof text(target.title), target.title).toBe("string");
     }
   });
+});
+
+test("the hint on waiting drafts has a singular and a plural form in both languages", () => {
+  for (const texts of [khTexts, khTextsDe]) {
+    expect((texts.kh.nav as Record<string, string>)["drafts-waiting"]?.split(" | ")).toHaveLength(2);
+  }
 });
 
 test("every path belongs to one tab of the bar", () => {
