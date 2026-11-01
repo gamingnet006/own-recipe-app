@@ -30,7 +30,7 @@ Stand 1.11.2026, im Chat abgestimmt: erst den Alltag einfacher machen, den eigen
 
 - Schrift: **Figtree** (SIL OFL 1.1) für die ganze App. Mealies Modul `@nuxt/fonts` lädt sie beim Bauen und liefert sie selbst aus; im Betrieb geht keine Anfrage an Google.
 - Text und gedämpfter Text (`#1D1F1C`, `#5E625C`) erreichen auf Grund und Flächen mindestens 4,5:1.
-- Mealies Standardfarben (`mealie/core/settings/themes.py`) werden die Salbei-Farben; die Rückfallwerte im Frontend (`plugins/theme.ts`) ebenso. Grund und Schrift setzt eine CSS-Datei im kh-Layer, weil Mealies Theme-Schnittstelle nur die Akzentfarben kennt.
+- Mealies Standardfarben (`mealie/core/settings/themes.py`) werden die Salbei-Farben; die Rückfallwerte im Frontend (`plugins/theme.ts`) ebenso. Dort steht auch der helle Grund, so wie Mealie dort den dunklen setzt. Die Schrift setzt eine CSS-Datei im kh-Layer.
 
 ## Navigation
 
@@ -46,11 +46,11 @@ Stand 1.11.2026, im Chat abgestimmt: erst den Alltag einfacher machen, den eigen
 | Mehr | ja | nein | `/g/<gruppe>/more` (neu) |
 | Essensplaner, Kochbücher | unter Mehr | ja | Mealie |
 | Was kann ich kochen? | unter Mehr | ja | `/g/<gruppe>/recipes/finder` (Mealies Rezept-Finder) |
-| Organisieren, Verlauf | unter Mehr | ja | Mealie |
+| Favoriten, Organisieren, Zeitstrahl | unter Mehr | ja (Favoriten unter dem eigenen Namen) | Mealie |
 
 Beide Darstellungen lesen ihre Ziele aus **einer** Liste (Code-Regel 2). „Mehr“ gibt es nur in der Leiste; ab 960 px stehen dieselben Ziele direkt im Seitenmenü, Profil, Einstellungen und Abmelden bleiben dort, wo Mealie sie hat. Mealies einzelne Kochbücher im Seitenmenü bleiben.
 
-**Seite „Mehr“:** Profil (Mealies Profilseite, dort auch die Geräte-Schlüssel für den Kurzbefehl) · Planen: Essensplaner, Kochbücher, Was kann ich kochen? · Sammlung: Organisieren, Verlauf · Haushalt: Familie einladen, Einstellungen (Haushalt, Gruppe mit KI-Anbietern, für Admins die Verwaltung) · Abmelden · darunter „Küchenhelfer <Version> · basiert auf Mealie · Quellcode (AGPL)“.
+**Seite „Mehr“:** Planen: Essensplaner, Kochbücher, Was kann ich kochen? · Sammlung: Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl · Einstellungen: Benutzereinstellungen (Mealies Übersicht mit Profil, Haushalt, Gruppe und KI-Anbietern, dort auch die Geräte-Schlüssel für den Kurzbefehl), Familie einladen, Sprache, Hell/Dunkel, Datenverwaltung und Verwaltung für die, die dürfen · Abmelden · darunter „Küchenhelfer <Version> · basiert auf Mealie · Quellcode (AGPL)“. Damit ist auf dem Handy alles erreichbar, was heute im Seitenmenü steht.
 
 ## Eingang
 
@@ -90,10 +90,11 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 | `frontend/kh/app/components/KhRecipeView.vue` (neu, bei Bedarf in Teile zerlegt) | eigene Rezeptansicht aus Mealies Bausteinen |
 | `frontend/kh/app/pages/g/[groupSlug]/drafts/index.vue` (geändert) | Eingang mit Formular und Entwürfen; das Formular zieht aus `new.vue` in eine Komponente |
 | `frontend/kh/app/pages/g/[groupSlug]/drafts/new.vue` (wird Weiterleitung) | alte Adresse bleibt gültig |
-| `frontend/kh/app/assets/kh-theme.css` (neu), `frontend/kh/nuxt.config.ts` | Grund, Flächen, Schrift |
+| `frontend/kh/app/assets/kh-theme.css` (neu), `frontend/kh/nuxt.config.ts` | Schrift |
 | `frontend/kh/lang/en-US.json`, `de-DE.json` | neue Texte |
-| `mealie/core/settings/themes.py`, `frontend/app/plugins/theme.ts` (Mealie, `KH:`) | Salbei als Standard- und Rückfallfarben |
-| `DefaultLayout.vue`, `AppHeader.vue` (Mealie, `KH:`) | Leiste einhängen, Seitenmenü aus der gemeinsamen Liste, Menü-Knopf und Abmelden nur ab 960 px, Titel „Küchenhelfer“ |
+| `mealie/core/settings/themes.py`, `frontend/app/plugins/theme.ts` (Mealie, `KH:`) | Salbei als Standard- und Rückfallfarben, heller Grund |
+| `mealie/core/settings/branding.py` (Mealie, `KH:`) | Name „Küchenhelfer“ in Kopfzeile, Browser-Tab und App-Manifest |
+| `DefaultLayout.vue`, `AppHeader.vue` (Mealie, `KH:`) | Leiste einhängen, Seitenmenü aus der gemeinsamen Liste, Menü-Knopf und Abmelden nur ab 960 px, helle Kopfzeile wie im Mockup |
 | `RecipePage.vue` (Mealie, `KH:`) | in der Ansicht unsere Rezeptansicht; Bearbeiten und Kochmodus unverändert |
 | `RecipeCardMobile.vue`, `RecipeCard.vue` (Mealie, `KH:`) | Sterne ausblenden |
 | `RecipeExplorerPage` (Mealie, `KH:`) | Entwürfe-Hinweis einhängen |
