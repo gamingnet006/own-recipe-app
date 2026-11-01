@@ -1,7 +1,7 @@
-/* KH: the font of the look "Salbei" (D38). The family is named literally, so @nuxt/fonts finds it at build time
-   and serves it from the image instead of Google; !important because Vuetify sets its text classes that way. */
+/* KH: the font of the look "Salbei" (D38) is the device's own (San Francisco on iPhone and iPad), so nothing is
+   loaded; !important because Vuetify sets Roboto on its text classes that way. */
 .v-application,
 .v-application [class*="text-"],
 .v-application :is(button, input, select, textarea) {
-  font-family: "Figtree", system-ui, sans-serif !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
 }

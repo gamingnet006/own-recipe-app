@@ -28,7 +28,7 @@ Stand 1.11.2026, im Chat abgestimmt: erst den Alltag einfacher machen, den eigen
 | Warnung | `#FBEBDD` / `#8F4512` | Mealies `warning` |
 | Fehler | `#B42318` | Mealies `error` |
 
-- Schrift: **Figtree** (SIL OFL 1.1) für die ganze App. Mealies Modul `@nuxt/fonts` lädt sie beim Bauen und liefert sie selbst aus; im Betrieb geht keine Anfrage an Google.
+- Schrift: die **Systemschrift** des Geräts (auf iPhone und iPad San Francisco), es wird keine Schrift geladen. (1.11.2026: statt Figtree aus dem Mockup, weil Mealies `@nuxt/fonts` beim Bauen Google nicht erreicht und die Systemschrift Datei und Lizenz spart.)
 - Text und gedämpfter Text (`#1D1F1C`, `#5E625C`) erreichen auf Grund und Flächen mindestens 4,5:1.
 - Mealies Standardfarben (`mealie/core/settings/themes.py`) werden die Salbei-Farben; die Rückfallwerte im Frontend (`plugins/theme.ts`) ebenso. Dort steht auch der helle Grund, so wie Mealie dort den dunklen setzt. Die Schrift setzt eine CSS-Datei im kh-Layer.
 
@@ -98,7 +98,7 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 | `RecipePage.vue` (Mealie, `KH:`) | in der Ansicht unsere Rezeptansicht; Bearbeiten und Kochmodus unverändert |
 | `RecipeCardMobile.vue`, `RecipeCard.vue` (Mealie, `KH:`) | Sterne ausblenden |
 | `RecipeExplorerPage` (Mealie, `KH:`) | Entwürfe-Hinweis einhängen |
-| `docs/kh/THIRD_PARTY_NOTICES.md`, `docs/kh/README.md` | Figtree; kurz die neue Navigation |
+| `docs/kh/README.md` | kurz die neue Navigation |
 
 Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 
@@ -123,7 +123,7 @@ Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 
 ## Sicherheit und Datenschutz
 
-- Die Schrift kommt aus dem Image, nicht von Google; die Tabelle „Was geht wohin“ bleibt unverändert.
+- Es wird keine Schrift geladen, auch nicht von Google; die Tabelle „Was geht wohin“ bleibt unverändert.
 - Rezepttexte laufen weiter über Mealies `SafeMarkdown`; Links zum Original nur bei `http(s)` (wie bisher).
 
 ## Tests

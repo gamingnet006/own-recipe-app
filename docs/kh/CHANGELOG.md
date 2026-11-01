@@ -8,8 +8,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 The frame of the new interface (D38): everyday use first, in the look "Salbei".
 
-- A calm green instead of Mealie's orange, the font Figtree, a light header and the name Küchenhelfer. The font
-  comes with the image, so the app never loads it from Google.
+- A calm green instead of Mealie's orange, the device's own font (San Francisco on iPhone and iPad), a light
+  header and the name Küchenhelfer. Browsers fetch the new colors right after the update.
 - On phones and upright iPads a bar at the bottom: Recipes, Intake with the number of waiting drafts, Shopping list
   and More, which holds everything the side menu had. From 960 px (iPad landscape, computer) the side menu stays,
   with the same destinations; "What can I cook?" is Mealie's recipe finder.

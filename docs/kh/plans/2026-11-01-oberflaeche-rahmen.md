@@ -16,7 +16,7 @@
 - Jede neue Datei beginnt mit 1 bis 3 Zeilen Zweck, jede Funktion hat eine Kurzbeschreibung. Kein toter Code: Ersetztes und unbenutzte Texte werden gelöscht.
 - Jeder Eingriff in eine Mealie-Datei trägt `KH: <Grund> (D38)`. Mealies Sprachdateien und erzeugte Dateien bleiben unberührt.
 - „Klein“ heißt unter 960 px Breite, Vuetifys `smAndDown`; ab 960 px (`mdAndUp`) bleibt Mealies Seitenmenü.
-- Farben: Akzent hell `#2F7A55`, dunkel `#4FB07E`; Grund hell `#F4F5F1` (in `frontend/app/plugins/theme.ts`). Schrift `"Figtree", system-ui, sans-serif` (kh-CSS). Name: `Küchenhelfer` (Arbeitsname bis Phase 8).
+- Farben: Akzent hell `#2F7A55`, dunkel `#4FB07E`; Grund hell `#F4F5F1` (in `frontend/app/plugins/theme.ts`). Schrift: Systemschrift (kh-CSS; 1.11.2026 statt Figtree, siehe Spezifikation). Name: `Küchenhelfer` (Arbeitsname bis Phase 8).
 - Adressen:
   - in der Leiste: Rezepte `/g/<slug>`, Eingang `/g/<slug>/drafts`, Einkaufsliste `/shopping-lists` oder `/shopping-lists/<id>`, Mehr `/g/<slug>/more`
   - unter „Mehr“: Essensplaner `/household/mealplan/planner/view`, Kochbücher `/g/<slug>/cookbooks`, Was kann ich kochen? `/g/<slug>/recipes/finder`, Favoriten `/user/<userId>/favorites`, Kategorien `/g/<slug>/recipes/categories`, Schlagworte `/g/<slug>/recipes/tags`, Utensilien `/g/<slug>/recipes/tools`, Zeitstrahl `/g/<slug>/recipes/timeline`
