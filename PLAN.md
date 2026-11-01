@@ -1,7 +1,7 @@
 # Küchenhelfer – Plan (Fusion-Fassung)
 
 Stand: 29.10.2026 · Arbeitsname „Küchenhelfer“ (Name vor der Veröffentlichung prüfen, T7)
-Mockup: https://claude.ai/artifact/3STTwHpXE6DXtPGUoKQoPr
+Mockups: Planung https://claude.ai/artifact/3STTwHpXE6DXtPGUoKQoPr · Oberfläche (D38) https://claude.ai/artifact/TXV9AKbMmiZNM47u3cUjYV
 
 Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: geprüfter Import (Link, Text, Foto, Video), Duplikat-Warnung, mitrechnende Mengen im Text, Nährwerte, Allergene, Kochmodus mit Timern und Sprachbefehlen, PDF-Familienkochbuch und automatische Backups. Alles liegt in einem Repo und ist so veröffentlichbar, dass andere es genauso nutzen können.
 
@@ -67,6 +67,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D35 | Phase 2 (Eingang, Prüfen, Duplikate): eigene Entwurfs-Funktion, die Mealies Erkennung mitbenutzt (`create_from_html`, `AIRecipeService.build_recipe`); Mealies Import-Seiten führen auf den Eingang. Jeder im Haushalt sieht alle Entwürfe und darf jeden freigeben; gebaut für Handy und iPad. KI: Google Gemini mit kostenlosem Schlüssel, Training durch den Anbieter ist in Ordnung. „Teilen“ per Kurzbefehl folgt als eigener Schritt (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (31.10.2026) | beschlossen |
 | D36 | Rezeptsprache und KI-Modelle (Probelauf 1.11.2026): Der Admin trägt in `kh/ops/.env` `KH_RECIPE_LANGUAGE` als englischen Namen ein, z. B. `German`. Was die KI liest (Text, Fotos, Links ohne Rezeptdaten), übersetzt dann Mealies Übersetzungsschritt; Rezepte, die schon in dieser Sprache sind, kosten keine Anfrage. Links mit Rezeptdaten bleiben in der Sprache der Seite, vorhandene Rezepte werden nicht übersetzt (zu viele Anfragen). Modelle im Gratis-Angebot: `gemini-3.5-flash-lite` als Standard- und `gemini-3.1-flash-lite` als Bildanbieter, je 500 Anfragen am Tag; ein Foto braucht zwei, ein Text eine, ein Link mit Rezeptdaten keine. Portionen und Portionsangabe lassen sich in der Prüfansicht vor dem Übernehmen eintragen. | beschlossen |
 | D37 | Teilen per Kurzbefehl (`v0.1.1`): Jeder baut den Kurzbefehl nach der Anleitung oder übernimmt ihn per iCloud-Link mit Importfrage für den Schlüssel. Schlüssel ist ein eigener Mealie-API-Token je Gerät (Profil → API-Tokens), widerrufbar. Keine neue Schnittstelle, der Kurzbefehl nutzt `POST /api/kh/drafts`; kein fertiger Kurzbefehl im Repo, weil er einen Schlüssel tragen würde. | beschlossen |
+| D38 | Oberfläche (1.11.2026, Spezifikation `docs/kh/specs/2026-11-01-oberflaeche-design.md`): erst der Alltag, dann der Look. Handy und iPad hochkant: Leiste unten mit Rezepte, Eingang, Einkaufsliste, Mehr; ab 960 px Mealies Seitenmenü mit denselben Zielen aus einer Liste. Eingang heißt: Rezept hinzufügen und Entwürfe auf einer Seite. Eigene Rezeptansicht im kh-Layer, Bearbeiten und Kochmodus bleiben Mealies; Sterne, Kommentare und „Zuletzt gemacht“ sind ausgeblendet. Look „Salbei“: Akzent `#2F7A55`, Grund `#F4F5F1`, Schrift Figtree aus dem Image. Einkaufsliste, Essensplaner und Einstellungen bleiben Mealies Seiten. Einführung in `v0.1.2` (Rahmen) und `v0.1.3` (Rezeptseite). | beschlossen |
 
 ---
 
@@ -190,7 +191,8 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [x] Sicherheit beim Abrufen: private Adressbereiche sperren, Größe und Zeit begrenzen, KI-Antworten nur nach festem Schema, Ausgaben escapen. (Mealies sicherer Abruf, KI-Antworten nur nach Schema, Ausgaben maskiert, nur http(s)-Links klickbar.)
 - **Fertig wenn:** Ein Foto eines handgeschriebenen Rezepts landet als Entwurf in der Prüfansicht, die Testfälle (ohne Video) ergeben prüfbare Entwürfe, nichts wird ohne Freigabe gespeichert und die Duplikat-Testfälle schlagen an. Danach Release v0.1. (1.11.2026: erfüllt. `v0.1` ist mit beiden Images veröffentlicht, Upgrade-Test von `v0.0.2` und CI auf SQLite und Postgres grün. Am selben Tag folgte `v0.1.1` (Teilen per Kurzbefehl, D37), Upgrade-Test von `v0.1` grün; der Mac mini geht in der Nacht auf den 2.11. von `v0.0.2` direkt auf `v0.1.1`.)
 - **Danach** (Wünsche aus dem Probelauf, 1.11.2026):
-  - [ ] Design und Funktionen durchsehen: Vorschläge mit Mockups zum Abstimmen, bevor Code entsteht; nach `v0.1`, vor Phase 3.
+  - [x] Design und Funktionen durchsehen: Vorschläge mit Mockups zum Abstimmen, bevor Code entsteht; nach `v0.1`, vor Phase 3. (1.11.2026: Look „Salbei“ gewählt, Leiste unten, eigene Rezeptseite; D38.)
+  - [ ] Oberfläche nach D38 umsetzen: `v0.1.2` Rahmen, `v0.1.3` Rezeptseite.
   - [ ] Rezeptsprache in der App einstellbar (Admin-Einstellung statt `KH_RECIPE_LANGUAGE` in `.env`, D36).
   - [ ] Fremdsprachige Seiten mit Rezeptdaten übersetzen; kostet eine KI-Anfrage je Link.
   - [ ] Zweiter KI-Anbieter als Ausweichweg, wenn das Gratis-Kontingent aufgebraucht ist (Spezifikation „Später“).

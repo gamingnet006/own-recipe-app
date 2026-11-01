@@ -3,7 +3,7 @@
 > English translation of `PLAN.md`. If the two differ, `PLAN.md` (German) is authoritative.
 
 As of: 29 Oct 2026 · Working name "Küchenhelfer" ("kitchen helper"; check the name before publishing, T7)
-Mockup: https://claude.ai/artifact/3STTwHpXE6DXtPGUoKQoPr
+Mockups: planning https://claude.ai/artifact/3STTwHpXE6DXtPGUoKQoPr · user interface (D38) https://claude.ai/artifact/TXV9AKbMmiZNM47u3cUjYV
 
 A free, self-hosted recipe system based on a Mealie fork: checked import (link, text, photo, video), duplicate warning, quantities in the step text that scale along, nutrition values, allergens, cooking mode with timers and voice commands, a PDF family cookbook and automatic backups. Everything lives in one repo and can be published so others can use it the same way.
 
@@ -69,6 +69,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D35 | Phase 2 (intake, review, duplicates): our own draft feature that reuses Mealie's recognition (`create_from_html`, `AIRecipeService.build_recipe`); Mealie's import pages lead to our intake. Everyone in the household sees all drafts and may approve any; built for phone and iPad. AI: Google Gemini with a free key; training by the provider is fine. "Share" via a shortcut follows as its own step (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (2026-10-31) | decided |
 | D36 | Recipe language and AI models (trial run 2026-11-01): the admin sets `KH_RECIPE_LANGUAGE` in `kh/ops/.env` as an English name, e.g. `German`. Whatever the AI reads (text, photos, links without recipe data) is then translated by Mealie's translate step; recipes already in that language cost no request. Links with recipe data stay in the page's language, existing recipes are not translated (too many requests). Free-tier models: `gemini-3.5-flash-lite` as default and `gemini-3.1-flash-lite` as image provider, 500 requests a day each; a photo takes two, a text one, a link with recipe data none. Servings and yield can be set in the review before saving. | decided |
 | D37 | Share shortcut (`v0.1.1`): everyone builds the shortcut from the guide or takes it over by iCloud link with an import question for the key. The key is a Mealie API token per device (Profile → API Tokens), revocable. No new interface, the shortcut uses `POST /api/kh/drafts`; no ready-made shortcut in the repo, because it would carry a key. | decided |
+| D38 | User interface (2026-11-01, spec `docs/kh/specs/2026-11-01-oberflaeche-design.md`): everyday use first, then the look. Phone and iPad in portrait: a bar at the bottom with Recipes, Intake, Shopping list, More; from 960 px Mealie's side menu with the same destinations from one list. Intake means: add recipe and drafts on one page. Our own recipe view in the kh layer, editing and cook mode stay Mealie's; stars, comments and "last made" are hidden. Look "Sage": accent `#2F7A55`, ground `#F4F5F1`, font Figtree served from the image. Shopping list, meal planner and settings stay Mealie's pages. Rollout in `v0.1.2` (frame) and `v0.1.3` (recipe page). | decided |
 
 ---
 
@@ -192,7 +193,8 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [x] Security when fetching: block private address ranges, limit size and time, accept AI answers only against a fixed schema, escape output. (Mealie's safe fetching, AI answers only against a schema, escaped output, only http(s) links clickable.)
 - **Done when:** a photo of a handwritten recipe lands as a draft in the review view, the test cases (without video) produce reviewable drafts, nothing is saved without approval and the duplicate test cases trigger. Then release v0.1. (2026-11-01: met. `v0.1` is published with both images, the upgrade test from `v0.0.2` and CI on SQLite and Postgres are green. `v0.1.1` (share shortcut, D37) followed the same day, its upgrade test from `v0.1` is green; in the night to 2026-11-02 the Mac mini goes from `v0.0.2` straight to `v0.1.1`.)
 - **Afterwards** (wishes from the trial run, 2026-11-01):
-  - [ ] Review design and features: proposals with mockups to agree on before any code; after `v0.1`, before phase 3.
+  - [x] Review design and features: proposals with mockups to agree on before any code; after `v0.1`, before phase 3. (2026-11-01: look "Sage" chosen, bar at the bottom, own recipe page; D38.)
+  - [ ] Build the user interface after D38: `v0.1.2` frame, `v0.1.3` recipe page.
   - [ ] Recipe language settable in the app (an admin setting instead of `KH_RECIPE_LANGUAGE` in `.env`, D36).
   - [ ] Translate foreign-language pages with recipe data; costs one AI request per link.
   - [ ] A second AI provider as a fallback when the free quota is used up (spec, "Later").
