@@ -190,6 +190,11 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 - [x] Provenance badge in the recipe view.
 - [x] Security when fetching: block private address ranges, limit size and time, accept AI answers only against a fixed schema, escape output. (Mealie's safe fetching, AI answers only against a schema, escaped output, only http(s) links clickable.)
 - **Done when:** a photo of a handwritten recipe lands as a draft in the review view, the test cases (without video) produce reviewable drafts, nothing is saved without approval and the duplicate test cases trigger. Then release v0.1.
+- **Afterwards** (wishes from the trial run, 2026-11-01):
+  - [ ] Review design and features: proposals with mockups to agree on before any code; after `v0.1`, before phase 3.
+  - [ ] Recipe language settable in the app (an admin setting instead of `KH_RECIPE_LANGUAGE` in `.env`, D36).
+  - [ ] Translate foreign-language pages with recipe data; costs one AI request per link.
+  - [ ] A second AI provider as a fallback when the free quota is used up (spec, "Later").
 
 ### Phase 3 · Quantities (v0.2)
 

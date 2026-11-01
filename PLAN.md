@@ -188,6 +188,11 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [x] Herkunfts-Badge in der Rezeptansicht.
 - [x] Sicherheit beim Abrufen: private Adressbereiche sperren, Größe und Zeit begrenzen, KI-Antworten nur nach festem Schema, Ausgaben escapen. (Mealies sicherer Abruf, KI-Antworten nur nach Schema, Ausgaben maskiert, nur http(s)-Links klickbar.)
 - **Fertig wenn:** Ein Foto eines handgeschriebenen Rezepts landet als Entwurf in der Prüfansicht, die Testfälle (ohne Video) ergeben prüfbare Entwürfe, nichts wird ohne Freigabe gespeichert und die Duplikat-Testfälle schlagen an. Danach Release v0.1.
+- **Danach** (Wünsche aus dem Probelauf, 1.11.2026):
+  - [ ] Design und Funktionen durchsehen: Vorschläge mit Mockups zum Abstimmen, bevor Code entsteht; nach `v0.1`, vor Phase 3.
+  - [ ] Rezeptsprache in der App einstellbar (Admin-Einstellung statt `KH_RECIPE_LANGUAGE` in `.env`, D36).
+  - [ ] Fremdsprachige Seiten mit Rezeptdaten übersetzen; kostet eine KI-Anfrage je Link.
+  - [ ] Zweiter KI-Anbieter als Ausweichweg, wenn das Gratis-Kontingent aufgebraucht ist (Spezifikation „Später“).
 
 ### Phase 3 · Mengen (v0.2)
 
