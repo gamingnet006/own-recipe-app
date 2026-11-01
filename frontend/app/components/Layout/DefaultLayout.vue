@@ -3,7 +3,9 @@
     <TheSnackbar />
 
     <AppHeader>
+      <!-- KH: below 960 px the bar at the bottom replaces menu button and side menu (D38) -->
       <v-btn
+        v-if="khWide"
         icon
         @click.stop="sidebar = !sidebar"
       >
@@ -11,7 +13,9 @@
       </v-btn>
     </AppHeader>
 
+    <KhBottomNav v-if="!khWide" />
     <AppSidebar
+      v-if="khWide"
       v-model="sidebar"
       :top-link="topLinks"
       :secondary-links="cookbookLinks || []"
@@ -100,6 +104,7 @@ import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
+import { type KhNavTarget, sidebarTargets } from "~~/kh/app/composables/use-kh-navigation"; // KH: shared destinations (D38)
 
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
@@ -139,6 +144,8 @@ const cookbooks = computed(() => {
 });
 
 const sidebar = ref<boolean>(false);
+// KH: from 960 px (iPad landscape, computer) Mealie's side menu, below it the bar at the bottom (D38)
+const khWide = computed(() => display.mdAndUp.value);
 onMounted(() => {
   sidebar.value = display.lgAndUp.value;
 });
@@ -204,7 +211,7 @@ const createLinks = computed(() => [
     icon: $globals.icons.import,
     title: i18n.t("kh.drafts.add-recipe"),
     subtitle: i18n.t("kh.drafts.add-recipe-subtitle"),
-    to: `/g/${groupSlug.value}/drafts/new`,
+    to: `/g/${groupSlug.value}/drafts`, // KH: the intake and the drafts are one page (D38)
     restricted: true,
     hide: false,
   },
@@ -219,74 +226,22 @@ const createLinks = computed(() => [
   },
 ]);
 
-const topLinks = computed<SideBarLink[]>(() => [
-  {
-    icon: $globals.icons.silverwareForkKnife,
-    to: `/g/${groupSlug.value}`,
-    title: i18n.t("general.recipes"),
-    restricted: false,
-  },
-  // KH: drafts waiting for a review, with their number (phase 2)
-  {
-    icon: $globals.icons.clipboardCheck,
-    to: `/g/${groupSlug.value}/drafts`,
-    title: i18n.t("kh.drafts.drafts-count", { count: khDraftCount.value }),
-    restricted: true,
-  },
-  {
-    icon: $globals.icons.search,
-    to: `/g/${groupSlug.value}/recipes/finder`,
-    title: i18n.t("recipe-finder.recipe-finder"),
-    restricted: false,
-  },
-  {
-    icon: $globals.icons.calendarMultiselect,
-    title: i18n.t("meal-plan.meal-planner"),
-    to: "/household/mealplan/planner/view",
-    restricted: true,
-  },
-  {
-    icon: $globals.icons.formatListCheck,
-    title: i18n.t("shopping-list.shopping-lists"),
-    to: "/shopping-lists",
-    restricted: true,
-  },
-  {
-    icon: $globals.icons.timelineText,
-    title: i18n.t("recipe.timeline"),
-    to: `/g/${groupSlug.value}/recipes/timeline`,
-    restricted: true,
-  },
-  {
-    icon: $globals.icons.book,
-    to: `/g/${groupSlug.value}/cookbooks`,
-    title: i18n.t("cookbook.cookbooks"),
-    restricted: true,
-  },
-  {
-    icon: $globals.icons.organizers,
-    title: i18n.t("general.organizers"),
-    restricted: true,
-    children: [
-      {
-        icon: $globals.icons.categories,
-        to: `/g/${groupSlug.value}/recipes/categories`,
-        title: i18n.t("sidebar.categories"),
-        restricted: true,
-      },
-      {
-        icon: $globals.icons.tags,
-        to: `/g/${groupSlug.value}/recipes/tags`,
-        title: i18n.t("sidebar.tags"),
-        restricted: true,
-      },
-      {
-        icon: $globals.icons.potSteam,
-        to: `/g/${groupSlug.value}/recipes/tools`,
-        title: i18n.t("tool.tools"),
-        restricted: true,
-      },
-    ],
-  },
-]);
+// KH: the side menu shows the shared destinations (D38), the intake with its number of drafts; as in Mealie, only
+// the recipes and the finder show for visitors of a public group
+const KH_PUBLIC_TARGETS = ["recipes", "finder"];
+const topLinks = computed<SideBarLink[]>(() => sidebarTargets(groupSlug.value).map(khSideBarLink));
+
+/** KH: one destination of the shared list as an entry of Mealie's side menu. */
+function khSideBarLink(target: KhNavTarget): SideBarLink {
+  return {
+    key: target.key,
+    icon: ($globals.icons as Record<string, string>)[target.icon] ?? "",
+    to: target.children ? undefined : target.to,
+    title: target.key === "intake"
+      ? i18n.t("kh.nav.intake-count", { count: khDraftCount.value })
+      : i18n.t(target.title),
+    restricted: !KH_PUBLIC_TARGETS.includes(target.key),
+    children: target.children?.map(khSideBarLink),
+  };
+}
 </script>

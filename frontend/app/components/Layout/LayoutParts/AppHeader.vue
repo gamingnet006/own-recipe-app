@@ -70,8 +70,10 @@
       >
         <v-icon> {{ $globals.icons.search }}</v-icon>
       </v-btn>
+      <!-- KH: on phones signing out sits under More (D38) -->
       <v-btn
         v-if="loggedIn"
+        v-show="mdAndUp"
         :variant="smAndUp ? 'text' : undefined"
         :icon="xs"
         @click="logout()"
@@ -110,7 +112,7 @@ const auth = useMealieAuth();
 const { loggedIn } = useLoggedInState();
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
-const { xs, smAndUp } = useDisplay();
+const { xs, smAndUp, mdAndUp } = useDisplay(); // KH: mdAndUp for signing out (D38)
 
 const routerLink = computed(() => groupSlug.value ? `/g/${groupSlug.value}` : "/");
 const domSearchDialog = ref<InstanceType<typeof RecipeDialogSearch> | null>(null);

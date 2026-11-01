@@ -4,7 +4,6 @@
       "add-recipe": "Rezept hinzufügen",
       "add-recipe-subtitle": "Aus Link, Text oder Foto",
       "drafts": "Entwürfe",
-      "drafts-count": "Entwürfe ({count})",
       "intake-description": "Ein Link, ein Text oder ein Foto: Das Rezept wird erkannt und wartet bei den Entwürfen, bis es jemand prüft und übernimmt.",
       "source": {
         "link": "Link",
@@ -71,7 +70,15 @@
       "intake": "Eingang",
       "shopping": "Einkaufsliste",
       "more": "Mehr",
-      "finder": "Was kann ich kochen?"
+      "finder": "Was kann ich kochen?",
+      "main": "Hauptmenü",
+      "intake-count": "Eingang ({count})",
+      "intake-waiting": "Eingang, 1 Entwurf wartet | Eingang, {count} Entwürfe warten",
+      "plan": "Planen",
+      "collection": "Sammlung",
+      "invite": "Familie einladen",
+      "based-on-mealie": "basiert auf Mealie",
+      "source": "Quellcode (AGPL)"
     }
   }
 }
