@@ -6,15 +6,21 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
-The frame of the new interface (D38): everyday use first, in the look "Salbei".
+The new interface (D38): everyday use first, in the look "Salbei", with a calm recipe page.
 
 - A calm green instead of Mealie's orange, the device's own font (San Francisco on iPhone and iPad), a light
-  header and the name Küchenhelfer. Browsers fetch the new colors right after the update.
+  header and the name Küchenhelfer; hints, warnings and errors in tones that stay readable. Browsers fetch the new
+  colors right after the update.
 - On phones and upright iPads a bar at the bottom: Recipes, Intake with the number of waiting drafts, Shopping list
   and More, which holds everything the side menu had. From 840 px (iPad landscape, computer) the side menu stays,
-  with the same destinations; "What can I cook?" is Mealie's recipe finder.
+  with the same destinations, also after an iPad is turned; "What can I cook?" is Mealie's recipe finder.
+- The shopping list tab opens the household's list directly when there is only one, for everyone in it.
 - Adding a recipe and the drafts are one page now, the intake; the old addresses lead there.
 - The start page says when drafts wait for a review; recipe cards show no stars.
+- The recipe page: the photo with back, favorite and a menu ⋯ (edit, mark as cooked, meal plan, print, delete),
+  title and origin, the times as tiles and the amount with − and +, which scales ingredients and steps of recipes
+  with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
+  comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.
 
 ## [v0.1.1] - 2026-11-01
 
