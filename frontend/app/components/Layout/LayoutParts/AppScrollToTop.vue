@@ -1,3 +1,4 @@
+<!-- KH: raised by the height of the bar at the bottom (--v-layout-bottom), which would cover it (D38) -->
 <template>
   <v-fade-transition>
     <v-btn
@@ -8,7 +9,7 @@
       class="ma-4"
       color="primary"
       elevation="4"
-      style="z-index: 999;"
+      style="z-index: 999; bottom: var(--v-layout-bottom, 0px);"
       @click="scrollToTop"
     >
       <v-icon>{{ $globals.icons.arrowUp }}</v-icon>

@@ -61,7 +61,7 @@ everything the side menu holds on bigger screens. -->
 
     <p class="text-center text-body-2 text-medium-emphasis">
       {{ $appInfo.brandingName }} ·
-      <a :href="MEALIE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.based-on-mealie", { version: $appInfo.version }) }}</a> ·
+      <a :href="MEALIE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.based-on-mealie") }}</a> ·
       <a :href="SOURCE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
 

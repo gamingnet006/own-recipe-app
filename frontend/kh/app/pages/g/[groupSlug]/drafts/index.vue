@@ -76,6 +76,7 @@ definePageMeta({
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
 const route = useRoute();
+const router = useRouter();
 const api = useKhDraftsApi();
 const { recipeSmallImage } = useStaticRoutes();
 
@@ -113,6 +114,8 @@ function byline(draft: KhDraft): string {
 
 /** A new draft shows in the list right away, and the number in the menu follows. */
 async function onSubmitted() {
+  // the shared link is handed in: a reload, or iOS reopening the home-screen app, must not fill it in again
+  if (route.query.recipe_import_url) await router.replace({ query: {} });
   await Promise.all([reload(), refreshCount()]);
 }
 

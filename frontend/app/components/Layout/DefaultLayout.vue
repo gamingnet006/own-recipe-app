@@ -3,7 +3,7 @@
     <TheSnackbar />
 
     <AppHeader>
-      <!-- KH: below 960 px the bar at the bottom replaces menu button and side menu (D38) -->
+      <!-- KH: below 840 px the bar at the bottom replaces menu button and side menu (D38) -->
       <v-btn
         v-if="khWide"
         icon
@@ -17,6 +17,7 @@
     <AppSidebar
       v-if="khWide"
       v-model="sidebar"
+      mobile-breakpoint="md"
       :top-link="topLinks"
       :secondary-links="cookbookLinks || []"
     >
@@ -104,7 +105,13 @@ import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
-import { type KhNavTarget, sidebarTargets } from "~~/kh/app/composables/use-kh-navigation"; // KH: shared destinations (D38)
+// KH: shared destinations (D38)
+import {
+  type KhNavTarget,
+  sidebarTargets,
+  useKhShoppingTarget,
+  useKhSidebar,
+} from "~~/kh/app/composables/use-kh-navigation";
 
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
@@ -143,12 +150,11 @@ const cookbooks = computed(() => {
   return [];
 });
 
-const sidebar = ref<boolean>(false);
-// KH: from 960 px (iPad landscape, computer) Mealie's side menu, below it the bar at the bottom (D38)
+// KH: from 840 px (iPad landscape, computer) Mealie's side menu stands open beside the page, below it the bar at the
+// bottom (D38); mobile-breakpoint="md" above keeps the menu from covering the page up to Vuetify's 1145 px
 const khWide = computed(() => display.mdAndUp.value);
-onMounted(() => {
-  sidebar.value = display.lgAndUp.value;
-});
+const sidebar = useKhSidebar(khWide);
+const khShoppingTo = useKhShoppingTarget();
 
 function cookbookAsLink(cookbook: ReadCookBook): SideBarLink {
   return {
@@ -229,7 +235,7 @@ const createLinks = computed(() => [
 // KH: the side menu shows the shared destinations (D38), the intake with its number of drafts; as in Mealie, only
 // the recipes and the finder show for visitors of a public group
 const KH_PUBLIC_TARGETS = ["recipes", "finder"];
-const topLinks = computed<SideBarLink[]>(() => sidebarTargets(groupSlug.value).map(khSideBarLink));
+const topLinks = computed<SideBarLink[]>(() => sidebarTargets(groupSlug.value, khShoppingTo.value).map(khSideBarLink));
 
 /** KH: one destination of the shared list as an entry of Mealie's side menu. */
 function khSideBarLink(target: KhNavTarget): SideBarLink {

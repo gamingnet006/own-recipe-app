@@ -4,8 +4,8 @@ intake. -->
   <div v-if="isOwnGroup && count" class="px-3 pt-3">
     <v-btn
       block
-      variant="tonal"
-      color="primary"
+      variant="flat"
+      color="kh-hint"
       :to="`/g/${groupSlug}/drafts`"
       :prepend-icon="$globals.icons.import"
       :append-icon="$globals.icons.chevronRight"

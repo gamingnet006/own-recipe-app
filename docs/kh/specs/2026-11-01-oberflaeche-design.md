@@ -34,21 +34,21 @@ Stand 1.11.2026, im Chat abgestimmt: erst den Alltag einfacher machen, den eigen
 
 ## Navigation
 
-**Handy und iPad hochkant (unter 960 px):** Leiste unten mit vier Zielen, Eingang mit der Zahl wartender Entwürfe. Kein Seitenmenü und kein Menü-Knopf. Die Kopfzeile zeigt den Namen und die Suche; „Abmelden“ zieht nach „Mehr“ um.
+**Handy und iPad hochkant (unter 840 px):** Leiste unten mit vier Zielen, Eingang mit der Zahl wartender Entwürfe. Kein Seitenmenü und kein Menü-Knopf. Die Kopfzeile zeigt den Namen und die Suche; „Abmelden“ zieht nach „Mehr“ um.
 
-**iPad quer und Computer (ab 960 px):** Mealies Seitenmenü bleibt, mit denselben Zielen in derselben Reihenfolge. Der Knopf „Erstellen“ bietet „Rezept hinzufügen“ (Eingang) und „Selbst eintippen“ (Mealie).
+**iPad quer und Computer (ab 840 px):** Mealies Seitenmenü bleibt, mit denselben Zielen in derselben Reihenfolge. (1.11.2026: 840 statt 960 px, weil das die Stufe `md` von Vuetify 4 ist, mit dem Mealie läuft; Handys und iPads verhalten sich wie beschrieben.) Der Knopf „Erstellen“ bietet „Rezept hinzufügen“ (Eingang) und „Selbst eintippen“ (Mealie).
 
 | Ziel | Leiste | Seitenmenü | Adresse |
 |---|---|---|---|
 | Rezepte | ja | ja | `/g/<gruppe>` (Mealie) |
 | Eingang (n) | ja | ja | `/g/<gruppe>/drafts` |
-| Einkaufsliste | ja | ja | `/shopping-lists` (Mealie; gibt es genau eine Liste, öffnet Mealie sie direkt) |
+| Einkaufsliste | ja | ja | `/shopping-lists` (Mealie); gibt es genau eine Liste, öffnet sie direkt |
 | Mehr | ja | nein | `/g/<gruppe>/more` (neu) |
 | Essensplaner, Kochbücher | unter Mehr | ja | Mealie |
 | Was kann ich kochen? | unter Mehr | ja | `/g/<gruppe>/recipes/finder` (Mealies Rezept-Finder) |
 | Favoriten, Organisieren, Zeitstrahl | unter Mehr | ja (Favoriten unter dem eigenen Namen) | Mealie |
 
-Beide Darstellungen lesen ihre Ziele aus **einer** Liste (Code-Regel 2). „Mehr“ gibt es nur in der Leiste; ab 960 px stehen dieselben Ziele direkt im Seitenmenü, Profil, Einstellungen und Abmelden bleiben dort, wo Mealie sie hat. Mealies einzelne Kochbücher im Seitenmenü bleiben.
+Beide Darstellungen lesen ihre Ziele aus **einer** Liste (Code-Regel 2). „Mehr“ gibt es nur in der Leiste; ab 840 px stehen dieselben Ziele direkt im Seitenmenü, Profil, Einstellungen und Abmelden bleiben dort, wo Mealie sie hat. Mealies einzelne Kochbücher im Seitenmenü bleiben.
 
 **Seite „Mehr“:** Planen: Essensplaner, Kochbücher, Was kann ich kochen? · Sammlung: Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl · Einstellungen: Benutzereinstellungen (Mealies Übersicht mit Profil, Haushalt, Gruppe und KI-Anbietern, dort auch die Geräte-Schlüssel für den Kurzbefehl), Familie einladen, Sprache, Hell/Dunkel, Datenverwaltung und Verwaltung für die, die dürfen · Abmelden · darunter „Küchenhelfer <Version> · basiert auf Mealie · Quellcode (AGPL)“. Damit ist auf dem Handy alles erreichbar, was heute im Seitenmenü steht.
 
@@ -83,8 +83,8 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 
 | Baustein | Aufgabe |
 |---|---|
-| `frontend/kh/app/composables/use-kh-navigation.ts` (neu) | die Ziele für Leiste, Seitenmenü und „Mehr“ in einer Liste |
-| `frontend/kh/app/components/KhBottomNav.vue` (neu) | Leiste unten, nur unter 960 px |
+| `frontend/kh/app/composables/use-kh-navigation.ts` (neu) | die Ziele für Leiste, Seitenmenü und „Mehr“ in einer Liste; Einkaufsliste direkt öffnen |
+| `frontend/kh/app/components/KhBottomNav.vue` (neu) | Leiste unten, nur unter 840 px |
 | `frontend/kh/app/pages/g/[groupSlug]/more.vue` (neu) | Seite „Mehr“ |
 | `frontend/kh/app/components/KhDraftHint.vue` (neu) | Hinweis auf wartende Entwürfe über der Startseite |
 | `frontend/kh/app/components/KhRecipeView.vue` (neu, bei Bedarf in Teile zerlegt) | eigene Rezeptansicht aus Mealies Bausteinen |
@@ -94,7 +94,7 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 | `frontend/kh/lang/en-US.json`, `de-DE.json` | neue Texte |
 | `mealie/core/settings/themes.py`, `frontend/app/plugins/theme.ts` (Mealie, `KH:`) | Salbei als Standard- und Rückfallfarben, heller Grund |
 | `mealie/core/settings/branding.py` (Mealie, `KH:`) | Name „Küchenhelfer“ in Kopfzeile, Browser-Tab und App-Manifest |
-| `DefaultLayout.vue`, `AppHeader.vue` (Mealie, `KH:`) | Leiste einhängen, Seitenmenü aus der gemeinsamen Liste, Menü-Knopf und Abmelden nur ab 960 px, helle Kopfzeile wie im Mockup |
+| `DefaultLayout.vue`, `AppHeader.vue` (Mealie, `KH:`) | Leiste einhängen, Seitenmenü aus der gemeinsamen Liste, Menü-Knopf und Abmelden nur ab 840 px, helle Kopfzeile wie im Mockup |
 | `RecipePage.vue` (Mealie, `KH:`) | in der Ansicht unsere Rezeptansicht; Bearbeiten und Kochmodus unverändert |
 | `RecipeCardMobile.vue`, `RecipeCard.vue` (Mealie, `KH:`) | Sterne ausblenden |
 | `RecipeExplorerPage` (Mealie, `KH:`) | Entwürfe-Hinweis einhängen |
@@ -111,6 +111,7 @@ Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 ## Fehlerfälle
 
 - Entwürfe-Zahl nicht ladbar (offline): Eingang ohne Zahl, nichts blockiert.
+- Einkaufslisten nicht ladbar: der Tab öffnet Mealies Übersicht.
 - Theme nicht ladbar: die Rückfallfarben sind ebenfalls Salbei.
 - Rezept ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle: der jeweilige Teil entfällt, ohne Lücke.
 - Lange Titel und Zutaten brechen um; nichts wird abgeschnitten.
@@ -128,7 +129,7 @@ Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 
 ## Tests
 
-- Vitest: die gemeinsame Zielliste (Ziele, Zahl, aktiver Eintrag, Leiste ohne „Mehr“-Ziele), Weiterleitung von `/drafts/new` mit Parametern, welche Teile die Rezeptansicht ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle zeigt.
+- Vitest: die gemeinsame Zielliste (Ziele, Zahl, aktiver Eintrag, Leiste ohne „Mehr“-Ziele), Einkaufsliste direkt oder Übersicht, Weiterleitung von `/drafts/new` mit Parametern, welche Teile die Rezeptansicht ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle zeigt.
 - Pytest: `/api/app/about/theme` liefert die Salbei-Farben.
 - Von Hand in einer Wegwerf-Installation: Handy-, iPad- und Computer-Breite, hell und dunkel; im Netzwerk-Mitschnitt keine Anfrage an `fonts.googleapis.com` oder `fonts.gstatic.com`.
 

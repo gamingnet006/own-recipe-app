@@ -7,8 +7,8 @@ class Theme(BaseSettings):
     light_secondary: str = "#973542"
     light_success: str = "#43A047"
     light_info: str = "#1976D2"
-    light_warning: str = "#FF6D00"
-    light_error: str = "#EF5350"
+    light_warning: str = "#8F4512"  # KH: look "Salbei", readable as text on the light ground (D38)
+    light_error: str = "#B42318"  # KH: look "Salbei", readable as text on the light ground (D38)
 
     dark_primary: str = "#4FB07E"  # KH: look "Salbei", lighter so it stands out on the dark ground (D38)
     dark_accent: str = "#007A99"

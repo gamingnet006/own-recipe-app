@@ -3,5 +3,8 @@
 .v-application,
 .v-application [class*="text-"],
 .v-application :is(button, input, select, textarea) {
-  font-family: system-ui, -apple-system, sans-serif !important;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif !important;
 }

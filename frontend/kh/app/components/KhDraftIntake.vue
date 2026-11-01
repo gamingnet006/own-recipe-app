@@ -10,9 +10,9 @@ which is recognized in the background and then waits in the list below for a rev
         <v-btn
           block
           height="72"
-          color="primary"
+          :color="source === option.source ? 'primary' : 'kh-hint'"
           stacked
-          :variant="source === option.source ? 'flat' : 'tonal'"
+          variant="flat"
           :prepend-icon="option.icon"
           @click="choose(option.source)"
         >

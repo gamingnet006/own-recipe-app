@@ -1,4 +1,4 @@
-import { themeRequestUrl } from "~~/kh/app/lib/theme"; // KH: theme request per release (D38)
+import { KH_HINT_COLORS, themeRequestUrl } from "~~/kh/app/lib/theme"; // KH: the look's colors, theme request per release (D38)
 
 // KH: dark text on the light green of the dark theme, 6.7:1 instead of 2.7:1 with white (D38)
 const KH_DARK_ON_PRIMARY = { "on-primary": "#0E1A13" };
@@ -55,13 +55,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           dark: false,
           colors: {
             background: "#F4F5F1",
+            ...KH_HINT_COLORS.light,
             primary: theme?.lightPrimary ?? "#2F7A55",
             accent: theme?.lightAccent ?? "#007A99",
             secondary: theme?.lightSecondary ?? "#973542",
             success: theme?.lightSuccess ?? "#43A047",
             info: theme?.lightInfo ?? "#1976d2",
-            warning: theme?.lightWarning ?? "#FF6D00",
-            error: theme?.lightError ?? "#EF5350",
+            warning: theme?.lightWarning ?? "#8F4512",
+            error: theme?.lightError ?? "#B42318",
           },
         },
         dark: {
@@ -69,6 +70,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           colors: {
             primary: theme?.darkPrimary ?? "#4FB07E",
             ...KH_DARK_ON_PRIMARY,
+            ...KH_HINT_COLORS.dark,
             accent: theme?.darkAccent ?? "#007A99",
             secondary: theme?.darkSecondary ?? "#973542",
             success: theme?.darkSuccess ?? "#43A047",
