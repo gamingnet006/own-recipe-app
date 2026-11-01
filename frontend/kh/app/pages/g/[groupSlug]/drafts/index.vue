@@ -1,17 +1,24 @@
-<!-- KH: the household's drafts that are not saved yet (phase 2), newest first. The list looks again by itself
-while one is being recognized, and a failed one can be tried again. -->
+<!-- KH: the intake (D38): the form for a new recipe, and below it the household's drafts that are not saved yet
+(phase 2), newest first. The list looks again by itself while one is being recognized, and a failed one can be
+tried again. -->
 <template>
   <v-container class="narrow-container">
     <BasePageTitle divider>
       <template #title>
-        {{ $t("kh.drafts.drafts") }}
+        {{ $t("kh.nav.intake") }}
       </template>
+      {{ $t("kh.drafts.intake-description") }}
     </BasePageTitle>
-    <div class="d-flex justify-end mb-2">
-      <v-btn color="primary" :prepend-icon="$globals.icons.createAlt" :to="`/g/${groupSlug}/drafts/new`">
-        {{ $t("kh.drafts.add-recipe") }}
-      </v-btn>
-    </div>
+    <KhDraftIntake :shared-link="sharedLink" @submitted="onSubmitted" />
+    <p class="text-body-2 text-medium-emphasis mt-4 mb-8">
+      {{ $t("kh.drafts.shortcut-hint") }}
+      <NuxtLink :to="`/g/${groupSlug}/r/create/new`">
+        {{ $t("kh.drafts.type-yourself") }}
+      </NuxtLink>
+    </p>
+    <h2 class="text-h6 mb-2">
+      {{ $t("kh.drafts.drafts") }}
+    </h2>
     <v-alert v-if="loadError" type="error" variant="tonal" class="mb-4">
       {{ errorText(loadError, i18n.t) }}
     </v-alert>
@@ -55,6 +62,7 @@ import {
   errorText,
   pollingNeeded,
   requestError,
+  useKhDraftCount,
   useKhDraftsApi,
   useKhPolling,
 } from "~~/kh/app/composables/use-kh-drafts";
@@ -71,9 +79,12 @@ const route = useRoute();
 const api = useKhDraftsApi();
 const { recipeSmallImage } = useStaticRoutes();
 
-useSeoMeta({ title: i18n.t("kh.drafts.drafts") });
+useSeoMeta({ title: i18n.t("kh.nav.intake") });
 
+const { refresh: refreshCount } = useKhDraftCount();
 const groupSlug = computed(() => route.params.groupSlug as string);
+// A link shared to the app arrives through Mealie's import page, which leads here with this query
+const sharedLink = typeof route.query.recipe_import_url === "string" ? route.query.recipe_import_url : "";
 const drafts = ref<KhDraft[]>([]);
 const loaded = ref(false);
 const loadError = ref<string | null>(null);
@@ -98,6 +109,11 @@ function preview(draft: KhDraft): string | undefined {
 function byline(draft: KhDraft): string {
   const when = i18n.d(new Date(draft.createdAt), { dateStyle: "short", timeStyle: "short" });
   return [draft.userName, when].filter(Boolean).join(" · ");
+}
+
+/** A new draft shows in the list right away, and the number in the menu follows. */
+async function onSubmitted() {
+  await Promise.all([reload(), refreshCount()]);
 }
 
 async function retry(draft: KhDraft) {

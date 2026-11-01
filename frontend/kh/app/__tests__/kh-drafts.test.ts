@@ -50,12 +50,19 @@ afterEach(() => {
 describe("importRedirectTarget", () => {
   test("sends Mealie's import pages to the intake", () => {
     for (const page of ["url", "ai", "image", "html", "bulk"]) {
-      expect(importRedirectTarget(`/g/familie/r/create/${page}`)).toBe("/g/familie/drafts/new");
+      expect(importRedirectTarget(`/g/familie/r/create/${page}`)).toBe("/g/familie/drafts");
     }
-    expect(importRedirectTarget("/g/familie/r/create/ai/")).toBe("/g/familie/drafts/new");
+    expect(importRedirectTarget("/g/familie/r/create/ai/")).toBe("/g/familie/drafts");
   });
 
-  test("leaves typing a recipe yourself and the zip import alone", () => {
+  test("the old intake address leads to the intake on the drafts page", () => {
+    expect(importRedirectTarget("/g/familie/drafts/new")).toBe("/g/familie/drafts");
+    expect(importRedirectTarget("/g/familie/drafts/new/")).toBe("/g/familie/drafts");
+  });
+
+  test("leaves the intake, a draft's review, typing a recipe yourself and the zip import alone", () => {
+    expect(importRedirectTarget("/g/familie/drafts")).toBeNull();
+    expect(importRedirectTarget("/g/familie/drafts/abc")).toBeNull();
     expect(importRedirectTarget("/g/familie/r/create/new")).toBeNull();
     expect(importRedirectTarget("/g/familie/r/create/zip")).toBeNull();
   });

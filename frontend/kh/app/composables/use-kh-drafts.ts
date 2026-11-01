@@ -14,8 +14,9 @@ import en from "../../lang/en-US.json";
 
 type Translate = (key: string) => string;
 
-// Mealie's import pages that the intake replaces; typing a recipe yourself and the zip import stay
-const REDIRECTED_IMPORT = /^\/g\/([^/]+)\/r\/create\/(?:url|ai|image|html|bulk)\/?$/;
+// Mealie's import pages that the intake replaces, and the intake's old address from before it moved onto the drafts
+// page (D38); typing a recipe yourself and the zip import stay
+const REDIRECTED_TO_INTAKE = /^\/g\/([^/]+)\/(?:r\/create\/(?:url|ai|image|html|bulk)|drafts\/new)\/?$/;
 // From this width (iPad upright) original and result stand side by side
 const SIDE_BY_SIDE_FROM = 768;
 // The list and the review look again this often while a draft is being recognized
@@ -63,10 +64,10 @@ export function useKhPolling(load: () => Promise<boolean>) {
   return { reload };
 }
 
-/** The intake for one of Mealie's import pages, else null. */
+/** The intake for one of Mealie's import pages or the intake's old address, else null. */
 export function importRedirectTarget(path: string): string | null {
-  const match = REDIRECTED_IMPORT.exec(path);
-  return match ? `/g/${match[1]}/drafts/new` : null;
+  const match = REDIRECTED_TO_INTAKE.exec(path);
+  return match ? `/g/${match[1]}/drafts` : null;
 }
 
 /** Original and result one below the other on a phone, side by side from tablet width. */

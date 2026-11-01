@@ -1,20 +1,17 @@
-<!-- KH: the drafts intake (phase 2): a link, a text or photos become a draft, which is recognized in the
-background and then waits in the drafts list for a review. -->
+<!-- KH: the form of the intake (phase 2, on the drafts page since D38): a link, a text or photos become a draft,
+which is recognized in the background and then waits in the list below for a review. -->
 <template>
-  <v-container class="narrow-container">
-    <BasePageTitle divider>
-      <template #title>
-        {{ $t("kh.drafts.add-recipe") }}
-      </template>
-      {{ $t("kh.drafts.intake-description") }}
-    </BasePageTitle>
-
+  <section>
+    <h2 class="text-h6 mb-3">
+      {{ $t("kh.drafts.add-recipe") }}
+    </h2>
     <v-row dense>
-      <v-col v-for="option in sources" :key="option.source" cols="12" sm="4">
+      <v-col v-for="option in sources" :key="option.source" cols="4">
         <v-btn
           block
-          height="88"
+          height="72"
           color="primary"
+          stacked
           :variant="source === option.source ? 'flat' : 'tonal'"
           :prepend-icon="option.icon"
           @click="choose(option.source)"
@@ -24,7 +21,7 @@ background and then waits in the drafts list for a review. -->
       </v-col>
     </v-row>
 
-    <v-form v-if="source" class="mt-6" @submit.prevent="submit">
+    <v-form v-if="source" class="mt-4" @submit.prevent="submit">
       <v-text-field
         v-if="source === 'link'"
         v-model="link"
@@ -73,7 +70,7 @@ background and then waits in the drafts list for a review. -->
       hidden
       @change="addPhotos"
     >
-  </v-container>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -82,17 +79,13 @@ import { errorText, requestError, useKhDraftsApi } from "~~/kh/app/composables/u
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
 
-definePageMeta({
-  middleware: ["auth", "group-only"],
-});
+// A link shared to the app arrives through Mealie's import page, which leads to the intake with it
+const props = defineProps<{ sharedLink: string }>();
+const emit = defineEmits<{ submitted: [] }>();
 
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
-const route = useRoute();
-const router = useRouter();
 const api = useKhDraftsApi();
-
-useSeoMeta({ title: i18n.t("kh.drafts.add-recipe") });
 
 const sources = [
   { source: "link", icon: $globals.icons.link },
@@ -100,10 +93,8 @@ const sources = [
   { source: "image", icon: $globals.icons.fileImage },
 ] as const;
 
-// A link shared to the app arrives through Mealie's import page, which leads here with this query
-const sharedLink = typeof route.query.recipe_import_url === "string" ? route.query.recipe_import_url : "";
-const source = ref<KhDraftSource | null>(sharedLink ? "link" : null);
-const link = ref(sharedLink);
+const source = ref<KhDraftSource | null>(props.sharedLink ? "link" : null);
+const link = ref(props.sharedLink);
 const text = ref("");
 // The chosen photos with a preview address each, given back to the browser when a photo goes or the page is left
 const photos = ref<{ file: File; url: string }[]>([]);
@@ -136,9 +127,18 @@ function removePhoto(index: number) {
   photos.value = photos.value.filter((_, i) => i !== index);
 }
 
+/** Empties the form for the next recipe and gives the previews back to the browser. */
+function clear() {
+  photos.value.forEach(photo => URL.revokeObjectURL(photo.url));
+  photos.value = [];
+  link.value = "";
+  text.value = "";
+  source.value = null;
+}
+
 onBeforeUnmount(() => photos.value.forEach(photo => URL.revokeObjectURL(photo.url)));
 
-/** Hands in the chosen source only and opens the drafts list, where the recognition can be followed. */
+/** Hands in the chosen source only; the list below then shows the new draft while it is recognized. */
 async function submit() {
   const form = new FormData();
   if (source.value === "link") form.append("url", link.value.trim());
@@ -152,7 +152,8 @@ async function submit() {
     alert.error(errorText(requestError(error).code, i18n.t));
     return;
   }
-  router.push(`/g/${route.params.groupSlug}/drafts`);
+  clear();
+  emit("submitted");
 }
 </script>
 

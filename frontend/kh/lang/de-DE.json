@@ -64,7 +64,9 @@
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
         "not_found": "Entwurf nicht gefunden.",
         "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht."
-      }
+      },
+      "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
+      "type-yourself": "Rezept selbst eintippen"
     },
     "nav": {
       "intake": "Eingang",

@@ -64,7 +64,9 @@
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
         "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment."
-      }
+      },
+      "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
+      "type-yourself": "Type a recipe in yourself"
     },
     "nav": {
       "intake": "Intake",
