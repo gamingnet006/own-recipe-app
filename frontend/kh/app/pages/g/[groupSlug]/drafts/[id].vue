@@ -2,6 +2,9 @@
 recognized (one below the other on a phone, side by side from iPad width), then save, save and edit, or discard. -->
 <template>
   <v-container class="lg-container">
+    <v-alert v-if="loadError && !missing" type="error" variant="tonal" class="mb-4">
+      {{ errorText(loadError, i18n.t) }}
+    </v-alert>
     <p v-if="missing" class="text-center py-8">
       {{ $t("kh.drafts.error.not_found") }}
     </p>
@@ -148,6 +151,7 @@ const id = route.params.id as string;
 const groupSlug = route.params.groupSlug as string;
 const draft = ref<KhDraft | null>(null);
 const missing = ref(false);
+const loadError = ref<string | null>(null);
 const busy = ref(false);
 const discarding = ref(false);
 const duplicates = reactive({ open: false, edit: false, warnings: [] as KhDraftWarning[] });
@@ -157,11 +161,12 @@ const columns = computed(() => (reviewLayout(display.width.value) === "side" ? 6
 useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.drafts.drafts")) });
 
 const { reload } = useKhPolling(async () => {
-  const { data } = await api.get(id);
+  const { data, error } = await api.get(id);
   if (data) draft.value = data;
   if (data?.status === "ready" && !changes.value) changes.value = recipeChanges(data.recipe);
-  missing.value = !draft.value; // a hiccup while looking again keeps what is shown
-  return !!draft.value && pollingNeeded([draft.value]);
+  loadError.value = data ? null : requestError(error).code;
+  missing.value = loadError.value === "not_found"; // anything else keeps what is shown and looks again
+  return (!!loadError.value && !missing.value) || (!!draft.value && pollingNeeded([draft.value]));
 });
 
 function showError(error: unknown) {

@@ -14,7 +14,7 @@
       "link-label": "Link to the recipe",
       "text-label": "Recipe text",
       "add-photos": "Add photos",
-      "photos-chosen": "Photos chosen: {count}",
+      "remove-photo": "Remove photo",
       "no-drafts": "No drafts waiting.",
       "status": {
         "working": "Being recognized …",
@@ -63,7 +63,8 @@
         "still_working": "Still being recognized, please wait a moment.",
         "already_approved": "Already saved as a recipe.",
         "duplicates": "This recipe may already exist.",
-        "not_found": "Draft not found."
+        "not_found": "Draft not found.",
+        "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment."
       }
     }
   }

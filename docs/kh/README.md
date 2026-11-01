@@ -125,6 +125,21 @@ Danach wartet das Rezept als Entwurf unter **Entwürfe (n)** und ist nach ein pa
 
 Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehen**.
 
+### Teilen per Kurzbefehl (iPhone und iPad)
+
+Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
+
+1. **Ein Schlüssel je Gerät:** In Küchenhelfer unter **Profil → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
+2. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name zum Beispiel „Ins Kochbuch“:
+   - Unter **ⓘ** „Im Share-Sheet anzeigen“ einschalten, mit den Typen URLs, Safari-Webseiten, Bilder und Text.
+   - Aktion **Text** mit dem Schlüssel.
+   - **Bilder aus Eingabe abrufen** (aus der Kurzbefehleingabe), dann **Wenn** die Bilder einen Wert haben: **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/drafts`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Text, Anfragetext **Formular** mit dem Feld `images` (Datei) = Bilder.
+   - **Sonst** **URLs aus Eingabe abrufen**, dann **Wenn** es URLs gibt: dieselbe Abfrage mit dem Feld `url` (Text) = URLs; **sonst** mit dem Feld `text` (Text) = Kurzbefehleingabe.
+   - Zum Schluss **Mitteilung anzeigen**, zum Beispiel „Liegt bei den Entwürfen“.
+3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Küchenhelfer-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
+
+Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint unter **Entwürfe (n)**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App über **Rezept hinzufügen** ein.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -167,6 +182,7 @@ Was Küchenhelfer heute nach draußen schickt. Telemetrie gibt es keine.
 |---|---|---|---|
 | Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
 | KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | Google Gemini, nur mit eingetragenem Schlüssel (D35) | KI-Anbieter in den Gruppen-Einstellungen löschen |
+| Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Küchenhelfer, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
 | Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
@@ -285,6 +301,21 @@ The recipe then waits as a draft under **Drafts (n)** and is recognized after a 
 
 A badge on the saved recipe shows where it came from, with **View original**.
 
+### Share shortcut (iPhone and iPad)
+
+With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
+
+1. **One key per device:** in Küchenhelfer under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
+2. **Build the shortcut** once in the **Shortcuts** app with **+**, named for example "Into the cookbook":
+   - Under **ⓘ** turn on "Show in Share Sheet", with the types URLs, Safari web pages, images and text.
+   - A **Text** action holding the key.
+   - **Get Images from Input** (from the shortcut input), then **If** the images have any value: **Get Contents of URL** with `https://<your-address>/api/kh/drafts`, method **POST**, header `Authorization` with `Bearer ` followed by the text, request body **Form** with the field `images` (File) = images.
+   - **Otherwise** **Get URLs from Input**, then **If** there are URLs: the same request with the field `url` (Text) = URLs; **otherwise** with the field `text` (Text) = shortcut input.
+   - Finally **Show Notification**, for example "Waiting in the drafts".
+3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Küchenhelfer key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
+
+Then pick "Into the cookbook" in the share menu; the draft shows under **Drafts (n)**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app through **Add recipe**.
+
 ### Optional
 
 - **Access from outside** (Cloudflare Tunnel, D27):
@@ -327,6 +358,7 @@ What Küchenhelfer sends out today. There is no telemetry.
 |---|---|---|---|
 | Read a link | fetching the page and its recipe picture | the website in question | – |
 | AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | Google Gemini, only with a key entered (D35) | delete the AI provider in the group settings |
+| Share shortcut | link, text or photo, with the device's key | your Küchenhelfer, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |

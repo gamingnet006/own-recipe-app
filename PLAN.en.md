@@ -68,6 +68,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D34 | No local AI of our own for now: no Ollama or Whisper running all the time, neither on the MacBook (it should not have to stay on) nor on the Mac mini (too weak). The AI comes through Mealie's AI provider settings (D25) with an own key at a provider with a free tier; which one is settled at the start of phase 2. This turns the order from D6 (local first) around for now (2026-10-31) | decided |
 | D35 | Phase 2 (intake, review, duplicates): our own draft feature that reuses Mealie's recognition (`create_from_html`, `AIRecipeService.build_recipe`); Mealie's import pages lead to our intake. Everyone in the household sees all drafts and may approve any; built for phone and iPad. AI: Google Gemini with a free key; training by the provider is fine. "Share" via a shortcut follows as its own step (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (2026-10-31) | decided |
 | D36 | Recipe language and AI models (trial run 2026-11-01): the admin sets `KH_RECIPE_LANGUAGE` in `kh/ops/.env` as an English name, e.g. `German`. Whatever the AI reads (text, photos, links without recipe data) is then translated by Mealie's translate step; recipes already in that language cost no request. Links with recipe data stay in the page's language, existing recipes are not translated (too many requests). Free-tier models: `gemini-3.5-flash-lite` as default and `gemini-3.1-flash-lite` as image provider, 500 requests a day each; a photo takes two, a text one, a link with recipe data none. Servings and yield can be set in the review before saving. | decided |
+| D37 | Share shortcut (`v0.1.1`): everyone builds the shortcut from the guide or takes it over by iCloud link with an import question for the key. The key is a Mealie API token per device (Profile → API Tokens), revocable. No new interface, the shortcut uses `POST /api/kh/drafts`; no ready-made shortcut in the repo, because it would carry a key. | decided |
 
 ---
 
@@ -216,7 +217,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 ### Phase 5 · Family cookbook and sharing (v0.4)
 
 - [ ] PDF: recipe card and family cookbook (selection, table of contents, free fonts, own photos only).
-- [ ] Shortcut for the share sheet with a revocable token per device.
+- [x] Shortcut for the share sheet with a revocable token per device. (2026-11-01: brought forward to `v0.1.1`, D35, D37.)
 - [ ] Migration: guide for Mealie's migrations, followed by a duplicate scan.
 - [ ] Convection converter and menu schedule.
 - **Done when:** a link shared via the share sheet lands as a draft in the review view and a cookbook with 10 recipes is printable as PDF.

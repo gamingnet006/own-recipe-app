@@ -12,7 +12,10 @@ while one is being recognized, and a failed one can be tried again. -->
         {{ $t("kh.drafts.add-recipe") }}
       </v-btn>
     </div>
-    <p v-if="loaded && !drafts.length" class="text-center text-medium-emphasis py-8">
+    <v-alert v-if="loadError" type="error" variant="tonal" class="mb-4">
+      {{ errorText(loadError, i18n.t) }}
+    </v-alert>
+    <p v-else-if="loaded && !drafts.length" class="text-center text-medium-emphasis py-8">
       {{ $t("kh.drafts.no-drafts") }}
     </p>
     <v-list lines="three">
@@ -73,13 +76,15 @@ useSeoMeta({ title: i18n.t("kh.drafts.drafts") });
 const groupSlug = computed(() => route.params.groupSlug as string);
 const drafts = ref<KhDraft[]>([]);
 const loaded = ref(false);
+const loadError = ref<string | null>(null);
 const sourceIcons = { link: $globals.icons.link, text: $globals.icons.textBox, image: $globals.icons.fileImage };
 
 const { reload } = useKhPolling(async () => {
-  const { data } = await api.list();
+  const { data, error } = await api.list();
   if (data) drafts.value = data;
+  loadError.value = data ? null : requestError(error).code;
   loaded.value = true;
-  return pollingNeeded(drafts.value);
+  return pollingNeeded(drafts.value) || !!loadError.value; // after a failed load, look again until it works
 });
 
 /** The first original photo, else the picture the recognition took from the page. */

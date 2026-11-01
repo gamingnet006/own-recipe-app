@@ -111,9 +111,12 @@ export function warningTarget(warning: KhDraftWarning, groupSlug: string): strin
   return warning.recipeSlug ? `/g/${groupSlug}/r/${warning.recipeSlug}` : `/g/${groupSlug}/drafts/${warning.draftId}`;
 }
 
-/** The detail of a failed drafts request, e.g. 409 with code "duplicates"; code "unknown" when there is none. */
+/** The detail of a failed drafts request, e.g. 409 with code "duplicates"; "offline" when the request never
+ * reached the server, "unknown" when the answer has no code. */
 export function requestError(error: unknown): KhRequestError {
-  const detail = (error as { response?: { data?: { detail?: unknown } } } | null)?.response?.data?.detail;
+  const failed = error as { isAxiosError?: boolean; response?: { data?: { detail?: unknown } } } | null;
+  if (failed?.isAxiosError && !failed.response) return { code: "offline" };
+  const detail = failed?.response?.data?.detail;
   const known = typeof detail === "object" && detail !== null && typeof (detail as KhRequestError).code === "string";
   return known ? detail as KhRequestError : { code: "unknown" };
 }

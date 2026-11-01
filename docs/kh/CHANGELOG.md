@@ -6,6 +6,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Share shortcut for iPhone and iPad (D37): links, texts and photos from the share menu go straight to the
+  drafts, with a revocable API token per device; the guide shows how to build it and share it with the family.
+- Without a connection, the drafts list and the review say so and try again by themselves, instead of
+  "no drafts" or "not found".
+- Chosen photos show as small previews on the intake page and can be removed again.
+
 ## [v0.1] - 2026-11-01
 
 Phase 2: every new recipe gets a review before it is saved (D35).

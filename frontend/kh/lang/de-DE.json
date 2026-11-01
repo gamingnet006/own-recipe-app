@@ -14,7 +14,7 @@
       "link-label": "Link zum Rezept",
       "text-label": "Rezepttext",
       "add-photos": "Fotos hinzufügen",
-      "photos-chosen": "Fotos gewählt: {count}",
+      "remove-photo": "Foto entfernen",
       "no-drafts": "Keine offenen Entwürfe.",
       "status": {
         "working": "Wird erkannt …",
@@ -63,7 +63,8 @@
         "still_working": "Wird noch erkannt, bitte kurz warten.",
         "already_approved": "Schon als Rezept gespeichert.",
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
-        "not_found": "Entwurf nicht gefunden."
+        "not_found": "Entwurf nicht gefunden.",
+        "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht."
       }
     }
   }

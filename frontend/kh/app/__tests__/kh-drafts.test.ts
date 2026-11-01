@@ -140,6 +140,11 @@ describe("drafts list and review", () => {
     expect(requestError({ response: { data: { detail: "Not Found" } } }).code).toBe("unknown");
     expect(requestError(new Error("offline")).code).toBe("unknown");
   });
+
+  test("a request that never reached the server counts as offline", () => {
+    expect(requestError({ isAxiosError: true, message: "Network Error" }).code).toBe("offline");
+    expect(errorText("offline", t)).toBe(t("kh.drafts.error.offline"));
+  });
 });
 
 describe("useKhPolling", () => {

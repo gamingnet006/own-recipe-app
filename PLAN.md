@@ -66,6 +66,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D34 | Vorerst keine eigene lokale KI: kein Ollama oder Whisper im Dauerbetrieb, weder auf dem MacBook (es soll nicht durchlaufen müssen) noch auf dem Mac mini (zu schwach). Die KI kommt über Mealies KI-Anbieter-Verwaltung (D25) mit eigenem Key bei einem Anbieter mit kostenloser Stufe; welcher, klären wir zu Beginn von Phase 2. Das dreht die Reihenfolge aus D6 (lokal zuerst) vorerst um (31.10.2026) | beschlossen |
 | D35 | Phase 2 (Eingang, Prüfen, Duplikate): eigene Entwurfs-Funktion, die Mealies Erkennung mitbenutzt (`create_from_html`, `AIRecipeService.build_recipe`); Mealies Import-Seiten führen auf den Eingang. Jeder im Haushalt sieht alle Entwürfe und darf jeden freigeben; gebaut für Handy und iPad. KI: Google Gemini mit kostenlosem Schlüssel, Training durch den Anbieter ist in Ordnung. „Teilen“ per Kurzbefehl folgt als eigener Schritt (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (31.10.2026) | beschlossen |
 | D36 | Rezeptsprache und KI-Modelle (Probelauf 1.11.2026): Der Admin trägt in `kh/ops/.env` `KH_RECIPE_LANGUAGE` als englischen Namen ein, z. B. `German`. Was die KI liest (Text, Fotos, Links ohne Rezeptdaten), übersetzt dann Mealies Übersetzungsschritt; Rezepte, die schon in dieser Sprache sind, kosten keine Anfrage. Links mit Rezeptdaten bleiben in der Sprache der Seite, vorhandene Rezepte werden nicht übersetzt (zu viele Anfragen). Modelle im Gratis-Angebot: `gemini-3.5-flash-lite` als Standard- und `gemini-3.1-flash-lite` als Bildanbieter, je 500 Anfragen am Tag; ein Foto braucht zwei, ein Text eine, ein Link mit Rezeptdaten keine. Portionen und Portionsangabe lassen sich in der Prüfansicht vor dem Übernehmen eintragen. | beschlossen |
+| D37 | Teilen per Kurzbefehl (`v0.1.1`): Jeder baut den Kurzbefehl nach der Anleitung oder übernimmt ihn per iCloud-Link mit Importfrage für den Schlüssel. Schlüssel ist ein eigener Mealie-API-Token je Gerät (Profil → API-Tokens), widerrufbar. Keine neue Schnittstelle, der Kurzbefehl nutzt `POST /api/kh/drafts`; kein fertiger Kurzbefehl im Repo, weil er einen Schlüssel tragen würde. | beschlossen |
 
 ---
 
@@ -214,7 +215,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 ### Phase 5 · Familienkochbuch und Teilen (v0.4)
 
 - [ ] PDF: Rezeptkarte und Familienkochbuch (Auswahl, Inhaltsverzeichnis, freie Schriften, nur eigene Fotos).
-- [ ] Kurzbefehl für das Teilen-Menü mit einem widerrufbaren Token pro Gerät.
+- [x] Kurzbefehl für das Teilen-Menü mit einem widerrufbaren Token pro Gerät. (1.11.2026: vorgezogen in `v0.1.1`, D35, D37.)
 - [ ] Umzug: Anleitung für Mealies Migrationen, danach Duplikat-Scan.
 - [ ] Umluft-Umrechner und Menü-Zeitplan.
 - **Fertig wenn:** Ein Link über das Teilen-Menü landet als Entwurf in der Prüfansicht und ein Kochbuch mit 10 Rezepten ist als PDF druckbar.

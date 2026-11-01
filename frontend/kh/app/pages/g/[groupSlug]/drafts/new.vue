@@ -41,8 +41,21 @@ background and then waits in the drafts list for a review. -->
         rows="6"
         :label="$t('kh.drafts.text-label')"
       />
-      <div v-else class="d-flex flex-wrap align-center ga-4">
-        <span>{{ $t("kh.drafts.photos-chosen", { count: photos.length }) }}</span>
+      <div v-else>
+        <div v-if="photos.length" class="d-flex flex-wrap ga-2 mb-3">
+          <div v-for="(photo, index) in photos" :key="photo.url" class="kh-photo">
+            <v-img :src="photo.url" width="88" height="88" cover rounded />
+            <v-btn
+              icon
+              size="x-small"
+              class="kh-photo-remove"
+              :aria-label="$t('kh.drafts.remove-photo')"
+              @click="removePhoto(index)"
+            >
+              <v-icon :icon="$globals.icons.close" />
+            </v-btn>
+          </div>
+        </div>
         <v-btn variant="tonal" :prepend-icon="$globals.icons.createAlt" @click="picker?.click()">
           {{ $t("kh.drafts.add-photos") }}
         </v-btn>
@@ -92,7 +105,8 @@ const sharedLink = typeof route.query.recipe_import_url === "string" ? route.que
 const source = ref<KhDraftSource | null>(sharedLink ? "link" : null);
 const link = ref(sharedLink);
 const text = ref("");
-const photos = ref<File[]>([]);
+// The chosen photos with a preview address each, given back to the browser when a photo goes or the page is left
+const photos = ref<{ file: File; url: string }[]>([]);
 const picker = ref<HTMLInputElement | null>(null);
 const sending = ref(false);
 
@@ -111,16 +125,25 @@ function choose(kind: KhDraftSource) {
 /** Collects the chosen photos, so a recipe on several pages can be photographed one page at a time. */
 function addPhotos(event: Event) {
   const input = event.target as HTMLInputElement;
-  photos.value = [...photos.value, ...Array.from(input.files ?? [])];
+  const added = Array.from(input.files ?? []).map(file => ({ file, url: URL.createObjectURL(file) }));
+  photos.value = [...photos.value, ...added];
   input.value = ""; // so the same photo can be chosen again
 }
+
+/** Takes a photo out again, e.g. a blurry one or one too many. */
+function removePhoto(index: number) {
+  URL.revokeObjectURL(photos.value[index]!.url);
+  photos.value = photos.value.filter((_, i) => i !== index);
+}
+
+onBeforeUnmount(() => photos.value.forEach(photo => URL.revokeObjectURL(photo.url)));
 
 /** Hands in the chosen source only and opens the drafts list, where the recognition can be followed. */
 async function submit() {
   const form = new FormData();
   if (source.value === "link") form.append("url", link.value.trim());
   else if (source.value === "text") form.append("text", text.value.trim());
-  else photos.value.forEach(photo => form.append("images", photo));
+  else photos.value.forEach(photo => form.append("images", photo.file));
 
   sending.value = true;
   const { error } = await api.create(form);
@@ -132,3 +155,15 @@ async function submit() {
   router.push(`/g/${route.params.groupSlug}/drafts`);
 }
 </script>
+
+<style scoped>
+.kh-photo {
+  position: relative;
+}
+
+.kh-photo-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+</style>
