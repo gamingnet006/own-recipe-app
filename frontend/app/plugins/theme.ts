@@ -44,11 +44,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         lighten: 3,
         darken: 3,
       },
+      // KH: look "Salbei" as fallback too, and a light ground like the dark one below (D38)
       themes: {
         light: {
           dark: false,
           colors: {
-            primary: theme?.lightPrimary ?? "#E58325",
+            background: "#F4F5F1",
+            primary: theme?.lightPrimary ?? "#2F7A55",
             accent: theme?.lightAccent ?? "#007A99",
             secondary: theme?.lightSecondary ?? "#973542",
             success: theme?.lightSuccess ?? "#43A047",
@@ -60,7 +62,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         dark: {
           dark: true,
           colors: {
-            primary: theme?.darkPrimary ?? "#E58325",
+            primary: theme?.darkPrimary ?? "#4FB07E",
             accent: theme?.darkAccent ?? "#007A99",
             secondary: theme?.darkSecondary ?? "#973542",
             success: theme?.darkSuccess ?? "#43A047",

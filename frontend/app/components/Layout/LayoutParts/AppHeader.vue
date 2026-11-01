@@ -1,17 +1,19 @@
 <template>
+  <!-- KH: a light header as in the mockup; the accent color stays for the logo and the buttons (D38) -->
   <v-app-bar
     clipped-left
     density="compact"
     app
-    color="primary"
-    dark
+    color="surface"
+    flat
+    border="b"
     class="d-print-none"
   >
     <slot />
     <RouterLink :to="routerLink">
       <v-btn
         icon
-        color="white"
+        color="primary"
       >
         <v-img
           v-if="$appInfo.brandingLogoUrl"
@@ -58,7 +60,6 @@
           density="compact"
           flat
           :prepend-inner-icon="$globals.icons.search"
-          bg-color="primary-darken-1"
           :placeholder="$t('search.search-hint')"
         />
       </v-responsive>

@@ -1,8 +1,11 @@
 // KH: Küchenhelfer's own Nuxt layer (D26), mounted by one `extends` line in frontend/nuxt.config.ts.
 // Our plugins, components and pages live in kh/app/, apart from Mealie's app/; our texts in kh/lang/.
+import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
+  // The font of the look "Salbei" (D38); a path from this layer, because "~" is Mealie's app folder
+  css: [fileURLToPath(new URL("./app/assets/kh-theme.css", import.meta.url))],
   i18n: {
     // Merged into Mealie's languages; the others fall back to English. Like in Mealie's config the
     // path starts in kh/i18n, so it goes one folder up.
