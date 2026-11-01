@@ -65,6 +65,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D33 | Kopien, die das Gerät verlassen, bekommen auf Wunsch ein Passwort (age); `backup_copy.sh on` fragt einmal j/n. Wichtig für die Wahl: Ein Mealie-Backup enthält den API-Schlüssel des Backup-Dienstes im Klartext, ein offener Stick öffnet also die App. Mit Passwort liegt der private Schlüssel gesperrt auf dem Stick, das Passwort nirgends, und auch Mealies `.secret` darf mit; nach einer Wiederherstellung bleiben alle angemeldet. Am Mac mini ohne Passwort: Es ist zu umständlich, und die Daten sind nicht heikel. Was bei Verlust des Sticks zu tun ist, steht in der Anleitung. Erschienen als `v0.0.1` (immer mit Passwort) und `v0.0.2` (Frage j/n); Fehler aus dem Pi-Test (D30) kommen als nächste Patch-Version (31.10.2026) | beschlossen |
 | D34 | Vorerst keine eigene lokale KI: kein Ollama oder Whisper im Dauerbetrieb, weder auf dem MacBook (es soll nicht durchlaufen müssen) noch auf dem Mac mini (zu schwach). Die KI kommt über Mealies KI-Anbieter-Verwaltung (D25) mit eigenem Key bei einem Anbieter mit kostenloser Stufe; welcher, klären wir zu Beginn von Phase 2. Das dreht die Reihenfolge aus D6 (lokal zuerst) vorerst um (31.10.2026) | beschlossen |
 | D35 | Phase 2 (Eingang, Prüfen, Duplikate): eigene Entwurfs-Funktion, die Mealies Erkennung mitbenutzt (`create_from_html`, `AIRecipeService.build_recipe`); Mealies Import-Seiten führen auf den Eingang. Jeder im Haushalt sieht alle Entwürfe und darf jeden freigeben; gebaut für Handy und iPad. KI: Google Gemini mit kostenlosem Schlüssel, Training durch den Anbieter ist in Ordnung. „Teilen“ per Kurzbefehl folgt als eigener Schritt (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (31.10.2026) | beschlossen |
+| D36 | Rezeptsprache und KI-Modelle (Probelauf 1.11.2026): Der Admin trägt in `kh/ops/.env` `KH_RECIPE_LANGUAGE` als englischen Namen ein, z. B. `German`. Was die KI liest (Text, Fotos, Links ohne Rezeptdaten), übersetzt dann Mealies Übersetzungsschritt; Rezepte, die schon in dieser Sprache sind, kosten keine Anfrage. Links mit Rezeptdaten bleiben in der Sprache der Seite, vorhandene Rezepte werden nicht übersetzt (zu viele Anfragen). Modelle im Gratis-Angebot: `gemini-3.5-flash-lite` als Standard- und `gemini-3.1-flash-lite` als Bildanbieter, je 500 Anfragen am Tag; ein Foto braucht zwei, ein Text eine, ein Link mit Rezeptdaten keine. Portionen und Portionsangabe lassen sich in der Prüfansicht vor dem Übernehmen eintragen. | beschlossen |
 
 ---
 
@@ -177,15 +178,15 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 2 · Eingang, Prüfen, Duplikate (v0.1)
 
-- [ ] Entwürfe in einer eigenen `kh`-Tabelle samt Original; erst die Freigabe legt über Mealies vorhandenen Weg ein normales Rezept an und verknüpft das Original. Mealie selbst muss keine Entwürfe ausfiltern (D18, beantwortet T6).
-- [ ] KI-Anbindung über Mealies KI-Anbieter-Verwaltung (Ollama auf dem Mac oder eigener Key, D6, D25).
-- [ ] Erweiterungspunkte für spätere Phasen: Liste der Prüfungen und Hinweise in der Prüfansicht, Liste der Importwege (Phasen-Regel 4).
-- [ ] Eingang: Link (vorhandener Scraper), Text, Foto oder Screenshot, Ergebnis immer als Entwurf.
-- [ ] Original mitspeichern: Foto, Beschreibung, Quelle, Autor, Datum, KI-Modell.
-- [ ] Prüfansicht wie im Mockup (Screen 2): Original und Ergebnis, Hinweise oben, Speichern, Verwerfen, Bearbeiten.
-- [ ] Duplikat-Check: normalisierter Link, Titel- und Zutaten-Ähnlichkeit; nur warnen, nie automatisch löschen.
-- [ ] Herkunfts-Badge in der Rezeptansicht.
-- [ ] Sicherheit beim Abrufen: private Adressbereiche sperren, Größe und Zeit begrenzen, KI-Antworten nur nach festem Schema, Ausgaben escapen.
+- [x] Entwürfe in einer eigenen `kh`-Tabelle samt Original; erst die Freigabe legt über Mealies vorhandenen Weg ein normales Rezept an und verknüpft das Original. Mealie selbst muss keine Entwürfe ausfiltern (D18, beantwortet T6). (31.10.2026: Tabelle `kh_drafts` auf eigenem Alembic-Zweig `kh`, Übernehmen über `RecipeService.create_one`, Herkunft über `recipe_id`; Backups stellen Entwürfe vollständig wieder her, 1.11.2026.)
+- [x] KI-Anbindung über Mealies KI-Anbieter-Verwaltung (Ollama auf dem Mac oder eigener Key, D6, D25). (1.11.2026: Google Gemini mit Gratis-Schlüssel statt Ollama, D34, D35, D36; Probelauf vom iPhone über Tailscale ok.)
+- [x] Erweiterungspunkte für spätere Phasen: Liste der Prüfungen und Hinweise in der Prüfansicht, Liste der Importwege (Phasen-Regel 4). (Liste `warnings` mit `kind` für weitere Prüfungen, `DraftSource` und `build()` für weitere Eingänge.)
+- [x] Eingang: Link (vorhandener Scraper), Text, Foto oder Screenshot, Ergebnis immer als Entwurf. (Mealies Import-Seiten führen auf den Eingang; im Probelauf 1.11.2026 Link, Text, Foto und Screenshot ok.)
+- [x] Original mitspeichern: Foto, Beschreibung, Quelle, Autor, Datum, KI-Modell. (Originalfotos, Text oder Link, wer, wann und KI-Modell; am Rezept als Abzeichen mit „Original ansehen“.)
+- [x] Prüfansicht wie im Mockup (Screen 2): Original und Ergebnis, Hinweise oben, Speichern, Verwerfen, Bearbeiten. (Am Handy untereinander, ab iPad-Breite nebeneinander; Portionen und Portionsangabe eintragbar.)
+- [x] Duplikat-Check: normalisierter Link, Titel- und Zutaten-Ähnlichkeit; nur warnen, nie automatisch löschen. (Gleicher Link, ähnlicher Titel, gleiche Zutaten; beim Übernehmen erneut geprüft.)
+- [x] Herkunfts-Badge in der Rezeptansicht.
+- [x] Sicherheit beim Abrufen: private Adressbereiche sperren, Größe und Zeit begrenzen, KI-Antworten nur nach festem Schema, Ausgaben escapen. (Mealies sicherer Abruf, KI-Antworten nur nach Schema, Ausgaben maskiert, nur http(s)-Links klickbar.)
 - **Fertig wenn:** Ein Foto eines handgeschriebenen Rezepts landet als Entwurf in der Prüfansicht, die Testfälle (ohne Video) ergeben prüfbare Entwürfe, nichts wird ohne Freigabe gespeichert und die Duplikat-Testfälle schlagen an. Danach Release v0.1.
 
 ### Phase 3 · Mengen (v0.2)

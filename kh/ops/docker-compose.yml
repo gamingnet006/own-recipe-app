@@ -38,6 +38,7 @@ services:
       KH_DUPLICATE_TITLE: ${KH_DUPLICATE_TITLE:-}
       KH_DUPLICATE_INGREDIENTS: ${KH_DUPLICATE_INGREDIENTS:-}
       KH_DUPLICATE_TITLE_WITH_INGREDIENTS: ${KH_DUPLICATE_TITLE_WITH_INGREDIENTS:-}
+      KH_RECIPE_LANGUAGE: ${KH_RECIPE_LANGUAGE:-}
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.

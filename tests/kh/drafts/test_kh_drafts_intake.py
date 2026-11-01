@@ -58,7 +58,7 @@ def test_link_without_recipe_data_falls_back_to_ai(api_client: TestClient, uniqu
     calls = fake_ai("recipe.json")
     response = post_draft(api_client, unique_user, data={"url": LINK})
     assert get_draft(api_client, unique_user, response.json()["id"]).json()["status"] == "ready"
-    assert calls == [{"url": LINK}]
+    assert calls == [{"url": LINK, "translate_language": None}]
 
 
 def test_text_uses_ai(api_client: TestClient, unique_user: TestUser, fake_ai):
@@ -67,7 +67,7 @@ def test_text_uses_ai(api_client: TestClient, unique_user: TestUser, fake_ai):
     draft = get_draft(api_client, unique_user, response.json()["id"]).json()
     assert draft["status"] == "ready"
     assert draft["sourceText"] == TEXT
-    assert calls == [{"content": TEXT}]
+    assert calls == [{"content": TEXT, "translate_language": None}]
 
 
 def test_image_is_stored_as_webp(api_client: TestClient, unique_user: TestUser, fake_ai):

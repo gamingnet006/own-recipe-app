@@ -95,13 +95,15 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
 Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Küchenhelfer nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
 
 1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Küchenhelfer „Kontingent für heute aufgebraucht“.
-2. Öffne in Küchenhelfer **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und trag ein:
-   - **Anbietername:** zum Beispiel `Gemini`
-   - **Basis-URL:** `https://generativelanguage.googleapis.com/v1beta/openai/`
-   - **API-Key:** der Schlüssel aus AI Studio
-   - **Modell:** ein Flash-Modell, genau so geschrieben, wie AI Studio es anzeigt
-   - **Supports images** anhaken
-3. Prüf die Verbindung mit **Test Connection** und speichere. Wähl den Anbieter dann als **Standard-Anbieter** und als **Bildanbieter**.
+2. Öffne in Küchenhelfer **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit, so verteilen sich die Anfragen.
+   - **Gemini:** Basis-URL `https://generativelanguage.googleapis.com/v1beta/openai/`, API-Key aus AI Studio, Modell `gemini-3.5-flash-lite`
+   - **Gemini Bilder:** dieselbe Basis-URL und derselbe Schlüssel, Modell `gemini-3.1-flash-lite`, **Supports images** anhaken
+
+   Ins Feld **Modell** gehört die Kennung wie `gemini-3.5-flash-lite`, nicht der Anzeigename aus AI Studio („Gemini 3.5 Flash Lite“).
+3. Prüf beide mit **Test Connection** und speichere. Wähl **Gemini** als **Standard-Anbieter** und **Gemini Bilder** als **Bildanbieter**. Den **Audio-Anbieter** lässt du leer; Videos kommen in einer späteren Phase.
+4. Sollen alle Rezepte in einer Sprache ankommen, trag sie in `kh/ops/.env` als englischen Namen ein, zum Beispiel `KH_RECIPE_LANGUAGE=German`, und starte mit `docker compose -f kh/ops/docker-compose.yml up -d` neu (D36). Was die KI liest, wird dann übersetzt; Rezepte, die schon in dieser Sprache sind, kosten nichts extra. Links mit Rezeptdaten bleiben in der Sprache der Seite.
+
+**Was es braucht (Probelauf 1.11.2026):** Ein Link mit Rezeptdaten braucht keine KI-Anfrage und ist nach etwa einer Sekunde da, ein Text braucht eine Anfrage (etwa 5 Sekunden), ein Foto zwei, eine je Modell (4 bis 12 Sekunden). Eine Übersetzung kostet eine Anfrage mehr. Im Gratis-Angebot hatten die beiden Flash-Lite-Modelle je 500 Anfragen am Tag und 15 pro Minute, Flash-Modelle ohne „Lite“ nur 20 am Tag. Den eigenen Stand zeigt AI Studio unter [Ratenbegrenzungen](https://aistudio.google.com/rate-limit).
 
 Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Küchenhelfers Datenbank und damit in jedem Backup.
 
@@ -115,6 +117,7 @@ Neue Rezepte kommen über **Erstellen → Rezept hinzufügen**; auch Mealies Imp
 
 Danach wartet das Rezept als Entwurf unter **Entwürfe (n)** und ist nach ein paar Sekunden erkannt. Jeder im Haushalt sieht alle Entwürfe und darf sie übernehmen. In der Prüfansicht steht das Original neben dem Ergebnis, am Handy untereinander:
 
+- Unter dem Ergebnis trägst du bei Bedarf **Portionen**, **Portionsangabe** und **Ergibt Text** ein, zum Beispiel 1 und „Springform Ø 26 cm“. Sie werden beim Übernehmen mitgespeichert.
 - **Übernehmen** speichert das Rezept, **Übernehmen und bearbeiten** öffnet es gleich zum Ändern.
 - **Verwerfen** löscht den Entwurf samt Original.
 - Gibt es das Rezept vielleicht schon (gleicher Link, ähnlicher Titel oder dieselben Zutaten), steht oben ein Hinweis mit Link. Gelöscht wird nie etwas von selbst.
@@ -252,13 +255,15 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
 An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Küchenhelfer uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
 
 1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Küchenhelfer says "Today's AI quota is used up".
-2. In Küchenhelfer open **Profile → Group Settings → AI Provider Settings → Create Provider** and enter:
-   - **Provider Name:** for example `Gemini`
-   - **Base URL:** `https://generativelanguage.googleapis.com/v1beta/openai/`
-   - **API Key:** the key from AI Studio
-   - **Model:** a Flash model, written exactly as AI Studio shows it
-   - tick **Supports images**
-3. Check the connection with **Test Connection** and save. Then choose the provider as **Default Provider** and as **Image Provider**.
+2. In Küchenhelfer open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit, so the requests are spread.
+   - **Gemini:** Base URL `https://generativelanguage.googleapis.com/v1beta/openai/`, the API key from AI Studio, model `gemini-3.5-flash-lite`
+   - **Gemini Images:** the same base URL and key, model `gemini-3.1-flash-lite`, tick **Supports images**
+
+   The **Model** field takes the ID such as `gemini-3.5-flash-lite`, not the display name from AI Studio ("Gemini 3.5 Flash Lite").
+3. Check both with **Test Connection** and save. Choose **Gemini** as **Default Provider** and **Gemini Images** as **Image Provider**. Leave the **Audio Provider** empty; videos come in a later phase.
+4. If all recipes should arrive in one language, put it into `kh/ops/.env` as an English name, for example `KH_RECIPE_LANGUAGE=German`, and restart with `docker compose -f kh/ops/docker-compose.yml up -d` (D36). Whatever the AI reads is then translated; recipes already in that language cost nothing extra. Links with recipe data stay in the page's language.
+
+**What it takes (trial run 2026-11-01):** a link with recipe data needs no AI request and is there after about a second, a text needs one request (about 5 seconds), a photo two, one per model (4 to 12 seconds). A translation costs one request more. On the free tier the two Flash-Lite models had 500 requests a day and 15 a minute each, Flash models without "Lite" only 20 a day. AI Studio shows your own numbers under [rate limits](https://aistudio.google.com/rate-limit).
 
 On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Küchenhelfer's database and so in every backup.
 
@@ -272,6 +277,7 @@ New recipes come in through **Create → Add recipe**; Mealie's import pages lea
 
 The recipe then waits as a draft under **Drafts (n)** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
 
+- Below the result you can set **Servings**, **Yield** and **Yield Text** if needed, for example 1 and "springform pan Ø 26 cm". They are saved with the recipe.
 - **Save** stores the recipe, **Save and edit** opens it right away for changes.
 - **Discard** deletes the draft with its original.
 - If the recipe may exist already (same link, similar title or the same ingredients), a hint with a link is shown on top. Nothing is ever deleted by itself.

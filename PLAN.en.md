@@ -67,6 +67,7 @@ A free, self-hosted recipe system based on a Mealie fork: checked import (link, 
 | D33 | Copies that leave the machine get a password if wanted (age); `backup_copy.sh on` asks once, j/n. What matters for the choice: a Mealie backup holds the backup service's API key in plain text, so an open stick opens the app. With a password the private key lies locked on the stick, the password nowhere, and Mealie's `.secret` may go along; after a restore everyone stays logged in. The Mac mini goes without a password: it is too much hassle, and the data is not sensitive. The guide says what to do if the stick gets lost. Shipped as `v0.0.1` (always with a password) and `v0.0.2` (the j/n question); fixes from the Pi test (D30) come as the next patch version (2026-10-31) | decided |
 | D34 | No local AI of our own for now: no Ollama or Whisper running all the time, neither on the MacBook (it should not have to stay on) nor on the Mac mini (too weak). The AI comes through Mealie's AI provider settings (D25) with an own key at a provider with a free tier; which one is settled at the start of phase 2. This turns the order from D6 (local first) around for now (2026-10-31) | decided |
 | D35 | Phase 2 (intake, review, duplicates): our own draft feature that reuses Mealie's recognition (`create_from_html`, `AIRecipeService.build_recipe`); Mealie's import pages lead to our intake. Everyone in the household sees all drafts and may approve any; built for phone and iPad. AI: Google Gemini with a free key; training by the provider is fine. "Share" via a shortcut follows as its own step (`v0.1.1`). Design: `docs/kh/specs/2026-10-31-phase-2-eingang-design.md` (2026-10-31) | decided |
+| D36 | Recipe language and AI models (trial run 2026-11-01): the admin sets `KH_RECIPE_LANGUAGE` in `kh/ops/.env` as an English name, e.g. `German`. Whatever the AI reads (text, photos, links without recipe data) is then translated by Mealie's translate step; recipes already in that language cost no request. Links with recipe data stay in the page's language, existing recipes are not translated (too many requests). Free-tier models: `gemini-3.5-flash-lite` as default and `gemini-3.1-flash-lite` as image provider, 500 requests a day each; a photo takes two, a text one, a link with recipe data none. Servings and yield can be set in the review before saving. | decided |
 
 ---
 
@@ -179,15 +180,15 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 ### Phase 2 · Intake, review, duplicates (v0.1)
 
-- [ ] Drafts in their own `kh` table including the original; only approval creates a normal recipe through Mealie's existing path and links the original. Mealie itself never has to filter drafts (D18, answers T6).
-- [ ] AI connection via Mealie's AI provider management (Ollama on the Mac or own key, D6, D25).
-- [ ] Extension points for later phases: list of checks and hints in the review view, list of intake paths (phase rule 4).
-- [ ] Intake: link (existing scraper), text, photo or screenshot; result always a draft.
-- [ ] Store the original: photo, description, source, author, date, AI model.
-- [ ] Review view as in the mockup (screen 2): original and result, hints on top, save, discard, edit.
-- [ ] Duplicate check: normalized link, title and ingredient similarity; only warn, never delete automatically.
-- [ ] Provenance badge in the recipe view.
-- [ ] Security when fetching: block private address ranges, limit size and time, accept AI answers only against a fixed schema, escape output.
+- [x] Drafts in their own `kh` table including the original; only approval creates a normal recipe through Mealie's existing path and links the original. Mealie itself never has to filter drafts (D18, answers T6). (2026-10-31: table `kh_drafts` on its own Alembic branch `kh`, approval through `RecipeService.create_one`, origin through `recipe_id`; backups restore drafts intact, 2026-11-01.)
+- [x] AI connection via Mealie's AI provider management (Ollama on the Mac or own key, D6, D25). (2026-11-01: Google Gemini with a free key instead of Ollama, D34, D35, D36; trial run from an iPhone over Tailscale ok.)
+- [x] Extension points for later phases: list of checks and hints in the review view, list of intake paths (phase rule 4). (List `warnings` with `kind` for further checks, `DraftSource` and `build()` for further intake paths.)
+- [x] Intake: link (existing scraper), text, photo or screenshot; result always a draft. (Mealie's import pages lead to the intake; trial run 2026-11-01: link, text, photo and screenshot ok.)
+- [x] Store the original: photo, description, source, author, date, AI model. (Original photos, text or link, who, when and AI model; on the recipe as a badge with "View original".)
+- [x] Review view as in the mockup (screen 2): original and result, hints on top, save, discard, edit. (Stacked on a phone, side by side from iPad width; servings and yield can be set.)
+- [x] Duplicate check: normalized link, title and ingredient similarity; only warn, never delete automatically. (Same link, similar title, same ingredients; checked again on approval.)
+- [x] Provenance badge in the recipe view.
+- [x] Security when fetching: block private address ranges, limit size and time, accept AI answers only against a fixed schema, escape output. (Mealie's safe fetching, AI answers only against a schema, escaped output, only http(s) links clickable.)
 - **Done when:** a photo of a handwritten recipe lands as a draft in the review view, the test cases (without video) produce reviewable drafts, nothing is saved without approval and the duplicate test cases trigger. Then release v0.1.
 
 ### Phase 3 · Quantities (v0.2)

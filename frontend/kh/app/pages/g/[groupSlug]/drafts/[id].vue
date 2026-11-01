@@ -37,7 +37,40 @@ recognized (one below the other on a phone, side by side from iPad width), then 
           <p v-if="draft.status === 'working'">
             {{ $t("kh.drafts.working-hint") }}
           </p>
-          <KhDraftReview v-else-if="draft.recipe" :recipe="draft.recipe" />
+          <KhDraftReview v-else-if="draft.recipe" :recipe="{ ...draft.recipe, ...changes }" />
+          <!-- Like Mealie's editor: servings, yield amount and yield text, saved with the recipe -->
+          <v-row v-if="draft.status === 'ready' && changes" dense class="mt-2">
+            <v-col cols="3">
+              <v-number-input
+                v-model="changes.recipeServings"
+                :min="0"
+                :precision="null"
+                density="compact"
+                :label="$t('recipe.servings')"
+                variant="underlined"
+                control-variant="hidden"
+              />
+            </v-col>
+            <v-col cols="3">
+              <v-number-input
+                v-model="changes.recipeYieldQuantity"
+                :min="0"
+                :precision="null"
+                density="compact"
+                :label="$t('recipe.yield')"
+                variant="underlined"
+                control-variant="hidden"
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model="changes.recipeYield"
+                density="compact"
+                :label="$t('recipe.yield-text')"
+                variant="underlined"
+              />
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
 
@@ -86,12 +119,13 @@ recognized (one below the other on a phone, side by side from iPad width), then 
 </template>
 
 <script setup lang="ts">
-import type { KhDraft, KhDraftWarning } from "~~/kh/app/lib/api/drafts";
+import type { KhDraft, KhDraftWarning, KhRecipeChanges } from "~~/kh/app/lib/api/drafts";
 import {
   approveTarget,
   draftTitle,
   errorText,
   pollingNeeded,
+  recipeChanges,
   requestError,
   reviewLayout,
   useKhDraftsApi,
@@ -117,6 +151,7 @@ const missing = ref(false);
 const busy = ref(false);
 const discarding = ref(false);
 const duplicates = reactive({ open: false, edit: false, warnings: [] as KhDraftWarning[] });
+const changes = ref<KhRecipeChanges | null>(null);
 const columns = computed(() => (reviewLayout(display.width.value) === "side" ? 6 : 12));
 
 useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.drafts.drafts")) });
@@ -124,6 +159,7 @@ useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.dr
 const { reload } = useKhPolling(async () => {
   const { data } = await api.get(id);
   if (data) draft.value = data;
+  if (data?.status === "ready" && !changes.value) changes.value = recipeChanges(data.recipe);
   missing.value = !draft.value; // a hiccup while looking again keeps what is shown
   return !!draft.value && pollingNeeded([draft.value]);
 });
@@ -132,11 +168,11 @@ function showError(error: unknown) {
   alert.error(errorText(requestError(error).code, i18n.t));
 }
 
-/** Saves the draft as a recipe and opens it. Possible duplicates found since the recognition are asked
- * about first; FORCE saves anyway. If someone else was quicker, their recipe opens. */
+/** Saves the draft as a recipe with the review's servings and yield and opens it. Possible duplicates found
+ * since the recognition are asked about first; FORCE saves anyway. If someone else was quicker, their recipe opens. */
 async function approve(edit: boolean, force = false) {
   busy.value = true;
-  const { data, error } = await api.approve(id, force);
+  const { data, error } = await api.approve(id, force, changes.value ?? undefined);
   busy.value = false;
   if (data) {
     router.push(approveTarget(data.slug, groupSlug, edit));

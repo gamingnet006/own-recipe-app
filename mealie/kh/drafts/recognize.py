@@ -65,7 +65,9 @@ def ai_model_used(repos: AllRepositories, *, images: bool) -> str | None:
 async def build(
     draft: DraftOut, ai: AIRecipeService, repos: AllRepositories, translator: Translator
 ) -> tuple[Recipe, bool]:
-    """Recognizes the draft's source without saving a recipe; returns the recipe and whether the AI was used."""
+    """Recognizes the draft's source without saving a recipe; returns the recipe and whether the AI was used.
+    What the AI reads comes out in the recipe language; a page's own recipe data stays as the page wrote it."""
+    language = get_kh_settings().recipe_language or None
     if draft.source_type == DraftSource.link:
         url = draft.source_url or ""  # always set for links: create() refuses a link draft without one
         try:
@@ -75,13 +77,13 @@ async def build(
             if ex.status_code != 400:  # 400: the page has no recipe data, the AI may still read it
                 raise
         try:
-            return await ai.build_recipe(url=url), True
+            return await ai.build_recipe(url=url, translate_language=language), True
         except NO_AI as ex:
             raise NoRecipeDataError() from ex  # no recipe data on the page and no AI to read it
     if draft.source_type == DraftSource.text:
-        return await ai.build_recipe(content=draft.source_text), True
+        return await ai.build_recipe(content=draft.source_text, translate_language=language), True
     images = [original_path(draft.id, name) for name in draft.original_files]
-    return await ai.build_recipe(images=images), True
+    return await ai.build_recipe(images=images, translate_language=language), True
 
 
 async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdInDB, translator: Translator) -> None:

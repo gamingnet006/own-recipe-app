@@ -181,3 +181,20 @@ def test_sweep_keeps_folders_with_rows(api_client: TestClient, unique_user: Test
     sweep_orphans()
     assert draft_dir(draft["id"]).exists()
     assert not stray.exists()
+
+
+def test_approve_takes_servings_and_yield_from_the_review(api_client: TestClient, unique_user: TestUser, fake_ai):
+    draft = ready_draft(api_client, unique_user, fake_ai)
+    changes = {"recipeServings": 4, "recipeYieldQuantity": 1, "recipeYield": "Springform Ø 26 cm"}
+    response = api_client.post(f"{DRAFTS}/{draft['id']}/approve", json=changes, headers=unique_user.token)
+    recipe = api_client.get(f"/api/recipes/{response.json()['slug']}", headers=unique_user.token).json()
+    assert {key: recipe[key] for key in changes} == changes
+
+
+def test_approve_refuses_negative_servings(api_client: TestClient, unique_user: TestUser, fake_ai):
+    draft = ready_draft(api_client, unique_user, fake_ai)
+    response = api_client.post(
+        f"{DRAFTS}/{draft['id']}/approve", json={"recipeServings": -1}, headers=unique_user.token
+    )
+    assert response.status_code == 422
+    assert get_draft(api_client, unique_user, draft["id"]).json()["status"] == "ready"

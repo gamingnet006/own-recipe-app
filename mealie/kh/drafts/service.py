@@ -24,6 +24,7 @@ from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.recognize import set_fields
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import (
+    ApproveIn,
     ApproveOut,
     DraftError,
     DraftOut,
@@ -179,26 +180,26 @@ class DraftService:
         )
         return [warning for warning in found if (warning.recipe_slug, warning.draft_id) not in known]
 
-    def _save_recipe(self, draft: DraftOut) -> Recipe:
-        """Saves the recognized recipe the way Mealie's import does; an image draft's first original
-        becomes the cover, like in Mealie's create_from_ai."""
+    def _save_recipe(self, draft: DraftOut, changes: dict[str, Any]) -> Recipe:
+        """Saves the recognized recipe with the review's changes the way Mealie's import does; an image
+        draft's first original becomes the cover, like in Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
-        recipe = recipes.create_one(Recipe.model_validate(draft.recipe))
+        recipe = recipes.create_one(Recipe.model_validate({**(draft.recipe or {}), **changes}))
         if draft.source_type == DraftSource.image and draft.original_files:
             cover = original_path(draft.id, draft.original_files[0]).read_bytes()
             recipes.update_recipe_image(recipe.slug, cover, "webp")
         return recipe
 
-    def approve(self, draft_id: UUID4, force: bool) -> ApproveOut:
-        """Saves a ready draft as a Mealie recipe; anyone in the household may. Possible duplicates that are
-        new since the recognition stop it unless FORCE. The claim on the draft is one conditional UPDATE, so
-        of two people approving at once exactly one wins."""
+    def approve(self, draft_id: UUID4, data: ApproveIn) -> ApproveOut:
+        """Saves a ready draft as a Mealie recipe; anyone in the household may. Servings and yield set in the
+        review are saved with it. Possible duplicates that are new since the recognition stop it unless FORCE.
+        The claim on the draft is one conditional UPDATE, so of two people approving at once exactly one wins."""
         draft = self.get(draft_id)
         if draft.status == DraftStatus.approved:
             raise self._already_approved(draft)
         if draft.status != DraftStatus.ready:
             raise conflict("not_ready")
-        if not force and (new := self._new_duplicates(draft)):
+        if not data.force and (new := self._new_duplicates(draft)):
             raise conflict("duplicates", warnings=[warning.model_dump(mode="json", by_alias=True) for warning in new])
         claim = self.session.execute(
             sa.update(KhDraft)
@@ -209,7 +210,7 @@ class DraftService:
         if claim.rowcount == 0:  # type: ignore[attr-defined]
             raise self._already_approved(self.get(draft_id))
         try:
-            recipe = self._save_recipe(draft)
+            recipe = self._save_recipe(draft, data.recipe_changes())
         except Exception:
             self.session.rollback()
             set_fields(self.session, draft_id, status=DraftStatus.ready, approved_by=None, approved_at=None)

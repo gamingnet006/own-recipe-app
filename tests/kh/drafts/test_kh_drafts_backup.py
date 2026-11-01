@@ -33,7 +33,7 @@ def test_restore_keeps_json_columns_as_saved():
 
     for column in ("original_files", "recipe", "warnings"):
         assert restored[column] == row[column]
-    assert restored["approved_at"] == datetime(2026, 10, 31, 12)
+    assert restored["approved_at"] == datetime.fromisoformat(row["approved_at"])
 
 
 def test_every_json_column_is_restored_as_saved():

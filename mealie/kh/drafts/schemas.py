@@ -5,7 +5,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import UUID4, ConfigDict
+from pydantic import UUID4, ConfigDict, Field
 
 from mealie.schema._mealie import MealieModel
 
@@ -88,9 +88,17 @@ class OriginOut(MealieModel):
 
 
 class ApproveIn(MealieModel):
-    """Approve even though the check found possible duplicates that were not there at recognition."""
+    """Approve, optionally with servings and yield set in the review. FORCE also approves when the check finds
+    possible duplicates that were not there at recognition."""
 
     force: bool = False
+    recipe_servings: float | None = Field(default=None, ge=0)
+    recipe_yield_quantity: float | None = Field(default=None, ge=0)
+    recipe_yield: str | None = None
+
+    def recipe_changes(self) -> dict[str, Any]:
+        """What the review set, under the recipe's own JSON keys."""
+        return self.model_dump(by_alias=True, exclude_none=True, exclude={"force"})
 
 
 class ApproveOut(MealieModel):

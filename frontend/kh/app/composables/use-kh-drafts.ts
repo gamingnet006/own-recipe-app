@@ -1,7 +1,15 @@
 // KH: the drafts UI's shared logic (phase 2): the API client, the drafts counter of the menu, reloading while
 // a draft is recognized, and pure functions for redirects, layout, titles and texts, testable without Vue.
 import { useRequests } from "~/composables/api/api-client";
-import { KhDraftsApi, type KhDraft, type KhDraftWarning, type KhOrigin, type KhRequestError } from "../lib/api/drafts";
+import {
+  KhDraftsApi,
+  type KhDraft,
+  type KhDraftWarning,
+  type KhOrigin,
+  type KhRecipeChanges,
+  type KhRequestError,
+} from "../lib/api/drafts";
+import type { Recipe } from "~/lib/api/types/recipe";
 import en from "../../lang/en-US.json";
 
 type Translate = (key: string) => string;
@@ -82,6 +90,15 @@ export function draftTitle(draft: KhDraft): string {
 /** Whether a draft is still being recognized, so the page has to look again soon. */
 export function pollingNeeded(list: KhDraft[]): boolean {
   return list.some(draft => draft.status === "working");
+}
+
+/** The review's fields start from what the recognition found: servings, yield amount and yield text. */
+export function recipeChanges(recipe: Recipe | null): KhRecipeChanges {
+  return {
+    recipeServings: recipe?.recipeServings ?? 0,
+    recipeYieldQuantity: recipe?.recipeYieldQuantity ?? 0,
+    recipeYield: recipe?.recipeYield ?? "",
+  };
 }
 
 /** Where approving leads: the saved recipe, in Mealie's edit mode for "Save and edit". */

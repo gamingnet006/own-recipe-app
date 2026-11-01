@@ -16,7 +16,12 @@ Phase 2: every new recipe gets a review before it is saved (D35).
 - A saved recipe shows where it came from, with a way back to its original.
 - AI: Google Gemini with a free key, entered in Mealie's group settings; the guide explains how and
   lists what goes where.
-- New optional settings `KH_DRAFT_*` and `KH_DUPLICATE_*`, see `kh/ops/.env.example`.
+- The review shows the picture a link brought and the yield with its amount ("4 personen"), and takes
+  servings and yield before saving, e.g. 1 and "Springform Ø 26 cm".
+- Recipe language (D36): with `KH_RECIPE_LANGUAGE=German` whatever the AI reads is translated into German;
+  recipes already in it cost no extra request.
+- Backups restore drafts intact: Mealie's restore now keeps JSON columns and the approval date.
+- New optional settings `KH_DRAFT_*`, `KH_DUPLICATE_*` and `KH_RECIPE_LANGUAGE`, see `kh/ops/.env.example`.
 
 ## [v0.0.2] - 2026-10-31
 

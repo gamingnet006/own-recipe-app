@@ -48,6 +48,13 @@ export interface KhOrigin {
   originalCount: number;
 }
 
+/** Servings and yield set in the review; they are saved with the recipe when it is approved. */
+export interface KhRecipeChanges {
+  recipeServings: number;
+  recipeYieldQuantity: number;
+  recipeYield: string;
+}
+
 /** The detail of a failed drafts request: a code, and for some codes what goes with it. */
 export interface KhRequestError {
   code: string;
@@ -75,9 +82,13 @@ export class KhDraftsApi extends BaseAPI {
     return await this.requests.post<KhDraft, undefined>(`${drafts}/${id}/retry`, undefined);
   }
 
-  /** Saves the draft as a recipe; FORCE saves it despite possible duplicates that turned up meanwhile. */
-  async approve(id: string, force = false) {
-    return await this.requests.post<{ slug: string }, { force: boolean }>(`${drafts}/${id}/approve`, { force });
+  /** Saves the draft as a recipe with the review's changes; FORCE saves it despite possible duplicates that
+   * turned up meanwhile. */
+  async approve(id: string, force = false, changes?: KhRecipeChanges) {
+    return await this.requests.post<{ slug: string }, { force: boolean } & Partial<KhRecipeChanges>>(
+      `${drafts}/${id}/approve`,
+      { force, ...changes },
+    );
   }
 
   async discard(id: string) {

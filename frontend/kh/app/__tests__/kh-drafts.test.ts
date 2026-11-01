@@ -4,6 +4,7 @@ import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import type { KhDraft, KhDraftWarning, KhOrigin } from "../lib/api/drafts";
+import type { Recipe } from "~/lib/api/types/recipe";
 import {
   approveTarget,
   draftTitle,
@@ -11,6 +12,7 @@ import {
   importRedirectTarget,
   originLabel,
   pollingNeeded,
+  recipeChanges,
   requestError,
   reviewLayout,
   useKhDraftCount,
@@ -113,6 +115,12 @@ describe("drafts list and review", () => {
   test("the list reloads while a draft is being recognized", () => {
     expect(pollingNeeded([{ status: "ready" }, { status: "working" }] as KhDraft[])).toBe(true);
     expect(pollingNeeded([{ status: "ready" }, { status: "failed" }] as KhDraft[])).toBe(false);
+  });
+
+  test("the review starts from the recognized servings and yield", () => {
+    const recognized = { recipeServings: 4, recipeYieldQuantity: 1, recipeYield: "Springform Ø 26 cm" } as Recipe;
+    expect(recipeChanges(recognized)).toEqual(recognized);
+    expect(recipeChanges(null)).toEqual({ recipeServings: 0, recipeYieldQuantity: 0, recipeYield: "" });
   });
 
   test("approving opens the recipe, in edit mode if asked", () => {

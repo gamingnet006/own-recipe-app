@@ -27,6 +27,9 @@ class KhSettings(BaseSettings):
     duplicate_title: float = 0.85
     duplicate_ingredients: float = 0.7
     duplicate_title_with_ingredients: float = 0.5
+    # Language every recipe the AI reads is translated into, as an English name like "German" (the way the AI
+    # names a recipe's language, so Mealie skips recipes already in it); empty keeps the language they came in
+    recipe_language: str = ""
 
 
 @lru_cache

@@ -67,8 +67,9 @@ class KhDraftsController(_DraftsBase):
 
     @router.post("/{draft_id}/approve", response_model=ApproveOut)
     def approve(self, draft_id: UUID4, data: ApproveIn | None = None) -> ApproveOut:
-        """Saves the draft as a recipe; {"force": true} also with possible duplicates that are new."""
-        return self.service.approve(draft_id, data.force if data else False)
+        """Saves the draft as a recipe, with servings and yield from the review; {"force": true} also with
+        possible duplicates that are new."""
+        return self.service.approve(draft_id, data or ApproveIn())
 
     @router.delete("/{draft_id}", status_code=status.HTTP_204_NO_CONTENT)
     def discard(self, draft_id: UUID4) -> None:
