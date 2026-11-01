@@ -10,6 +10,8 @@
 
 **Spezifikation:** `docs/kh/specs/2026-10-31-phase-2-eingang-design.md`
 
+**Stand:** 1.11.2026 umgesetzt (Tasks 1 bis 8) und als `v0.1` veröffentlicht. Ergänzungen aus dem Probelauf und dem Abschluss-Review stehen in den Commits, in `PLAN.md` (D36, Phase 2 „Danach“) und in `docs/kh/CHANGELOG.md`.
+
 ## Feste Vorgaben
 
 - Code, Bezeichner und Kommentare englisch; Texte für Menschen nur im Frontend, über `frontend/kh/lang/en-US.json` und `de-DE.json`. Das Backend liefert Codes, keine Sätze.
