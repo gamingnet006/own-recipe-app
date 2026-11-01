@@ -84,7 +84,14 @@
       "drafts-waiting": "1 Entwurf wartet auf Prüfung | {count} Entwürfe warten auf Prüfung"
     },
     "recipe": {
-      "servings": "Portion | Portionen"
+      "servings": "Portion | Portionen",
+      "actions": "Weitere Aktionen",
+      "mark-cooked": "Als gekocht markieren",
+      "amount": "Menge",
+      "fewer": "Weniger",
+      "more": "Mehr",
+      "cook": "Kochen starten",
+      "add-to-list": "Auf die Einkaufsliste"
     }
   }
 }

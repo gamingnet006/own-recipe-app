@@ -84,7 +84,14 @@
       "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
     },
     "recipe": {
-      "servings": "serving | servings"
+      "servings": "serving | servings",
+      "actions": "More actions",
+      "mark-cooked": "Mark as cooked",
+      "amount": "Amount",
+      "fewer": "Fewer",
+      "more": "More",
+      "cook": "Start cooking",
+      "add-to-list": "Add to shopping list"
     }
   }
 }

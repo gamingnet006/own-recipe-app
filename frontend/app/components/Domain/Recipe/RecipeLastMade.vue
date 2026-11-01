@@ -157,7 +157,7 @@ const emit = defineEmits<{
   eventCreated: [event: RecipeTimelineEventOut];
 }>();
 
-const madeThisDialog = ref(false);
+const madeThisDialog = defineModel<boolean>("dialog", { default: false }); // KH: also opened from the recipe menu (D38)
 const userApi = useUserApi();
 const { household } = useHouseholdSelf();
 const i18n = useI18n();

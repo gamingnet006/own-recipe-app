@@ -23,7 +23,16 @@
     />
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
       <v-card flat class="d-print-none">
+        <!-- KH: Küchenhelfer's calm head in the view with photo, origin, times and amount; Mealie's in the editor (D38) -->
+        <KhRecipeHeader
+          v-if="!isEditMode"
+          v-model:scale="scale"
+          :recipe="recipe"
+          @edit="setMode(PageMode.EDIT)"
+          @cook="toggleCookMode()"
+        />
         <RecipePageHeader
+          v-else
           ref="recipeToolbar"
           :recipe="recipe"
           :recipe-scale="scale"
@@ -32,8 +41,6 @@
           @delete="deleteRecipe"
           @close="closeEditor"
         />
-        <!-- KH: where the recipe came from (phase 2) -->
-        <KhOriginBadge v-if="!isEditMode" :recipe-id="recipe.id" />
         <RecipeJsonEditor
           v-if="isEditJSON"
           v-model="recipe"
@@ -61,9 +68,7 @@
           <div>
             <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" />
           </div>
-          <div>
-            <RecipePageScale v-model="scale" :recipe="recipe" />
-          </div>
+          <!-- KH: the amount with − and + sits in KhRecipeHeader, without Mealie's unit switch (D38) -->
 
           <!--
             This section contains the 2 column layout for the recipe steps and other content.
@@ -86,7 +91,14 @@
                 :ingredient-storage-key="ingredientStorageKey"
                 class="pr-2"
               />
-              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
+              <!-- KH: under the ingredients, and the category and tag chips only while editing (D38) -->
+              <KhAddToShoppingList v-if="!isEditForm && isOwnGroup" :recipe="recipe" :scale="scale" class="pr-2" />
+              <RecipePageOrganizers
+                v-if="isEditMode && $vuetify.display.mdAndUp"
+                v-model="recipe"
+                class="pr-2"
+                @item-selected="chipClicked"
+              />
             </v-col>
             <!--
               the right column is always rendered, but it's layout width is determined by where the left column is
@@ -106,7 +118,7 @@
                   {{ $t("general.add") }}
                 </BaseButton>
               </div>
-              <div v-if="!$vuetify.display.mdAndUp">
+              <div v-if="isEditMode && !$vuetify.display.mdAndUp">
                 <RecipePageOrganizers v-model="recipe" />
               </div>
               <RecipeNotes v-model="recipe.notes" :edit="isEditForm" />
@@ -116,11 +128,7 @@
         </v-card-text>
       </v-card>
       <WakelockSwitch />
-      <RecipePageComments
-        v-if="!disableComments && !isEditForm && !isCookMode"
-        v-model="recipe"
-        class="px-1 my-4 d-print-none"
-      />
+      <!-- KH: no comments on the recipe page (D38) -->
       <RecipePrintContainer :recipe="displayedRecipe" :scale="scale" />
     </v-container>
     <!-- Floating save button when toolbar scrolls out of view -->
@@ -237,7 +245,6 @@ import RecipePageOrganizers from "./RecipePageParts/RecipePageOrganizers.vue";
 import RecipePageParseDialog from "./RecipePageParts/RecipeParseDialog/RecipePageParseDialog.vue";
 import RecipePageScale from "./RecipePageParts/RecipePageScale.vue";
 import RecipePageInfoEditor from "./RecipePageParts/RecipePageInfoEditor.vue";
-import RecipePageComments from "./RecipePageParts/RecipePageComments.vue";
 import RecipePrintContainer from "~/components/Domain/Recipe/RecipePrintContainer.vue";
 import {
   clearPageState,
@@ -255,7 +262,6 @@ import RecipeNotes from "~/components/Domain/Recipe/RecipeNotes.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useUnitConversion, useUnitSystem } from "~/composables/recipes";
-import { useHouseholdSelf } from "~/composables/use-households";
 
 const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
 
@@ -263,14 +269,6 @@ const display = useDisplay();
 const auth = useMealieAuth();
 const route = useRoute();
 const { isOwnGroup } = useLoggedInState();
-
-const { household } = useHouseholdSelf();
-
-const disableComments = computed(() =>
-  household.value?.preferences?.recipeDisableComments
-  || recipe.value?.settings?.disableComments
-  || false,
-);
 
 const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user?.value?.groupSlug || "");
 const ingredientStorageKey = computed(() => `recipe-ingredients:${recipe.value.id || recipe.value.slug}:checked`);
@@ -322,9 +320,10 @@ const recipeToolbar = ref<ComponentPublicInstance | null>(null);
 const toolbarVisible = ref(true);
 let toolbarObserver: IntersectionObserver | undefined;
 
-onMounted(async () => {
-  await nextTick();
-  const el = recipeToolbar.value?.$el as HTMLElement | undefined;
+// KH: Mealie's header mounts only in the editor now (D38), so the observer follows it instead of starting on mount
+watch(recipeToolbar, (toolbar) => {
+  toolbarObserver?.disconnect();
+  const el = toolbar?.$el as HTMLElement | undefined;
   if (!el) return;
   toolbarObserver = new IntersectionObserver(
     ([entry]) => { toolbarVisible.value = entry.isIntersecting; },
