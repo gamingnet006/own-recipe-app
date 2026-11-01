@@ -82,6 +82,9 @@
       "based-on-mealie": "based on Mealie",
       "source": "Source code (AGPL)",
       "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
+    },
+    "recipe": {
+      "servings": "serving | servings"
     }
   }
 }
