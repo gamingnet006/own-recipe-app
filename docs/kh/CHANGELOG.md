@@ -4,7 +4,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
-## [Unreleased]
+## [v0.1.1] - 2026-11-01
+
+Recipes from the share menu, and clearer messages when the connection drops.
 
 - Share shortcut for iPhone and iPad (D37): links, texts and photos from the share menu go straight to the
   drafts, with a revocable API token per device; the guide shows how to build it and share it with the family.
