@@ -66,6 +66,12 @@
         "not_found": "Draft not found.",
         "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment."
       }
+    },
+    "nav": {
+      "intake": "Intake",
+      "shopping": "Shopping list",
+      "more": "More",
+      "finder": "What can I cook?"
     }
   }
 }

@@ -42,7 +42,7 @@ Stand 1.11.2026, im Chat abgestimmt: erst den Alltag einfacher machen, den eigen
 |---|---|---|---|
 | Rezepte | ja | ja | `/g/<gruppe>` (Mealie) |
 | Eingang (n) | ja | ja | `/g/<gruppe>/drafts` |
-| Einkaufsliste | ja | ja | `/shopping-lists` (Mealie); gibt es genau eine Liste, öffnet sie direkt |
+| Einkaufsliste | ja | ja | `/shopping-lists` (Mealie; gibt es genau eine Liste, öffnet Mealie sie direkt) |
 | Mehr | ja | nein | `/g/<gruppe>/more` (neu) |
 | Essensplaner, Kochbücher | unter Mehr | ja | Mealie |
 | Was kann ich kochen? | unter Mehr | ja | `/g/<gruppe>/recipes/finder` (Mealies Rezept-Finder) |
@@ -83,7 +83,7 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 
 | Baustein | Aufgabe |
 |---|---|
-| `frontend/kh/app/composables/use-kh-navigation.ts` (neu) | die Ziele für Leiste, Seitenmenü und „Mehr“ in einer Liste; Einkaufsliste direkt öffnen |
+| `frontend/kh/app/composables/use-kh-navigation.ts` (neu) | die Ziele für Leiste, Seitenmenü und „Mehr“ in einer Liste |
 | `frontend/kh/app/components/KhBottomNav.vue` (neu) | Leiste unten, nur unter 960 px |
 | `frontend/kh/app/pages/g/[groupSlug]/more.vue` (neu) | Seite „Mehr“ |
 | `frontend/kh/app/components/KhDraftHint.vue` (neu) | Hinweis auf wartende Entwürfe über der Startseite |
@@ -111,7 +111,6 @@ Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 ## Fehlerfälle
 
 - Entwürfe-Zahl nicht ladbar (offline): Eingang ohne Zahl, nichts blockiert.
-- Einkaufslisten nicht ladbar: der Tab öffnet Mealies Übersicht.
 - Theme nicht ladbar: die Rückfallfarben sind ebenfalls Salbei.
 - Rezept ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle: der jeweilige Teil entfällt, ohne Lücke.
 - Lange Titel und Zutaten brechen um; nichts wird abgeschnitten.
@@ -129,7 +128,7 @@ Keine neuen API-Endpunkte, keine Migration, keine neuen Einstellungen.
 
 ## Tests
 
-- Vitest: die gemeinsame Zielliste (Ziele, Zahl, aktiver Eintrag, Leiste ohne „Mehr“-Ziele), Einkaufsliste direkt oder Übersicht, Weiterleitung von `/drafts/new` mit Parametern, welche Teile die Rezeptansicht ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle zeigt.
+- Vitest: die gemeinsame Zielliste (Ziele, Zahl, aktiver Eintrag, Leiste ohne „Mehr“-Ziele), Weiterleitung von `/drafts/new` mit Parametern, welche Teile die Rezeptansicht ohne Bild, Zeiten, Mengenangabe, Notizen oder Quelle zeigt.
 - Pytest: `/api/app/about/theme` liefert die Salbei-Farben.
 - Von Hand in einer Wegwerf-Installation: Handy-, iPad- und Computer-Breite, hell und dunkel; im Netzwerk-Mitschnitt keine Anfrage an `fonts.googleapis.com` oder `fonts.gstatic.com`.
 

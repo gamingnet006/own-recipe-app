@@ -66,6 +66,12 @@
         "not_found": "Entwurf nicht gefunden.",
         "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht."
       }
+    },
+    "nav": {
+      "intake": "Eingang",
+      "shopping": "Einkaufsliste",
+      "more": "Mehr",
+      "finder": "Was kann ich kochen?"
     }
   }
 }
