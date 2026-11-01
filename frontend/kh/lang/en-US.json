@@ -79,7 +79,7 @@
       "plan": "Plan",
       "collection": "Collection",
       "invite": "Invite family",
-      "based-on-mealie": "based on Mealie",
+      "based-on-mealie": "based on Mealie {version}",
       "source": "Source code (AGPL)",
       "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
     }
