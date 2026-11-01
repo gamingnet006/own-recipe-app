@@ -82,7 +82,7 @@ title with its origin, the times as tiles and the amount with − and +, and "St
 
     <div class="pa-4 d-flex flex-column ga-4">
       <div v-if="times.length" class="kh-times">
-        <v-card v-for="time in times" :key="time.key" variant="outlined" class="pa-2 text-center">
+        <v-card v-for="time in times" :key="time.key" variant="outlined" class="px-1 py-2 text-center">
           <div class="text-title-medium font-weight-bold">
             {{ time.value }}
           </div>
@@ -244,5 +244,6 @@ function print() {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+  hyphens: auto; /* long words like "Vorbereitung" break at a syllable on narrow phones */
 }
 </style>
