@@ -72,23 +72,34 @@ def test_settings_defaults_and_override(monkeypatch):
     assert KhSettings().draft_max_images == 5 and KhSettings().duplicate_title == 0.85
     monkeypatch.setenv("KH_DRAFT_MAX_IMAGES", "2")
     assert KhSettings().draft_max_images == 2
-    monkeypatch.setenv("KH_DRAFT_MAX_IMAGES", "")      # compose passes unset values as empty
+    monkeypatch.setenv("KH_DRAFT_MAX_IMAGES", "")  # compose passes unset values as empty
     assert KhSettings().draft_max_images == 5
+
 
 def test_table_exists_with_columns(session):
     columns = {c["name"] for c in sa.inspect(session.get_bind()).get_columns("kh_drafts")}
     assert {"status", "source_type", "recipe", "warnings", "recipe_id", "approved_by"} <= columns
 
+
 def test_two_heads_and_database_at_heads():
-    script = ScriptDirectory.from_config(alembic_config())   # Mealie's config, see init_db.py
+    script = ScriptDirectory.from_config(alembic_config())  # Mealie's config, see init_db.py
     assert len(script.get_heads()) == 2 and "kh0001" in script.get_heads()
     assert db_is_at_head(alembic_config())
+
 
 def test_repo_is_scoped_to_household(session, unique_user, h2_user):
     mine = drafts_repo(session, unique_user.group_id, unique_user.household_id)
     theirs = drafts_repo(session, h2_user.group_id, h2_user.household_id)
-    draft = mine.create({"user_id": unique_user.user_id, "status": "ready", "source_type": "text", "source_text": "x",
-                         "group_id": unique_user.group_id, "household_id": unique_user.household_id})
+    draft = mine.create(
+        {
+            "user_id": unique_user.user_id,
+            "status": "ready",
+            "source_type": "text",
+            "source_text": "x",
+            "group_id": unique_user.group_id,
+            "household_id": unique_user.household_id,
+        }
+    )
     assert mine.get_one(draft.id) and theirs.get_one(draft.id) is None
     assert draft.user_name == unique_user.full_name
 ```
