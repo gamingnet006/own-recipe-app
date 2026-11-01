@@ -107,15 +107,26 @@ Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Re
 
 Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Küchenhelfers Datenbank und damit in jedem Backup.
 
+### So findest du dich zurecht
+
+Am Handy und am iPad hochkant steht unten eine Leiste:
+
+- **Rezepte:** suchen und stöbern. Warten Entwürfe auf Prüfung, steht darüber ein Hinweis.
+- **Eingang:** neue Rezepte hinzufügen und die Entwürfe prüfen; die Zahl zeigt, wie viele warten.
+- **Einkaufsliste:** Gibt es nur eine, öffnet sie direkt.
+- **Mehr:** Essensplaner, Kochbücher, „Was kann ich kochen?“, Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Einstellungen, Sprache, Hell/Dunkel, Familie einladen und Abmelden.
+
+Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
+
 ### Rezept hinzufügen
 
-Neue Rezepte kommen über **Erstellen → Rezept hinzufügen**; auch Mealies Import-Seiten führen dorthin. Selbst eintippen geht weiter über den zweiten Eintrag im Menü **Erstellen**.
+Neue Rezepte kommen über den **Eingang**; auch Mealies Import-Seiten führen dorthin. Selbst eintippen geht über **Rezept selbst eintippen** im Eingang oder über **Erstellen** im Seitenmenü.
 
 - **Link:** Adresse einfügen. Hat die Seite Rezeptdaten, liest Küchenhelfer sie ohne KI, sonst liest die KI die Seite.
 - **Text:** Rezepttext einfügen, zum Beispiel aus einer Nachricht.
 - **Foto oder Screenshot:** Kamera oder Mediathek. Ein Rezept auf mehreren Seiten bekommt alle Fotos zusammen, bis zu fünf.
 
-Danach wartet das Rezept als Entwurf unter **Entwürfe (n)** und ist nach ein paar Sekunden erkannt. Jeder im Haushalt sieht alle Entwürfe und darf sie übernehmen. In der Prüfansicht steht das Original neben dem Ergebnis, am Handy untereinander:
+Danach wartet das Rezept als Entwurf unten im **Eingang** und ist nach ein paar Sekunden erkannt. Jeder im Haushalt sieht alle Entwürfe und darf sie übernehmen. In der Prüfansicht steht das Original neben dem Ergebnis, am Handy untereinander:
 
 - Unter dem Ergebnis trägst du bei Bedarf **Portionen**, **Portionsangabe** und **Ergibt Text** ein, zum Beispiel 1 und „Springform Ø 26 cm“. Sie werden beim Übernehmen mitgespeichert.
 - **Übernehmen** speichert das Rezept, **Übernehmen und bearbeiten** öffnet es gleich zum Ändern.
@@ -138,7 +149,7 @@ Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, I
    - Zum Schluss **Mitteilung anzeigen**, zum Beispiel „Liegt bei den Entwürfen“.
 3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Küchenhelfer-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
 
-Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint unter **Entwürfe (n)**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App über **Rezept hinzufügen** ein.
+Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
 
 ### Optional
 
@@ -283,15 +294,26 @@ An AI reads photos, screenshots, texts and links without recipe data. Links with
 
 On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Küchenhelfer's database and so in every backup.
 
+### Finding your way
+
+On a phone and an upright iPad there is a bar at the bottom:
+
+- **Recipes:** search and browse. When drafts wait for a review, a hint shows above.
+- **Intake:** add new recipes and review the drafts; the number shows how many wait.
+- **Shopping list:** if there is only one, it opens right away.
+- **More:** meal planner, cookbooks, "What can I cook?", favorites, categories, tags, tools, timeline, settings, language, light/dark, invite family and log out.
+
+On an iPad in landscape and on a computer, the same destinations are in the side menu on the left.
+
 ### Add a recipe
 
-New recipes come in through **Create → Add recipe**; Mealie's import pages lead there too. Typing a recipe yourself still works through the second entry in the **Create** menu.
+New recipes come in through the **Intake**; Mealie's import pages lead there too. To type a recipe in yourself, use **Type a recipe in yourself** in the intake or **Create** in the side menu.
 
 - **Link:** paste the address. If the page has recipe data, Küchenhelfer reads it without AI, otherwise the AI reads the page.
 - **Text:** paste the recipe text, for example from a message.
 - **Photo or screenshot:** camera or photo library. A recipe on several pages gets all its photos together, up to five.
 
-The recipe then waits as a draft under **Drafts (n)** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
+The recipe then waits as a draft at the bottom of the **Intake** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
 
 - Below the result you can set **Servings**, **Yield** and **Yield Text** if needed, for example 1 and "springform pan Ø 26 cm". They are saved with the recipe.
 - **Save** stores the recipe, **Save and edit** opens it right away for changes.
@@ -314,7 +336,7 @@ With a shortcut in the share menu, links, texts and photos from Safari, Instagra
    - Finally **Show Notification**, for example "Waiting in the drafts".
 3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Küchenhelfer key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
-Then pick "Into the cookbook" in the share menu; the draft shows under **Drafts (n)**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app through **Add recipe**.
+Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
 
 ### Optional
 

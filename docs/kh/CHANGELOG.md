@@ -4,6 +4,18 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+The frame of the new interface (D38): everyday use first, in the look "Salbei".
+
+- A calm green instead of Mealie's orange, the font Figtree, a light header and the name Küchenhelfer. The font
+  comes with the image, so the app never loads it from Google.
+- On phones and upright iPads a bar at the bottom: Recipes, Intake with the number of waiting drafts, Shopping list
+  and More, which holds everything the side menu had. From 960 px (iPad landscape, computer) the side menu stays,
+  with the same destinations; "What can I cook?" is Mealie's recipe finder.
+- Adding a recipe and the drafts are one page now, the intake; the old addresses lead there.
+- The start page says when drafts wait for a review; recipe cards show no stars.
+
 ## [v0.1.1] - 2026-11-01
 
 Recipes from the share menu, and clearer messages when the connection drops.
