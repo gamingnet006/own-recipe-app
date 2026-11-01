@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v0.1] - 2026-11-01
+
 Phase 2: every new recipe gets a review before it is saved (D35).
 
 - **Add recipe** takes a link, a text or photos; Mealie's import pages lead there too. The recipe is
@@ -20,7 +22,8 @@ Phase 2: every new recipe gets a review before it is saved (D35).
   servings and yield before saving, e.g. 1 and "Springform Ø 26 cm".
 - Recipe language (D36): with `KH_RECIPE_LANGUAGE=German` whatever the AI reads is translated into German;
   recipes already in it cost no extra request.
-- Backups restore drafts intact: Mealie's restore now keeps JSON columns and the approval date.
+- Backups restore drafts intact, also into a new install: Mealie's restore now keeps JSON columns and the
+  approval date, builds every migration branch and, on Postgres, resets every id counter (marked `KH:`).
 - New optional settings `KH_DRAFT_*`, `KH_DUPLICATE_*` and `KH_RECIPE_LANGUAGE`, see `kh/ops/.env.example`.
 
 ## [v0.0.2] - 2026-10-31

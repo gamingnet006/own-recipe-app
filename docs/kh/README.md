@@ -4,7 +4,7 @@ A free, self-hosted family recipe app and website, based on a fork of [Mealie](h
 
 **Deutsch:** Eine kostenlose, selbst gehostete Rezept-App und Webseite für die Familie, auf Basis eines Mealie-Forks. Läuft in Docker auf einem Raspberry Pi, einem Mac oder einem Linux-Rechner. Die Kurzanleitung steht direkt unten, die englische Fassung danach.
 
-**Status:** phase 1 (`v0.0`): runs for the family with backups, automatic updates and access from outside. Every phase ends with a release that can be installed on its own (D15).
+**Status:** phase 2 (`v0.1`): new recipes come in by link, text or photo and are reviewed before they are saved; runs for the family with backups, automatic updates and access from outside. Every phase ends with a release that can be installed on its own (D15).
 
 - Plan: [PLAN.md](../../PLAN.md) (Deutsch, authoritative) · [PLAN.en.md](../../PLAN.en.md)
 - Rules for development: [CLAUDE.md](../../.claude/CLAUDE.md) · [CLAUDE.en.md](CLAUDE.en.md)
@@ -51,7 +51,7 @@ Die Dateien kommen aus dem Release-Image. Die zweite Zeile wählt das passende I
 
 ```bash
 mkdir -p ~/kuechenhelfer && cd ~/kuechenhelfer
-image=ghcr.io/gamingnet006/own-recipe-app:v0.0-$(docker version -f '{{.Server.Arch}}')
+image=ghcr.io/gamingnet006/own-recipe-app:v0.1-$(docker version -f '{{.Server.Arch}}')
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/out --entrypoint sh "$image" -c 'cp -R /app/kh-bundle/. /out/'
 ```
 
@@ -211,7 +211,7 @@ The files come from the release image. The second line picks the image for your 
 
 ```bash
 mkdir -p ~/kuechenhelfer && cd ~/kuechenhelfer
-image=ghcr.io/gamingnet006/own-recipe-app:v0.0-$(docker version -f '{{.Server.Arch}}')
+image=ghcr.io/gamingnet006/own-recipe-app:v0.1-$(docker version -f '{{.Server.Arch}}')
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/out --entrypoint sh "$image" -c 'cp -R /app/kh-bundle/. /out/'
 ```
 
