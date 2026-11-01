@@ -5,11 +5,15 @@ draft's own files and never a real recipe's folder."""
 from typing import Any
 from uuid import UUID, uuid4
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from mealie.kh.drafts.files import draft_dir, drafts_root, sweep_orphans
+from mealie.kh.drafts.recognize import set_fields
 from mealie.kh.drafts.repository import drafts_repo
+from mealie.kh.drafts.schemas import DraftStatus
+from mealie.kh.drafts.service import DraftService
 from mealie.schema.recipe.recipe import Recipe
 from mealie.services.recipe.recipe_data_service import RecipeDataService
 from tests.kh.drafts.helpers import DRAFTS, get_draft, open_ids, png, post_draft
@@ -198,3 +202,40 @@ def test_approve_refuses_negative_servings(api_client: TestClient, unique_user: 
     )
     assert response.status_code == 422
     assert get_draft(api_client, unique_user, draft["id"]).json()["status"] == "ready"
+
+
+def test_an_approval_in_between_wins_cleanly(
+    api_client: TestClient, unique_user: TestUser, fake_ai, monkeypatch: pytest.MonkeyPatch
+):
+    """Two people approve at once: the other saves between this one's checks and its claim."""
+    draft = ready_draft(api_client, unique_user, fake_ai)
+    recipes_before = api_client.get("/api/recipes", headers=unique_user.token).json()["total"]
+
+    def approved_meanwhile(self: DraftService, current) -> list:
+        set_fields(self.session, current.id, status=DraftStatus.approved)
+        return []
+
+    monkeypatch.setattr(DraftService, "_new_duplicates", approved_meanwhile)
+    response = api_client.post(f"{DRAFTS}/{draft['id']}/approve", json={}, headers=unique_user.token)
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "already_approved"
+    assert api_client.get("/api/recipes", headers=unique_user.token).json()["total"] == recipes_before
+
+
+@pytest.mark.parametrize("other", ["h2_user", "g2_user"])
+def test_another_household_cannot_act_on_a_draft(
+    api_client: TestClient, unique_user: TestUser, fake_ai, request: pytest.FixtureRequest, other: str
+):
+    draft = ready_draft(api_client, unique_user, fake_ai, image=True)
+    stranger: TestUser = request.getfixturevalue(other)
+    path = f"{DRAFTS}/{draft['id']}"
+    assert api_client.post(f"{path}/approve", json={}, headers=stranger.token).status_code == 404
+    assert api_client.post(f"{path}/retry", headers=stranger.token).status_code == 404
+    assert api_client.delete(path, headers=stranger.token).status_code == 404
+    assert api_client.get(f"{path}/originals/1", headers=stranger.token).status_code == 404
+    assert get_draft(api_client, unique_user, draft["id"]).json()["status"] == "ready"
+
+    recipe_id = api_client.post(f"{path}/approve", json={}, headers=unique_user.token)
+    assert recipe_id.status_code == 200
+    saved = get_draft(api_client, unique_user, draft["id"]).json()["recipeId"]
+    assert api_client.get(f"/api/kh/recipes/{saved}/origin", headers=stranger.token).status_code == 404

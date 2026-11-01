@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 import sqlalchemy as sa
 from sqlalchemy import orm
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from mealie.db.models._model_base import BaseMixins, SqlAlchemyBase
@@ -15,6 +16,10 @@ from mealie.db.models._model_utils.guid import GUID
 
 if TYPE_CHECKING:
     from mealie.db.models.users import User
+
+
+# Postgres gets jsonb: unlike json it can be compared, which Mealie's generic queries do (SELECT DISTINCT)
+JSON = sa.JSON().with_variant(JSONB(), "postgresql")
 
 
 class KhDraft(SqlAlchemyBase, BaseMixins):
@@ -35,9 +40,9 @@ class KhDraft(SqlAlchemyBase, BaseMixins):
     source_url: Mapped[str | None] = mapped_column(sa.String)
     source_url_normalized: Mapped[str | None] = mapped_column(sa.String, index=True)
     source_text: Mapped[str | None] = mapped_column(sa.Text)
-    original_files: Mapped[list[str]] = mapped_column(sa.JSON, default=list)
-    recipe: Mapped[dict[str, Any] | None] = mapped_column(sa.JSON)
-    warnings: Mapped[list[dict[str, Any]]] = mapped_column(sa.JSON, default=list)
+    original_files: Mapped[list[str]] = mapped_column(JSON, default=list)
+    recipe: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    warnings: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
     error: Mapped[str | None] = mapped_column(sa.String)
     ai_model: Mapped[str | None] = mapped_column(sa.String)
 

@@ -84,7 +84,9 @@ class BackupV2(BaseService):
                 shutil.copyfile(f, self.directories.DATA_DIR / f.name)
                 continue
 
-            shutil.rmtree(self.directories.DATA_DIR / f.name)
+            # KH: a new install has no kh folder before its first photo, so only replace what is there
+            if (self.directories.DATA_DIR / f.name).exists():
+                shutil.rmtree(self.directories.DATA_DIR / f.name)
             shutil.copytree(f, self.directories.DATA_DIR / f.name)
 
         # since we copied a new .secret, AppSettings has the wrong secret info

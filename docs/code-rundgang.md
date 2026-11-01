@@ -92,11 +92,13 @@ Alles Weitere entscheidet die Nutzung in Phase 1.
 
 | Teil | Pfad | Einhängung in Mealie (je eine `KH:`-markierte Stelle) |
 |---|---|---|
-| Backend-Code | `mealie/kh/<funktion>/` (Routen, Services, Modelle, Schemas je Funktion) | Router in `mealie/routes/__init__.py` (`router.include_router(kh.router)`) |
+| Backend-Code | `mealie/kh/<funktion>/` (Routen, Services, Modelle, Schemas je Funktion) | `mealie/kh/routes.py` sammelt unsere Router, eingebunden in `mealie/routes/__init__.py` (`router.include_router(kh_routes.router)`) |
+| Tägliche Aufgaben | z. B. `mealie/kh/drafts/files.py` (`sweep_orphans`) | `register_daily` in `mealie/app.py` |
+| Backup und Wiederherstellen | – | `mealie/services/backups_v2/alchemy_exporter.py`: Datumsspalte `approved_at`, JSON-Spalten in `look_for_json`, jeder Alembic-Kopf eines Backups wird aufgebaut; `backup_v2.py`: nur vorhandene Datenordner ersetzen |
 | Datenbank-Modelle | `mealie/kh/<funktion>/models.py` | Import in `mealie/db/models/_all_models.py` |
-| Migrationen | `mealie/kh/alembic/versions/` als eigener Alembic-Zweig `kh` | `version_locations` in `mealie/alembic/alembic.ini` und `"head"` → `"heads"` in `mealie/db/init_db.py:119` (D24) |
-| Backend-Tests | `tests/kh/<funktion>/` | keine (pytest findet `tests/` automatisch) |
-| Frontend | `frontend/kh/` als Nuxt-Layer; unter Nuxt 4 liegen die Dateien in `frontend/kh/app/` (`plugins/`, `components/`, `composables/`, `pages/` je Funktion) | `extends: ["./kh"]` in `frontend/nuxt.config.ts` (D26) |
+| Migrationen | `mealie/kh/alembic/versions/` als eigener Alembic-Zweig `kh` | `version_locations` in `mealie/alembic/alembic.ini` und `"head"` → `"heads"` in `mealie/db/init_db.py` (D24) |
+| Backend-Tests | `tests/kh/<funktion>/` | `tests/utils/alembic_reader.py` fragt Alembic nach allen Köpfen; sonst findet pytest `tests/` von selbst |
+| Frontend | `frontend/kh/` als Nuxt-Layer; unter Nuxt 4 liegen die Dateien in `frontend/kh/app/` (`plugins/`, `components/`, `composables/`, `pages/`, `middleware/` je Funktion) | `extends: ["./kh"]` in `frontend/nuxt.config.ts` (D26); Menü in `frontend/app/components/Layout/DefaultLayout.vue`, Herkunfts-Abzeichen in `frontend/app/components/Domain/Recipe/RecipePage/RecipePage.vue` |
 | Frontend-Texte | `frontend/kh/lang/en-US.json` und `de-DE.json` | über den Layer, Mealies Übersetzungsdateien bleiben unberührt |
 | Betrieb (Phase 1) | `kh/ops/` (Backup-Container, `update.sh`, `restore.sh`, Compose-Ergänzungen) | eigene `docker-compose`-Datei neben `docker/docker-compose.yml` |
 | Doku | `docs/kh/` | keine |
@@ -114,5 +116,5 @@ Das Python-Paket wird aus `mealie/` gebaut, darum liegt der Backend-Code unter `
 
 - Neue Workflows in `.github/workflows/` deaktivieren (`.claude/CLAUDE.md`, Fork-Regeln).
 - Alle `KH:`-Stellen auffindbar halten: `grep -rn "KH:" mealie frontend docker tests`.
-- Neue Migrationen von Mealie: Dank D24 entstehen keine Konflikte mit unserem `kh`-Zweig.
+- Neue Migrationen von Mealie hängen neben unserem `kh`-Zweig am selben Vorgänger; dann gibt es zwei Köpfe. Das ist erlaubt (D24): `init_db` baut alle Köpfe, und das Wiederherstellen baut jeden Kopf, den ein Backup verzeichnet. Der Test `test_kh_branch_on_mealies_newest_and_database_at_heads` schlägt dann absichtlich an. Ihn auf die neue Lage anpassen und danach Backup-Tests, Upgrade-Test und `restore_test.sh` laufen lassen.
 - Geänderte Import-, Parser- oder Kochmodus-Dateien aus Abschnitt 3 gegen unsere Einhängepunkte prüfen.

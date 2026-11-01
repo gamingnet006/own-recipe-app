@@ -100,6 +100,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
             recognized = recipe.model_dump(mode="json", by_alias=True)
             warnings = find_duplicates(recognized, draft.source_url, candidates(repos, draft_id), get_kh_settings())
         except Exception as ex:
+            session.rollback()  # on Postgres a failed statement aborts the transaction the failure is written in
             code = error_code(ex)
             if code == DraftError.unknown:
                 logger.exception(f"KH: recognizing draft {draft_id} failed")

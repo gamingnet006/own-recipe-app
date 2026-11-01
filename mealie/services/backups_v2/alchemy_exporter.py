@@ -10,7 +10,17 @@ from alembic import command
 from alembic.config import Config
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import Connection, ForeignKey, ForeignKeyConstraint, MetaData, Table, create_engine, insert, text
+from sqlalchemy import (
+    Connection,
+    ForeignKey,
+    ForeignKeyConstraint,
+    MetaData,
+    Table,
+    create_engine,
+    insert,
+    inspect,
+    text,
+)
 from sqlalchemy.engine import base
 from sqlalchemy.orm import sessionmaker
 
@@ -208,7 +218,6 @@ class AlchemyExporter(BaseService):
     def restore(self, db_dump: dict) -> None:
         # setup alembic to run migrations up the version of the backup
         alembic_data = db_dump["alembic_version"]
-        alembic_version = alembic_data[0]["version_num"]
 
         alembic_cfg_path = os.getenv("ALEMBIC_CONFIG_FILE", default=str(ALEMBIC_DIR / "alembic.ini"))
 
@@ -216,7 +225,8 @@ class AlchemyExporter(BaseService):
             raise Exception("Provided alembic config path doesn't exist")
 
         alembic_cfg = Config(alembic_cfg_path)
-        command.upgrade(alembic_cfg, alembic_version)
+        for row in alembic_data:  # KH: one row per head; once Mealie and the kh branch both move on, there are two
+            command.upgrade(alembic_cfg, row["version_num"])
 
         del db_dump["alembic_version"]
         """Restores all data from dictionary into the database"""
@@ -251,8 +261,16 @@ class AlchemyExporter(BaseService):
                         ("server_tasks_id_seq", "server_tasks"),
                         ("shopping_list_extras_id_seq", "shopping_list_extras"),
                         ("shopping_list_item_extras_id_seq", "shopping_list_item_extras"),
+                        # KH: newer tables with a serial id that this list missed; without them a restored
+                        # Postgres database hands out ids that already exist
+                        ("ai_provider_headers_id_seq", "ai_provider_headers"),
+                        ("ai_provider_params_id_seq", "ai_provider_params"),
+                        ("recipe_note_ref_link_id_seq", "recipe_note_ref_link"),
                     ]
 
+                    # KH: only tables the backup's schema has; newer ones come, still empty, from init_db below
+                    existing = set(inspect(connection).get_table_names())
+                    sequences = [(seq, table) for seq, table in sequences if table in existing]
                     sql = "\n".join(
                         [f"SELECT SETVAL('{seq}', (SELECT MAX(id) FROM {table}));" for seq, table in sequences]
                     )

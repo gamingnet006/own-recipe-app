@@ -8,6 +8,7 @@ Create Date: 2026-11-01 00:00:00.000000
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 import mealie.db.migration_types
 
@@ -16,6 +17,10 @@ revision = "kh0001"
 down_revision: str | None = "1e69ea7cd45e"
 branch_labels: str | tuple[str, ...] | None = ("kh",)
 depends_on: str | tuple[str, ...] | None = None
+
+
+# jsonb on Postgres, like the model: json there cannot be compared, which Mealie's generic queries do
+JSON = sa.JSON().with_variant(postgresql.JSONB(), "postgresql")
 
 
 def upgrade():
@@ -31,9 +36,9 @@ def upgrade():
         sa.Column("source_url", sa.String(), nullable=True),
         sa.Column("source_url_normalized", sa.String(), nullable=True),
         sa.Column("source_text", sa.Text(), nullable=True),
-        sa.Column("original_files", sa.JSON(), nullable=False),
-        sa.Column("recipe", sa.JSON(), nullable=True),
-        sa.Column("warnings", sa.JSON(), nullable=False),
+        sa.Column("original_files", JSON, nullable=False),
+        sa.Column("recipe", JSON, nullable=True),
+        sa.Column("warnings", JSON, nullable=False),
         sa.Column("error", sa.String(), nullable=True),
         sa.Column("ai_model", sa.String(), nullable=True),
         sa.Column("recipe_id", mealie.db.migration_types.GUID(), nullable=True),

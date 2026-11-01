@@ -2,6 +2,7 @@
 recognized in the background; bad input creates nothing, failures carry a code, and only the own
 household sees a draft. Starlette's TestClient runs background tasks before the request returns."""
 
+import io
 from datetime import timedelta
 
 import pytest
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from mealie.core.exceptions import RateLimitError
 from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.drafts import recognize
 from mealie.kh.drafts.files import draft_dir
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
@@ -238,3 +240,26 @@ def test_ai_model_is_recorded(api_client: TestClient, unique_user: TestUser, fak
         reset = {"defaultProviderId": None, "audioProviderId": None, "imageProviderId": None}
         api_client.put(settings_url, json=reset, headers=unique_user.token)
         unique_user.repos.group_ai_providers.delete(provider.id)
+
+
+def test_upload_refuses_image_formats_the_spec_does_not_list(api_client: TestClient, unique_user: TestUser):
+    gif = io.BytesIO()
+    Image.new("RGB", (40, 30), (200, 120, 40)).save(gif, format="GIF")
+    response = post_draft(api_client, unique_user, files={"images": ("bild.gif", gif.getvalue(), "image/gif")})
+    assert response.status_code == 400
+    assert response.json()["detail"]["code"] == "not_an_image"
+
+
+def test_a_database_error_while_recognizing_still_marks_the_draft_failed(
+    api_client: TestClient, unique_user: TestUser, fake_ai, monkeypatch: pytest.MonkeyPatch
+):
+    """On Postgres a failed statement aborts the transaction; the failure must still be written."""
+    fake_ai("recipe.json")
+
+    def broken_candidates(repos, exclude_draft):
+        repos.session.execute(sa.text("SELECT no_such_column FROM kh_drafts"))
+
+    monkeypatch.setattr(recognize, "candidates", broken_candidates)
+    draft_id = post_draft(api_client, unique_user, data={"text": TEXT}).json()["id"]
+    draft = get_draft(api_client, unique_user, draft_id).json()
+    assert (draft["status"], draft["error"]) == ("failed", "unknown")

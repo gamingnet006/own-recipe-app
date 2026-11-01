@@ -3,7 +3,10 @@ saved, approved_at as a date, and the originals with them. Mealie's own tables h
 restore never had to handle one."""
 
 import copy
+import re
+import shutil
 from datetime import datetime
+from pathlib import Path
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -11,6 +14,8 @@ from fastapi.testclient import TestClient
 
 from mealie.core.config import get_app_settings
 from mealie.db.models._model_base import SqlAlchemyBase
+from mealie.kh.drafts.files import drafts_root
+from mealie.services.backups_v2 import alchemy_exporter
 from mealie.services.backups_v2.alchemy_exporter import AlchemyExporter
 from mealie.services.backups_v2.backup_v2 import BackupV2
 from tests.kh.drafts.helpers import DRAFTS, get_draft, png, post_draft
@@ -59,8 +64,32 @@ def test_drafts_survive_backup_and_restore(api_client: TestClient, unique_user: 
     assert before[0]["originalFiles"] and before[1]["warnings"] and before[2]["approvedAt"]  # every column is filled
 
     backup_v2 = BackupV2(get_app_settings().DB_URL)
-    backup_v2.restore(backup_v2.backup())
+    backup = backup_v2.backup()
+    shutil.rmtree(drafts_root().parent)  # like a new install, which has no kh folder before its first photo
+    backup_v2.restore(backup)
     backup_v2.db_exporter.engine.dispose()
 
     assert [get_draft(api_client, unique_user, draft).json() for draft in drafts] == before
     assert api_client.get(f"{DRAFTS}/{drafts[0]}/originals/1", headers=unique_user.token).status_code == 200
+
+
+def test_restore_builds_every_branch_the_backup_was_on(monkeypatch):
+    """Once Mealie adds a migration beside the kh branch, a backup records two heads; both must be built."""
+    upgrades: list[str] = []
+    monkeypatch.setattr(alchemy_exporter.command, "upgrade", lambda config, revision: upgrades.append(revision))
+    exporter = AlchemyExporter(get_app_settings().DB_URL)
+    exporter.restore({"alembic_version": [{"version_num": "mealie_head"}, {"version_num": "kh0001"}]})
+    exporter.engine.dispose()
+    assert upgrades == ["mealie_head", "kh0001"]
+
+
+def test_every_serial_id_is_reset_after_a_postgres_restore():
+    """Mealie resets Postgres id counters after a restore from a fixed list; a table missing there hands out ids
+    that already exist (seen with recipe_note_ref_link). Like the datetime guard, this keeps the list complete."""
+    serial = set()
+    for table in SqlAlchemyBase.metadata.tables.values():
+        keys = list(table.primary_key.columns)
+        if len(keys) == 1 and isinstance(keys[0].type, sa.Integer) and keys[0].autoincrement in (True, "auto"):
+            serial.add(table.name)
+    reset = set(re.findall(r'\("\w+_id_seq", "(\w+)"\)', Path(alchemy_exporter.__file__).read_text()))
+    assert serial <= reset, f"missing from the sequence reset in AlchemyExporter.restore: {sorted(serial - reset)}"
