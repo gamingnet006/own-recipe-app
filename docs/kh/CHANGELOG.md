@@ -22,11 +22,15 @@ The new interface (D38): everyday use first, in the look "Salbei", with a calm r
   with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
   comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.
 
-Backups explain themselves:
+Backups explain themselves, and their copy can move:
 
 - Next to the backups, on the USB stick and in the backup folder, lie `LIESMICH.txt`, a step-by-step guide to
   get the recipes back (reinstall, decrypt, restore, check), and `CLAUDE.md`, the same for Claude Code started
   in that folder. Both are renewed when they change; the short guide on sticks set up earlier is replaced.
+- Changing where the copies go, later too: on a Mac a double-click on `kh/ops/backup-ort-aendern.command`, elsewhere
+  `kh/ops/backup_copy.sh on` without a folder. It shows the place now, how to prepare a stick or disk and the
+  plugged-in drives; the first copy, guides included, goes there right away, and on a Mac the result shows. The old
+  place keeps its copies. On purpose only on the machine itself, not on the website.
 
 ## [v0.1.1] - 2026-11-01
 

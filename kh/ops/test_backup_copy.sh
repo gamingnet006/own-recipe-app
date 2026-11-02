@@ -1,7 +1,8 @@
 #!/bin/sh
-# KH: tests backup_copy.sh without a drive: setup and drive checks, the nightly job, a copy run and
-# decrypting, with stand-ins for docker and df. With Docker it also encrypts and decrypts a real
-# backup with age in the backup image.
+# KH: tests backup_copy.sh without a drive: setup and drive checks, choosing and switching the place
+# (also on a Mac and by double-click), the nightly job, a copy run and decrypting, with stand-ins for
+# docker, df and launchctl. With Docker it also encrypts and decrypts a real backup with age in the
+# backup image.
 set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -53,14 +54,54 @@ check "pending, plain copies" "$(pending "$src" "$tmp/have" 3 "" | xargs -I{} ba
 
 # --- the drive: present only if its folder's parent exists and lies on another disk ---
 mkdir -p "$tmp/bin" "$tmp/stick" "$tmp/samedisk"
-# df stand-in: everything below STUB_DRIVE lies on "/dev/stick", the rest on "/dev/internal"
+# df stand-in, named like macOS: everything below STUB_DRIVE lies on the stick "/dev/disk4s1",
+# below STUB_VOLUME on another volume of the internal disk (like macOS's Recovery), the rest on it
 printf '%s\n' '#!/bin/sh' 'echo "Filesystem 512-blocks Used Available Capacity Mounted on"' \
-  'case "$2" in "$STUB_DRIVE"*) echo "/dev/stick 100 1 99 1% /drive" ;; *) echo "/dev/internal 100 1 99 1% /" ;; esac' > "$tmp/bin/df"
+  'case "$2" in "$STUB_DRIVE"*) echo "/dev/disk4s1 100 1 99 1% /drive" ;;' \
+  '  "${STUB_VOLUME:-/none}"*) echo "/dev/disk3s5 100 1 99 1% /volume" ;; *) echo "/dev/disk3s1 100 1 99 1% /" ;; esac' > "$tmp/bin/df"
 chmod +x "$tmp/bin/df"
 export STUB_DRIVE="$tmp/stick"
 check "drive ready" "$(PATH="$tmp/bin:$PATH" yes_no drive_ready "$tmp/stick/Kopien" "$src")" "yes"
 check "drive missing" "$(PATH="$tmp/bin:$PATH" yes_no drive_ready "$tmp/gone/Kopien" "$src")" "no"
 check "folder on the same disk" "$(PATH="$tmp/bin:$PATH" yes_no drive_ready "$tmp/samedisk/Kopien" "$src")" "no"
+check "folder on another volume of the same disk" \
+  "$(export STUB_VOLUME="$tmp/samedisk"; PATH="$tmp/bin:$PATH" yes_no drive_ready "$tmp/samedisk/Kopien" "$src")" "no"
+# One disk, whatever volume or partition: macOS, Linux disks, SD cards and NVMe; network shares stay
+for pair in /dev/disk3s3s1:/dev/disk3 /dev/disk2s1:/dev/disk2 /dev/sdb1:/dev/sdb /dev/mmcblk0p2:/dev/mmcblk0 \
+  /dev/nvme0n1p3:/dev/nvme0n1 //admin@nas/share://admin@nas/share; do
+  check "whole disk of ${pair%%:/*}" "$(whole_disk "${pair%%:/*}")" "${pair#*:}"
+done
+
+# --- choosing a place: the plugged-in drives, how to prepare one, then a number or a folder ---
+# Under $vol only KH-Stick is a drive; Intern lies on this machine's disk, Recovery on another volume
+# of it, Verweis is a link to the stick, and Ordner a folder on it, not a drive of its own.
+vol="$tmp/vol"; mkdir -p "$vol/KH-Stick/Ordner" "$vol/Intern" "$vol/Recovery"; ln -s "$vol/KH-Stick" "$vol/Verweis"
+# Runs the choice with the drives under $vol; the answer comes from stdin, the dialog goes to stderr.
+choose() {
+  (cd "$tmp" && export STUB_DRIVE="$vol/KH-Stick" STUB_VOLUME="$vol/Recovery" \
+    && DRIVE_GLOBS="$vol/* $vol/*/*" PATH="$tmp/bin:$PATH" choose_folder "$src")
+}
+check "drives: only the plugged-in one" "$(export STUB_DRIVE="$vol/KH-Stick" STUB_VOLUME="$vol/Recovery"
+  DRIVE_GLOBS="$vol/* $vol/*/*" PATH="$tmp/bin:$PATH" drives "$src")" "$vol/KH-Stick"
+check "choose: a number picks the drive" "$(printf '1\n' | choose 2>"$tmp/dialog")" "$vol/KH-Stick/Kuechenhelfer-Backups"
+check "choose: the drive with name and free space" "$(grep -c '1) KH-Stick, frei: 99' "$tmp/dialog")" "1"
+check "choose: where the copies go now" "$(grep -c 'Bisher: kein Ort eingerichtet' "$tmp/dialog")" "1"
+check "choose: how to prepare a drive" "$(grep -c 'exFAT' "$tmp/dialog")" "1"
+check "choose: a folder" "$(printf '/srv/kopien\n' | choose 2>/dev/null)" "/srv/kopien"
+check "choose: a drive typed in gets the folder" "$(printf '%s/\n' "$vol/KH-Stick" | choose 2>/dev/null)" "$vol/KH-Stick/Kuechenhelfer-Backups"
+for answer in "" 0 2 x Kopien; do
+  check "choose: '$answer' is no choice" "$(printf '%s\n' "$answer" | yes_no choose)" "no"
+done
+check "choose: no drive plugged in" \
+  "$(printf '\n' | (cd "$tmp" && DRIVE_GLOBS="$tmp/leer/*" PATH="$tmp/bin:$PATH" choose_folder "$src") 2>&1 | grep -c 'keines gefunden')" "1"
+
+# --- waiting for the first copy the nightly job makes on a Mac: its first dated log line ---
+printf '2026-11-01 03:45 Kopie aufs Laufwerk OK: 0 neu, 6 auf dem Laufwerk\n' > "$tmp/wait.log"
+check "wait: no result yet" "$(cd "$tmp" && LOG=wait.log WAIT_SECONDS=0 wait_first_copy 1)" \
+  "Die erste Kopie läuft noch. Ergebnis später: kh/ops/backup_copy.sh status"
+printf 'Warnung ohne Datum\n2026-11-02 06:00 Kopie aufs Laufwerk OK: 2 neu, 2 auf dem Laufwerk\n' >> "$tmp/wait.log"
+check "wait: the result" "$(cd "$tmp" && LOG=wait.log WAIT_SECONDS=0 wait_first_copy 1)" \
+  "2026-11-02 06:00 Kopie aufs Laufwerk OK: 2 neu, 2 auf dem Laufwerk"
 
 # --- a copy run in a test install, with stand-ins for docker and df ---
 # docker stand-in: the encrypting run prints an age header and the backup; key making writes the
@@ -124,7 +165,8 @@ check "plain: run again, nothing new" "$(copy run | grep -c 'OK: 0 neu, 2 auf de
 
 # --- on: drive check, the password question, key on first use, nightly job (cron stand-in), first copy ---
 printf '%s\n' '#!/bin/sh' 'case "$1" in -l) cat "$CRONTAB_FILE" 2>/dev/null || exit 1 ;; -) cat > "$CRONTAB_FILE" ;; esac' > "$tmp/bin/crontab"
-printf '%s\n' '#!/bin/sh' 'echo Linux' > "$tmp/bin/uname"
+# uname stand-in: Linux unless STUB_UNAME says Darwin
+printf '%s\n' '#!/bin/sh' 'echo "${STUB_UNAME:-Linux}"' > "$tmp/bin/uname"
 chmod +x "$tmp/bin/crontab" "$tmp/bin/uname"
 export CRONTAB_FILE="$tmp/crontab"
 # A new key needs a new folder: the copies in the old one stay readable with the old key.
@@ -148,6 +190,28 @@ check "on without password" "$(printf '%s\n' "$res" | tail -1) $(env_value "$ops
 check "status without password" "$(copy status | grep -c 'ohne Passwort')" "1"
 check "on again keeps it" "$(copy on "$tmp/stick/OhneNeu" | tail -1) $(env_value "$ops/.env" KH_BACKUP_COPY_KEY)" "exit 0 none"
 
+# --- on without a folder: the guided switch; the key stays, the old place keeps its copies ---
+res=$(printf '%s\n' "$tmp/stick/Weg" | copy on)
+check "switch: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
+check "switch: no password question" "$(printf '%s\n' "$res" | grep -c 'mit Passwort verschlüsseln')" "0"
+check "switch: new place, same key" "$(env_value "$ops/.env" KH_BACKUP_COPY_DIR) $(env_value "$ops/.env" KH_BACKUP_COPY_KEY)" "$tmp/stick/Weg none"
+check "switch: first copy with the guide" "$(LC_ALL=C ls "$tmp/stick/Weg" | tr '\n' ' ')" "CLAUDE.md LIESMICH.txt mealie_2026.01.03.zip mealie_2026.01.04.zip "
+check "switch: the old place keeps its copies" "$(ls "$tmp/stick/OhneNeu" | grep -c '\.zip$')" "2"
+res=$(printf '\n' | copy on)
+check "switch: no answer changes nothing" \
+  "$(printf '%s\n' "$res" | tail -1) $(printf '%s\n' "$res" | grep -c 'nichts geändert') $(env_value "$ops/.env" KH_BACKUP_COPY_DIR)" \
+  "exit 1 1 $tmp/stick/Weg"
+
+# --- on a Mac the first copy runs as the nightly job, and "on" shows its result ---
+# launchctl stand-in: logs its calls; kickstart runs the nightly job right away, into its log
+printf '%s\n' '#!/bin/sh' 'echo "$*" >> "$LAUNCHCTL_LOG"' \
+  'case "$1" in kickstart) cd "$STUB_OPS" && sh ./backup_copy.sh run --scheduled >> backup_copy.log 2>&1 ;; esac' > "$tmp/bin/launchctl"
+chmod +x "$tmp/bin/launchctl"
+res=$(printf '%s\n' "$tmp/stick/Mac" | (export STUB_UNAME=Darwin HOME="$tmp/home" LAUNCHCTL_LOG="$tmp/launchctl" STUB_OPS="$ops"; copy on))
+check "mac switch: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
+check "mac switch: nightly job entered and started" "$(grep -c '^bootstrap' "$tmp/launchctl") $(grep -c '^kickstart' "$tmp/launchctl")" "1 1"
+check "mac switch: shows the first copy's result" "$(printf '%s\n' "$res" | grep -c 'OK: 2 neu, 2 auf dem Laufwerk')" "1"
+
 # --- decrypt: into the backup folder, where restore.sh finds it ---
 # While the backup is still here, decrypt checks the copy against it and changes nothing.
 res=$(copy decrypt "$new/mealie_2026.01.04.zip.age")
@@ -164,6 +228,17 @@ check "decrypt: temporary files gone" "$(ls -A "$ops/backups" | grep -c '^\.decr
 rm -f "$ops/backups/mealie_2026.01.04.zip"
 check "decrypt: wrong password" "$(STUB_DOCKER_RC=1 copy decrypt "$new/mealie_2026.01.04.zip.age" | tail -1) $(ls -A "$ops/backups" | grep -cE '04|^\.decrypt')" "exit 1 0"
 check "decrypt: not a copy" "$(copy decrypt "$tmp/04.zip" | tail -1)" "exit 1"
+
+# --- the double-click file: runs "backup_copy.sh on" next to it, also through a link ---
+check "double-click file is executable" "$(yes_no test -x "$here/backup-ort-aendern.command")" "yes"
+dc="$tmp/dc/kh/ops"; mkdir -p "$dc" "$tmp/desk"
+cp "$here/backup-ort-aendern.command" "$dc/"
+printf '%s\n' '#!/bin/sh' 'echo "backup_copy.sh $*"' > "$dc/backup_copy.sh"; chmod +x "$dc/backup_copy.sh"
+ln -s "$dc/backup-ort-aendern.command" "$tmp/desk/Backup-Ort ändern.command"
+ln -s ../dc/kh/ops/backup-ort-aendern.command "$tmp/desk/relativ.command"
+for f in "$dc/backup-ort-aendern.command" "$tmp/desk/Backup-Ort ändern.command" "$tmp/desk/relativ.command"; do
+  check "double-click: $(basename "$f")" "$(sh "$f" < /dev/null | head -n 1)" "backup_copy.sh on"
+done
 
 # --- with Docker: real age in the backup image ---
 if docker info >/dev/null 2>&1; then

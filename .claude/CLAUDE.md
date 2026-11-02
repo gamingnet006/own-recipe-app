@@ -88,8 +88,9 @@ kh/ops/tunnel.sh on|off|status
 # Automatische Updates (nur stabile Releases, nachts um 4 Uhr): an, aus, Stand, Probelauf, sofort
 kh/ops/auto_update.sh on|off|status|check|run
 # Kopie der Backups auf einen USB-Stick, nachts um 3:45 Uhr; "on" fragt beim ersten Mal, ob mit Passwort (dann mit age
-# verschlüsselt), "decrypt" öffnet eine verschlüsselte Kopie. Getestet, mit echtem Stick noch nicht erprobt
-kh/ops/backup_copy.sh on <ordner>|off|status|run|decrypt <datei.zip.age>
+# verschlüsselt), ohne Ordner fragt es nach dem Ort (so lässt er sich auch später wechseln, am Mac per Doppelklick auf
+# kh/ops/backup-ort-aendern.command), "decrypt" öffnet eine verschlüsselte Kopie. Am Mac mini mit echtem Stick in Betrieb
+kh/ops/backup_copy.sh on [<ordner>]|off|status|run|decrypt <datei.zip.age>
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)

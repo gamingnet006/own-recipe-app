@@ -1,8 +1,9 @@
 #!/bin/sh
 # KH: copies the daily backups to a removable drive such as a USB stick (PLAN.md D32), so a copy
 # survives when this machine's disk fails. With a password they are encrypted with age: only the
-# public key stays here, the private key lies on the drive, locked with the password (D33).
-# Usage: kh/ops/backup_copy.sh on <folder>|off|status|run [--scheduled]|decrypt <file.zip.age>
+# public key stays here, the private key lies on the drive, locked with the password (D33). "on"
+# without a folder asks for one: it also changes the place later (on a Mac: backup-ort-aendern.command).
+# Usage: kh/ops/backup_copy.sh on [<folder>]|off|status|run [--scheduled]|decrypt <file.zip.age>
 set -eu
 
 # Loads helpers without running their scripts: update.sh (setting, set_env_value), backup.sh
@@ -27,9 +28,13 @@ JOB_SHELL=/bin/dash
 JOB_PUSH_SETTING=KH_BACKUP_PUSH_URL  # one Uptime Kuma monitor for the backup and its copy
 LOG=backup_copy.log
 KEY_FILE=kuechenhelfer-schluessel.age  # the private key, locked with the password
+FOLDER_NAME=Kuechenhelfer-Backups  # the folder the copies get on a drive chosen by number
+# Where plugged-in drives show up: macOS, Linux desktops (/media/<user>/<name>, /run/media/<user>/<name>), by hand
+DRIVE_GLOBS='/Volumes/* /media/* /media/*/* /run/media/*/* /mnt/*'
+WAIT_SECONDS=120  # how long "on" waits on a Mac for the result of the first copy
 
 usage() {
-  echo "Aufruf: kh/ops/backup_copy.sh on <ordner>|off|status|run [--scheduled]|decrypt <datei.zip.age>" >&2
+  echo "Aufruf: kh/ops/backup_copy.sh on [<ordner>]|off|status|run [--scheduled]|decrypt <datei.zip.age>" >&2
   exit 2
 }
 
@@ -60,9 +65,18 @@ is_age_file() {  # file
   [ "$(head -n 1 "$1" 2>/dev/null)" = "age-encryption.org/v1" ]
 }
 
-# Prints the file system a path lies on, as df names it.
+# Prints the disk a path lies on: df's device as one whole disk (whole_disk).
 disk_of() {  # path
-  df -P "$1" 2>/dev/null | awk 'NR == 2 { print $1 }'
+  whole_disk "$(df -P "$1" 2>/dev/null | awk 'NR == 2 { print $1 }')"
+}
+
+# Prints the whole disk of a device: volumes and partitions of one disk count as that disk, so a
+# Mac's Recovery volume (/dev/disk3s5 next to the data on /dev/disk3s1) is no drive of its own.
+# Other names, such as network shares, stay as they are.
+# ponytail: a plain partition next to a Mac's APFS container (Boot Camp) still counts as another disk.
+whole_disk() {  # device
+  printf '%s\n' "$1" | sed -E -e 's#^(/dev/disk[0-9]+)s.*#\1#' \
+    -e 's#^(/dev/(mmcblk[0-9]+|nvme[0-9]+n[0-9]+))p[0-9]+$#\1#' -e 's#^(/dev/(sd|hd|vd|xvd)[a-z]+)[0-9]+$#\1#'
 }
 
 # True if the drive is plugged in: the folder's parent exists and lies on another disk than the
@@ -71,6 +85,26 @@ drive_ready() {  # folder source
   [ -d "$(dirname "$1")" ] || return 1
   drive=$(disk_of "$(dirname "$1")")
   [ -n "$drive" ] && [ "$drive" != "$(disk_of "$2")" ]
+}
+
+# True for a plugged-in drive: a folder with a disk of its own (so not a folder on a drive), not a
+# link like macOS's "Macintosh HD", and not the disk the backups lie on.
+is_drive() {  # folder source
+  [ -d "$1" ] && [ ! -L "$1" ] || return 1
+  own_disk=$(disk_of "$1")
+  [ -n "$own_disk" ] && [ "$own_disk" != "$(disk_of "$(dirname "$1")")" ] && [ "$own_disk" != "$(disk_of "$2")" ]
+}
+
+# Prints the plugged-in drives under DRIVE_GLOBS, one per line.
+drives() {  # source
+  for candidate in $DRIVE_GLOBS; do
+    ! is_drive "$candidate" "$1" || echo "$candidate"
+  done
+}
+
+# Prints the free space on the drive of PATH as df shows it, e.g. 57Gi.
+free_space() {  # path
+  df -Ph "$1" 2>/dev/null | awk 'NR == 2 { print $4 }'
 }
 
 # Explains a failed write to the drive; on macOS that is usually the missing Full Disk Access.
@@ -189,9 +223,70 @@ ask_password() {
   esac
 }
 
+# Explains how to prepare a drive for the copies, shown before the choice.
+drive_guide() {
+  echo "So bereitest du ein Laufwerk vor:"
+  echo "  1. USB-Stick oder Festplatte als exFAT formatieren und benennen, z. B. KH-Backup"
+  echo "     (Mac: Festplattendienstprogramm, „Löschen“). Achtung: Das löscht alles darauf."
+  echo "  2. An diesen Rechner stecken, dann steht es unten in der Liste."
+  if on_mac; then
+    echo "  3. Einmal pro Mac: /bin/dash braucht Festplattenvollzugriff (docs/kh/README.md)."
+  else
+    echo "  3. Ohne Desktop hängt Linux es nicht selbst ein: dauerhaft einhängen, z. B. über /etc/fstab."
+  fi
+  echo "Ein Ordner geht auch, etwa auf einem Netzlaufwerk, aber nicht auf der eigenen Platte: Geht sie"
+  echo "kaputt, wären Backups und Kopien zugleich weg. Am alten Ort bleiben die Kopien liegen."
+}
+
+# Asks where the copies go: shows the place now, how to prepare a drive and the plugged-in drives,
+# then reads a number from the list or a folder with its full path. Prints the folder; fails on
+# anything else. A typed drive gets FOLDER_NAME, like one chosen by number.
+choose_folder() {  # source
+  list=$(drives "$1")
+  {
+    echo "Backup-Ort ändern: Wohin kommen die nächtlichen Kopien der Backups?"
+    echo "Bisher: $(setting KH_BACKUP_COPY_DIR "kein Ort eingerichtet")"
+    echo
+    drive_guide
+    echo
+    if [ -z "$list" ]; then echo "Eingesteckte Laufwerke: keines gefunden."; else echo "Eingesteckte Laufwerke:"; fi
+    n=0
+    printf '%s\n' "$list" | grep . | while IFS= read -r d; do
+      n=$((n + 1)); echo "  $n) $(basename "$d"), frei: $(free_space "$d")"
+    done
+    printf "Nummer oder Ordner mit vollem Pfad (leer lassen: abbrechen): "
+  } >&2
+  read -r answer || answer=""
+  case "$answer" in
+    /*) if is_drive "${answer%/}" "$1"; then echo "${answer%/}/$FOLDER_NAME"; else echo "$answer"; fi ;;
+    ""|0*|*[!0-9]*) return 1 ;;
+    *) picked=$(printf '%s\n' "$list" | sed -n "${answer}p"); [ -n "$picked" ] && echo "$picked/$FOLDER_NAME" ;;
+  esac
+}
+
+# Prints how many lines the log has, 0 without one.
+log_lines() {
+  if [ -f "$LOG" ]; then wc -l < "$LOG" | tr -d ' '; else echo 0; fi
+}
+
+# Waits up to WAIT_SECONDS for the copy the nightly job was just started for: its result is the
+# first dated line (note) after the log's first BEFORE lines. Shows it, or where to look later.
+wait_first_copy() {  # before
+  waited=0
+  while :; do
+    result=$(tail -n +"$(($1 + 1))" "$LOG" 2>/dev/null | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} ' | head -n 1)
+    [ -z "$result" ] || { echo "$result"; return 0; }
+    [ "$waited" -lt "$WAIT_SECONDS" ] || break
+    sleep 2
+    waited=$((waited + 2))
+  done
+  echo "Die erste Kopie läuft noch. Ergebnis später: kh/ops/backup_copy.sh status"
+}
+
 # Switches the copy on: checks the drive, asks once whether the copies get a password and then
 # makes the key, enters the nightly job and starts the first copy. On macOS the first copy runs as
-# the nightly job, which may read the drive.
+# the nightly job, which may read the drive; "on" waits for its result. Switching to another folder
+# works the same way and keeps the password choice and the key.
 turn_on() {  # folder (absolute)
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   src=$(setting KH_BACKUP_DIR ./backups)
@@ -207,8 +302,10 @@ turn_on() {  # folder (absolute)
   schedule_job "$(pwd)" || fail "der nächtliche Job ließ sich nicht eintragen"
   echo "Kopie aufs Laufwerk an: jede Nacht um $JOB_HOUR:$JOB_MINUTE Uhr nach $1."
   if on_mac; then
+    before=$(log_lines)
     launchctl kickstart "gui/$(id -u)/$JOB_LABEL" || fail "die erste Kopie ließ sich nicht starten"
-    echo "Die erste Kopie läuft. Ergebnis in einer Minute: kh/ops/backup_copy.sh status"
+    echo "Die erste Kopie läuft ..."
+    wait_first_copy "$before"
   else
     run_cmd
   fi
@@ -280,7 +377,11 @@ main() {
   path=$(abs_path "${2:-}")
   cd "$(dirname "$0")"
   case "$1" in
-    on) [ $# -eq 2 ] || usage; turn_on "$path" ;;
+    on)
+      [ $# -le 2 ] || usage
+      [ $# -eq 2 ] || path=$(choose_folder "$(setting KH_BACKUP_DIR ./backups)") \
+        || fail "nichts geändert (eine Nummer aus der Liste oder einen Ordner mit vollem Pfad angeben)"
+      turn_on "$path" ;;
     off) [ $# -eq 1 ] || usage; turn_off ;;
     status) [ $# -eq 1 ] || usage; show_status ;;
     run) [ $# -le 2 ] || usage; shift; run_cmd "$@" ;;
