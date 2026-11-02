@@ -29,7 +29,6 @@
           v-model:scale="scale"
           :recipe="recipe"
           @edit="setMode(PageMode.EDIT)"
-          @cook="toggleCookMode()"
         />
         <RecipePageHeader
           v-else
@@ -91,14 +90,9 @@
                 :ingredient-storage-key="ingredientStorageKey"
                 class="pr-2"
               />
-              <!-- KH: under the ingredients, and the category and tag chips only while editing (D38) -->
+              <!-- KH: under the ingredients (D38) -->
               <KhAddToShoppingList v-if="!isEditForm && isOwnGroup" :recipe="recipe" :scale="scale" class="pr-2" />
-              <RecipePageOrganizers
-                v-if="isEditMode && $vuetify.display.mdAndUp"
-                v-model="recipe"
-                class="pr-2"
-                @item-selected="chipClicked"
-              />
+              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
             </v-col>
             <!--
               the right column is always rendered, but it's layout width is determined by where the left column is
@@ -118,7 +112,7 @@
                   {{ $t("general.add") }}
                 </BaseButton>
               </div>
-              <div v-if="isEditMode && !$vuetify.display.mdAndUp">
+              <div v-if="!$vuetify.display.mdAndUp">
                 <RecipePageOrganizers v-model="recipe" />
               </div>
               <RecipeNotes v-model="recipe.notes" :edit="isEditForm" />
@@ -131,6 +125,8 @@
       <!-- KH: no comments on the recipe page (D38) -->
       <RecipePrintContainer :recipe="displayedRecipe" :scale="scale" />
     </v-container>
+    <!-- KH: "Start cooking" in the view, outside the card, so the wake-lock switch never scrolls over it (D38) -->
+    <KhCookBar v-if="!isEditMode && !isCookMode" @cook="toggleCookMode()" />
     <!-- Floating save button when toolbar scrolls out of view -->
     <v-fab
       v-if="isEditMode && !toolbarVisible"

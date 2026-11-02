@@ -4,6 +4,7 @@ reader set. -->
   <div class="d-print-none">
     <v-btn
       block
+      size="large"
       variant="outlined"
       class="mt-2"
       :prepend-icon="$globals.icons.cartCheck"

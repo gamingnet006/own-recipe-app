@@ -1,8 +1,9 @@
 <template>
   <div>
     <!-- Recipe Categories -->
+    <!-- KH: categories and tags only while editing; the view shows no chips (D38) -->
     <v-card
-      v-if="recipe.recipeCategory.length > 0 || isEditForm"
+      v-if="isEditForm"
       :class="{ 'mt-10': !isEditForm }"
     >
       <v-card-title class="py-2">
@@ -27,7 +28,7 @@
 
     <!-- Recipe Tags -->
     <v-card
-      v-if="recipe.tags.length > 0 || isEditForm"
+      v-if="isEditForm"
       class="mt-4"
     >
       <v-card-title class="py-2">

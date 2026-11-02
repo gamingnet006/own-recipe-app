@@ -1,5 +1,6 @@
 // KH: the recipe view's arithmetic (D38): the times shown as tiles, what the amount stepper starts from and when it is
-// offered, a step of one whole piece or serving as Mealie's scale, and the words after the amount. Testable without Vue.
+// offered, a step of one whole piece or serving as Mealie's scale, the words after the amount, and the source as a link
+// to the original. Testable without Vue.
 import { recipeTimeDisplay } from "~/composables/recipes/use-recipe-time";
 
 export type KhTimeKey = "prep" | "perform" | "total";
@@ -46,6 +47,12 @@ export function stepScale(base: number, scale: number, delta: 1 | -1): number {
   const shown = Number((base * scale).toFixed(3)); // rounded like Mealie's display, so 6.9999… counts as 7
   const next = delta > 0 ? Math.floor(shown) + 1 : Math.ceil(shown) - 1;
   return Math.max(next, 1) / base;
+}
+
+/** The recipe's source as a link to open, only for a web address: a source is free text and may hold anything else. */
+export function sourceLink(url: string | null | undefined): string {
+  const link = url?.trim() ?? "";
+  return /^https?:\/\//i.test(link) ? link : "";
 }
 
 /** The words after the amount: the yield's own ("pieces"), else serving(s) for AMOUNT and a yield text without number. */

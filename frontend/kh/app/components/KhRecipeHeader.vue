@@ -1,5 +1,5 @@
 <!-- KH: the calm head of the recipe view (D38): the photo with back, favorite and the menu ⋯ of Mealie's actions, the
-title with its origin, the times as tiles and the amount with − and +, and "Start cooking" fixed at the bottom. -->
+title with its origin, the times as tiles and the amount with − and +. -->
 <template>
   <div class="d-print-none">
     <div class="kh-photo" :class="{ 'kh-photo--empty': !showImage }">
@@ -25,9 +25,15 @@ title with its origin, the times as tiles and the amount with − and +, and "St
         </v-btn>
         <v-spacer />
         <div v-if="isOwnGroup" class="kh-photo__round">
-          <RecipeFavoriteBadge :recipe-id="recipe.id" show-always variant="text" />
+          <RecipeFavoriteBadge :recipe-id="recipe.id" show-always variant="text" :size="44" />
         </div>
-        <v-menu location="bottom end" :eager="menuLoaded" @update:model-value="menuLoaded = true">
+        <!-- d-print-none: "Print" runs while the menu is still open -->
+        <v-menu
+          location="bottom end"
+          content-class="d-print-none"
+          :eager="menuLoaded"
+          @update:model-value="menuLoaded = true"
+        >
           <template #activator="{ props: menuProps }">
             <v-btn
               v-bind="menuProps"
@@ -53,6 +59,14 @@ title with its origin, the times as tiles and the amount with − and +, and "St
                 :prepend-icon="$globals.icons.chefHat"
                 :title="$t('kh.recipe.mark-cooked')"
                 @click="madeThis = true"
+              />
+              <v-list-item
+                v-if="original"
+                :prepend-icon="$globals.icons.link"
+                :title="$t('kh.drafts.view-original')"
+                :href="original"
+                target="_blank"
+                rel="noopener noreferrer"
               />
             </v-list>
             <!-- Mealie's own actions; "Share" shows only with share links on (KH_SHARE_LINKS) -->
@@ -80,7 +94,7 @@ title with its origin, the times as tiles and the amount with − and +, and "St
     </section>
     <KhOriginBadge :recipe-id="recipe.id" />
 
-    <div class="pa-4 d-flex flex-column ga-4">
+    <div v-if="times.length || base || recipe.recipeYield" class="pa-4 d-flex flex-column ga-4">
       <div v-if="times.length" class="kh-times">
         <v-card v-for="time in times" :key="time.key" variant="outlined" class="px-1 py-2 text-center">
           <div class="text-title-medium font-weight-bold">
@@ -125,17 +139,11 @@ title with its origin, the times as tiles and the amount with − and +, and "St
         </v-btn>
       </v-card>
     </div>
-
-    <v-footer v-if="!isCookMode" app class="d-print-none pa-3">
-      <v-btn block size="large" color="primary" :prepend-icon="$globals.icons.potSteam" @click="$emit('cook')">
-        {{ $t("kh.recipe.cook") }}
-      </v-btn>
-    </v-footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, stepScale } from "../composables/use-kh-recipe";
+import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import KhOriginBadge from "./KhOriginBadge.vue";
 import RecipeContextMenuContent from "~/components/Domain/Recipe/RecipeContextMenu/RecipeContextMenuContent.vue";
 import RecipeFavoriteBadge from "~/components/Domain/Recipe/RecipeFavoriteBadge.vue";
@@ -150,7 +158,7 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
 
 const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
-defineEmits<{ edit: []; cook: [] }>();
+defineEmits<{ edit: [] }>();
 const scale = defineModel<number>("scale", { required: true });
 
 const i18n = useI18n();
@@ -158,7 +166,7 @@ const route = useRoute();
 const router = useRouter();
 const { isOwnGroup } = useLoggedInState();
 const { recipeImage } = useStaticRoutes();
-const { imageKey, isCookMode } = usePageState(props.recipe.slug);
+const { imageKey } = usePageState(props.recipe.slug);
 const { user } = usePageUser();
 
 // The menu holds Mealie's dialogs, so once opened it stays mounted, as in Mealie's RecipeContextMenu
@@ -183,6 +191,7 @@ watch(imageUrl, () => {
   imageFailed.value = false;
 });
 
+const original = computed(() => sourceLink(props.recipe.orgURL));
 const times = computed(() => recipeTimes(props.recipe, i18n.locale.value));
 const base = computed(() => scaleBase(props.recipe));
 const canScale = computed(() => base.value > 0 && scalesAmounts(props.recipe));
@@ -240,10 +249,13 @@ function print() {
   justify-content: center;
   background: rgb(var(--v-theme-surface));
 }
+/* the heart in the look's accent, readable on the light and the dark circle; Mealie colors it secondary */
+.kh-photo__round :deep(.v-icon) {
+  color: rgb(var(--v-theme-primary)) !important;
+}
 .kh-times {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  hyphens: auto; /* long words like "Vorbereitung" break at a syllable on narrow phones */
 }
 </style>

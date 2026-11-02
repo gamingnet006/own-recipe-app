@@ -66,10 +66,10 @@ Beide Darstellungen lesen ihre Ziele aus **einer** Liste (Code-Regel 2). „Mehr
 
 Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodus bleiben Mealies; die Seite wechselt wie bisher dorthin. Von oben nach unten:
 
-1. Bild (ohne Bild eine ruhige Fläche mit Symbol), darauf Zurück, Favorit (Herz) und Menü ⋯.
+1. Bild (ohne Bild eine ruhige Fläche mit Symbol), darauf Zurück, Favorit (Herz) und Menü ⋯. (2.11.2026: ohne Bild eine flache Leiste von 96 px mit Symbol, die Zurück, Herz und Menü trägt.)
 2. Titel, darunter „Geprüft“ mit Herkunft und Link zum Original (der bestehende Herkunfts-Hinweis).
 3. Zeiten als Kacheln (Vorbereiten, Kochen oder Backen, Gesamt), nur die vorhandenen.
-4. Menge mit − und +: Mealies Skalierung, Anzeige mit Mealies Mengenangabe („12 Stücke“, „1 Portion“, richtige Einzahl und Mehrzahl). Ohne Mengenangabe kein Regler.
+4. Menge mit − und +: Mealies Skalierung, Anzeige mit Mealies Mengenangabe („12 Stücke“, „1 Portion“, richtige Einzahl und Mehrzahl). Ohne Mengenangabe kein Regler. (2.11.2026: Einzahl und Mehrzahl bei Portionen; eine eigene Mengenangabe wie „Stücke“ bleibt so, wie sie im Rezept steht, weil Mealie sie als freien Text speichert. − und + erscheinen nur, wenn eine Zutat eine Menge hat: Importierte Zutaten sind Text, bis sie zerlegt werden.)
 5. Zutaten zum Abhaken (Mealies Zutatenliste mit Abschnitten und Notizen), darunter „Auf die Einkaufsliste“.
 6. Zubereitung als nummerierte Schritte mit Abschnittstiteln; Text wie bei Mealie über `SafeMarkdown`.
 7. Notizen, Nährwerte (nur wenn der Haushalt sie zeigt, Mealies Einstellung) und der Schalter „Bildschirm nicht abschalten“.
@@ -87,7 +87,7 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 | `frontend/kh/app/components/KhBottomNav.vue` (neu) | Leiste unten, nur unter 840 px |
 | `frontend/kh/app/pages/g/[groupSlug]/more.vue` (neu) | Seite „Mehr“ |
 | `frontend/kh/app/components/KhDraftHint.vue` (neu) | Hinweis auf wartende Entwürfe über der Startseite |
-| `frontend/kh/app/components/KhRecipeView.vue` (neu, bei Bedarf in Teile zerlegt) | eigene Rezeptansicht aus Mealies Bausteinen |
+| `frontend/kh/app/components/KhRecipeHeader.vue`, `KhAddToShoppingList.vue`, `KhCookBar.vue` (neu; 2.11.2026: drei Teile statt einer `KhRecipeView`, Mealies Zutaten und Schritte bleiben in `RecipePage.vue`) | eigene Rezeptansicht aus Mealies Bausteinen: Kopf mit Bild, Menü, Zeiten und Menge, „Auf die Einkaufsliste“, „Kochen starten“ |
 | `frontend/kh/app/pages/g/[groupSlug]/drafts/index.vue` (geändert) | Eingang mit Formular und Entwürfen; das Formular zieht aus `new.vue` in eine Komponente |
 | `frontend/kh/app/pages/g/[groupSlug]/drafts/new.vue` (wird Weiterleitung) | alte Adresse bleibt gültig |
 | `frontend/kh/app/assets/kh-theme.css` (neu), `frontend/kh/nuxt.config.ts` | Schrift |
@@ -96,6 +96,7 @@ Eine eigene Ansicht im kh-Layer ersetzt Mealies Ansicht. Bearbeiten und Kochmodu
 | `mealie/core/settings/branding.py` (Mealie, `KH:`) | Name „Küchenhelfer“ in Kopfzeile, Browser-Tab und App-Manifest |
 | `DefaultLayout.vue`, `AppHeader.vue` (Mealie, `KH:`) | Leiste einhängen, Seitenmenü aus der gemeinsamen Liste, Menü-Knopf und Abmelden nur ab 840 px, helle Kopfzeile wie im Mockup |
 | `RecipePage.vue` (Mealie, `KH:`) | in der Ansicht unsere Rezeptansicht; Bearbeiten und Kochmodus unverändert |
+| `RecipePageOrganizers.vue`, `RecipeLastMade.vue` (Mealie, `KH:`) | Kategorien und Schlagworte nur beim Bearbeiten, Nährwerte und Dateien bleiben; „Als gekocht markieren“ öffnet Mealies Dialog aus dem Menü |
 | `RecipeCardMobile.vue`, `RecipeCard.vue` (Mealie, `KH:`) | Sterne ausblenden |
 | `RecipeExplorerPage` (Mealie, `KH:`) | Entwürfe-Hinweis einhängen |
 | `docs/kh/README.md` | kurz die neue Navigation |

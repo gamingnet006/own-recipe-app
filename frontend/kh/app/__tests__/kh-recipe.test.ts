@@ -1,7 +1,8 @@
 // KH: tests for the recipe view's arithmetic (D38): which times show as tiles, what the amount stepper starts from,
-// when it is offered at all, how a step of one more or less turns into Mealie's scale, and the amount's words.
+// when it is offered at all, how a step of one more or less turns into Mealie's scale, the amount's words, and which
+// sources open as the original.
 import { describe, expect, test } from "vitest";
-import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, stepScale } from "../composables/use-kh-recipe";
+import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -44,6 +45,14 @@ describe("amount stepper", () => {
     expect(stepScale(4, 0.6, -1)).toBeCloseTo(2 / 4);
     expect(stepScale(3, 7 / 3, -1)).toBeCloseTo(6 / 3);
   });
+});
+
+test("the original opens only from a web address", () => {
+  expect(sourceLink("https://example.org/kuchen")).toBe("https://example.org/kuchen");
+  expect(sourceLink(" http://example.org/suppe ")).toBe("http://example.org/suppe");
+  expect(sourceLink("javascript:alert(1)")).toBe("");
+  expect(sourceLink("Omas Kochbuch, Seite 12")).toBe("");
+  expect(sourceLink(null)).toBe("");
 });
 
 describe("amount words", () => {

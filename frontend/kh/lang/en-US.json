@@ -88,8 +88,8 @@
       "actions": "More actions",
       "mark-cooked": "Mark as cooked",
       "amount": "Amount",
-      "fewer": "Fewer",
-      "more": "More",
+      "fewer": "Decrease amount",
+      "more": "Increase amount",
       "cook": "Start cooking",
       "add-to-list": "Add to shopping list"
     }
