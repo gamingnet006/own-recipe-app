@@ -17,7 +17,7 @@ The new interface (D38): everyday use first, in the look "Salbei", with a calm r
 - The shopping list tab opens the household's list directly when there is only one, for everyone in it.
 - Adding a recipe and the drafts are one page now, the intake; the old addresses lead there.
 - The start page says when drafts wait for a review; recipe cards show no stars.
-- The recipe page: the photo with back, favorite and a menu ⋯ (edit, mark as cooked, meal plan, print, delete),
+- The recipe page: the photo with back, favorite and a menu ⋯ (edit, mark as cooked, view original, meal plan, print, delete),
   title and origin, the times as tiles and the amount with − and +, which scales ingredients and steps of recipes
   with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
   comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.

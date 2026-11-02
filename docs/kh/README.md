@@ -120,7 +120,7 @@ Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
 
 ### Ein Rezept ansehen und kochen
 
-Oben steht das Foto mit **Zurück**, dem Herz für die Favoriten und dem Menü **⋯**: Bearbeiten, Als gekocht markieren, In den Essensplan, Drucken und Löschen. Darunter folgen Titel, Herkunft, die Zeiten und die **Menge**. Mit − und + rechnest du die Mengen in Zutaten und Schritten um, sobald die Zutaten in Menge, Einheit und Zutat zerlegt sind (beim Bearbeiten mit **Zutaten parsen**). Unter den Zutaten legt **Auf die Einkaufsliste** sie auf eine Liste; unten öffnet **Kochen starten** den Kochmodus. Kategorien und Schlagworte stehen nur beim Bearbeiten.
+Oben steht das Foto mit **Zurück**, dem Herz für die Favoriten und dem Menü **⋯**: Bearbeiten, Als gekocht markieren, Original ansehen (bei Rezepten aus dem Netz), In den Essensplan, Drucken und Löschen. Darunter folgen Titel, Herkunft, die Zeiten und die **Menge**. Mit − und + rechnest du die Mengen in Zutaten und Schritten um, sobald die Zutaten in Menge, Einheit und Zutat zerlegt sind (beim Bearbeiten mit **Zutaten parsen**). Unter den Zutaten legt **Auf die Einkaufsliste** sie auf eine Liste; unten öffnet **Kochen starten** den Kochmodus. Kategorien und Schlagworte stehen nur beim Bearbeiten.
 
 ### Rezept hinzufügen
 
@@ -312,7 +312,7 @@ On an iPad in landscape and on a computer, the same destinations are in the side
 
 ### View and cook a recipe
 
-At the top is the photo with **Back**, the heart for favorites and the **⋯** menu: Edit, Mark as cooked, Add to plan, Print and Delete. Below come the title, where the recipe came from, the times and the **Amount**. − and + scale the amounts in ingredients and steps once the ingredients are split into amount, unit and food (when editing, with **Parse ingredients**). Under the ingredients, **Add to shopping list** puts them on a list; **Start cooking** at the bottom opens cook mode. Categories and tags show only while editing.
+At the top is the photo with **Back**, the heart for favorites and the **⋯** menu: Edit, Mark as cooked, View original (for recipes from the web), Add to plan, Print and Delete. Below come the title, where the recipe came from, the times and the **Amount**. − and + scale the amounts in ingredients and steps once the ingredients are split into amount, unit and food (when editing, with **Parse ingredients**). Under the ingredients, **Add to shopping list** puts them on a list; **Start cooking** at the bottom opens cook mode. Categories and tags show only while editing.
 
 ### Add a recipe
 
