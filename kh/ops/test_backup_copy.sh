@@ -73,7 +73,8 @@ printf '%s\n' '#!/bin/sh' 'echo "$*" >> "$DOCKER_CALLS"' '[ "${STUB_DOCKER_RC:-0
   'esac' > "$tmp/bin/docker"
 chmod +x "$tmp/bin/docker"
 ops="$tmp/inst/kh/ops"; mkdir -p "$ops/backup" "$ops/backups"
-cp "$here/backup_copy.sh" "$here/update.sh" "$here/nightly_job.sh" "$ops/"; cp "$here/backup/backup.sh" "$ops/backup/"
+cp "$here/backup_copy.sh" "$here/update.sh" "$here/nightly_job.sh" "$ops/"
+cp "$here/backup/backup.sh" "$here/backup/LIESMICH.txt" "$here/backup/restore-guide-claude.md" "$ops/backup/"
 stick="$tmp/stick/Kuechenhelfer-Backups"
 printf 'KH_BACKUP_KEEP=2\nKH_BACKUP_COPY_DIR=%s\nKH_BACKUP_COPY_KEY=%s\n' "$stick" "$KEY" > "$ops/.env"
 echo locked-key > "$ops/backups/$KEY_FILE"
@@ -88,7 +89,8 @@ copy() {
 res=$(copy run)
 check "run: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
 check "run: reports" "$(printf '%s\n' "$res" | grep -c 'OK: 2 neu, 2 auf dem Laufwerk')" "1"
-check "run: copies the newest" "$(LC_ALL=C ls "$stick" | tr '\n' ' ')" "LIESMICH.txt $KEY_FILE mealie_2026.01.02.zip.age mealie_2026.01.03.zip.age "
+check "run: copies the newest" "$(LC_ALL=C ls "$stick" | tr '\n' ' ')" "CLAUDE.md LIESMICH.txt $KEY_FILE mealie_2026.01.02.zip.age mealie_2026.01.03.zip.age "
+check "run: the restore guide on the drive" "$(cmp -s "$ops/backup/LIESMICH.txt" "$stick/LIESMICH.txt" && cmp -s "$ops/backup/restore-guide-claude.md" "$stick/CLAUDE.md" && echo same)" "same"
 check "run: copy is the encrypted backup" "$(tail -n +2 "$stick/mealie_2026.01.03.zip.age")" "backup 03"
 check "run: key on the drive" "$(cat "$stick/$KEY_FILE")" "locked-key"
 check "run: logged" "$(grep -c 'OK: 2 neu' "$ops/backup_copy.log")" "1"
@@ -111,12 +113,13 @@ check "run: not set up" "$(copy run | grep -c 'nicht eingerichtet')" "1"
 plain="$tmp/stick/Ohne"
 printf 'KH_BACKUP_KEEP=2\nKH_BACKUP_COPY_DIR=%s\nKH_BACKUP_COPY_KEY=none\n' "$plain" > "$ops/.env"
 calls=$(wc -l < "$tmp/docker_calls" | tr -d ' ')
+mkdir -p "$plain"; echo "alte Anleitung" > "$plain/LIESMICH.txt"  # a drive set up before the guide changed
 res=$(copy run)
 check "plain: exit 0" "$(printf '%s\n' "$res" | tail -1)" "exit 0"
-check "plain: copies the newest as they are" "$(LC_ALL=C ls "$plain" | tr '\n' ' ')" "LIESMICH.txt mealie_2026.01.03.zip mealie_2026.01.04.zip "
+check "plain: copies the newest as they are" "$(LC_ALL=C ls "$plain" | tr '\n' ' ')" "CLAUDE.md LIESMICH.txt mealie_2026.01.03.zip mealie_2026.01.04.zip "
 check "plain: copy equals the backup, with its time" "$(cmp -s "$ops/backups/mealie_2026.01.04.zip" "$plain/mealie_2026.01.04.zip" && echo same) $(yes_no test "$ops/backups/mealie_2026.01.04.zip" -nt "$plain/mealie_2026.01.04.zip")" "same no"
 check "plain: no key, no docker" "$(yes_no test -e "$plain/$KEY_FILE") $(wc -l < "$tmp/docker_calls" | tr -d ' ')" "no $calls"
-check "plain: guide says unencrypted" "$(grep -c 'unverschlüsselt' "$plain/LIESMICH.txt")" "1"
+check "plain: an old guide is renewed" "$(cmp -s "$ops/backup/LIESMICH.txt" "$plain/LIESMICH.txt" && echo renewed)" "renewed"
 check "plain: run again, nothing new" "$(copy run | grep -c 'OK: 0 neu, 2 auf dem Laufwerk')" "1"
 
 # --- on: drive check, the password question, key on first use, nightly job (cron stand-in), first copy ---

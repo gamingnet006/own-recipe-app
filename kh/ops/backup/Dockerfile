@@ -5,6 +5,8 @@ FROM alpine:3.22
 RUN apk add --no-cache curl unzip tzdata age
 
 COPY backup.sh restore.sh run.sh /usr/local/bin/
+# the restore guide that backup.sh puts next to the backups
+COPY LIESMICH.txt restore-guide-claude.md /usr/local/share/kuechenhelfer/
 RUN chmod +x /usr/local/bin/backup.sh /usr/local/bin/restore.sh /usr/local/bin/run.sh
 
 CMD ["/usr/local/bin/run.sh"]

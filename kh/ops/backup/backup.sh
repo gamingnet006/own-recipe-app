@@ -1,11 +1,15 @@
 #!/bin/sh
 # KH: daily backup through Mealie's own backup API (D21). Mealie writes the zip
-# into its data folder; this script checks it, copies it to the second location,
-# prunes old copies and reports to Uptime Kuma. `backup.sh --lib` only loads functions.
+# into its data folder; this script checks it, copies it to the second location with the
+# restore guide, prunes old copies and reports to Uptime Kuma. `backup.sh --lib` only loads functions.
 set -eu
 
 SRC=/backups-src    # Mealie's data/backups folder
 DEST=/backups-dest  # second storage location
+GUIDE_DIR=/usr/local/share/kuechenhelfer  # the restore guide inside the backup image
+# The restore guide for people and for Claude, as file here:name next to the backups. Claude's part has another
+# name in the repo, so Claude Code working on the repo never takes it for its own instructions.
+GUIDE_FILES="LIESMICH.txt:LIESMICH.txt restore-guide-claude.md:CLAUDE.md"
 API="${KH_MEALIE_URL:-http://mealie:9000}"
 
 # Sends status up/down to the Uptime Kuma push URL, if one is configured. A query pasted along
@@ -35,6 +39,15 @@ prune() {  # folder n [ext]
   done
 }
 
+# Puts the restore guide next to the backups in FOLDER, or renews it there when it changed, so
+# whoever finds the backups later knows how to get the recipes back.
+put_guide() {  # folder guide_dir
+  for pair in $GUIDE_FILES; do
+    from="$2/${pair%%:*}" to="$1/${pair#*:}"
+    cmp -s "$from" "$to" || cp "$from" "$to" || return 1
+  done
+}
+
 # Asks Mealie to write a new backup zip into its data folder.
 create_backup() {
   curl -fsS -m "${KH_BACKUP_TIMEOUT:-300}" -X POST \
@@ -52,6 +65,8 @@ main() {
   cp "$created" "$copy" || fail "Kopie an den zweiten Ort fehlgeschlagen"
   unzip -tq "$copy" >/dev/null || fail "Kopie am zweiten Ort ist beschädigt"
   chown "${KH_PUID:-1000}:${KH_PGID:-1000}" "$copy" 2>/dev/null || true  # readable for the host user
+  # a missing guide never costs the backup, it only warns
+  put_guide "$DEST" "$GUIDE_DIR" || echo "Warnung: Anleitung zum Wiederherstellen nicht abgelegt" >&2
   prune "$DEST" "${KH_BACKUP_KEEP:-14}"
   prune "$SRC" "${KH_BACKUP_KEEP_LOCAL:-3}"
   echo "Backup OK: $(basename "$created")"

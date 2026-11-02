@@ -140,12 +140,14 @@ check "mac on: launchctl error" "$( (export STUB_BOOTSTRAP_RC=5; on_test_mac on 
 
 # --- ops files inside the image (check_bundle.sh) ---
 . "$here/check_bundle.sh"
-ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup_copy.sh kh/ops/install.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
+ok=$(printf '%s\n' kh/ops/update.sh kh/ops/auto_update.sh kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup_copy.sh kh/ops/install.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile kh/ops/backup/LIESMICH.txt kh/ops/backup/restore-guide-claude.md kh/ops/docker-compose.yml kh/ops/.env.example mealie/core/settings/settings.py)
 check "complete bundle" "$(bundle_problems "$ok")" ""
 check "update.sh missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx kh/ops/update.sh)")" "kh/ops/update.sh fehlt"
 # auto_update.sh loads these at start and update.sh builds the backup image: without them the
 # next night's run would die before it could report anything.
-for need in kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile; do
+# The backup image and the nightly copy put the restore guide next to every backup.
+for need in kh/ops/check_bundle.sh kh/ops/nightly_job.sh kh/ops/backup/backup.sh kh/ops/backup/Dockerfile \
+  kh/ops/backup/LIESMICH.txt kh/ops/backup/restore-guide-claude.md; do
   check "$need missing" "$(bundle_problems "$(printf '%s\n' "$ok" | grep -vx "$need")")" "$need fehlt"
 done
 # The install guide takes install.sh from the release image.
@@ -227,6 +229,7 @@ cp "$here/backup/backup.sh" "$bundle/kh/ops/backup/"
 echo 'echo "TAIL OF THE NEW FILE RAN"' >> "$bundle/kh/ops/auto_update.sh"
 printf '%s\n' '#!/bin/sh' 'echo "update.sh stand-in: $1"' 'exit "${STUB_UPDATE_RC:-0}"' > "$bundle/kh/ops/update.sh"
 : > "$bundle/kh/ops/backup/Dockerfile"; : > "$bundle/kh/ops/docker-compose.yml"; : > "$bundle/kh/ops/install.sh"; : > "$bundle/kh/ops/backup_copy.sh"
+: > "$bundle/kh/ops/backup/LIESMICH.txt"; : > "$bundle/kh/ops/backup/restore-guide-claude.md"
 : > "$bundle/mealie/core/settings/settings.py"
 
 # Runs "auto_update.sh run" in a fresh test install with the stand-ins; prints the output and

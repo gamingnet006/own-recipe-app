@@ -6,7 +6,7 @@
 set -eu
 
 # Loads helpers without running their scripts: update.sh (setting, set_env_value), backup.sh
-# (prune, push) and nightly_job.sh (schedule, report). Loaded first, so the usage, fail and main
+# (prune, push, put_guide) and nightly_job.sh (schedule, report). Loaded first, so the usage, fail and main
 # defined below take precedence over theirs.
 load_helpers() {
   set -- --lib
@@ -27,7 +27,6 @@ JOB_SHELL=/bin/dash
 JOB_PUSH_SETTING=KH_BACKUP_PUSH_URL  # one Uptime Kuma monitor for the backup and its copy
 LOG=backup_copy.log
 KEY_FILE=kuechenhelfer-schluessel.age  # the private key, locked with the password
-README_FILE=LIESMICH.txt
 
 usage() {
   echo "Aufruf: kh/ops/backup_copy.sh on <ordner>|off|status|run [--scheduled]|decrypt <datei.zip.age>" >&2
@@ -115,40 +114,6 @@ encrypt() {  # key
   in_backup sh -c 'f=$(mktemp) && cat > "$f" && unzip -tq "$f" >/dev/null && age -r "$1" "$f"; rc=$?; rm -f "$f"; exit "$rc"' sh "$1"
 }
 
-# Prints the guide that lies on the drive next to the copies, for whoever finds the drive later.
-readme() {  # encrypted|plain
-  if [ "$1" = plain ]; then
-    cat <<EOF
-Küchenhelfer-Backups, unverschlüsselt
-
-*.zip  tägliche Backups, jedes ein normales Mealie-Backup
-
-Wiederherstellen: Küchenhelfer installieren (docs/kh/README.md), die .zip in den Backup-Ordner
-kh/ops/backups kopieren, dann
-  docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <backup>.zip
-
-Küchenhelfer backups, not encrypted. Each .zip is a normal Mealie backup: copy it into the backup
-folder kh/ops/backups and restore it with restore.sh as above.
-EOF
-    return
-  fi
-  cat <<EOF
-Küchenhelfer-Backups, verschlüsselt mit age (https://age-encryption.org)
-
-*.zip.age  tägliche Backups
-$KEY_FILE  der Schlüssel dazu, gesperrt mit dem Passwort
-
-Wiederherstellen: Küchenhelfer installieren (docs/kh/README.md), dann
-  kh/ops/backup_copy.sh decrypt <dieser Ordner>/<backup>.zip.age
-  docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <backup>.zip
-Ohne Küchenhelfer: age -d -i $KEY_FILE -o <backup>.zip <backup>.zip.age
-
-Küchenhelfer backups, encrypted with age. *.zip.age are the daily backups, $KEY_FILE is their
-key, locked with the password. Restore as above; age asks for the password. Each .zip is a normal
-Mealie backup.
-EOF
-}
-
 # Puts the locked key on the drive if it is missing there. Never replaces a different key: the
 # copies made with it could no longer be opened.
 put_key() {  # local_key folder
@@ -160,9 +125,9 @@ put_key() {  # local_key folder
   fi
 }
 
-# One copy run: checks setup and drive, puts key and guide there, copies the backups that have no
-# copy yet (encrypted, or as they are with KH_BACKUP_COPY_KEY=none), then keeps the newest
-# KH_BACKUP_KEEP copies on the drive.
+# One copy run: checks setup and drive, puts key and the restore guide (backup.sh's put_guide)
+# there, copies the backups that have no copy yet (encrypted, or as they are with
+# KH_BACKUP_COPY_KEY=none), then keeps the newest KH_BACKUP_KEEP copies on the drive.
 run_cmd() {  # [--scheduled]
   case "${1:-}" in "") ;; --scheduled) SCHEDULED=1 ;; *) usage ;; esac
   dir=$(setting KH_BACKUP_COPY_DIR "")
@@ -176,8 +141,8 @@ run_cmd() {  # [--scheduled]
     || stop_run "nicht eingerichtet, zuerst: kh/ops/backup_copy.sh on <ordner>"
   drive_ready "$dir" "$src" || stop_run "Laufwerk fehlt: $(dirname "$dir") ist nicht da oder liegt auf der eigenen Platte"
   [ -d "$dir" ] || mkdir "$dir" 2>/dev/null || stop_run "$(no_access "$dir")"
-  if [ -n "$suffix" ]; then put_key "$src/$KEY_FILE" "$dir"; mode=encrypted; else mode=plain; fi
-  [ -f "$dir/$README_FILE" ] || readme "$mode" > "$dir/$README_FILE" || stop_run "$(no_access "$dir")"
+  [ -z "$suffix" ] || put_key "$src/$KEY_FILE" "$dir"
+  put_guide "$dir" backup || stop_run "$(no_access "$dir")"
   WORK=$(mktemp -d ./.backup_copy.XXXXXX) || stop_run "Arbeitsordner fehlt"
   trap 'rm -rf "$WORK"' EXIT
   pending "$src" "$dir" "$keep" "$suffix" > "$WORK/list"

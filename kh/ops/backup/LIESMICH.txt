@@ -1,0 +1,89 @@
+KÜCHENHELFER: SO BEKOMMST DU DEINE REZEPTE ZURÜCK
+==================================================
+
+In diesem Ordner liegen Backups von Küchenhelfer, eurem Familien-Kochbuch (eine Erweiterung von
+Mealie). Jedes Backup enthält alles: Rezepte und Fotos, Einkaufslisten, Essenspläne, Entwürfe
+und die Konten mit ihren Passwörtern. Jede Nacht kommt eines dazu, die ältesten werden gelöscht.
+
+
+WAS HIER LIEGT
+
+  ....zip.age                    ein Backup, verschlüsselt (so auf dem Backup-Stick, wenn beim
+                                 Einrichten ein Passwort gewählt wurde)
+  ....zip                        ein Backup, nicht verschlüsselt (ein normales Mealie-Backup)
+  kuechenhelfer-schluessel.age   der Schlüssel zu den verschlüsselten Backups, gesperrt mit dem
+                                 Passwort
+  LIESMICH.txt                   diese Anleitung
+  CLAUDE.md                      dieselbe Hilfe für Claude, den KI-Assistenten (siehe unten)
+
+Im Dateinamen stehen Datum und Uhrzeit, zum Beispiel ..._2026.11.02.02.30.00.zip
+(Jahr.Monat.Tag.Stunde.Minute.Sekunde in Weltzeit UTC). Nimm das neueste.
+
+
+WAS DU BRAUCHST
+
+  1. Einen Rechner mit Docker: einen Mac, einen Linux-Rechner oder einen Raspberry Pi.
+  2. Das Programm Küchenhelfer. Es liegt bei GitHub im privaten Repo gamingnet006/own-recipe-app,
+     dafür brauchst du Zugang zu diesem GitHub-Konto. Wie man es installiert, steht dort in
+     docs/kh/README.md im Abschnitt „Installieren“.
+  3. Nur für verschlüsselte Backups (.zip.age): das Passwort, das beim Einrichten der Kopie
+     gewählt wurde. Ohne dieses Passwort lässt sich kein verschlüsseltes Backup öffnen, von
+     niemandem, auch nicht von Claude. Es lässt sich nicht zurücksetzen.
+
+
+SCHRITT FÜR SCHRITT
+
+  1. Küchenhelfer neu installieren, wie in docs/kh/README.md beschrieben, am besten die neueste
+     Version: Sie liest auch ältere Backups, eine ältere Version dagegen keine neueren.
+     Alle Befehle unten laufen im Installationsordner, also dort, wo der Ordner kh liegt.
+
+  2. Das neueste Backup in den Backup-Ordner der neuen Installation holen. Das ist kh/ops/backups
+     oder der Ordner, den install.sh als Backup-Ort erfragt hat.
+       - Verschlüsselt (.zip.age): das Laufwerk anstecken, dann
+           kh/ops/backup_copy.sh decrypt "/Pfad/zu/diesem/Ordner/<Name>.zip.age"
+         Das fragt nach dem Passwort und legt <Name>.zip in den Backup-Ordner. Am Mac im Terminal
+         am Gerät selbst aufrufen, nicht über SSH: Dort versteckt macOS angesteckte Laufwerke.
+       - Nicht verschlüsselt (.zip): die Datei einfach in den Backup-Ordner kopieren.
+
+  3. Einspielen:
+       docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <Name>.zip
+     Achtung: Das ersetzt alles, was in der neuen Installation steht.
+
+  4. Küchenhelfer neu starten, damit die Datenbank zur installierten Version passt:
+       docker compose -f kh/ops/docker-compose.yml restart mealie
+
+  5. Prüfen: mit dem alten Konto anmelden (E-Mail und Passwort wie vorher) und ein paar Rezepte
+     mit Fotos ansehen.
+
+
+OHNE KÜCHENHELFER, NUR UM ETWAS NACHZUSEHEN
+
+  Ein Backup ist eine ZIP-Datei: database.json enthält alle Texte (Rezepte, Listen, Konten),
+  der Ordner data die Fotos. Ein verschlüsseltes Backup öffnet das Programm age
+  (https://age-encryption.org); es fragt nach dem Passwort:
+    age -d -i kuechenhelfer-schluessel.age -o backup.zip <Name>.zip.age
+
+
+GUT ZU WISSEN
+
+  - Wer ein unverschlüsseltes Backup hat, kann alles darin lesen. Das Laufwerk sicher aufbewahren.
+  - Auf diesem Laufwerk nichts von Hand löschen oder umbenennen, vor allem nicht
+    kuechenhelfer-schluessel.age: Ohne ihn lassen sich die verschlüsselten Backups nicht öffnen.
+  - Mit Claude: im Terminal in diesen Ordner wechseln, Claude Code starten (Befehl: claude) und
+    sagen: „Hilf mir, Küchenhelfer aus diesem Backup wiederherzustellen.“ Claude liest dann
+    CLAUDE.md. Das Passwort tippst du selbst ein, wenn age danach fragt, nie in den Chat.
+
+
+KÜCHENHELFER: HOW TO GET YOUR RECIPES BACK
+
+  This folder holds backups of Küchenhelfer, a family cookbook based on Mealie. Each backup holds
+  everything: recipes and photos, shopping lists, meal plans, drafts and the accounts. *.zip.age
+  are encrypted (key: kuechenhelfer-schluessel.age, locked with the password chosen at setup),
+  *.zip are normal Mealie backups. The date is in the file name; take the newest.
+  1. Install Küchenhelfer, preferably the newest version (private GitHub repo
+     gamingnet006/own-recipe-app, docs/kh/README.md, "Install (English)").
+  2. Encrypted: kh/ops/backup_copy.sh decrypt "/path/to/<name>.zip.age" (asks for the password).
+     Plain: copy the .zip into the install's backup folder (kh/ops/backups).
+  3. docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <name>.zip
+     This replaces everything in the new install.
+  4. docker compose -f kh/ops/docker-compose.yml restart mealie, then log in with an old account.

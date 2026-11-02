@@ -22,6 +22,12 @@ The new interface (D38): everyday use first, in the look "Salbei", with a calm r
   with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
   comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.
 
+Backups explain themselves:
+
+- Next to the backups, on the USB stick and in the backup folder, lie `LIESMICH.txt`, a step-by-step guide to
+  get the recipes back (reinstall, decrypt, restore, check), and `CLAUDE.md`, the same for Claude Code started
+  in that folder. Both are renewed when they change; the short guide on sticks set up earlier is replaced.
+
 ## [v0.1.1] - 2026-11-01
 
 Recipes from the share menu, and clearer messages when the connection drops.
