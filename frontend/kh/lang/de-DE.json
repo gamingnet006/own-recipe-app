@@ -92,6 +92,26 @@
       "more": "Menge erhöhen",
       "cook": "Kochen starten",
       "add-to-list": "Auf die Einkaufsliste"
+    },
+    "ai": {
+      "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
+      "move-up": "Nach oben",
+      "move-down": "Nach unten",
+      "reads-images": "liest Bilder",
+      "status": {
+        "ready": "bereit",
+        "quota": "Kontingent leer bis {time}",
+        "key": "Schlüssel ungültig",
+        "model": "Modell nicht gefunden",
+        "unreachable": "nicht erreichbar bis {time}"
+      },
+      "free-keys": {
+        "title": "Kostenlose Schlüssel",
+        "date": "Stand {date}",
+        "hint": "Kostenlose Stufen ändern sich oft. Ob ein Modell passt, zeigt der Test-Knopf. Die Schlüssel trägst du selbst ein.",
+        "get-key": "Schlüssel holen",
+        "address": "Adresse"
+      }
     }
   }
 }

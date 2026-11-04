@@ -17,7 +17,8 @@
     </v-card-text>
 
     <v-row class="mb-4">
-      <v-col cols="12">
+      <!-- KH: for the own group the priority list below picks the default and the image provider (D39) -->
+      <v-col v-if="!khList" cols="12">
         <v-autocomplete
           v-model="local.defaultProviderId"
           :label="$t('group.ai-provider-settings.default-provider')"
@@ -49,7 +50,7 @@
           {{ $t("group.ai-provider-settings.audio-provider-description") }}
         </v-card-subtitle>
       </v-col>
-      <v-col cols="12">
+      <v-col v-if="!khList" cols="12">
         <v-autocomplete
           v-model="local.imageProviderId"
           :label="$t('group.ai-provider-settings.image-provider')"
@@ -90,8 +91,17 @@
       </template>
     </BaseCardSectionTitle>
 
+    <!-- KH: the own group gets the priority list with order and state, other groups keep Mealie's cards (D39) -->
+    <KhAiProviderOrder
+      v-if="khList"
+      :providers="khProviders"
+      @move="moveKhProvider"
+      @edit="openEdit"
+      @delete="(id) => $emit('delete', id)"
+    />
     <v-card
       v-for="provider in local.providers"
+      v-else
       :key="provider.id"
       variant="tonal"
       class="pa-0 mb-4"
@@ -123,6 +133,9 @@
         </v-col>
       </v-row>
     </v-card>
+
+    <!-- KH: where free AI keys come from (D39) -->
+    <KhFreeAiKeys />
   </div>
 </template>
 
@@ -148,6 +161,12 @@ watch(providerSettings, (newVal) => { if (newVal) Object.assign(local, newVal); 
 const noDefaultProviderWarning = computed(
   () => local.providers.length > 0 && !local.defaultProviderId,
 );
+
+// KH: the own group's priority list (D39), reloaded whenever the page gets the settings anew; shown only when its
+// providers are the page's, since admins may open other groups here too
+const { providers: khProviders, load: loadKhProviders, move: moveKhProvider } = useKhAiProviders();
+const khList = computed(() => sameProviders(khProviders.value.map(p => p.providerId), local.providers.map(p => p.id)));
+watch(providerSettings, loadKhProviders, { immediate: true });
 
 defineEmits<{
   (e: "create", data: AIProviderCreate): void;

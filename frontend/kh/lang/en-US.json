@@ -92,6 +92,26 @@
       "more": "Increase amount",
       "cook": "Start cooking",
       "add-to-list": "Add to shopping list"
+    },
+    "ai": {
+      "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
+      "move-up": "Move up",
+      "move-down": "Move down",
+      "reads-images": "reads images",
+      "status": {
+        "ready": "ready",
+        "quota": "quota used up until {time}",
+        "key": "key invalid",
+        "model": "model not found",
+        "unreachable": "not reachable until {time}"
+      },
+      "free-keys": {
+        "title": "Free keys",
+        "date": "as of {date}",
+        "hint": "Free tiers change often. The test button shows whether a model fits. You enter the keys yourself.",
+        "get-key": "Get a key",
+        "address": "Address"
+      }
     }
   }
 }

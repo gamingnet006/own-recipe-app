@@ -12,6 +12,7 @@ import {
   mdiArrowRightBold,
   mdiArrowRightBoldOutline,
   mdiArrowUp,
+  mdiArrowDown, // KH: moving an AI provider down in the priority list (D39)
   mdiAutoFix,
   mdiBackupRestore,
   mdiBeakerOutline,
@@ -168,6 +169,7 @@ export const icons = {
   arrowLeftBold: mdiArrowLeftBold,
   arrowRightBold: mdiArrowRightBold,
   arrowUp: mdiArrowUp,
+  arrowDown: mdiArrowDown, // KH: D39
   arrowUpDown: mdiDrag,
   autoFix: mdiAutoFix,
   backupRestore: mdiBackupRestore,
