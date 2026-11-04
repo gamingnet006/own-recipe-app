@@ -1,7 +1,7 @@
 """KH: tests for sorting AI provider errors (D39): which failure skips a provider for how long, read from the
 errors of the openai package, built here without any network (D23)."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import openai
@@ -11,7 +11,7 @@ from mealie.kh.ai.errors import Failure, classify, pause_until, retry_seconds
 from mealie.kh.features.settings import KhSettings
 
 S = KhSettings()
-NOW = datetime(2026, 11, 4, 8, 0)
+NOW = datetime(2026, 11, 4, 8, 0, tzinfo=UTC)
 REQUEST = httpx.Request("POST", "https://ai.example/v1/chat/completions")
 
 
@@ -29,7 +29,14 @@ def test_short_wait_is_no_quota():
 
 
 def test_gemini_retry_delay_in_a_list_body():
-    body = [{"error": {"code": 429, "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "33s"}]}}]
+    body = [
+        {
+            "error": {
+                "code": 429,
+                "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "33s"}],
+            }
+        }
+    ]
     assert classify(status_error(openai.RateLimitError, 429, body=body), S) == Failure("short", 33)
 
 

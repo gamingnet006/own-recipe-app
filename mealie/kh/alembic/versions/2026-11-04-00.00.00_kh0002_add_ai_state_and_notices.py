@@ -23,11 +23,14 @@ NaiveDateTime = mealie.db.migration_types.NaiveDateTime
 
 def timestamps() -> list[sa.Column]:
     """created_at and update_at, which every table gets from SqlAlchemyBase."""
-    return [sa.Column("created_at", NaiveDateTime(), nullable=True), sa.Column("update_at", NaiveDateTime(), nullable=True)]
+    return [
+        sa.Column("created_at", NaiveDateTime(), nullable=True),
+        sa.Column("update_at", NaiveDateTime(), nullable=True),
+    ]
 
 
 def upgrade():
-    """Creates the three tables with the columns and indexes of mealie/kh/ai/models.py and mealie/kh/notices/models.py."""
+    """Creates the three tables with the columns and indexes of the models in mealie/kh/ai and mealie/kh/notices."""
     op.create_table(
         "kh_ai_provider_state",
         sa.Column("id", GUID(), nullable=False),
