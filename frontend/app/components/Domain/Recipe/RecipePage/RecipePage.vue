@@ -275,6 +275,9 @@ const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isPar
   = usePageState(recipe.value.slug);
 const { deactivateNavigationWarning } = useNavigationWarning();
 const scale = ref(1);
+// KH: the recipe's range ends, fixed lines and step links, for every view of it (D39)
+const { loadKhAmounts } = useKhAmounts();
+watch(() => recipe.value.id, (id) => { if (id) loadKhAmounts(id); }, { immediate: true });
 
 const { unitSystem } = useUnitSystem();
 const { convertIngredient } = useUnitConversion();

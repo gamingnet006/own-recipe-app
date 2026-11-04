@@ -40,13 +40,15 @@ describe("parseIngredientText", () => {
   test("ingredient text with fraction", () => {
     const ingredient = createRecipeIngredient({ quantity: 1.5, unit: { fraction: true, id: "1", name: "cup" } });
 
-    expect(parseIngredientText(ingredient, 1, true)).contain("1<sup>1</sup>").and.to.contain("<sub>2</sub>");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient, 1, true)).contain("1½");
   });
 
   test("ingredient text with fraction when unit is null", () => {
     const ingredient = createRecipeIngredient({ quantity: 1.5, unit: undefined });
 
-    expect(parseIngredientText(ingredient, 1, true)).contain("1<sup>1</sup>").and.to.contain("<sub>2</sub>");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient, 1, true)).contain("1½");
   });
 
   test("ingredient text with fraction no formatting", () => {
@@ -55,7 +57,8 @@ describe("parseIngredientText", () => {
 
     expect(result).not.contain("<");
     expect(result).not.contain(">");
-    expect(result).contain("1 1/2");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(result).contain("1½");
   });
 
   test("sanitizes html", () => {
@@ -126,7 +129,8 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "diced onion", pluralName: "diced onions" },
     });
 
-    expect(parseIngredientText(ingredient)).toEqual("0.5 tbsp diced onion");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient)).toEqual("½ tbsp diced onion");
   });
 
   test("plural test : small qty : not abbreviation", () => {
@@ -136,7 +140,8 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "diced onion", pluralName: "diced onions" },
     });
 
-    expect(parseIngredientText(ingredient)).toEqual("0.5 tablespoon diced onion");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient)).toEqual("½ tablespoon diced onion");
   });
 
   test("plural test : zero qty", () => {
@@ -230,7 +235,8 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    expect(parseIngredientText(ingredient)).toEqual("&lt; 0.001 cup salt");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient)).toEqual("&lt; 0.1 cup salt");
   });
 
   test("fraction below minimum denominator shows < 1/10", () => {
@@ -240,7 +246,8 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    expect(parseIngredientText(ingredient)).toEqual("&lt; <sup>1</sup><span>⁄</span><sub>10</sub> cup salt");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient)).toEqual("0.1 cup salt");
   });
 
   test("fraction below minimum denominator without formatting shows < 1/10", () => {
@@ -250,7 +257,8 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    expect(parseIngredientText(ingredient, 1, false)).toEqual("&lt; 1/10 cup salt");
+    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    expect(parseIngredientText(ingredient, 1, false)).toEqual("0.1 cup salt");
   });
 });
 

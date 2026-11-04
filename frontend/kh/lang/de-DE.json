@@ -129,6 +129,9 @@
       "ai_ready": "{provider} ist wieder bereit.",
       "ai_none": "Keine KI erreichbar.",
       "next": " Ich nehme jetzt {next}."
+    },
+    "amounts": {
+      "egg-tip": "Ein Ei verquirlen und die Hälfte nehmen."
     }
   }
 }

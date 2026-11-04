@@ -1,6 +1,9 @@
 import DOMPurify from "isomorphic-dompurify";
 import { useFraction } from "./use-fraction";
 import { useLocales } from "../use-locales";
+import { useGlobalI18n } from "../use-global-i18n";
+import { formatAmount } from "~~/kh/app/lib/amounts"; // KH: one amount display for every view (D39)
+import { khExtra } from "~~/kh/app/lib/amounts-store";
 import type { CreateIngredientFood, CreateIngredientUnit, IngredientFood, IngredientFoodSummary, IngredientUnit, Recipe, RecipeIngredient } from "~/lib/api/types/recipe";
 
 const { frac } = useFraction();
@@ -97,6 +100,7 @@ export function useFoodPlurality() {
 
 export function useIngredientTextParser() {
   const { shouldPluralizeFood } = useFoodPlurality();
+  const { locale } = useLocales(); // KH: for Küchenhelfer's amount display (D39)
 
   function useParsedIngredientText(ingredient: RecipeIngredient, scale = 1, includeFormating = true, groupSlug?: string): ParsedIngredientText {
     const { quantity, food, unit, note, referencedRecipe } = ingredient;
@@ -136,14 +140,24 @@ export function useIngredientTextParser() {
       }
     }
 
-    const unitName = useUnitName(unit || undefined, usePluralUnit);
+    let unitName = useUnitName(unit || undefined, usePluralUnit);
     const ingName = referencedRecipe ? referencedRecipe.name || "" : useFoodName(food || undefined, usePluralFood);
+
+    // KH: Küchenhelfer's display for every view: fractions, rounding, kg and l, 3 TL as 1 EL, ranges, fixed amounts (D39)
+    let shownNote = note;
+    if (quantity && Number(quantity) !== 0) {
+      const amount = { quantity: Number(quantity), ...khExtra(ingredient.referenceId), unit, food: food?.name ?? note };
+      const shown = formatAmount(amount, scale, locale.value);
+      returnQty = shown.quantity;
+      unitName = shown.unit ?? unitName;
+      if (shown.eggTip) shownNote = [note, useGlobalI18n().t("kh.amounts.egg-tip")].filter(Boolean).join(" · ");
+    }
 
     return {
       quantity: returnQty ? sanitizeIngredientHTML(returnQty) : undefined,
       unit: unitName && quantity ? sanitizeIngredientHTML(unitName) : undefined,
       name: ingName ? sanitizeIngredientHTML(ingName) : undefined,
-      note: note ? sanitizeIngredientHTML(note) : undefined,
+      note: shownNote ? sanitizeIngredientHTML(shownNote) : undefined,
       recipeLink: useRecipeLink(referencedRecipe || undefined, groupSlug),
     };
   };

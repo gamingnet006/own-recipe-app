@@ -129,6 +129,9 @@
       "ai_ready": "{provider} is ready again.",
       "ai_none": "No AI reachable.",
       "next": " Now using {next}."
+    },
+    "amounts": {
+      "egg-tip": "Whisk one egg and use half."
     }
   }
 }
