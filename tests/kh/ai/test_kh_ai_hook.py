@@ -1,8 +1,10 @@
 """KH: tests for hooking the AI priority list into Mealie (D39): Mealie's AI requests without a given provider go
 through the list, the provider test and saving a provider set its state, and drafts show the outcome."""
 
+import importlib.util
 import json
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 import httpx
@@ -11,19 +13,37 @@ import pytest
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
+import mealie
 from mealie.db.models.group.ai_providers import AIProviderSettings
-from mealie.kh.ai.state import load_states, save_state, sync_mealie_roles
+from mealie.kh.ai.models import KhAiProviderState
+from mealie.kh.ai.state import END_POSITION, in_order, load_states, save_state, sync_mealie_roles
 from mealie.schema.openai.general import OpenAIText
 from mealie.schema.recipe.recipe import Recipe
 from mealie.services.openai.openai import OpenAILocalAudio, OpenAIService
 from mealie.services.recipe.ai_recipe_service import AIRecipeService
 from mealie.services.scraper import scraper
 from tests.kh.ai.conftest import ANSWER, FakeAI
-from tests.kh.drafts.helpers import get_draft, post_draft
+from tests.kh.drafts.helpers import get_draft, png, post_draft
 from tests.utils.fixture_schemas import TestUser
 
 REQUEST = httpx.Request("POST", "https://ai.example/v1/chat/completions")
 DRAFT_DATA = Path(__file__).parent.parent / "drafts" / "data"
+KH0002 = (
+    Path(mealie.__file__).parent
+    / "kh"
+    / "alembic"
+    / "versions"
+    / "2026-11-04-00.00.00_kh0002_add_ai_state_and_notices.py"
+)
+
+
+def kh0002() -> ModuleType:
+    """The migration that added the list, loaded from its file like Alembic does."""
+    spec = importlib.util.spec_from_file_location("kh0002", KH0002)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def status_error(cls: type[openai.APIStatusError], code: int):
@@ -145,6 +165,58 @@ def test_draft_shows_ai_unavailable(api_client: TestClient, unique_user: TestUse
         fake_ai_calls.behavior[name] = openai.APIConnectionError(request=REQUEST)
     draft = post_draft(api_client, unique_user, data={"text": "Testkuchen: 200 g Mehl, 2 Eier."}).json()
     assert get_draft(api_client, unique_user, draft["id"]).json()["error"] == "ai_unavailable"
+
+
+@pytest.mark.parametrize(
+    ("failure", "code"),
+    [
+        (lambda: openai.APIConnectionError(request=REQUEST), "ai_unavailable"),
+        (lambda: status_error(openai.RateLimitError, 429), "quota_exceeded"),
+    ],
+)
+def test_photo_draft_tells_an_outage_from_a_missing_recipe(
+    api_client: TestClient, unique_user: TestUser, providers, fake_ai_calls: FakeAI, failure, code
+):
+    # reading a photo is the AI request itself: Mealie's import must not take an outage for "no recipe found"
+    for name in providers:
+        fake_ai_calls.behavior[name] = failure
+    draft = post_draft(api_client, unique_user, files=[("images", ("zettel.png", png(400, 300), "image/png"))]).json()
+    assert get_draft(api_client, unique_user, draft["id"]).json()["error"] == code
+
+
+def test_saving_a_new_model_forgets_image_support(unique_user: TestUser, providers):
+    session = unique_user.repos.session
+    save_state(session, providers["A"].id, supports_images=True)
+    unique_user.repos.group_ai_providers.update(providers["A"].id, {"name": "A2", "model": "model-a"})
+    assert load_states(session, [providers["A"].id])[providers["A"].id].supports_images is True
+    unique_user.repos.group_ai_providers.update(providers["A"].id, {"name": "A2", "model": "model-a2"})
+    assert load_states(session, [providers["A"].id])[providers["A"].id].supports_images is None
+
+
+def test_a_new_provider_goes_last(unique_user: TestUser, providers):
+    session = unique_user.repos.session
+    new = unique_user.repos.group_ai_providers.create({"name": "0 Neu", "api_key": "test-key", "model": "model-new"})
+    every = [*providers.values(), new]
+    ordered = in_order(every, load_states(session, [p.id for p in every]))
+    assert [p.name for p in ordered] == ["A", "B", "C", "0 Neu"]
+
+
+def test_upgrade_starts_with_mealies_roles(unique_user: TestUser, providers):
+    session = unique_user.repos.session
+    settings = session.execute(
+        sa.select(AIProviderSettings).where(AIProviderSettings.group_id == unique_user.group_id)
+    ).scalar_one()
+    settings.default_provider_id = providers["C"].id
+    settings.image_provider_id = providers["B"].id
+    ids = [p.id for p in providers.values()]
+    session.execute(sa.delete(KhAiProviderState).where(KhAiProviderState.provider_id.in_(ids)))
+    session.commit()
+    kh0002().seed_order(session.connection())
+    session.commit()
+    states = load_states(session, ids)
+    assert (states[providers["C"].id].position, states[providers["C"].id].supports_images) == (0, None)
+    assert (states[providers["B"].id].position, states[providers["B"].id].supports_images) == (1, True)
+    assert states[providers["A"].id].position == END_POSITION
 
 
 def test_draft_names_the_provider_that_answered(

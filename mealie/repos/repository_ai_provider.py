@@ -4,7 +4,7 @@ from pydantic import UUID4
 
 from mealie.db.models.group.ai_providers import AIProvider, AIProviderSettings
 from mealie.kh.ai.models import KhAiProviderState  # KH: the AI priority list (D39)
-from mealie.kh.ai.state import save_state, sync_mealie_roles
+from mealie.kh.ai.state import place_last, same_setup, save_state, sync_mealie_roles
 from mealie.schema.group.ai_providers import AIProviderCreate, AIProviderOut
 
 from .repository_generic import GroupRepositoryGeneric
@@ -26,7 +26,9 @@ class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider
             ).scalar_one()
 
         created = super().create(data)
-        sync_mealie_roles(self.session, self.group_id)  # KH: the roles follow the priority list (D39)
+        # KH: a new provider joins the priority list at the end; the roles follow the list (D39)
+        place_last(self.session, created.id, [p.id for p in self.get_all() if p.id != created.id])
+        sync_mealie_roles(self.session, self.group_id)
         return created
 
     def update(self, match_value: str | int | UUID4, new_data: AIProviderCreate | dict):
@@ -37,6 +39,8 @@ class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider
             new_data = new_data.model_dump()
             new_data["api_key"] = api_key
 
+        before = self.get_one(match_value)  # KH: to tell a new address, model or key from a new name (D39)
+
         # Merge existing API key into new data
         if not new_data.get("api_key"):
             existing = self.get_one(match_value)
@@ -44,8 +48,10 @@ class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider
                 new_data["api_key"] = existing.api_key
 
         updated = super().update(match_value, new_data)
-        # KH: a saved provider gets another chance in the priority list, e.g. with a new key (D39)
-        save_state(self.session, updated.id, status="ready", paused_until=None)
+        # KH: a saved provider gets another chance in the priority list, e.g. with a new key; with another address,
+        # model or key, its last test no longer says whether it reads images (D39)
+        forget = {} if before is not None and same_setup(before, updated) else {"supports_images": None}
+        save_state(self.session, updated.id, status="ready", paused_until=None, **forget)
         return updated
 
     def delete(self, value, match_key: str | None = None) -> AIProviderOut:

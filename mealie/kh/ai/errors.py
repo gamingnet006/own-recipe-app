@@ -2,6 +2,7 @@
 an invalid key, a missing model, an unreachable provider, or skipping just this request."""
 
 import json
+import math
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -9,12 +10,28 @@ from typing import Literal
 
 import openai
 
+from mealie.core.exceptions import RateLimitError
 from mealie.kh.features.settings import KhSettings
 
 FailureKind = Literal["short", "quota", "key", "model", "unreachable", "skip"]
 
 # Gemini names its wait in the error body ("retryDelay": "33s"), others in the retry-after header
 RETRY_DELAY = re.compile(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"')
+# Gemini's daily quota: its QuotaFailure names a per-day quota, while its retryDelay may still be seconds
+PER_DAY_QUOTA = re.compile(r'"quotaId"\s*:\s*"[^"]*PerDay')
+MAX_WAIT_SECONDS = 86_400  # a provider asking for a longer wait is waited on for a day at most
+
+
+def body_text(error: BaseException) -> str:
+    """The provider's error body as text to search, whatever its shape (object, list, text or missing)."""
+    return json.dumps(getattr(error, "body", None), default=str)
+
+
+def tame(seconds: float) -> float | None:
+    """A provider's wait as usable seconds: none for something that is no number of seconds, at most a day."""
+    if not math.isfinite(seconds) or seconds < 0:
+        return None
+    return min(seconds, MAX_WAIT_SECONDS)
 
 
 class AIUnavailableError(Exception):
@@ -23,6 +40,11 @@ class AIUnavailableError(Exception):
     def __init__(self, last_error: Exception | None = None) -> None:
         super().__init__("No AI provider answered")
         self.last_error = last_error
+
+
+class QuotaUsedUpError(RateLimitError):
+    """No provider of the priority list answered and one has used up its quota. As Mealie's RateLimitError a draft
+    shows quota_exceeded; its own class lets Mealie's import stop on it (compile_source), not on every rate limit."""
 
 
 @dataclass(frozen=True)
@@ -40,17 +62,20 @@ def retry_seconds(error: BaseException) -> float | None:
     header = response.headers.get("retry-after") if response is not None else None
     if header:
         try:
-            return float(header)
+            return tame(float(header))
         except ValueError:
             pass  # an HTTP date instead of seconds; the body may still name the wait
-    match = RETRY_DELAY.search(json.dumps(getattr(error, "body", None), default=str))
-    return float(match.group(1)) if match else None
+    match = RETRY_DELAY.search(body_text(error))
+    return tame(float(match.group(1))) if match else None
 
 
 def classify(error: BaseException, settings: KhSettings) -> Failure:
     """Sorts a provider's error. A 429 with a wait up to ai_short_pause_seconds is only a short pause (a per-minute
-    limit), any other 429 a used-up quota; anything that says nothing about the provider skips just this request."""
+    limit), any other 429, and Gemini's per-day quota whatever wait it names, a used-up quota; anything that says
+    nothing about the provider skips just this request."""
     if isinstance(error, openai.RateLimitError):
+        if PER_DAY_QUOTA.search(body_text(error)):
+            return Failure("quota")
         wait = retry_seconds(error)
         short = wait is not None and wait <= settings.ai_short_pause_seconds
         return Failure("short" if short else "quota", wait)

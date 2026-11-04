@@ -221,11 +221,11 @@ def test_update_settings_all_provider_types(api_client: TestClient, unique_user:
         assert response.status_code == 200
 
         settings = response.json()
-        # KH: default and image provider follow Küchenhelfer's priority list, here by name; audio stays (D39)
-        first = min((default_provider, audio_provider, image_provider), key=lambda p: p.name)
-        assert settings["defaultProviderId"] == str(first.id)
+        # KH: default and image provider follow Küchenhelfer's priority list, which keeps the order the providers were
+        # added in, so its first, untested, does both; audio stays (D39)
+        assert settings["defaultProviderId"] == str(default_provider.id)
         assert settings["audioProviderId"] == str(audio_provider.id)
-        assert settings["imageProviderId"] == str(first.id)
+        assert settings["imageProviderId"] == str(default_provider.id)
     finally:
         unique_user.repos.group_ai_provider_settings.update(
             unique_user.repos.group_id,

@@ -1,6 +1,7 @@
 """KH: tests for the AI priority list (D39): providers are asked in order, a failing one is paused by its error,
 and the bell gets one notice per change."""
 
+import asyncio
 from datetime import timedelta
 
 import httpx
@@ -10,6 +11,7 @@ import sqlalchemy as sa
 
 from mealie.core.exceptions import RateLimitError
 from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.ai import chain
 from mealie.kh.ai.chain import ask_ai, used_provider
 from mealie.kh.ai.errors import AIUnavailableError
 from mealie.kh.ai.state import load_states, save_state
@@ -145,6 +147,67 @@ async def test_all_down_raises_unavailable(unique_user: TestUser, providers, fak
     with pytest.raises(AIUnavailableError):
         await ask(unique_user)
     assert [kind for kind, _, _ in notices(unique_user)] == ["ai_unreachable"] * 3 + ["ai_none"]
+
+
+@pytest.mark.asyncio
+async def test_key_error_notice_names_the_next(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    fake_ai_calls.behavior["A"] = status_error(openai.AuthenticationError, 401)
+    await ask(unique_user)
+    assert notices(unique_user) == [("ai_key", "A", "B")]
+
+
+@pytest.mark.asyncio
+async def test_missing_model_moves_on(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    fake_ai_calls.behavior["A"] = status_error(openai.NotFoundError, 404)
+    assert await ask(unique_user) == ANSWER
+    assert state(unique_user, providers["A"]).status == "model"
+    assert notices(unique_user) == [("ai_model", "A", "B")]
+
+
+@pytest.mark.asyncio
+async def test_pause_counts_from_the_failure(
+    unique_user: TestUser, providers, fake_ai_calls: FakeAI, monkeypatch: pytest.MonkeyPatch
+):
+    start = get_utc_now()
+    clock = {"now": start}
+    monkeypatch.setattr(chain, "get_utc_now", lambda: clock["now"])
+
+    def slow_timeout():
+        clock["now"] = start + timedelta(minutes=15)  # the provider kept the request waiting this long
+        return openai.APITimeoutError(request=REQUEST)
+
+    fake_ai_calls.behavior["A"] = slow_timeout
+    await ask(unique_user)
+    assert state(unique_user, providers["A"]).paused_until == start + timedelta(minutes=25)
+
+
+@pytest.mark.asyncio
+async def test_the_list_retries_not_the_openai_package(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    # the last provider asked keeps the package's retries, as Mealie's one provider had them
+    fake_ai_calls.behavior.update(
+        A=openai.APIConnectionError(request=REQUEST), B=openai.APIConnectionError(request=REQUEST)
+    )
+    assert await ask(unique_user) == ANSWER
+    assert fake_ai_calls.retries == [0, 0, None]
+
+
+@pytest.mark.asyncio
+async def test_two_requests_note_one_change(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429)
+    assert await asyncio.gather(ask(unique_user), ask(unique_user)) == [ANSWER, ANSWER]
+    assert notices(unique_user) == [("ai_quota", "A", "B")]
+
+
+@pytest.mark.asyncio
+async def test_a_request_error_does_not_hide_an_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    fake_ai_calls.behavior.update(
+        A=status_error(openai.BadRequestError, 400),
+        B=status_error(openai.RateLimitError, 429),
+        C=openai.APIConnectionError(request=REQUEST),
+    )
+    with pytest.raises(RateLimitError):
+        await ask(unique_user)
+    assert [kind for kind, _, _ in notices(unique_user)] == ["ai_quota", "ai_unreachable", "ai_none"]
 
 
 @pytest.mark.asyncio

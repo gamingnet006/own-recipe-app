@@ -6,6 +6,9 @@ Create Date: 2026-11-04 00:00:00.000000
 
 """
 
+from datetime import UTC, datetime
+from uuid import UUID, uuid4
+
 import sqlalchemy as sa
 from alembic import op
 
@@ -29,8 +32,42 @@ def timestamps() -> list[sa.Column]:
     ]
 
 
+def seed_order(connection: sa.Connection) -> None:
+    """Starts each group's priority list with Mealie's roles, so requests go where they went before the update: the
+    default provider first, the image provider next, marked as reading images, since it was picked for photos; the
+    others follow by name. A provider that already has a place keeps it."""
+    settings = sa.table(
+        "ai_provider_settings", sa.column("default_provider_id", GUID()), sa.column("image_provider_id", GUID())
+    )
+    state = sa.table(
+        "kh_ai_provider_state",
+        *(sa.column(name, GUID()) for name in ("id", "provider_id")),
+        sa.column("position", sa.Integer()),
+        sa.column("status", sa.String()),
+        sa.column("supports_images", sa.Boolean()),
+        *(sa.column(name, NaiveDateTime()) for name in ("created_at", "update_at")),
+    )
+    placed = set(connection.execute(sa.select(state.c.provider_id)).scalars())
+    now = datetime.now(UTC)
+    groups = connection.execute(sa.select(settings.c.default_provider_id, settings.c.image_provider_id)).all()
+    for default_id, image_id in groups:
+        reads_images: dict[UUID, bool | None] = {}  # provider -> reads images, in the list's order
+        if default_id:
+            reads_images[default_id] = True if default_id == image_id else None
+        if image_id:
+            reads_images.setdefault(image_id, True)
+        for position, (provider_id, images) in enumerate(reads_images.items()):
+            if provider_id not in placed:
+                row = {"id": uuid4(), "provider_id": provider_id, "position": position, "status": "ready"}
+                connection.execute(
+                    sa.insert(state).values(**row, supports_images=images, created_at=now, update_at=now)
+                )
+                placed.add(provider_id)
+
+
 def upgrade():
-    """Creates the three tables with the columns and indexes of the models in mealie/kh/ai and mealie/kh/notices."""
+    """Creates the three tables with the columns and indexes of the models in mealie/kh/ai and mealie/kh/notices,
+    then starts the priority list from Mealie's roles."""
     op.create_table(
         "kh_ai_provider_state",
         sa.Column("id", GUID(), nullable=False),
@@ -73,6 +110,7 @@ def upgrade():
     with op.batch_alter_table("kh_notice_reads", schema=None) as batch_op:
         batch_op.create_index(batch_op.f("ix_kh_notice_reads_created_at"), ["created_at"], unique=False)
         batch_op.create_index(batch_op.f("ix_kh_notice_reads_user_id"), ["user_id"], unique=True)
+    seed_order(op.get_bind())
 
 
 def downgrade():

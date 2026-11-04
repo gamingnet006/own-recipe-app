@@ -38,18 +38,34 @@ def load_states(session: Session, provider_ids: list[UUID4]) -> dict[UUID4, Prov
     return {pid: found.get(pid, ProviderState(END_POSITION, "ready", None, None)) for pid in provider_ids}
 
 
-def save_state(session: Session, provider_id: UUID4, **fields: Any) -> None:
+def save_state(session: Session, provider_id: UUID4, **fields: Any) -> str:
     """Creates or changes the provider's row and commits right away, so a later error in the same request does not
-    roll the change back. A new row without a place goes last."""
+    roll the change back; returns the status stored before. Nothing awaits between reading and writing, so of two
+    requests on one event loop only one sees a change of status. A new row without a place goes last."""
     row = session.execute(
         sa.select(KhAiProviderState).where(KhAiProviderState.provider_id == provider_id)
     ).scalar_one_or_none()
     if row is None:
         session.add(KhAiProviderState(session=session, provider_id=provider_id, **{"position": END_POSITION, **fields}))
+        before = "ready"
     else:
+        before = row.status
         for key, value in fields.items():
             setattr(row, key, value)
     session.commit()
+    return before
+
+
+def place_last(session: Session, provider_id: UUID4, others: list[UUID4]) -> None:
+    """Puts a new provider after all the others of its group, also after those never placed."""
+    positions = [state.position for state in load_states(session, others).values()]
+    save_state(session, provider_id, position=max(positions, default=-1) + 1)
+
+
+def same_setup(a: AIProvider | AIProviderOut, b: AIProvider | AIProviderOut) -> bool:
+    """Whether two versions of a provider reach the same address and model with the same key; a test of one then
+    holds for the other."""
+    return (a.base_url, a.model, a.api_key) == (b.base_url, b.model, b.api_key)
 
 
 def in_order[P: (AIProvider, AIProviderOut)](providers: list[P], states: dict[UUID4, ProviderState]) -> list[P]:
@@ -86,11 +102,7 @@ def record_test(
     """Keeps what a provider test found, for a saved provider tested as saved, not for unsaved edits: a green test
     makes it ready and notes whether it read an image, a rejected key or a missing model pauses it until fixed."""
     saved = session.get(AIProvider, provider.id)
-    if saved is None or (saved.base_url, saved.model, saved.api_key) != (
-        provider.base_url,
-        provider.model,
-        provider.api_key,
-    ):
+    if saved is None or not same_setup(saved, provider):
         return
     if error is None:
         save_state(session, provider.id, status="ready", paused_until=None, supports_images=supports_images)

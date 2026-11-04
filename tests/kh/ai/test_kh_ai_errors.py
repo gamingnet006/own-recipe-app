@@ -40,6 +40,33 @@ def test_gemini_retry_delay_in_a_list_body():
     assert classify(status_error(openai.RateLimitError, 429, body=body), S) == Failure("short", 33)
 
 
+def test_gemini_daily_quota_is_quota_despite_a_short_delay():
+    # Gemini names a short retryDelay even when the day's quota is used up; its QuotaFailure says which quota
+    body = [
+        {
+            "error": {
+                "code": 429,
+                "status": "RESOURCE_EXHAUSTED",
+                "details": [
+                    {
+                        "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                        "violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}],
+                    },
+                    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "33s"},
+                ],
+            }
+        }
+    ]
+    assert classify(status_error(openai.RateLimitError, 429, body=body), S) == Failure("quota", None)
+
+
+def test_absurd_waits_are_tamed():
+    assert retry_seconds(status_error(openai.RateLimitError, 429, {"retry-after": "inf"})) is None
+    assert retry_seconds(status_error(openai.RateLimitError, 429, {"retry-after": "1e30"})) == 86400
+    failure = classify(status_error(openai.RateLimitError, 429, {"retry-after": "1e30"}), S)
+    assert pause_until(failure, NOW, S) == NOW + timedelta(days=1)
+
+
 def test_429_without_hint_is_quota():
     assert classify(status_error(openai.RateLimitError, 429), S) == Failure("quota", None)
 

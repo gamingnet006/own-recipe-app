@@ -1,5 +1,5 @@
-// KH: the bell (D39): a notice in the reader's words, which notices are new since the last check, and the bell's
-// state, checked now, every few minutes and whenever the app comes back to the front.
+// KH: the bell (D39): a notice in the reader's words, the newest one since the last check, and the bell's state,
+// checked now, every few minutes and whenever the app comes back to the front.
 import { useRequests } from "~/composables/api/api-client";
 import { alert } from "~/composables/use-toast";
 import { KhNoticesApi, type KhNotice } from "../lib/api/notices";
@@ -18,9 +18,10 @@ export function noticeText(notice: KhNotice, t: Translate, time: (d: Date) => st
   return notice.nextProvider ? text + t("kh.notices.next", values) : text;
 }
 
-/** The notices whose id was not seen before, for the short hint at the bottom. */
-export function freshNotices(items: KhNotice[], known: Set<string>): KhNotice[] {
-  return items.filter(notice => !known.has(notice.id));
+/** The newest notice not seen before, for the short hint at the bottom (ITEMS come newest first). Mealie shows one
+ * hint at a time, so during an outage it says "no AI reachable", not an older switch. */
+export function toastNotice(items: KhNotice[], known: Set<string>): KhNotice | undefined {
+  return items.find(notice => !known.has(notice.id));
 }
 
 /** FN, but a call while one is still running is dropped: opening the app also reports it visible. */
@@ -38,8 +39,8 @@ export function oneAtATime(fn: () => Promise<void>): () => Promise<void> {
   };
 }
 
-/** The bell's notices and unread count. Notices that arrive while the app is open show once at the bottom; those
- * from before it opened only count in the badge. */
+/** The bell's notices and unread count. The newest notice that arrived while the app is open shows once at the
+ * bottom; those from before it opened only count in the badge. */
 export function useKhNotices() {
   const api = new KhNoticesApi(useRequests());
   const i18n = useI18n();
@@ -53,13 +54,13 @@ export function useKhNotices() {
   const load = oneAtATime(async () => {
     const { data } = await api.list();
     if (!data) return;
-    const fresh = loaded ? freshNotices(data.items, known) : [];
+    const fresh = loaded ? toastNotice(data.items, known) : undefined;
     data.items.forEach(notice => known.add(notice.id));
     loaded = true;
     items.value = data.items;
     unread.value = data.unread;
     const time = (d: Date) => clockTime(d, i18n.locale.value);
-    fresh.forEach(notice => alert.info(noticeText(notice, (key, values) => i18n.t(key, values ?? {}), time)));
+    if (fresh) alert.info(noticeText(fresh, (key, values) => i18n.t(key, values ?? {}), time));
   });
 
   async function open() {

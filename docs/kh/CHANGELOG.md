@@ -28,6 +28,8 @@ AI priority list and bell (D39):
   invalid, a model is gone or a provider is down, and a failing one is skipped for a while. Each provider shows its
   state, e.g. "quota used up until 9:00"; Küchenhelfer sets Mealie's default and image provider from the list, and
   photos go only to providers whose test read an image, or untested ones.
+- After the update the list starts where requests went so far: the default provider first, the image provider next;
+  a new provider joins at the end.
 - A bell next to the search for everyone who manages AI providers, with messages such as "Gemini: quota used up until
   9:00. Now using Groq."; the intake tells the family when no provider is free. A draft no provider could read says
   "No AI reachable".

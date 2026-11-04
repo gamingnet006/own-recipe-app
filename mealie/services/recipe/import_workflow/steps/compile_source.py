@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from mealie.core.root_logger import get_logger
+from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError  # KH: the AI priority list (D39)
 from mealie.pkgs.safehttp import resilient_fetch
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
 from mealie.services.openai.content import truncate_source_parts
@@ -64,6 +65,8 @@ class CompileSourceStep(WorkflowStep):
 
             try:
                 compiled = await compiler.compile()
+            except AIUnavailableError, QuotaUsedUpError:
+                raise  # KH: no AI of the priority list answered, which says nothing about the source (D39)
             except Exception:
                 # `can_compile` judges the shape of the source, not whether it can actually be read.
                 # yt-dlp recognises every cooking.nytimes.com/recipes/<id> URL, for instance, but

@@ -1,7 +1,7 @@
 // KH: tests for the bell (D39): each notice in the words of the spec, with and without the provider taken next, which
-// notices are new since the last check, and the texts in both languages.
+// new notice the short hint shows, and the texts in both languages.
 import { expect, test } from "vitest";
-import { freshNotices, noticeText, oneAtATime } from "../composables/use-kh-notices";
+import { noticeText, oneAtATime, toastNotice } from "../composables/use-kh-notices";
 import type { KhNotice } from "../lib/api/notices";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
@@ -41,9 +41,10 @@ test("each kind reads as in the spec, with and without the next provider", () =>
   expect(noticeText(quota, tEn, time)).toBe("Gemini: quota used up until 9:00. Now using Groq.");
 });
 
-test("only notices not seen before are fresh", () => {
-  expect(freshNotices([n("1"), n("2")], new Set(["1"]))).toEqual([n("2")]);
-  expect(freshNotices([n("1")], new Set(["1"]))).toEqual([]);
+test("the short hint shows the newest of the new notices", () => {
+  // newest first: during an outage the hint says "no AI reachable", not an older switch
+  expect(toastNotice([n("3"), n("2"), n("1")], new Set(["1"]))).toEqual(n("3"));
+  expect(toastNotice([n("1")], new Set(["1"]))).toBeUndefined();
 });
 
 test("a check while one is running is dropped, a later one runs", async () => {

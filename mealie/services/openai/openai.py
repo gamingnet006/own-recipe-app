@@ -392,12 +392,19 @@ class OpenAIService(BaseService):
         return "\n".join(content_parts)
 
     async def _get_raw_response(
-        self, prompt: str, content: list[dict], response_schema: type[T], provider: AIProviderOut
+        self,
+        prompt: str,
+        content: list[dict],
+        response_schema: type[T],
+        provider: AIProviderOut,
+        max_retries: int | None = None,  # KH: the priority list asks the next provider instead of retrying (D39)
     ) -> T | None:
         import openai
         from openai.types.chat import ChatCompletion
 
         client = self.get_client(provider)
+        if max_retries is not None:  # KH: see max_retries
+            client = client.with_options(max_retries=max_retries)
         # parse() builds the same response_format payload create() would send, but its
         # client-side validation runs as a post_parser that the raw-response path never
         # triggers, so we read the body ourselves and let parse_openai_response() below
