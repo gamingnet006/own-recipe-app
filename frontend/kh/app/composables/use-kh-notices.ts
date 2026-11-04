@@ -23,6 +23,21 @@ export function freshNotices(items: KhNotice[], known: Set<string>): KhNotice[] 
   return items.filter(notice => !known.has(notice.id));
 }
 
+/** FN, but a call while one is still running is dropped: opening the app also reports it visible. */
+export function oneAtATime(fn: () => Promise<void>): () => Promise<void> {
+  let running = false;
+  return async () => {
+    if (running) return;
+    running = true;
+    try {
+      await fn();
+    }
+    finally {
+      running = false;
+    }
+  };
+}
+
 /** The bell's notices and unread count. Notices that arrive while the app is open show once at the bottom; those
  * from before it opened only count in the badge. */
 export function useKhNotices() {
@@ -35,7 +50,7 @@ export function useKhNotices() {
   let loaded = false;
   let timer: ReturnType<typeof setInterval> | undefined;
 
-  async function load() {
+  const load = oneAtATime(async () => {
     const { data } = await api.list();
     if (!data) return;
     const fresh = loaded ? freshNotices(data.items, known) : [];
@@ -45,7 +60,7 @@ export function useKhNotices() {
     unread.value = data.unread;
     const time = (d: Date) => clockTime(d, i18n.locale.value);
     fresh.forEach(notice => alert.info(noticeText(notice, (key, values) => i18n.t(key, values ?? {}), time)));
-  }
+  });
 
   async function open() {
     await api.read();

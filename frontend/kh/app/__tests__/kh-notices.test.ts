@@ -1,7 +1,7 @@
 // KH: tests for the bell (D39): each notice in the words of the spec, with and without the provider taken next, which
 // notices are new since the last check, and the texts in both languages.
 import { expect, test } from "vitest";
-import { freshNotices, noticeText } from "../composables/use-kh-notices";
+import { freshNotices, noticeText, oneAtATime } from "../composables/use-kh-notices";
 import type { KhNotice } from "../lib/api/notices";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
@@ -44,6 +44,24 @@ test("each kind reads as in the spec, with and without the next provider", () =>
 test("only notices not seen before are fresh", () => {
   expect(freshNotices([n("1"), n("2")], new Set(["1"]))).toEqual([n("2")]);
   expect(freshNotices([n("1")], new Set(["1"]))).toEqual([]);
+});
+
+test("a check while one is running is dropped, a later one runs", async () => {
+  let calls = 0;
+  let finish = () => {};
+  const load = oneAtATime(() => {
+    calls++;
+    return new Promise<void>(resolve => (finish = resolve));
+  });
+  const first = load();
+  await load(); // opening the app also reports it visible: the second check must not ask again
+  expect(calls).toBe(1);
+  finish();
+  await first;
+  const later = load();
+  finish();
+  await later;
+  expect(calls).toBe(2);
 });
 
 test("kh.notices has the same keys in German and English", () => {
