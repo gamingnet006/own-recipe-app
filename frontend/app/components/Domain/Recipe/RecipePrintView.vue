@@ -136,8 +136,9 @@
                   + 1,
               }) }}
             </h5>
+            <!-- KH: linked amounts in the text follow the factor (D39) -->
             <SafeMarkdown
-              :source="step.text"
+              :source="khStepText(instructionSection.stepOffset + stepIndex, step.text, recipe.recipeIngredient, scale)"
               class="recipe-step-body"
             />
             <!-- Step Ingredients -->
@@ -231,6 +232,7 @@ import { ImagePosition, useUserPrintPreferences } from "~/composables/use-users/
 import { ingredientSubstitutionSummary, useFoodPlurality, useIngredientTextParser, useNutritionLabels } from "~/composables/recipes";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 import { useScaledAmount } from "~/composables/recipes/use-scaled-amount";
+import { khStepText } from "~~/kh/app/lib/amounts-store"; // KH: scaled amounts in the steps (D39)
 
 type IngredientSection = {
   sectionName: string;

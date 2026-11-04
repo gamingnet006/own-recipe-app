@@ -194,3 +194,44 @@ export function stepSegments(
   if (at < text.length) segments.push({ text: text.slice(at), link: null });
   return segments;
 }
+
+// Linked amounts in the step text at the view's factor (A2); the text itself stays as saved (D19).
+
+/** A link from a step's text to an ingredient, as /api/kh/amounts sends it; STEP is the step's place, from 0. */
+export interface KhStepLink {
+  step: number;
+  start: number;
+  end: number;
+  text: string;
+  referenceId: string;
+  fraction: number;
+}
+
+// the number a link's text starts with, as the backend's QUANTITY reads it in a step
+const LEADING_NUMBER = /^(?:\d+\s+\d+\/[1-9]\d*|\d+\/[1-9]\d*|(?:\d+ ?)?[¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]|\d+(?:[.,]\d+)?)/;
+
+/** The step's text at SCALE: each linked amount whose text still stands at its place becomes its ingredient's amount
+ * times the link's fraction, shown like the ingredient list; the unit stays as written unless it changes (kg).
+ * Replaced from the end, so earlier places stay right; at scale 1 the text stays word for word. */
+export function scaleStepText(
+  text: string,
+  links: KhStepLink[],
+  ingredients: Map<string, KhAmount>,
+  scale: number,
+  locale: string,
+): string {
+  if (scale === 1) return text;
+  const valid = links.filter(link => text.slice(link.start, link.end) === link.text).sort((a, b) => b.start - a.start);
+  let result = text;
+  let limit = text.length; // a link reaching past the one replaced after it overlaps it
+  for (const link of valid) {
+    const amount = ingredients.get(link.referenceId);
+    if (!amount || link.end > limit) continue;
+    const shown = formatAmount({ ...amount, quantity: amount.quantity * link.fraction, upper: null }, scale, locale);
+    const number = link.text.match(LEADING_NUMBER)?.[0] ?? "";
+    const unit = shown.unit ? ` ${shown.unit}` : link.text.slice(number.length);
+    result = result.slice(0, link.start) + shown.quantity + unit + result.slice(link.end);
+    limit = link.start;
+  }
+  return result;
+}

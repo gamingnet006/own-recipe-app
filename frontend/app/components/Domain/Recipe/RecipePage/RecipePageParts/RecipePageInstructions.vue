@@ -492,9 +492,10 @@
                         vertical
                       />
                       <v-col>
+                        <!-- KH: linked amounts in the text follow the factor; the editor keeps the text as saved (D39) -->
                         <SafeMarkdown
                           class="markdown"
-                          :source="step.text"
+                          :source="khStepText(index, step.text, recipe.recipeIngredient, scale)"
                         />
                       </v-col>
                     </v-row>
@@ -526,6 +527,7 @@ import DropZone from "~/components/global/DropZone.vue";
 import { alert } from "~/composables/use-toast";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
 import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtml.vue";
+import { khStepText } from "~~/kh/app/lib/amounts-store"; // KH: scaled amounts in the steps (D39)
 
 interface MergerHistory {
   target: number;

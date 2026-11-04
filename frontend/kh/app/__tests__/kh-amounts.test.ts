@@ -6,6 +6,7 @@ import {
   haveOnlyFactor,
   panFactor,
   parsePan,
+  scaleStepText,
   servingsFactor,
   stepSegments,
   timeHint,
@@ -141,4 +142,39 @@ test("step segments", () => {
     { text: "250 g", link: 0 },
     { text: " Mehl", link: null },
   ]);
+});
+
+const link = (start: number, text: string, referenceId = "mehl", fraction = 1) =>
+  ({ step: 0, start, end: start + text.length, text, referenceId, fraction });
+const lines = new Map<string, KhAmount>([
+  ["mehl", { quantity: 250, unit: g }],
+  ["zucker", { quantity: 2, unit: el }],
+  ["butter", { quantity: 600, unit: g }],
+]);
+const step = (text: string, links: ReturnType<typeof link>[], scale: number) => scaleStepText(text, links, lines, scale, "de-DE");
+
+test("linked amounts follow the factor", () => {
+  expect(step("250 g Mehl unterrühren", [link(0, "250 g")], 2)).toBe("500 g Mehl unterrühren");
+});
+
+test("parts follow too", () => {
+  expect(step("125 g Mehl", [link(0, "125 g", "mehl", 0.5)], 2)).toBe("250 g Mehl");
+});
+
+test("kilograms in the text", () => {
+  expect(step("600 g Butter", [link(0, "600 g", "butter")], 2)).toBe("1,2 kg Butter");
+});
+
+test("scale 1 keeps the text", () => {
+  expect(step("250 g Mehl unterrühren", [link(0, "250 g")], 1)).toBe("250 g Mehl unterrühren");
+});
+
+test("a stale link changes nothing", () => {
+  // Review focus 3: the text at the link's place is no longer the link's text
+  expect(step("300 g Mehl unterrühren", [link(0, "250 g")], 2)).toBe("300 g Mehl unterrühren");
+});
+
+test("several links in one step", () => {
+  const text = "250 g Mehl und 2 EL Zucker";
+  expect(step(text, [link(0, "250 g"), link(15, "2 EL", "zucker")], 2)).toBe("500 g Mehl und 4 EL Zucker");
 });
