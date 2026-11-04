@@ -45,7 +45,9 @@ def build_recipe(german: DataMatcher, lines: list[str], steps: list[str]) -> Rec
     for line in lines:
         parsed = parse_ingredient(line, german.units_by_alias, german.foods_by_alias)
         ingredients.append(
-            RecipeIngredient(quantity=parsed.quantity, unit=parsed.unit, food=parsed.food, note=parsed.note)
+            RecipeIngredient(
+                quantity=parsed.quantity, unit=parsed.unit, food=parsed.food, note=parsed.note, original_text=line
+            )
         )
     return Recipe(
         name="Testrezept", recipe_ingredient=ingredients, recipe_instructions=[RecipeStep(text=t) for t in steps]

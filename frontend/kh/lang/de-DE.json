@@ -41,7 +41,13 @@
       "warning": {
         "duplicate_link": "Gleicher Link wie {name}",
         "similar_title": "Ähnlicher Titel wie {name}",
-        "similar_ingredients": "Ähnliche Zutaten wie {name}"
+        "similar_ingredients": "Ähnliche Zutaten wie {name}",
+        "amount_unparsed": "Menge nicht erkannt: {name}",
+        "amount_unusual": "Ungewöhnliche Menge: {name}",
+        "time_unusual": "Zeit über 24 Stunden: {name}",
+        "temperature_unusual": "Ungewöhnliche Temperatur: {name}",
+        "ingredient_unused": "In keinem Schritt verwendet: {name}",
+        "units_converted": "Die Quelle nennt {name}; die Mengen wurden umgerechnet, bitte prüfen."
       },
       "error": {
         "no_recipe_data": "Dort wurde kein Rezept gefunden.",

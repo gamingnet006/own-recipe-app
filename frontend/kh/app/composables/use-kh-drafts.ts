@@ -116,9 +116,11 @@ export function approveTarget(slug: string, groupSlug: string, edit: boolean): s
   return `/g/${groupSlug}/r/${slug}${edit ? "?edit=true" : ""}`;
 }
 
-/** Where a hint on a possible duplicate leads: the saved recipe, else the other draft. */
+/** Where a hint on a possible duplicate leads: the saved recipe, else the other draft; nowhere for a hint on what
+ * looks wrong in the draft itself. */
 export function warningTarget(warning: KhDraftWarning, groupSlug: string): string {
-  return warning.recipeSlug ? `/g/${groupSlug}/r/${warning.recipeSlug}` : `/g/${groupSlug}/drafts/${warning.draftId}`;
+  if (warning.recipeSlug) return `/g/${groupSlug}/r/${warning.recipeSlug}`;
+  return warning.draftId ? `/g/${groupSlug}/drafts/${warning.draftId}` : ""; // a hint on the draft itself links nowhere
 }
 
 /** The detail of a failed drafts request, e.g. 409 with code "duplicates"; "offline" when the request never

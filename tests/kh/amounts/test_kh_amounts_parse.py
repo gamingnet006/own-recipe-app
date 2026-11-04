@@ -55,6 +55,7 @@ def test_german_lines(german: DataMatcher, line, quantity, upper, unit, food, no
 def test_endings_go():
     assert stem("Eier") == stem("Ei")
     assert stem("Möhren") == stem("Möhre")
+    assert stem("Eiern") == stem("Ei")  # "mit den Eiern": two endings, else a step seems not to use the eggs
 
 
 def test_german_units_come_once(unique_user: TestUser, german: DataMatcher):

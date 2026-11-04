@@ -13,6 +13,7 @@ from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
 from mealie.kh.ai.chain import used_providers
 from mealie.kh.ai.errors import AIUnavailableError
+from mealie.kh.amounts.plausibility import plausibility_warnings
 from mealie.kh.amounts.schemas import DraftAmounts
 from mealie.kh.amounts.service import read_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates
@@ -119,6 +120,8 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
             found = DraftAmounts(extras=amounts.extras, step_amounts=amounts.links)
             recognized["khAmounts"] = found.model_dump(mode="json", by_alias=True)
             warnings = find_duplicates(recognized, draft.source_url, candidates(repos, draft_id), get_kh_settings())
+            source = draft.source_text if draft.source_type == DraftSource.text else None
+            warnings += plausibility_warnings(recipe, amounts, source)  # what looks wrong (D39)
         except Exception as ex:
             session.rollback()  # on Postgres a failed statement aborts the transaction the failure is written in
             code = error_code(ex)

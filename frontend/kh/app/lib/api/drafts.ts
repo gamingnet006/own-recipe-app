@@ -9,7 +9,17 @@ export type KhDraftStatus = "working" | "ready" | "failed" | "approved";
 export type KhDraftSource = "link" | "text" | "image";
 
 export interface KhDraftWarning {
-  kind: "duplicate_link" | "similar_title" | "similar_ingredients";
+  kind:
+    | "duplicate_link"
+    | "similar_title"
+    | "similar_ingredients"
+    // what looks wrong in the draft (D39); name is the line, time, temperature, ingredient or units
+    | "amount_unparsed"
+    | "amount_unusual"
+    | "time_unusual"
+    | "temperature_unusual"
+    | "ingredient_unused"
+    | "units_converted";
   name: string;
   recipeSlug: string | null;
   draftId: string | null;

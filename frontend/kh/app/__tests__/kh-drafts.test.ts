@@ -142,6 +142,11 @@ describe("drafts list and review", () => {
     expect(approveTarget("testkuchen", "familie", true)).toBe("/g/familie/r/testkuchen?edit=true");
   });
 
+  test("amount warnings link nowhere", () => {
+    const hint = { kind: "amount_unusual", name: "6000 g Mehl", recipeSlug: null, draftId: null } as KhDraftWarning;
+    expect(warningTarget(hint, "g")).toBe("");
+  });
+
   test("a hint links to the recipe or to the other draft", () => {
     const hint = { kind: "duplicate_link", name: "Testkuchen", recipeSlug: null, draftId: "d1" } as KhDraftWarning;
     expect(warningTarget(hint, "familie")).toBe("/g/familie/drafts/d1");

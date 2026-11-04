@@ -25,7 +25,7 @@ WORD = re.compile(r"\S+")
 
 FIXED_UNITS = {"prise", "messerspitze"}  # normalized unit names that never scale
 FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack)\b", re.IGNORECASE)
-ENDINGS = ("en", "er", "e", "n", "s")  # one is cut off by stem(), the longest first
+ENDINGS = ("en", "er", "e", "n", "s")  # up to two are cut off by stem(), the longest first
 
 # Küchenhelfer's additions to Mealie's German units: name, plural, abbreviation
 GERMAN_UNITS = (
@@ -93,14 +93,18 @@ def unit_at(text: str, units: dict[str, IngredientUnit]) -> tuple[IngredientUnit
     return None
 
 
-def stem(word: str) -> str:
-    """The word normalized like Mealie's names and without one ending -en, -er, -e, -n or -s, so "Eier" meets "Ei"
-    and "Möhren" meets "Möhre"."""
-    word = IngredientFoodModel.normalize(word)
+def cut_ending(word: str) -> str:
+    """The word without one ending -en, -er, -e, -n or -s, keeping at least two letters."""
     for ending in ENDINGS:
         if word.endswith(ending) and len(word) - len(ending) >= 2:
             return word[: -len(ending)]
     return word
+
+
+def stem(word: str) -> str:
+    """The word normalized like Mealie's names and without up to two endings, so "Eier" and "Eiern" meet "Ei" and
+    "Möhren" meets "Möhre". Both sides of a comparison go through it, so a rough cut is enough."""
+    return cut_ending(cut_ending(IngredientFoodModel.normalize(word)))
 
 
 def food_and_note(rest: str, foods: dict[str, IngredientFood]) -> tuple[IngredientFood | None, str]:

@@ -41,9 +41,20 @@ class DraftError(StrEnum):
 
 
 class DraftWarning(MealieModel):
-    """A hint for the review: a recipe or another draft this one may duplicate."""
+    """A hint for the review: a recipe or another draft this one may duplicate, or what looks wrong in it (D39); NAME
+    is the other recipe's name, or the line, time, temperature, ingredient or units the hint is about."""
 
-    kind: Literal["duplicate_link", "similar_title", "similar_ingredients"]
+    kind: Literal[
+        "duplicate_link",
+        "similar_title",
+        "similar_ingredients",
+        "amount_unparsed",
+        "amount_unusual",
+        "time_unusual",
+        "temperature_unusual",
+        "ingredient_unused",
+        "units_converted",
+    ]
     name: str
     recipe_slug: str | None = None
     draft_id: UUID4 | None = None

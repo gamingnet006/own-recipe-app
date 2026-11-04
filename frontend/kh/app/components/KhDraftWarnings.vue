@@ -1,13 +1,14 @@
-<!-- KH: the hints on possible duplicates of a draft (phase 2), each linking to the recipe or the other draft it
-may repeat. Names come from recipes and drafts, so they are shown as text only. -->
+<!-- KH: the hints on a draft: possible duplicates (phase 2), each linking to the recipe or the other draft it may
+repeat, and what looks wrong in it (D39), as text. Names come from recipes and drafts, so they are shown as text only. -->
 <template>
   <v-alert type="warning" variant="tonal" density="compact">
     <div v-for="(warning, index) in warnings" :key="index">
       <i18n-t :keypath="`kh.drafts.warning.${warning.kind}`" tag="span">
         <template #name>
-          <NuxtLink :to="warningTarget(warning, groupSlug)">
+          <NuxtLink v-if="warningTarget(warning, groupSlug)" :to="warningTarget(warning, groupSlug)">
             {{ warning.name || $t("kh.drafts.another-draft") }}
           </NuxtLink>
+          <span v-else>{{ warning.name }}</span>
         </template>
       </i18n-t>
     </div>
