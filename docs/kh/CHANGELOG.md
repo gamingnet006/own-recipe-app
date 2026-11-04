@@ -22,6 +22,19 @@ The new interface (D38): everyday use first, in the look "Salbei", with a calm r
   with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
   comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.
 
+Amounts (Phase 3, D39):
+
+- Importing reads German amounts without AI: fractions, decimals with a comma, ranges, EL, TL, Prise, Pck., Msp.,
+  Stück and more; missing German units are added once, unknown foods stay text.
+- Amounts in the step text are linked to their ingredient; the review shows them tinted and taps unlink them, and
+  they follow later edits of the text.
+- The recipe page scales the step text too, in cook mode and print; "Scale" offers servings, "I only have …" and
+  baking pans, with a hint when times may change.
+- One display for all amounts: fractions, rounded grams, kg and l from 1000, halves of pieces with a tip for half an
+  egg, 3 TL as 1 EL, ranges at both ends, pinches that stay.
+- The review warns about unrecognized or unusual amounts, times over a day, odd temperatures, unused ingredients and
+  amounts converted from American units.
+
 AI priority list and bell (D39):
 
 - Any number of AI providers in an order set with ▲▼; a request moves on to the next when a quota is used up, a key is

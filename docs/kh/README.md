@@ -139,7 +139,7 @@ Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
 
 ### Ein Rezept ansehen und kochen
 
-Oben steht das Foto mit **Zurück**, dem Herz für die Favoriten und dem Menü **⋯**: Bearbeiten, Als gekocht markieren, Original ansehen (bei Rezepten aus dem Netz), In den Essensplan, Drucken und Löschen. Darunter folgen Titel, Herkunft, die Zeiten und die **Menge**. Mit − und + rechnest du die Mengen in Zutaten und Schritten um, sobald die Zutaten in Menge, Einheit und Zutat zerlegt sind (beim Bearbeiten mit **Zutaten parsen**). Unter den Zutaten legt **Auf die Einkaufsliste** sie auf eine Liste; unten öffnet **Kochen starten** den Kochmodus. Kategorien und Schlagworte stehen nur beim Bearbeiten.
+Oben steht das Foto mit **Zurück**, dem Herz für die Favoriten und dem Menü **⋯**: Bearbeiten, Als gekocht markieren, Original ansehen (bei Rezepten aus dem Netz), In den Essensplan, Drucken und Löschen. Darunter folgen Titel, Herkunft, die Zeiten und die **Menge**. Mit − und + rechnest du die Mengen in Zutaten und Schritten um (siehe „Mengen und Umrechnen“). Unter den Zutaten legt **Auf die Einkaufsliste** sie auf eine Liste; unten öffnet **Kochen starten** den Kochmodus. Kategorien und Schlagworte stehen nur beim Bearbeiten.
 
 ### Rezept hinzufügen
 
@@ -158,6 +158,29 @@ Danach wartet das Rezept als Entwurf unten im **Eingang** und ist nach ein paar 
 - Ging die Erkennung schief, steht der Grund dabei, mit **Neu versuchen**.
 
 Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehen**.
+
+### Mengen und Umrechnen
+
+- **Beim Einlesen** liest Küchenhelfer deutsche Mengen selbst, ohne KI und ohne Netz: „250 g“, „½ TL“, „1 1/2 EL“, „1,5 kg“, Bereiche wie „2–3 EL“ oder „2 bis 3 EL“, dazu Prise, Msp., Pck., Bund, Stück und mehr. Fehlen der Gruppe Einheiten wie Messerspitze, Stück, Scheibe oder Becher, legt Küchenhelfer sie beim ersten Mal an. Gibt es eine Zutat schon bei den Lebensmitteln, wird sie verknüpft; sonst bleibt ihr Name als Text neben Menge und Einheit.
+- **In der Prüfansicht** sind Mengen im Schritttext farbig hinterlegt, wenn sie zu einer Zutat passen („125 g Mehl“ bei 250 g Mehl). Antippen löst eine Verknüpfung, erneutes Antippen verknüpft wieder. Hinweise zeigen, was auffällt:
+  - eine Menge, die nicht erkannt wurde;
+  - ungewöhnliche Mengen, also mehr als 5000 g, 5 kg, 20 EL, 3 Prisen oder 30 Stück;
+  - Zeiten über 24 Stunden;
+  - Temperaturen unter 30 oder über 300 °C, und Angaben in °F;
+  - Zutaten, die in keinem Schritt vorkommen;
+  - Mengen, die aus cups oder oz umgerechnet wurden.
+- **Auf der Rezeptseite** rechnen − und + die Zutaten und die verknüpften Mengen im Schritttext um, auch im Kochmodus, im Druck und für die Einkaufsliste. Gespeichert wird nur die Basis. **Umrechnen** bietet drei Wege:
+  - Portionen;
+  - „Ich habe nur …“: eine Zutat und wie viel davon da ist;
+  - Backform, rund oder eckig. Die alte Form steht oft schon in der Portionsangabe, etwa „Springform Ø 26 cm“.
+- **Die Anzeige:**
+  - Brüche wie ½ und ¾ statt Kommazahlen.
+  - Gramm und Milliliter gerundet, ab 1000 in kg oder l.
+  - Stückware in halben Stücken, bei halben Eiern mit Tipp.
+  - 3 TL werden 1 EL.
+  - Prise, Messerspitze, „etwas“ und „nach Geschmack“ bleiben, wie sie sind.
+  - Zeiten bleiben fest. Bei mehr als dem Doppelten oder weniger als der Hälfte erinnert ein Hinweis daran, dass sich Back- und Garzeiten ändern können.
+- Ältere Rezepte bleiben, wie sie sind; ihre Zutaten zerlegst du beim Bearbeiten mit **Zutaten parsen**. Wird ein Schritt später umgeschrieben oder verschoben, wandert seine Verknüpfung mit; fehlt die Menge danach, fällt sie weg.
 
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
@@ -351,7 +374,7 @@ On an iPad in landscape and on a computer, the same destinations are in the side
 
 ### View and cook a recipe
 
-At the top is the photo with **Back**, the heart for favorites and the **⋯** menu: Edit, Mark as cooked, View original (for recipes from the web), Add to plan, Print and Delete. Below come the title, where the recipe came from, the times and the **Amount**. − and + scale the amounts in ingredients and steps once the ingredients are split into amount, unit and food (when editing, with **Parse ingredients**). Under the ingredients, **Add to shopping list** puts them on a list; **Start cooking** at the bottom opens cook mode. Categories and tags show only while editing.
+At the top is the photo with **Back**, the heart for favorites and the **⋯** menu: Edit, Mark as cooked, View original (for recipes from the web), Add to plan, Print and Delete. Below come the title, where the recipe came from, the times and the **Amount**. − and + scale the amounts in ingredients and steps (see "Amounts and scaling"). Under the ingredients, **Add to shopping list** puts them on a list; **Start cooking** at the bottom opens cook mode. Categories and tags show only while editing.
 
 ### Add a recipe
 
@@ -370,6 +393,29 @@ The recipe then waits as a draft at the bottom of the **Intake** and is recogniz
 - If the recognition went wrong, the reason is shown, with **Try again**.
 
 A badge on the saved recipe shows where it came from, with **View original**.
+
+### Amounts and scaling
+
+- **On import** Küchenhelfer reads German amounts itself, without AI and without the network: "250 g", "½ TL", "1 1/2 EL", "1,5 kg", ranges such as "2–3 EL" or "2 bis 3 EL", and Prise, Msp., Pck., Bund, Stück and more. If the group lacks units such as Messerspitze, Stück, Scheibe or Becher, Küchenhelfer adds them the first time. An ingredient that already exists among the foods is linked; otherwise its name stays as text next to amount and unit.
+- **In the review** amounts in the step text are tinted when they fit an ingredient ("125 g Mehl" for 250 g Mehl). Tapping unlinks one, tapping again links it again. Hints point out what stands out:
+  - an amount that was not recognized;
+  - unusual amounts, that is more than 5000 g, 5 kg, 20 EL, 3 pinches or 30 pieces;
+  - times over 24 hours;
+  - temperatures below 30 or above 300 °C, and any given in °F;
+  - ingredients no step uses;
+  - amounts converted from cups or oz.
+- **On the recipe page** − and + scale the ingredients and the linked amounts in the step text, also in cook mode, in print and for the shopping list. Only the base is saved. **Scale** offers three ways:
+  - servings;
+  - "I only have …": an ingredient and how much of it there is;
+  - baking pan, round or rectangular. The old pan is often in the yield already, such as "Springform Ø 26 cm".
+- **The display:**
+  - Fractions such as ½ and ¾ instead of decimals.
+  - Grams and millilitres rounded, from 1000 in kg or l.
+  - Pieces in halves, with a tip for half an egg.
+  - 3 TL become 1 EL.
+  - Pinches, Messerspitze, "etwas" and "nach Geschmack" stay as they are.
+  - Times stay fixed. Above double or below half, a hint reminds you that baking and cooking times may change.
+- Older recipes stay as they are; split their ingredients with **Parse ingredients** while editing. If a step is rewritten or moved later, its link moves with it; if the amount is gone afterwards, the link goes.
 
 ### Share shortcut (iPhone and iPad)
 
