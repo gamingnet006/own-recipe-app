@@ -126,8 +126,15 @@ describe("drafts list and review", () => {
 
   test("the review starts from the recognized servings and yield", () => {
     const recognized = { recipeServings: 4, recipeYieldQuantity: 1, recipeYield: "Springform Ø 26 cm" } as Recipe;
-    expect(recipeChanges(recognized)).toEqual(recognized);
-    expect(recipeChanges(null)).toEqual({ recipeServings: 0, recipeYieldQuantity: 0, recipeYield: "" });
+    expect(recipeChanges(recognized)).toEqual({ ...recognized, linkedSteps: [] });
+    expect(recipeChanges(null)).toEqual({ recipeServings: 0, recipeYieldQuantity: 0, recipeYield: "", linkedSteps: [] });
+  });
+
+  test("the review starts with the step links the recognition made", () => {
+    const link = { step: 0, start: 0, end: 5, text: "250 g", referenceId: "r", fraction: 1 };
+    const stepAmounts = [{ ...link, linked: true }, { ...link, linked: false }, { ...link, linked: true }];
+    const recognized = { khAmounts: { extras: [], stepAmounts } } as unknown as Recipe;
+    expect(recipeChanges(recognized).linkedSteps).toEqual([0, 2]);
   });
 
   test("approving opens the recipe, in edit mode if asked", () => {

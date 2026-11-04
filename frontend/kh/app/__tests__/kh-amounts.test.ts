@@ -7,6 +7,7 @@ import {
   panFactor,
   parsePan,
   servingsFactor,
+  stepSegments,
   timeHint,
   type KhAmount,
 } from "../lib/amounts";
@@ -125,4 +126,19 @@ test("extreme factors stay finite", () => {
   for (const amount of amounts) {
     for (const scale of [0.1, 10]) expect(fmt(amount, scale).quantity).not.toMatch(/NaN|Infinity/);
   }
+});
+
+test("step segments", () => {
+  const link = { start: 0, end: 5, text: "250 g" };
+  expect(stepSegments("250 g Mehl unterrühren", [link])).toEqual([
+    { text: "250 g", link: 0 },
+    { text: " Mehl unterrühren", link: null },
+  ]);
+  // Review focus 3: a link whose text no longer stands there, and one overlapping another, are left out
+  const stale = { start: 6, end: 10, text: "Zuck" };
+  const overlapping = { start: 3, end: 7, text: "g Me" };
+  expect(stepSegments("250 g Mehl", [link, stale, overlapping])).toEqual([
+    { text: "250 g", link: 0 },
+    { text: " Mehl", link: null },
+  ]);
 });

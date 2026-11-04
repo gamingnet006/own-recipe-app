@@ -21,7 +21,7 @@ class StepAmountOut(MealieModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    step_id: UUID4
+    step: int  # the step's place in the recipe, from 0
     start: int
     end: int
     text: str

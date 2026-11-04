@@ -12,6 +12,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.amounts.schemas import DraftAmounts
 from mealie.kh.amounts.service import save_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates, normalize_url
 from mealie.kh.drafts.files import (
@@ -181,12 +182,12 @@ class DraftService:
         )
         return [warning for warning in found if (warning.recipe_slug, warning.draft_id) not in known]
 
-    def _save_recipe(self, draft: DraftOut, changes: dict[str, Any]) -> Recipe:
+    def _save_recipe(self, draft: DraftOut, changes: dict[str, Any], linked: list[int] | None) -> Recipe:
         """Saves the recognized recipe with the review's changes the way Mealie's import does; an image
         draft's first original becomes the cover, like in Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
         recipe = recipes.create_one(Recipe.model_validate({**(draft.recipe or {}), **changes}))
-        save_amounts(self.session, draft.recipe or {}, recipe)  # range ends and fixed lines (D39)
+        save_amounts(self.session, draft.recipe or {}, recipe, linked)  # range ends, fixed lines, step links (D39)
         if draft.source_type == DraftSource.image and draft.original_files:
             cover = original_path(draft.id, draft.original_files[0]).read_bytes()
             recipes.update_recipe_image(recipe.slug, cover, "webp")
@@ -201,6 +202,9 @@ class DraftService:
             raise self._already_approved(draft)
         if draft.status != DraftStatus.ready:
             raise conflict("not_ready")
+        links = DraftAmounts.model_validate((draft.recipe or {}).get("khAmounts") or {}).step_amounts
+        if any(not 0 <= index < len(links) for index in data.linked_steps or []):
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail={"code": "linked_steps"})
         if not data.force and (new := self._new_duplicates(draft)):
             raise conflict("duplicates", warnings=[warning.model_dump(mode="json", by_alias=True) for warning in new])
         claim = self.session.execute(
@@ -212,7 +216,7 @@ class DraftService:
         if claim.rowcount == 0:  # type: ignore[attr-defined]
             raise self._already_approved(self.get(draft_id))
         try:
-            recipe = self._save_recipe(draft, data.recipe_changes())
+            recipe = self._save_recipe(draft, data.recipe_changes(), data.linked_steps)
         except Exception:
             self.session.rollback()
             set_fields(self.session, draft_id, status=DraftStatus.ready, approved_by=None, approved_at=None)

@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from fastapi import UploadFile
 
 from mealie.core import exceptions
-from mealie.kh.amounts.service import delete_amounts  # KH: amounts of deleted recipes (D39)
+from mealie.kh.amounts.service import delete_amounts, recheck_amounts  # KH: a recipe's amounts (D39)
 from mealie.lang.providers import Translator
 from mealie.pkgs import cache
 from mealie.repos.all_repositories import get_repositories
@@ -721,6 +721,8 @@ class RecipeService(RecipeServiceBase):
         update_data = self._resolve_ingredient_sub_recipes(update_data)
 
         new_data = self.group_recipes.update(recipe.slug, update_data)
+        # KH: step links follow the edited steps and text (D39)
+        recheck_amounts(self.repos.session, recipe, update_data.recipe_instructions or [], new_data)
         self.check_assets(new_data, recipe.slug)
         return new_data
 
@@ -749,6 +751,9 @@ class RecipeService(RecipeServiceBase):
         recipe: Recipe = self._pre_update_check(slug_or_id, patch_data)
 
         new_data = self.group_recipes.patch(recipe.slug, patch_data.model_dump(exclude_unset=True))
+        # KH: step links follow the edited steps and text; a patch without steps keeps them in place (D39)
+        sent = patch_data.recipe_instructions if "recipe_instructions" in patch_data.model_fields_set else None
+        recheck_amounts(self.repos.session, recipe, sent or recipe.recipe_instructions or [], new_data)
 
         self.check_assets(new_data, recipe.slug)
         return new_data

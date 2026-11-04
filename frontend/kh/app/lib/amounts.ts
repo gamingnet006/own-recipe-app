@@ -170,3 +170,27 @@ export function parsePan(text: string | null | undefined): KhPan | null {
 export function timeHint(scale: number): boolean {
   return scale > 2 || scale < 0.5;
 }
+
+// The review's view of a step's links (A2): which pieces of the text are linked places.
+
+/** A step's text in pieces: plain text, and each linked place with its index in LINKS. A link whose text no longer
+ * stands at its place, or that overlaps an earlier one, is left out, so a stale link never changes the text. */
+export function stepSegments(
+  text: string,
+  links: { start: number; end: number; text: string }[],
+): { text: string; link: number | null }[] {
+  const valid = links
+    .map((link, index) => ({ ...link, index }))
+    .filter(link => text.slice(link.start, link.end) === link.text)
+    .sort((a, b) => a.start - b.start);
+  const segments: { text: string; link: number | null }[] = [];
+  let at = 0;
+  for (const link of valid) {
+    if (link.start < at) continue; // overlaps the one before
+    if (link.start > at) segments.push({ text: text.slice(at, link.start), link: null });
+    segments.push({ text: link.text, link: link.index });
+    at = link.end;
+  }
+  if (at < text.length) segments.push({ text: text.slice(at), link: null });
+  return segments;
+}

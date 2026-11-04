@@ -17,7 +17,9 @@ from mealie.schema.recipe.recipe_ingredient import (
 )
 from mealie.services.parser_services._base import DataMatcher
 
-NUMBER = r"\d+\s+\d+/[1-9]\d*|\d+/[1-9]\d*|\d+(?:\.\d+)?"  # 1 1/2, 1/2, 1.5, 3 (on cleaned text); never x/0
+VULGAR = "¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞"  # fraction characters, read as written in a step's text
+# 1 1/2, 1/2, 1½ or 1 ½, 1.5, 3; never x/0. Lines are cleaned first; steps keep their characters, so links fit the text
+NUMBER = rf"\d+\s+\d+/[1-9]\d*|\d+/[1-9]\d*|(?:\d+ ?)?[{VULGAR}]|\d+(?:\.\d+)?"
 QUANTITY = re.compile(rf"(?P<value>{NUMBER})(?:\s*(?:-|–|—|bis)\s*(?P<upper>{NUMBER}))?")
 WORD = re.compile(r"\S+")
 
@@ -68,7 +70,9 @@ def clean(text: str) -> str:
 
 
 def number(text: str) -> float:
-    """The value of a NUMBER: "1 1/2" → 1.5, "1/2" → 0.5, "1.5" → 1.5."""
+    """The value of a NUMBER: "1 1/2" → 1.5, "1/2" → 0.5, "1½" → 1.5, "1.5" → 1.5."""
+    if text[-1] in VULGAR:
+        return float(text[:-1] or 0) + unicodedata.numeric(text[-1])
     return float(sum(Fraction(part) for part in text.split()))
 
 

@@ -1,7 +1,6 @@
 """KH: tests for the amounts of a draft (v0.2 plan 2, task 2, A1): read when recognized, kept in the draft, saved on
 approval with the saved recipe's IDs, readable by the group only, and gone with the recipe."""
 
-from typing import Any
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -12,24 +11,9 @@ from fastapi.testclient import TestClient
 from mealie.db.init_db import ALEMBIC_DIR
 from mealie.kh.amounts.models import KhIngredientExtra
 from mealie.services.parser_services._base import DataMatcher
-from tests.kh.drafts.helpers import DRAFTS, get_draft, post_draft
+from tests.kh.amounts.helpers import AMOUNTS, amounts_of, approved, recognized
+from tests.kh.drafts.helpers import get_draft, post_draft
 from tests.utils.fixture_schemas import TestUser
-
-AMOUNTS = "/api/kh/amounts"
-
-
-def recognized(api_client: TestClient, user: TestUser, fake_ai, recipe_file: str = "recipe-amounts.json") -> dict:
-    """A text draft recognized from a recorded recipe, as the review gets it."""
-    fake_ai(recipe_file)
-    draft = post_draft(api_client, user, data={"text": "Ein Testkuchen."}).json()
-    return get_draft(api_client, user, draft["id"]).json()
-
-
-def approved(api_client: TestClient, user: TestUser, fake_ai) -> dict[str, Any]:
-    """The recipe a recognized draft became on approval, as Mealie returns it."""
-    draft = recognized(api_client, user, fake_ai)
-    slug = api_client.post(f"{DRAFTS}/{draft['id']}/approve", json={}, headers=user.token).json()["slug"]
-    return api_client.get(f"/api/recipes/{slug}", headers=user.token).json()
 
 
 def test_recognizing_reads_the_amounts(api_client: TestClient, unique_user: TestUser, german: DataMatcher, fake_ai):
@@ -60,7 +44,7 @@ def test_link_recipe_data_is_read_too(api_client: TestClient, unique_user: TestU
 
 def test_approve_keeps_the_extras(api_client: TestClient, unique_user: TestUser, german: DataMatcher, fake_ai):
     recipe = approved(api_client, unique_user, fake_ai)
-    amounts = api_client.get(f"{AMOUNTS}/{recipe['id']}", headers=unique_user.token).json()
+    amounts = amounts_of(api_client, unique_user, recipe)
     uppers = {extra["referenceId"]: extra["upper"] for extra in amounts["extras"]}
     assert uppers[recipe["recipeIngredient"][1]["referenceId"]] == 3
 

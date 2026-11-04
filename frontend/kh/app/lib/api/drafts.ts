@@ -48,11 +48,13 @@ export interface KhOrigin {
   originalCount: number;
 }
 
-/** Servings and yield set in the review; they are saved with the recipe when it is approved. */
+/** Servings and yield set in the review, and the indices of the step links it kept; saved with the recipe when it
+ * is approved. */
 export interface KhRecipeChanges {
   recipeServings: number;
   recipeYieldQuantity: number;
   recipeYield: string;
+  linkedSteps: number[];
 }
 
 /** The detail of a failed drafts request: a code, and for some codes what goes with it. */

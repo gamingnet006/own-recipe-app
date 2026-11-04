@@ -40,7 +40,7 @@ recognized (one below the other on a phone, side by side from iPad width), then 
           <p v-if="draft.status === 'working'">
             {{ $t("kh.drafts.working-hint") }}
           </p>
-          <KhDraftReview v-else-if="draft.recipe" :recipe="{ ...draft.recipe, ...changes }" />
+          <KhDraftReview v-else-if="draft.recipe" v-model:linked="linkedSteps" :recipe="{ ...draft.recipe, ...changes }" />
           <!-- Like Mealie's editor: servings, yield amount and yield text, saved with the recipe -->
           <v-row v-if="draft.status === 'ready' && changes" dense class="mt-2">
             <v-col cols="3">
@@ -156,6 +156,13 @@ const busy = ref(false);
 const discarding = ref(false);
 const duplicates = reactive({ open: false, edit: false, warnings: [] as KhDraftWarning[] });
 const changes = ref<KhRecipeChanges | null>(null);
+// the step links the review keeps (D39); only a ready draft can change them
+const linkedSteps = computed({
+  get: () => changes.value?.linkedSteps,
+  set: (value) => {
+    if (changes.value && value) changes.value.linkedSteps = value;
+  },
+});
 const columns = computed(() => (reviewLayout(display.width.value) === "side" ? 6 : 12));
 
 useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.drafts.drafts")) });

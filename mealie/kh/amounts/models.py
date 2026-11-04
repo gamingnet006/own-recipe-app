@@ -1,6 +1,7 @@
 """KH: the amounts tables (D39, D19): what a recipe's ingredient lines need beyond Mealie's fields (the upper end of a
-range, never scaling), and amounts in the step text linked to an ingredient. Both hang on the recipe only: Mealie
-rewrites the step rows on every save, so steps and ingredients are plain IDs here."""
+range, never scaling), and amounts in the step text linked to an ingredient. Both hang on the recipe only. Mealie
+writes new step IDs on every save, also for bulk changes, so a link names its step by place; ingredients keep their
+referenceId."""
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -33,7 +34,7 @@ class KhStepAmount(SqlAlchemyBase, BaseMixins):
 
     id: Mapped[GUID] = mapped_column(GUID, primary_key=True, default=GUID.generate)
     recipe_id: Mapped[GUID] = mapped_column(GUID, sa.ForeignKey("recipes.id", ondelete="CASCADE"), index=True)
-    step_id: Mapped[GUID] = mapped_column(GUID)
+    step: Mapped[int] = mapped_column(sa.Integer)  # the step's place in the recipe, from 0
     start: Mapped[int] = mapped_column(sa.Integer)
     end: Mapped[int] = mapped_column(sa.Integer)
     text: Mapped[str] = mapped_column(sa.String)  # the text found there, to find it again after an edit

@@ -89,17 +89,18 @@ class OriginOut(MealieModel):
 
 
 class ApproveIn(MealieModel):
-    """Approve, optionally with servings and yield set in the review. FORCE also approves when the check finds
-    possible duplicates that were not there at recognition."""
+    """Approve, optionally with servings and yield set in the review and the step links it kept. FORCE also approves
+    when the check finds possible duplicates that were not there at recognition."""
 
     force: bool = False
+    linked_steps: list[int] | None = None  # indices of the draft's step links the review kept; None: as recognized
     recipe_servings: float | None = Field(default=None, ge=0)
     recipe_yield_quantity: float | None = Field(default=None, ge=0)
     recipe_yield: str | None = None
 
     def recipe_changes(self) -> dict[str, Any]:
         """What the review set, under the recipe's own JSON keys."""
-        return self.model_dump(by_alias=True, exclude_none=True, exclude={"force"})
+        return self.model_dump(by_alias=True, exclude_none=True, exclude={"force", "linked_steps"})
 
 
 class ApproveOut(MealieModel):

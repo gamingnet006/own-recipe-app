@@ -9,9 +9,9 @@ export interface KhIngredientExtra {
   fixed: boolean;
 }
 
-/** An amount in a step's text linked to an ingredient, as a fraction of its amount. */
+/** An amount in a step's text linked to an ingredient, as a fraction of its amount; STEP is the step's place, from 0. */
 export interface KhStepAmount {
-  stepId: string;
+  step: number;
   start: number;
   end: number;
   text: string;
@@ -22,6 +22,12 @@ export interface KhStepAmount {
 export interface KhAmounts {
   extras: KhIngredientExtra[];
   stepAmounts: KhStepAmount[];
+}
+
+/** What a draft carries under khAmounts in its recipe JSON; the review may unlink a step link before approving. */
+export interface KhDraftAmounts {
+  extras: KhIngredientExtra[];
+  stepAmounts: (KhStepAmount & { linked: boolean })[];
 }
 
 export class KhAmountsApi extends BaseAPI {

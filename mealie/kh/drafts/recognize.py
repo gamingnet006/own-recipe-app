@@ -116,7 +116,8 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
             recipe, used_ai = await build(draft, ai, repos, translator)
             amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)
-            recognized["khAmounts"] = DraftAmounts(extras=amounts.extras).model_dump(mode="json", by_alias=True)
+            found = DraftAmounts(extras=amounts.extras, step_amounts=amounts.links)
+            recognized["khAmounts"] = found.model_dump(mode="json", by_alias=True)
             warnings = find_duplicates(recognized, draft.source_url, candidates(repos, draft_id), get_kh_settings())
         except Exception as ex:
             session.rollback()  # on Postgres a failed statement aborts the transaction the failure is written in

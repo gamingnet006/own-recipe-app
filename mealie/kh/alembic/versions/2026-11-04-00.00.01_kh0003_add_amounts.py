@@ -45,7 +45,7 @@ def upgrade():
         (
             "kh_step_amounts",
             [
-                sa.Column("step_id", GUID(), nullable=False),
+                sa.Column("step", sa.Integer(), nullable=False),
                 sa.Column("start", sa.Integer(), nullable=False),
                 sa.Column("end", sa.Integer(), nullable=False),
                 sa.Column("text", sa.String(), nullable=False),
