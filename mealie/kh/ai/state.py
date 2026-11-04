@@ -52,6 +52,11 @@ def save_state(session: Session, provider_id: UUID4, **fields: Any) -> None:
     session.commit()
 
 
+def in_order[P: (AIProvider, AIProviderOut)](providers: list[P], states: dict[UUID4, ProviderState]) -> list[P]:
+    """The providers in the list's order: by place, then by name."""
+    return sorted(providers, key=lambda p: (states[p.id].position, p.name))
+
+
 def sync_mealie_roles(session: Session, group_id: UUID4) -> None:
     """Points Mealie's default provider at the list's first provider and its image provider at the first one whose
     test read an image, else the first untested one, so Mealie's checks before an AI request pass
@@ -63,7 +68,7 @@ def sync_mealie_roles(session: Session, group_id: UUID4) -> None:
         return
     providers = session.execute(sa.select(AIProvider).where(AIProvider.settings_id == settings.id)).scalars().all()
     states = load_states(session, [p.id for p in providers])
-    ordered = sorted(providers, key=lambda p: (states[p.id].position, p.name))
+    ordered = in_order(list(providers), states)
     readers = [p for p in ordered if states[p.id].supports_images is True]
     fitting = readers or [p for p in ordered if states[p.id].supports_images is None]
     settings.default_provider_id = ordered[0].id if ordered else None

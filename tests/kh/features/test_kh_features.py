@@ -48,7 +48,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
         share_links(on)
         response = api_client.get("/api/kh/features")
         assert response.status_code == 200
-        assert response.json() == {"shareLinks": on}
+        assert response.json() == {"shareLinks": on, "noticePollMinutes": 5}
 
 
 def test_shared_recipe_is_hidden_when_off(api_client: TestClient, share_token: str, share_links):
@@ -85,3 +85,7 @@ def test_new_group_is_private_and_shows_no_announcements(api_client: TestClient,
     assert group["preferences"]["privateGroup"] is True
     assert group["preferences"]["showAnnouncements"] is False
     assert api_client.get(api_routes.explore_groups_group_slug_recipes(group["slug"])).status_code == 404
+
+
+def test_features_name_the_poll_interval(api_client: TestClient):
+    assert api_client.get("/api/kh/features").json()["noticePollMinutes"] == 5

@@ -12,9 +12,11 @@ class KhFeatures(MealieModel):
     """The switches the frontend needs, sent in camelCase like every Mealie answer."""
 
     share_links: bool
+    notice_poll_minutes: int  # how often the bell asks for new notices (D39)
 
 
 @router.get("", response_model=KhFeatures)
 def get_features() -> KhFeatures:
     """Public, because the frontend loads it before anyone logs in; the switches hold no secrets."""
-    return KhFeatures(share_links=get_kh_settings().share_links)
+    settings = get_kh_settings()
+    return KhFeatures(share_links=settings.share_links, notice_poll_minutes=settings.notice_poll_minutes)

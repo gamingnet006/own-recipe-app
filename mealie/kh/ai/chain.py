@@ -9,7 +9,7 @@ from mealie.core.exceptions import RateLimitError
 from mealie.core.root_logger import get_logger
 from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai.errors import AIUnavailableError, classify, pause_until
-from mealie.kh.ai.state import ProviderState, load_states, save_state
+from mealie.kh.ai.state import ProviderState, in_order, load_states, save_state
 from mealie.kh.features.settings import KhSettings, get_kh_settings
 from mealie.kh.notices.service import NoticeKind, newest_kind, notify
 from mealie.repos.repository_factory import AllRepositories
@@ -40,7 +40,7 @@ def candidates(providers: list[AIProviderOut], states: dict, *, images: bool, no
         paused = state.paused_until is not None and state.paused_until > now
         return state.status not in ("key", "model") and not paused
 
-    queue = sorted(filter(usable, providers), key=lambda p: (states[p.id].position, p.name))
+    queue = in_order([p for p in providers if usable(p)], states)
     if not images:
         return queue
     return [p for p in queue if states[p.id].supports_images is True] + [

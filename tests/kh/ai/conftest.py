@@ -1,40 +1,17 @@
 """KH: stand-ins for the AI list's tests (D39): three providers A, B and C in unique_user's group, and recorded
 answers or errors per provider instead of a real AI (D23)."""
 
-from collections.abc import Generator
 from dataclasses import dataclass, field
 from typing import Any
 
 import pytest
-import sqlalchemy as sa
 
-from mealie.kh.ai.models import KhAiProviderState
-from mealie.kh.notices.models import KhNotice, KhNoticeRead
 from mealie.schema.group.ai_providers import AIProviderOut
 from mealie.schema.openai.general import OpenAIText
 from mealie.services.openai.openai import OpenAIService
 from tests.utils.fixture_schemas import TestUser
 
 ANSWER = OpenAIText(text="ok")
-
-
-def clear_ai(user: TestUser) -> None:
-    """Removes the group's providers with their state, and the group's notices and reads."""
-    repos = user.repos
-    for provider in repos.group_ai_providers.get_all():
-        repos.session.execute(sa.delete(KhAiProviderState).where(KhAiProviderState.provider_id == provider.id))
-        repos.group_ai_providers.delete(provider.id)
-    repos.session.execute(sa.delete(KhNotice).where(KhNotice.group_id == user.group_id))
-    repos.session.execute(sa.delete(KhNoticeRead).where(KhNoticeRead.user_id == user.user_id))
-    repos.session.commit()
-
-
-@pytest.fixture
-def clean_ai(unique_user: TestUser) -> Generator[None]:
-    """unique_user lives for a whole module: every test starts and ends without providers or notices."""
-    clear_ai(unique_user)
-    yield
-    clear_ai(unique_user)
 
 
 @pytest.fixture
