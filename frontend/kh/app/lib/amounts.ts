@@ -108,3 +108,65 @@ export function formatAmount(amount: KhAmount, scale: number, locale: string): K
   const eggTip = !upper && pieces && EGGS.includes(plain(amount.food)) && halves(value) % 1 !== 0;
   return { quantity, unit: shown.unit, eggTip };
 }
+
+// The three ways to scale (A3) and the hint on times (A5). Each factor is null when the input is no usable number,
+// so the sheet keeps the old factor instead of showing NaN.
+
+export type KhPan = { shape: "round"; diameter: number } | { shape: "rect"; length: number; width: number };
+
+const NUMBER = String.raw`(\d+(?:[.,]\d+)?)`;
+const RECT_PAN = new RegExp(`${NUMBER}\\s*[x×]\\s*${NUMBER}`, "i");
+const ROUND_PAN = [
+  new RegExp(`Ø\\s*${NUMBER}`, "i"), // "Springform Ø 26 cm"
+  new RegExp(`${NUMBER}er\\s+(?:Spring|Tarte|Back)?form`, "i"), // "26er Springform"
+  new RegExp(`(?:Springform|Tarteform|rund)\\D*${NUMBER}\\s*cm`, "i"), // "Springform 26 cm"
+];
+
+/** A positive, finite number, else null. */
+function usable(value: number): number | null {
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/** The factor for NEW servings of a recipe made for BASE. */
+export function servingsFactor(servings: number, base: number): number | null {
+  const s = usable(servings);
+  const b = usable(base);
+  return s && b ? s / b : null;
+}
+
+/** The factor when only HAVE of an ingredient the recipe wants BASE of is there: 300 g of 250 g → 1.2. */
+export function haveOnlyFactor(have: number, base: number): number | null {
+  return servingsFactor(have, base);
+}
+
+/** A pan's area in square centimetres, null for a side that is not positive. */
+function panArea(pan: KhPan): number | null {
+  if (pan.shape === "round") {
+    const d = usable(pan.diameter);
+    return d ? Math.PI * (d / 2) ** 2 : null;
+  }
+  const l = usable(pan.length);
+  const w = usable(pan.width);
+  return l && w ? l * w : null;
+}
+
+/** The factor from one pan to another: new area ÷ old area (Ø 26 → Ø 20 cm gives 0.59). */
+export function panFactor(from: KhPan, to: KhPan): number | null {
+  const old = panArea(from);
+  const area = panArea(to);
+  return old && area ? area / old : null;
+}
+
+/** The pan a yield names, such as "Springform Ø 26 cm", "26er Springform" or "24 x 30 cm"; null for anything else. */
+export function parsePan(text: string | null | undefined): KhPan | null {
+  const number = (value: string) => Number(value.replace(",", "."));
+  const rect = text?.match(RECT_PAN);
+  if (rect) return { shape: "rect", length: number(rect[1]!), width: number(rect[2]!) };
+  const round = ROUND_PAN.map(pattern => text?.match(pattern)).find(Boolean);
+  return round ? { shape: "round", diameter: number(round[1]!) } : null;
+}
+
+/** Whether times may change noticeably: the amount more than doubled or less than halved. */
+export function timeHint(scale: number): boolean {
+  return scale > 2 || scale < 0.5;
+}

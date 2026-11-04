@@ -92,7 +92,8 @@
       "fewer": "Decrease amount",
       "more": "Increase amount",
       "cook": "Start cooking",
-      "add-to-list": "Add to shopping list"
+      "add-to-list": "Add to shopping list",
+      "time-hint": "With this much more or less, baking and cooking times often change."
     },
     "ai": {
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
@@ -131,7 +132,23 @@
       "next": " Now using {next}."
     },
     "amounts": {
-      "egg-tip": "Whisk one egg and use half."
+      "egg-tip": "Whisk one egg and use half.",
+      "scale": {
+        "title": "Scale",
+        "servings": "Servings",
+        "have-only": "I only have …",
+        "pan": "Baking pan",
+        "round": "round",
+        "rect": "rectangular",
+        "diameter": "Ø in cm",
+        "length": "Length in cm",
+        "width": "Width in cm",
+        "old": "Old pan",
+        "new": "New pan",
+        "ingredient": "Ingredient",
+        "amount": "Amount",
+        "apply": "Apply"
+      }
     }
   }
 }

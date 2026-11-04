@@ -94,7 +94,7 @@ title with its origin, the times as tiles and the amount with − and +. -->
     </section>
     <KhOriginBadge :recipe-id="recipe.id" />
 
-    <div v-if="times.length || base || recipe.recipeYield" class="pa-4 d-flex flex-column ga-4">
+    <div v-if="times.length || base || recipe.recipeYield || hasAmounts" class="pa-4 d-flex flex-column ga-4">
       <div v-if="times.length" class="kh-times">
         <v-card v-for="time in times" :key="time.key" variant="outlined" class="px-1 py-2 text-center">
           <div class="text-title-medium font-weight-bold">
@@ -138,13 +138,25 @@ title with its origin, the times as tiles and the amount with − and +. -->
           <v-icon :icon="$globals.icons.createAlt" />
         </v-btn>
       </v-card>
+      <!-- the three ways to scale, and the hint on times (D39, A3, A5) -->
+      <div v-if="hasAmounts" class="d-flex flex-column ga-2">
+        <v-btn variant="tonal" :prepend-icon="$globals.icons.swapHorizontal" @click="sheet = true">
+          {{ $t("kh.amounts.scale.title") }}
+        </v-btn>
+        <p v-if="timeHint(scale)" class="text-body-medium text-medium-emphasis">
+          {{ $t("kh.recipe.time-hint") }}
+        </p>
+      </div>
+      <KhScaleSheet v-if="hasAmounts" v-model="sheet" v-model:scale="scale" :recipe="recipe" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
+import { timeHint } from "../lib/amounts";
 import KhOriginBadge from "./KhOriginBadge.vue";
+import KhScaleSheet from "./KhScaleSheet.vue";
 import RecipeContextMenuContent from "~/components/Domain/Recipe/RecipeContextMenu/RecipeContextMenuContent.vue";
 import RecipeFavoriteBadge from "~/components/Domain/Recipe/RecipeFavoriteBadge.vue";
 import RecipeLastMade from "~/components/Domain/Recipe/RecipeLastMade.vue";
@@ -194,7 +206,9 @@ watch(imageUrl, () => {
 const original = computed(() => sourceLink(props.recipe.orgURL));
 const times = computed(() => recipeTimes(props.recipe, i18n.locale.value));
 const base = computed(() => scaleBase(props.recipe));
-const canScale = computed(() => base.value > 0 && scalesAmounts(props.recipe));
+const hasAmounts = computed(() => scalesAmounts(props.recipe));
+const canScale = computed(() => base.value > 0 && hasAmounts.value);
+const sheet = ref(false);
 const scaled = computed(() => useScaledAmount(base.value, scale.value));
 const shown = computed(() => scaled.value.scaledAmount);
 const amount = computed(() => scaled.value.scaledAmountDisplay);

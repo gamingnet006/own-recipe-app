@@ -1,7 +1,15 @@
 // KH: tests for the amounts' display (D39, phase 3): fractions, the rounding of grams and millilitres with kg and l,
 // halves of pieces with the egg tip, 3 TL as 1 EL, ranges and fixed amounts, each at the factors the spec names.
 import { expect, test } from "vitest";
-import { formatAmount, type KhAmount } from "../lib/amounts";
+import {
+  formatAmount,
+  haveOnlyFactor,
+  panFactor,
+  parsePan,
+  servingsFactor,
+  timeHint,
+  type KhAmount,
+} from "../lib/amounts";
 
 const g = { name: "Gramm", abbreviation: "g" };
 const ml = { name: "Milliliter", abbreviation: "ml" };
@@ -65,4 +73,56 @@ test("without extras the unit keeps a pinch fixed", () => {
 
 test("tiny amounts never show as 0", () => {
   expect(text({ quantity: 0.02, unit: g })).toBe("< 0,1");
+});
+
+test("servings", () => {
+  expect(servingsFactor(8, 4)).toBe(2);
+  expect(servingsFactor(2, 4)).toBe(0.5);
+  expect(servingsFactor(12, 4)).toBe(3);
+  // Review focus 4: nothing usable typed in, or no base to start from
+  for (const [servings, base] of [[0, 4], [-1, 4], [Number.NaN, 4], [8, 0]]) {
+    expect(servingsFactor(servings!, base!)).toBeNull();
+  }
+});
+
+test("I only have", () => {
+  expect(haveOnlyFactor(300, 250)).toBeCloseTo(1.2);
+  expect(haveOnlyFactor(0, 250)).toBeNull();
+  expect(haveOnlyFactor(300, 0)).toBeNull();
+});
+
+test("pans", () => {
+  expect(panFactor({ shape: "round", diameter: 26 }, { shape: "round", diameter: 20 })).toBeCloseTo(0.59, 2);
+  expect(panFactor({ shape: "round", diameter: 26 }, { shape: "rect", length: 20, width: 30 })).toBeCloseTo(1.13, 2);
+  expect(panFactor({ shape: "round", diameter: 0 }, { shape: "round", diameter: 20 })).toBeNull();
+  expect(panFactor({ shape: "round", diameter: 26 }, { shape: "rect", length: -20, width: 30 })).toBeNull();
+});
+
+test("the old pan from the yield", () => {
+  expect(parsePan("Springform Ø 26 cm")).toEqual({ shape: "round", diameter: 26 });
+  expect(parsePan("26er Springform")).toEqual({ shape: "round", diameter: 26 });
+  expect(parsePan("24 x 30 cm")).toEqual({ shape: "rect", length: 24, width: 30 });
+  expect(parsePan("24×30")).toEqual({ shape: "rect", length: 24, width: 30 });
+  expect(parsePan("1 Kuchen")).toBeNull();
+  expect(parsePan(null)).toBeNull();
+});
+
+test("times hint", () => {
+  expect(timeHint(2.5)).toBe(true);
+  expect(timeHint(0.4)).toBe(true);
+  for (const scale of [2, 0.5, 1]) expect(timeHint(scale)).toBe(false);
+});
+
+test("extreme factors stay finite", () => {
+  // Review focus 4: 0.1 and 10 never show NaN or Infinity
+  const amounts: KhAmount[] = [
+    { quantity: 250, unit: g },
+    { quantity: 3, food: "Eier" },
+    { quantity: 2, upper: 3, unit: el },
+    { quantity: 3, unit: tl },
+    { quantity: 1, unit: prise },
+  ];
+  for (const amount of amounts) {
+    for (const scale of [0.1, 10]) expect(fmt(amount, scale).quantity).not.toMatch(/NaN|Infinity/);
+  }
 });

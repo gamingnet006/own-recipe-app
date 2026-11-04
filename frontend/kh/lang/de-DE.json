@@ -92,7 +92,8 @@
       "fewer": "Menge verringern",
       "more": "Menge erhöhen",
       "cook": "Kochen starten",
-      "add-to-list": "Auf die Einkaufsliste"
+      "add-to-list": "Auf die Einkaufsliste",
+      "time-hint": "Bei so viel mehr oder weniger ändern sich Back- und Garzeiten oft."
     },
     "ai": {
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
@@ -131,7 +132,23 @@
       "next": " Ich nehme jetzt {next}."
     },
     "amounts": {
-      "egg-tip": "Ein Ei verquirlen und die Hälfte nehmen."
+      "egg-tip": "Ein Ei verquirlen und die Hälfte nehmen.",
+      "scale": {
+        "title": "Umrechnen",
+        "servings": "Portionen",
+        "have-only": "Ich habe nur …",
+        "pan": "Backform",
+        "round": "rund",
+        "rect": "eckig",
+        "diameter": "Ø in cm",
+        "length": "Länge in cm",
+        "width": "Breite in cm",
+        "old": "Alte Form",
+        "new": "Neue Form",
+        "ingredient": "Zutat",
+        "amount": "Menge",
+        "apply": "Übernehmen"
+      }
     }
   }
 }
