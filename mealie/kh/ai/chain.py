@@ -51,9 +51,10 @@ def candidates(providers: list[AIProviderOut], states: dict, *, images: bool, no
 async def ask_ai[T: OpenAIBase](
     service: OpenAIService, prompt: str, content: list[dict], response_schema: type[T], *, images: bool
 ) -> T | None:
-    """Sends one request to the group's providers in order until one answers. If none does, raises Mealie's
-    RateLimitError when one has used up its quota, else AIUnavailableError; without providers, as Mealie did,
-    OpenAINotEnabledException."""
+    """Sends one request to the group's providers in order until one answers. If none does: a provider that rejected
+    just this request (skip) means the request failed, not the AI, so its error goes on as it is; otherwise raises
+    Mealie's RateLimitError when one has used up its quota, else AIUnavailableError. Without providers, as Mealie
+    did, OpenAINotEnabledException."""
     repos = service.repos
     providers = repos.group_ai_providers.get_all()
     if not providers:
@@ -63,17 +64,22 @@ async def ask_ai[T: OpenAIBase](
     now = get_utc_now()
     queue = candidates(providers, states, images=images, now=now)
     last_error: Exception | None = None
+    request_error: Exception | None = None
     for index, provider in enumerate(queue):
         try:
             answer = await service._get_raw_response(prompt, content, response_schema, provider)
         except Exception as error:
             last_error = error
+            if classify(error, settings).kind == "skip":
+                request_error = error
             next_name = queue[index + 1].name if index + 1 < len(queue) else None
             states[provider.id] = record_failure(repos, provider, states[provider.id], error, next_name, now, settings)
             continue
         record_answer(repos, provider, states[provider.id])
         used_provider.set(f"{provider.name} ({provider.model})")
         return answer
+    if request_error is not None:
+        raise request_error
     if newest_kind(repos.session, repos.group_id) != "ai_none":
         notify(repos.session, repos.group_id, "ai_none")
     if any(state.status == "quota" for state in states.values()):

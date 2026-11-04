@@ -148,6 +148,17 @@ async def test_all_down_raises_unavailable(unique_user: TestUser, providers, fak
 
 
 @pytest.mark.asyncio
+async def test_request_errors_are_no_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    # every provider rejects just this request (e.g. an answer form it cannot give): no outage, the error goes on
+    for name in providers:
+        fake_ai_calls.behavior[name] = status_error(openai.BadRequestError, 400)
+    with pytest.raises(openai.BadRequestError):
+        await ask(unique_user)
+    assert notices(unique_user) == []
+    assert fake_ai_calls.calls == ["A", "B", "C"]
+
+
+@pytest.mark.asyncio
 async def test_one_notice_per_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
     for name in providers:
         fake_ai_calls.behavior[name] = status_error(openai.RateLimitError, 429)
