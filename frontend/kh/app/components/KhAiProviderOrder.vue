@@ -63,15 +63,16 @@
 
 <script setup lang="ts">
 import type { KhProviderState } from "../lib/api/ai";
+import { clockTime, statusLabel } from "../composables/use-kh-ai";
 
 defineProps<{ providers: KhProviderState[] }>();
 defineEmits<{ move: [index: number, delta: -1 | 1]; edit: [id: string]; delete: [id: string] }>();
 
 const i18n = useI18n();
 
-/** A pause's end as the reader's clock shows it, e.g. 9:00. */
+/** A pause's end as the reader's clock shows it. */
 function time(date: Date): string {
-  return date.toLocaleTimeString(i18n.locale.value, { hour: "numeric", minute: "2-digit" });
+  return clockTime(date, i18n.locale.value);
 }
 
 /** Green when ready, amber while paused, red while waiting for a fix. */

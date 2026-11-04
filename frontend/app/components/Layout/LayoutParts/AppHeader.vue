@@ -47,6 +47,8 @@
 
     <!-- Navigation Menu -->
     <template v-if="menu">
+      <!-- KH: the bell with notices about the AI providers, for whoever manages them (D39) -->
+      <KhBell v-if="loggedIn && auth.user.value?.canManage" />
       <v-responsive
         v-if="!xs"
         max-width="250"

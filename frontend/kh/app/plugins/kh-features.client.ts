@@ -4,9 +4,10 @@ import axios from "axios";
 
 export interface KhFeatures {
   shareLinks: boolean;
+  noticePollMinutes: number; // how often the bell asks for new notices (D39)
 }
 
-const ALL_HIDDEN: KhFeatures = { shareLinks: false };
+const ALL_HIDDEN: KhFeatures = { shareLinks: false, noticePollMinutes: 5 };
 
 export default defineNuxtPlugin({
   async setup() {

@@ -10,6 +10,11 @@ export function useKhAiApi(): KhAiApi {
   return new KhAiApi(useRequests());
 }
 
+/** A time of day as the reader's clock shows it, e.g. 9:00; for a pause's end and the bell. */
+export function clockTime(date: Date, locale: string): string {
+  return date.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
+}
+
 /** The ids with the one at INDEX moved one place up (-1) or down (+1); at either end nothing moves. */
 export function moveProvider(ids: string[], index: number, delta: -1 | 1): string[] {
   const target = index + delta;

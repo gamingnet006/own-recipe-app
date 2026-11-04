@@ -16,6 +16,7 @@ import {
   mdiAutoFix,
   mdiBackupRestore,
   mdiBeakerOutline,
+  mdiBellOutline, // KH: the bell with notices (D39)
   mdiBellPlus,
   mdiBookOpenPageVariant,
   mdiBookOutline,
@@ -173,6 +174,7 @@ export const icons = {
   arrowUpDown: mdiDrag,
   autoFix: mdiAutoFix,
   backupRestore: mdiBackupRestore,
+  bellOutline: mdiBellOutline, // KH: D39
   bellPlus: mdiBellPlus,
   bullhornVariant: mdiBullhornVariant,
   calendar: mdiCalendar,

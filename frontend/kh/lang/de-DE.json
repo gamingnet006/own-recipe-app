@@ -63,7 +63,8 @@
         "already_approved": "Schon als Rezept gespeichert.",
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
         "not_found": "Entwurf nicht gefunden.",
-        "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht."
+        "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht.",
+        "ai_unavailable": "Keine KI erreichbar, später erneut versuchen."
       },
       "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
       "type-yourself": "Rezept selbst eintippen"
@@ -111,7 +112,20 @@
         "hint": "Kostenlose Stufen ändern sich oft. Ob ein Modell passt, zeigt der Test-Knopf. Die Schlüssel trägst du selbst ein.",
         "get-key": "Schlüssel holen",
         "address": "Adresse"
-      }
+      },
+      "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen."
+    },
+    "notices": {
+      "title": "Meldungen",
+      "empty": "Keine Meldungen",
+      "open": "Meldungen öffnen",
+      "ai_quota": "{provider}: Kontingent aufgebraucht bis {until}.",
+      "ai_key": "{provider}: Schlüssel ungültig, übersprungen.",
+      "ai_model": "{provider}: Modell nicht gefunden.",
+      "ai_unreachable": "{provider}: nicht erreichbar.",
+      "ai_ready": "{provider} ist wieder bereit.",
+      "ai_none": "Keine KI erreichbar.",
+      "next": " Ich nehme jetzt {next}."
     }
   }
 }

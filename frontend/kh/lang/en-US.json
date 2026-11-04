@@ -63,7 +63,8 @@
         "already_approved": "Already saved as a recipe.",
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
-        "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment."
+        "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment.",
+        "ai_unavailable": "No AI reachable, try again later."
       },
       "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
       "type-yourself": "Type a recipe in yourself"
@@ -111,7 +112,20 @@
         "hint": "Free tiers change often. The test button shows whether a model fits. You enter the keys yourself.",
         "get-key": "Get a key",
         "address": "Address"
-      }
+      },
+      "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later."
+    },
+    "notices": {
+      "title": "Messages",
+      "empty": "No messages",
+      "open": "Open messages",
+      "ai_quota": "{provider}: quota used up until {until}.",
+      "ai_key": "{provider}: key invalid, skipped.",
+      "ai_model": "{provider}: model not found.",
+      "ai_unreachable": "{provider}: not reachable.",
+      "ai_ready": "{provider} is ready again.",
+      "ai_none": "No AI reachable.",
+      "next": " Now using {next}."
     }
   }
 }
