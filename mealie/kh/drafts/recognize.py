@@ -13,6 +13,8 @@ from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
 from mealie.kh.ai.chain import used_providers
 from mealie.kh.ai.errors import AIUnavailableError
+from mealie.kh.amounts.schemas import DraftAmounts
+from mealie.kh.amounts.service import read_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates
 from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
@@ -112,7 +114,9 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
         used_providers.set([])  # the priority list notes each provider that answers (D39)
         try:
             recipe, used_ai = await build(draft, ai, repos, translator)
+            amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)
+            recognized["khAmounts"] = DraftAmounts(extras=amounts.extras).model_dump(mode="json", by_alias=True)
             warnings = find_duplicates(recognized, draft.source_url, candidates(repos, draft_id), get_kh_settings())
         except Exception as ex:
             session.rollback()  # on Postgres a failed statement aborts the transaction the failure is written in

@@ -1,0 +1,19 @@
+{
+  "name": "Mengenkuchen",
+  "description": "Ein selbst geschriebenes Testrezept für die Mengen in Küchenhelfer.",
+  "recipeYield": "Springform Ø 26 cm",
+  "recipeIngredient": [
+    { "title": "Für den Teig", "note": "250 g Mehl" },
+    { "note": "2–3 EL Zucker" },
+    { "note": "3 Eier" },
+    { "note": "1 Prise Salz" },
+    { "note": "etwas Öl" },
+    { "note": "eine Handvoll Nüsse" },
+    { "note": "" }
+  ],
+  "recipeInstructions": [
+    { "text": "250 g Mehl mit 2 EL Zucker verrühren." },
+    { "text": "Die Eier und das Salz unterrühren." },
+    { "text": "Mit etwas Öl in der Form bei 180 °C 30 Minuten backen." }
+  ]
+}

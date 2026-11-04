@@ -8,6 +8,7 @@ from mealie.kh.amounts.parse import ensure_german_units
 from mealie.schema.recipe.recipe_ingredient import SaveIngredientFood
 from mealie.services.parser_services._base import DataMatcher
 from mealie.services.seeder.seeder_service import SeederService
+from tests.kh.drafts.conftest import fake_ai, fake_page  # noqa: F401  the drafts' recorded AI answers and pages
 from tests.utils.fixture_schemas import TestUser
 
 FOODS = [("Mehl", None), ("Ei", "Eier"), ("Zwiebel", "Zwiebeln"), ("Zucker", None), ("Salz", None)]

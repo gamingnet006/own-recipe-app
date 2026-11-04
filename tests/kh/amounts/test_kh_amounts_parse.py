@@ -81,3 +81,9 @@ def test_other_languages_get_no_german_units(g2_user: TestUser):
     before = len(all_units(g2_user.repos))
     ensure_german_units(g2_user.repos)
     assert len(all_units(g2_user.repos)) == before
+
+
+def test_a_zero_denominator_does_not_crash(german: DataMatcher):
+    # "1/0" is no fraction: the 1 counts, the rest stays text, and the draft is not lost
+    parsed = parse_ingredient("1/0 Tasse Mehl", german.units_by_alias, german.foods_by_alias)
+    assert parsed.quantity == 1

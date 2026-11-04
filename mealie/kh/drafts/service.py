@@ -12,6 +12,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.amounts.service import save_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates, normalize_url
 from mealie.kh.drafts.files import (
     original_path,
@@ -185,6 +186,7 @@ class DraftService:
         draft's first original becomes the cover, like in Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
         recipe = recipes.create_one(Recipe.model_validate({**(draft.recipe or {}), **changes}))
+        save_amounts(self.session, draft.recipe or {}, recipe)  # range ends and fixed lines (D39)
         if draft.source_type == DraftSource.image and draft.original_files:
             cover = original_path(draft.id, draft.original_files[0]).read_bytes()
             recipes.update_recipe_image(recipe.slug, cover, "webp")

@@ -17,7 +17,7 @@ from mealie.schema.recipe.recipe_ingredient import (
 )
 from mealie.services.parser_services._base import DataMatcher
 
-NUMBER = r"\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?"  # 1 1/2, 1/2, 1.5, 3 (on cleaned text)
+NUMBER = r"\d+\s+\d+/[1-9]\d*|\d+/[1-9]\d*|\d+(?:\.\d+)?"  # 1 1/2, 1/2, 1.5, 3 (on cleaned text); never x/0
 QUANTITY = re.compile(rf"(?P<value>{NUMBER})(?:\s*(?:-|–|—|bis)\s*(?P<upper>{NUMBER}))?")
 WORD = re.compile(r"\S+")
 

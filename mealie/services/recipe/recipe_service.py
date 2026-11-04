@@ -14,6 +14,7 @@ import sqlalchemy as sa
 from fastapi import UploadFile
 
 from mealie.core import exceptions
+from mealie.kh.amounts.service import delete_amounts  # KH: amounts of deleted recipes (D39)
 from mealie.lang.providers import Translator
 from mealie.pkgs import cache
 from mealie.repos.all_repositories import get_repositories
@@ -775,6 +776,8 @@ class RecipeService(RecipeServiceBase):
             raise exceptions.PermissionDenied(msg)
 
         data = self.group_recipes.delete_many(recipe_slugs)
+        # KH: their amounts go too; SQLite in Mealie skips cascades (D39)
+        delete_amounts(self.repos.session, [r.id for r in data])
         for r in data:
             try:
                 self.delete_assets(r)
