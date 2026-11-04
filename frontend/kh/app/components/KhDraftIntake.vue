@@ -5,9 +5,9 @@ which is recognized in the background and then waits in the list below for a rev
     <h2 class="text-h6 mb-3">
       {{ $t("kh.drafts.add-recipe") }}
     </h2>
-    <!-- D39: when no AI provider is free, photos and texts would fail; links with recipe data still work -->
-    <v-alert v-if="aiDown" type="info" variant="tonal" density="compact" class="mb-3">
-      {{ $t("kh.ai.unavailable-hint") }}
+    <!-- D39: when no AI provider is set up or free, photos and texts would fail; links with recipe data still work -->
+    <v-alert v-if="aiHint" type="info" variant="tonal" density="compact" class="mb-3">
+      {{ $t(aiHint) }}
     </v-alert>
     <v-row dense>
       <v-col v-for="option in sources" :key="option.source" cols="4">
@@ -80,7 +80,7 @@ which is recognized in the background and then waits in the list below for a rev
 <script setup lang="ts">
 import type { KhDraftSource } from "~~/kh/app/lib/api/drafts";
 import { errorText, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
-import { useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
+import { aiHintKey, useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
 
@@ -92,11 +92,11 @@ const i18n = useI18n();
 const { $globals } = useNuxtApp();
 const api = useKhDraftsApi();
 
-// Whether no AI provider is free right now (D39), asked once when the intake opens
-const aiDown = ref(false);
+// The hint when no AI provider is set up or free right now (D39), asked once when the intake opens
+const aiHint = ref<string | null>(null);
 onMounted(async () => {
   const { data } = await useKhAiApi().status();
-  aiDown.value = data?.available === false;
+  aiHint.value = aiHintKey(data);
 });
 
 const sources = [

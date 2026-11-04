@@ -24,6 +24,13 @@ export function toastNotice(items: KhNotice[], known: Set<string>): KhNotice | u
   return items.find(notice => !known.has(notice.id));
 }
 
+/** Opening the bell: fetches what came since the last check, then marks it read, so nothing new counts as read
+ * unseen. */
+export async function openBell(fetchNotices: () => Promise<void>, markRead: () => Promise<void>): Promise<void> {
+  await fetchNotices();
+  await markRead();
+}
+
 /** FN, but a call while one is still running is dropped: opening the app also reports it visible. */
 export function oneAtATime(fn: () => Promise<void>): () => Promise<void> {
   let running = false;
@@ -51,20 +58,23 @@ export function useKhNotices() {
   let loaded = false;
   let timer: ReturnType<typeof setInterval> | undefined;
 
-  const load = oneAtATime(async () => {
+  /** Fetches the bell's state; with HINT the newest notice since the last check also shows at the bottom. */
+  async function fetchNotices(hint: boolean) {
     const { data } = await api.list();
     if (!data) return;
-    const fresh = loaded ? toastNotice(data.items, known) : undefined;
+    const fresh = loaded && hint ? toastNotice(data.items, known) : undefined;
     data.items.forEach(notice => known.add(notice.id));
     loaded = true;
     items.value = data.items;
     unread.value = data.unread;
     const time = (d: Date) => clockTime(d, i18n.locale.value);
     if (fresh) alert.info(noticeText(fresh, (key, values) => i18n.t(key, values ?? {}), time));
-  });
+  }
+
+  const load = oneAtATime(() => fetchNotices(true));
 
   async function open() {
-    await api.read();
+    await openBell(() => fetchNotices(false), async () => { await api.read(); });
     unread.value = 0;
   }
 

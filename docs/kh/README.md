@@ -94,7 +94,7 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
 
 Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Küchenhelfer nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
 
-1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Küchenhelfer „Kontingent für heute aufgebraucht“.
+1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Küchenhelfer „Das KI-Kontingent ist aufgebraucht“.
 2. Öffne in Küchenhelfer **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit: Ist das des ersten aufgebraucht, nimmt Küchenhelfer das zweite (Schritt 5).
    - **Gemini:** Basis-URL `https://generativelanguage.googleapis.com/v1beta/openai/`, API-Key aus AI Studio, Modell `gemini-3.5-flash-lite`
    - **Gemini Reserve:** dieselbe Basis-URL und derselbe Schlüssel, Modell `gemini-3.1-flash-lite`
@@ -110,21 +110,21 @@ Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (
 5. **Mehrere Anbieter, Prio-Liste (D39):** In den KI-Anbieter-Einstellungen stehen die Anbieter als Liste, die du mit ▲▼ ordnest. Die KI fragt sie von oben nach unten: Ist bei einem das Kontingent leer, der Schlüssel ungültig, das Modell weg oder er nicht erreichbar, nimmt sie den nächsten. Neben jedem Anbieter steht sein Zustand, etwa „Kontingent leer bis 9:00“.
    - Übersprungen wird ein leeres Kontingent bis zu der Zeit, die der Anbieter nennt, sonst eine Stunde; ein ungültiger Schlüssel oder ein fehlendes Modell, bis du den Anbieter speicherst oder sein Test grün ist; ein nicht erreichbarer Anbieter zehn Minuten. Die Zeiten lassen sich in `kh/ops/.env` ändern (`KH_AI_…`).
    - Fotos gehen zuerst an Anbieter, deren Test „liest Bilder“ ergab, dann an ungetestete. Standard- und Bildanbieter stellt Küchenhelfer dafür selbst auf den ersten passenden der Liste.
-   - **Glocke:** Wer KI-Anbieter verwalten darf, sieht oben neben der Suche eine Glocke mit der Zahl neuer Meldungen, etwa „Gemini: Kontingent aufgebraucht bis 9:00. Ich nehme jetzt Groq.“ Meldungen bleiben 30 Tage. Die übrige Familie sieht nur im Eingang einen Hinweis, wenn gar kein Anbieter frei ist.
+   - **Glocke:** Wer KI-Anbieter verwalten darf, sieht oben neben der Suche eine Glocke mit der Zahl neuer Meldungen, etwa „Gemini: Kontingent aufgebraucht bis 9:00. Ich nehme jetzt Groq.“ Meldungen bleiben 30 Tage. Die übrige Familie sieht nur im Eingang einen Hinweis, wenn gar kein Anbieter frei oder noch keiner eingerichtet ist.
    - **Kostenlose Schlüssel:** Unter der Liste steht ein Infofeld mit diesen Stellen (Stand 4.11.2026). Kostenlose Stufen ändern sich oft; ob ein Modell passt, zeigt **Test Connection**. Jeder weitere Anbieter sieht die Rezepte, die er liest (siehe „Was geht wohin“).
 
 | Anbieter, Schlüssel holen | Basis-URL | Gut zu wissen |
 |---|---|---|
 | [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) | `https://generativelanguage.googleapis.com/v1beta/openai/` | liest Fotos; im Gratis-Angebot darf Google die Daten zur Verbesserung nutzen |
 | [Groq](https://console.groq.com/keys) | `https://api.groq.com/openai/v1` | sehr schnell; die feste Antwortform können nur neuere Modelle |
-| [Cerebras](https://cloud.cerebras.ai) | `https://api.cerebras.ai/v1` | Tageskontingent; die Bedingungen beim Anmelden prüfen |
 | [Mistral](https://console.mistral.ai/api-keys) | `https://api.mistral.ai/v1` | kostenloser „Free mode“; die Datenschutz-Einstellungen in der Konsole ansehen |
 | [OpenRouter](https://openrouter.ai/settings/keys) | `https://openrouter.ai/api/v1` | nur Modelle, deren Name auf „:free“ endet; 50 Anfragen am Tag |
 | [SambaNova](https://cloud.sambanova.ai) | `https://api.sambanova.ai/v1` | ohne Zahlungsmittel 20 Anfragen am Tag je Modell |
-| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | Startguthaben für Entwickler, bis 40 Anfragen pro Minute |
-| [Hugging Face](https://huggingface.co/settings/tokens) | `https://router.huggingface.co/v1` | kleines Guthaben jeden Monat |
-| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<Konto-ID>/ai/v1` | API-Token mit „Workers AI“; die Konto-ID kommt in die Adresse; 10.000 „Neurons“ am Tag |
-| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | Test-Schlüssel mit etwa 1.000 Anfragen im Monat, nur für Privates |
+| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1` | API-Token mit „Workers AI“; statt `<ACCOUNT_ID>` kommt die Konto-ID in die Adresse; 10.000 „Neurons“ am Tag |
+| [Z.ai (GLM)](https://z.ai/manage-apikey/apikey-list) | `https://api.z.ai/api/paas/v4/` | die Flash-Modelle sind kostenlos, GLM-4.6V-Flash liest auch Fotos; Firma in Singapur, die Daten werden dort verarbeitet |
+| [Vercel AI Gateway](https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway&title=Go+to+AI+Gateway) | `https://ai-gateway.vercel.sh/v1` | monatliches Gratis-Guthaben für ausgewählte Modelle; wer Guthaben kauft, bekommt es nicht mehr |
+| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | Test-Schlüssel mit 1.000 Anfragen im Monat und 20 pro Minute, zum Ausprobieren gedacht |
+| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | einmalig 1.000 Credits zum Ausprobieren, bis 40 Anfragen pro Minute |
 
 ### So findest du dich zurecht
 
@@ -306,7 +306,7 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
 
 An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Küchenhelfer uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
 
-1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Küchenhelfer says "Today's AI quota is used up".
+1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Küchenhelfer says "The AI quota is used up".
 2. In Küchenhelfer open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Küchenhelfer takes the second (step 5).
    - **Gemini:** Base URL `https://generativelanguage.googleapis.com/v1beta/openai/`, the API key from AI Studio, model `gemini-3.5-flash-lite`
    - **Gemini Reserve:** the same base URL and key, model `gemini-3.1-flash-lite`
@@ -322,21 +322,21 @@ On the free tier Google may use the texts, photos and screenshots handed in (see
 5. **Several providers, priority list (D39):** the AI provider settings show the providers as a list you order with ▲▼. The AI asks them from top to bottom: when a quota is used up, a key is invalid, a model is gone or a provider cannot be reached, it takes the next. Next to each provider is its state, such as "quota used up until 9:00".
    - A used-up quota is skipped until the time the provider names, else an hour; an invalid key or a missing model until you save the provider or its test is green; an unreachable provider ten minutes. The times can be changed in `kh/ops/.env` (`KH_AI_…`).
    - Photos go first to providers whose test read an image, then to untested ones. For this Küchenhelfer sets the default and image provider to the first fitting one of the list.
-   - **Bell:** whoever may manage AI providers sees a bell next to the search with the number of new messages, such as "Gemini: quota used up until 9:00. Now using Groq." Messages are kept 30 days. The rest of the family only sees a hint in the intake when no provider is free at all.
+   - **Bell:** whoever may manage AI providers sees a bell next to the search with the number of new messages, such as "Gemini: quota used up until 9:00. Now using Groq." Messages are kept 30 days. The rest of the family only sees a hint in the intake when no provider is free at all or none is set up yet.
    - **Free keys:** under the list an info box names these places (as of 2026-11-04). Free tiers change often; **Test Connection** shows whether a model fits. Every further provider sees the recipes it reads (see "What goes where").
 
 | Provider, get a key | Base URL | Good to know |
 |---|---|---|
 | [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) | `https://generativelanguage.googleapis.com/v1beta/openai/` | reads photos; on the free tier Google may use the data to improve its products |
 | [Groq](https://console.groq.com/keys) | `https://api.groq.com/openai/v1` | very fast; only newer models give the fixed answer form |
-| [Cerebras](https://cloud.cerebras.ai) | `https://api.cerebras.ai/v1` | daily quota; check the terms when signing up |
 | [Mistral](https://console.mistral.ai/api-keys) | `https://api.mistral.ai/v1` | free "Free mode"; look at the privacy settings in the console |
 | [OpenRouter](https://openrouter.ai/settings/keys) | `https://openrouter.ai/api/v1` | only models whose name ends in ":free"; 50 requests a day |
 | [SambaNova](https://cloud.sambanova.ai) | `https://api.sambanova.ai/v1` | without a payment method 20 requests a day per model |
-| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | starter credits for developers, up to 40 requests a minute |
-| [Hugging Face](https://huggingface.co/settings/tokens) | `https://router.huggingface.co/v1` | a small allowance every month |
-| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<account-id>/ai/v1` | API token with "Workers AI"; the account ID goes into the address; 10,000 "neurons" a day |
-| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | trial key with about 1,000 requests a month, for private use only |
+| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1` | API token with "Workers AI"; the account ID replaces `<ACCOUNT_ID>` in the address; 10,000 "neurons" a day |
+| [Z.ai (GLM)](https://z.ai/manage-apikey/apikey-list) | `https://api.z.ai/api/paas/v4/` | the Flash models are free, GLM-4.6V-Flash also reads photos; a company in Singapore, the data is processed there |
+| [Vercel AI Gateway](https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway&title=Go+to+AI+Gateway) | `https://ai-gateway.vercel.sh/v1` | monthly free credit for selected models; buying credits ends it |
+| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | trial key with 1,000 requests a month and 20 a minute, meant for trying it out |
+| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | 1,000 one-time credits to try it out, up to 40 requests a minute |
 
 ### Finding your way
 

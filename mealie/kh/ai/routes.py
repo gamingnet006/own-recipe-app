@@ -53,7 +53,8 @@ class KhAiController(BaseUserController):
 
     @router.get("/status", response_model=AiStatusOut)
     def ai_status(self) -> AiStatusOut:
-        """Whether any provider can take a request now, for the intake's hint."""
+        """Whether any provider can take a request now, and whether there is one at all, for the intake's hint."""
         providers = self.repos.group_ai_providers.get_all()
         states = load_states(self.session, [p.id for p in providers])
-        return AiStatusOut(available=bool(candidates(providers, states, images=False, now=get_utc_now())))
+        available = bool(candidates(providers, states, images=False, now=get_utc_now()))
+        return AiStatusOut(available=available, configured=bool(providers))

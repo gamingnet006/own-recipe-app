@@ -1,7 +1,7 @@
 // KH: tests for the AI list in the settings (D39): moving a provider up or down, when the own list shows instead of
 // Mealie's, the words for each state, and the free keys with their date.
-import { expect, test } from "vitest";
-import { moveProvider, sameProviders, statusLabel } from "../composables/use-kh-ai";
+import { expect, test, vi } from "vitest";
+import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel } from "../composables/use-kh-ai";
 import type { KhProviderState } from "../lib/api/ai";
 import { FREE_AI_KEYS, FREE_AI_KEYS_DATE } from "../lib/free-ai-keys";
 import de from "../../lang/de-DE.json";
@@ -41,12 +41,53 @@ test("the own list shows only for the own group's providers", () => {
   expect(sameProviders([], [])).toBe(true);
 });
 
+const BEFORE = new Date("2026-11-04T07:00:00Z"); // before the pause in provider() ends
+const AFTER = new Date("2026-11-04T08:30:00Z");
+
 test("every state has words", () => {
   for (const status of ["ready", "quota", "key", "model", "unreachable"]) {
-    expect(statusLabel(provider(status), t, time)).not.toMatch(/^kh\./);
+    expect(statusLabel(provider(status), t, time, BEFORE)).not.toMatch(/^kh\./);
   }
-  expect(statusLabel(provider("quota"), t, time)).toBe("Kontingent leer bis 9:00");
-  expect(statusLabel(provider("ready"), t, time)).toBe("bereit");
+  expect(statusLabel(provider("quota"), t, time, BEFORE)).toBe("Kontingent leer bis 9:00");
+  expect(statusLabel(provider("ready"), t, time, BEFORE)).toBe("bereit");
+});
+
+test("a pause that is over reads as ready", () => {
+  // the list asks such a provider again; "until 9:00" at half past nine would be wrong
+  expect(statusLabel(provider("quota"), t, time, AFTER)).toBe("bereit");
+  expect(statusLabel(provider("unreachable"), t, time, AFTER)).toBe("bereit");
+  expect(statusLabel(provider("key"), t, time, AFTER)).toBe("Schlüssel ungültig");
+});
+
+test("a failed reorder says so and loads the list anew", async () => {
+  // e.g. another tab deleted a provider meanwhile: the order then no longer names every provider
+  const fresh = [provider("ready")];
+  const api = {
+    setOrder: vi.fn().mockResolvedValue({ data: null }),
+    providers: vi.fn().mockResolvedValue({ data: fresh }),
+  };
+  const fail = vi.fn();
+  expect(await saveOrder(api, ["a"], fail)).toEqual(fresh);
+  expect(fail).toHaveBeenCalledOnce();
+  api.setOrder.mockResolvedValue({ data: fresh });
+  expect(await saveOrder(api, ["a"], fail)).toEqual(fresh);
+  expect(fail).toHaveBeenCalledOnce();
+});
+
+test("the list reloads for the page's settings, not for the editor's own changes", () => {
+  const watcher = refreshWatch();
+  const fromPage = { audioProviderId: null };
+  expect(watcher.isRefresh(fromPage)).toBe(true);
+  const passedUp = watcher.passUp({ audioProviderId: "a" }); // e.g. a new audio provider
+  expect(watcher.isRefresh(passedUp)).toBe(false);
+  expect(watcher.isRefresh({ ...passedUp })).toBe(true); // the page loaded the settings anew
+});
+
+test("the intake hint tells AI not set up from AI down", () => {
+  expect(aiHintKey({ available: false, configured: false })).toBe("kh.ai.missing-hint");
+  expect(aiHintKey({ available: false, configured: true })).toBe("kh.ai.unavailable-hint");
+  expect(aiHintKey({ available: true, configured: true })).toBeNull();
+  expect(aiHintKey(null)).toBeNull();
 });
 
 test("ten free places with https addresses and a date", () => {

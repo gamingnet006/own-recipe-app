@@ -17,23 +17,8 @@
     </v-card-text>
 
     <v-row class="mb-4">
-      <!-- KH: for the own group the priority list below picks the default and the image provider (D39) -->
-      <v-col v-if="!khList" cols="12">
-        <v-autocomplete
-          v-model="local.defaultProviderId"
-          :label="$t('group.ai-provider-settings.default-provider')"
-          :items="local.providers"
-          item-title="name"
-          item-value="id"
-          clearable
-          hide-details
-          density="compact"
-          variant="outlined"
-        />
-        <v-card-subtitle class="mt-1">
-          {{ $t("group.ai-provider-settings.default-provider-description") }}
-        </v-card-subtitle>
-      </v-col>
+      <!-- KH: the priority list picks the default and the image provider in every group, also when an admin opens
+           another group here; Mealie's two selects for them are gone (D39) -->
       <v-col cols="12">
         <v-autocomplete
           v-model="local.audioProviderId"
@@ -48,22 +33,6 @@
         />
         <v-card-subtitle class="mt-1">
           {{ $t("group.ai-provider-settings.audio-provider-description") }}
-        </v-card-subtitle>
-      </v-col>
-      <v-col v-if="!khList" cols="12">
-        <v-autocomplete
-          v-model="local.imageProviderId"
-          :label="$t('group.ai-provider-settings.image-provider')"
-          :items="local.providers"
-          item-title="name"
-          item-value="id"
-          clearable
-          hide-details
-          density="compact"
-          variant="outlined"
-        />
-        <v-card-subtitle class="mt-1">
-          {{ $t("group.ai-provider-settings.image-provider-description") }}
         </v-card-subtitle>
       </v-col>
     </v-row>
@@ -154,7 +123,8 @@ const props = withDefaults(defineProps<{
 const { hideHeader } = toRefs(props);
 
 const local = reactive({ ...providerSettings.value });
-watch(local, (newVal) => { providerSettings.value = { ...newVal }; });
+const khRefresh = refreshWatch(); // KH: tells the page's loads from this editor's own changes (D39)
+watch(local, (newVal) => { providerSettings.value = khRefresh.passUp({ ...newVal }); });
 // Sync back when the parent refreshes after create/update/delete
 watch(providerSettings, (newVal) => { if (newVal) Object.assign(local, newVal); });
 
@@ -162,11 +132,11 @@ const noDefaultProviderWarning = computed(
   () => local.providers.length > 0 && !local.defaultProviderId,
 );
 
-// KH: the own group's priority list (D39), reloaded whenever the page gets the settings anew; shown only when its
-// providers are the page's, since admins may open other groups here too
+// KH: the own group's priority list (D39), reloaded whenever the page loads the settings anew, not for this editor's
+// own changes; shown only when its providers are the page's, since admins may open other groups here too
 const { providers: khProviders, load: loadKhProviders, move: moveKhProvider } = useKhAiProviders();
 const khList = computed(() => sameProviders(khProviders.value.map(p => p.providerId), local.providers.map(p => p.id)));
-watch(providerSettings, loadKhProviders, { immediate: true });
+watch(providerSettings, (settings) => { if (khRefresh.isRefresh(settings)) loadKhProviders(); }, { immediate: true });
 
 defineEmits<{
   (e: "create", data: AIProviderCreate): void;

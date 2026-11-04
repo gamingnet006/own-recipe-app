@@ -1,10 +1,12 @@
 """KH: tests for the AI list's foundation (v0.2 plan 1, task 1): the settings' defaults and the tables for the
 providers' state and the notices on Küchenhelfer's migration branch (D39)."""
 
+import pytest
 import sqlalchemy as sa
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from mealie.db.init_db import ALEMBIC_DIR
@@ -17,10 +19,20 @@ def test_settings_have_the_spec_defaults():
     assert (s.notice_days, s.notice_poll_minutes) == (30, 5)
 
 
-def test_kh_branch_head_is_kh0002():
+def test_settings_refuse_nonsense():
+    # e.g. KH_NOTICE_POLL_MINUTES=0 would let every open app ask without pause
+    for field in ("ai_quota_pause_minutes", "ai_down_pause_minutes", "notice_days", "notice_poll_minutes"):
+        with pytest.raises(ValidationError):
+            KhSettings(**{field: 0})
+    with pytest.raises(ValidationError):
+        KhSettings(ai_short_pause_seconds=-1)
+
+
+def test_kh0002_sits_on_the_kh_branch():
+    # not "is the head": later kh migrations follow it without touching this test
     script = ScriptDirectory.from_config(Config(str(ALEMBIC_DIR / "alembic.ini")))
-    assert "kh0002" in script.get_heads()
     assert script.get_revision("kh0002").down_revision == "kh0001"
+    assert "kh0002" in {revision.revision for revision in script.iterate_revisions("kh@head", "base")}
 
 
 def test_new_tables_exist(api_client: TestClient, session: Session):

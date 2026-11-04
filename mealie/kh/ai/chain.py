@@ -10,7 +10,7 @@ from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError, classify, pause_until
 from mealie.kh.ai.state import ProviderState, in_order, load_states, save_state
 from mealie.kh.features.settings import KhSettings, get_kh_settings
-from mealie.kh.notices.service import NoticeKind, newest_kind, notify
+from mealie.kh.notices.service import NoticeKind, newest_of, notify
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.group.ai_providers import AIProviderOut
 from mealie.schema.openai._base import OpenAIBase
@@ -26,8 +26,17 @@ NOTICE_FOR: dict[str, NoticeKind] = {
     "unreachable": "ai_unreachable",
 }
 
-# "<name> (<model>)" of the provider that answered last in this request, e.g. for a draft's AI model
-used_provider: ContextVar[str | None] = ContextVar("kh_used_provider", default=None)
+# An outage runs from "no AI reachable" to the next "ready again", so each outage gets one notice
+OUTAGE_MARKS: tuple[NoticeKind, ...] = ("ai_none", "ai_ready")
+
+# "<name> (<model>)" of each provider that answered, in order, e.g. for a draft's AI model; collected into a list the
+# caller sets (recognize), nothing without one
+used_providers: ContextVar[list[str] | None] = ContextVar("kh_used_providers", default=None)
+
+
+def fits(state: ProviderState, *, images: bool) -> bool:
+    """Whether the provider may take the request at all: photos never go to one whose test read no image."""
+    return not images or state.supports_images is not False
 
 
 def candidates(providers: list[AIProviderOut], states: dict, *, images: bool, now: datetime) -> list[AIProviderOut]:
@@ -39,7 +48,7 @@ def candidates(providers: list[AIProviderOut], states: dict, *, images: bool, no
         paused = state.paused_until is not None and state.paused_until > now
         return state.status not in ("key", "model") and not paused
 
-    queue = in_order([p for p in providers if usable(p)], states)
+    queue = in_order([p for p in providers if usable(p) and fits(states[p.id], images=images)], states)
     if not images:
         return queue
     return [p for p in queue if states[p.id].supports_images is True] + [
@@ -48,16 +57,23 @@ def candidates(providers: list[AIProviderOut], states: dict, *, images: bool, no
 
 
 async def ask_ai[T: OpenAIBase](
-    service: OpenAIService, prompt: str, content: list[dict], response_schema: type[T], *, images: bool
+    service: OpenAIService,
+    prompt: str,
+    content: list[dict],
+    response_schema: type[T],
+    *,
+    images: bool,
+    providers: list[AIProviderOut],
 ) -> T | None:
     """Sends one request to the group's providers in order until one answers. If none does: when every provider asked
     rejected just this request (skip), the request failed, not the AI, so its error goes on as it is; otherwise raises
     QuotaUsedUpError when one has used up its quota, else AIUnavailableError. Without providers, as Mealie did,
     OpenAINotEnabledException. The list is the retry: only the last provider asked keeps the openai package's own
     retries, as Mealie's single provider had them. Commits the caller's session, so states and notices stay even if
-    the request fails."""
+    the request fails. PROVIDERS are the group's, as Mealie's AI service loaded them."""
     repos = service.repos
-    providers = repos.group_ai_providers.get_all()
+    if repos.group_id is None:  # Mealie's repositories without a group see every group's providers and keys
+        raise ValueError("The AI priority list needs the repositories of one group")
     if not providers:
         raise OpenAINotEnabledException("No default provider set")
     settings = get_kh_settings()
@@ -82,15 +98,17 @@ async def ask_ai[T: OpenAIBase](
             states[provider.id] = record_failure(repos, provider, states[provider.id], error, next_name, settings)
             continue
         record_answer(repos, provider, states[provider.id])
-        used_provider.set(f"{provider.name} ({provider.model})")
+        if newest_of(repos.session, repos.group_id, OUTAGE_MARKS) == "ai_none":
+            notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)  # the outage is over
+        note_answer(provider)
         return answer
     if request_error is not None and not outage:
         raise request_error
-    if newest_kind(repos.session, repos.group_id) != "ai_none":
+    if newest_of(repos.session, repos.group_id, OUTAGE_MARKS) != "ai_none":
         notify(repos.session, repos.group_id, "ai_none")
-    if any(state.status == "quota" for state in states.values()):
-        raise QuotaUsedUpError("Every AI provider has used up its quota")
-    raise AIUnavailableError(last_error)
+    if any(states[p.id].status == "quota" for p in providers if fits(states[p.id], images=images)):
+        raise QuotaUsedUpError("No AI provider answered, and one has used up its quota")
+    raise AIUnavailableError() from last_error
 
 
 def record_failure(
@@ -102,8 +120,9 @@ def record_failure(
     settings: KhSettings,
 ) -> ProviderState:
     """Pauses the provider as its error says, counted from the failure, since a timeout may have kept the request
-    waiting for minutes, and notes a change of the stored state in the bell; returns the new state. An error that
-    says nothing about the provider (skip) changes nothing. Logs the error's class and status, never its text."""
+    waiting for minutes, and notes a change of the stored state in the bell, also "ready again" when a short wait
+    follows a used-up quota; returns the new state. An error that says nothing about the provider (skip) changes
+    nothing. Logs the error's class and status, never its text."""
     failure = classify(error, settings)
     logger.info(f"KH: AI provider {provider.name}: {type(error).__name__} (HTTP {getattr(error, 'status_code', None)})")
     if failure.kind == "skip":
@@ -111,7 +130,9 @@ def record_failure(
     status = "ready" if failure.kind == "short" else failure.kind
     until = pause_until(failure, get_utc_now(), settings)
     before = save_state(repos.session, provider.id, status=status, paused_until=until)
-    if status != before and failure.kind != "short":
+    if status != before and status == "ready":
+        notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)
+    elif status != before:
         kind = NOTICE_FOR[status]
         notify(repos.session, repos.group_id, kind, provider=provider.name, next_provider=next_name, until=until)
     return replace(state, status=status, paused_until=until)
@@ -123,3 +144,11 @@ def record_answer(repos: AllRepositories, provider: AIProviderOut, state: Provid
         before = save_state(repos.session, provider.id, status="ready", paused_until=None)
         if before != "ready":
             notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)
+
+
+def note_answer(provider: AIProviderOut) -> None:
+    """Adds the provider that answered to the request's list of them, once, if the caller keeps one."""
+    names = used_providers.get()
+    name = f"{provider.name} ({provider.model})"
+    if names is not None and name not in names:
+        names.append(name)

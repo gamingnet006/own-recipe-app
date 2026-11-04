@@ -12,11 +12,12 @@ import sqlalchemy as sa
 from mealie.core.exceptions import RateLimitError
 from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai import chain
-from mealie.kh.ai.chain import ask_ai, used_provider
+from mealie.kh.ai.chain import ask_ai, used_providers
 from mealie.kh.ai.errors import AIUnavailableError
 from mealie.kh.ai.state import load_states, save_state
 from mealie.kh.notices.models import KhNotice
 from mealie.kh.notices.service import notify
+from mealie.repos.all_repositories import get_repositories
 from mealie.schema.group.ai_providers import AIProviderOut
 from mealie.schema.openai.general import OpenAIText
 from mealie.services.openai.openai import OpenAINotEnabledException, OpenAIService
@@ -34,7 +35,8 @@ def status_error(cls: type[openai.APIStatusError], code: int, headers: dict | No
 
 async def ask(user: TestUser, *, images: bool = False) -> OpenAIText | None:
     """One request through the priority list, as Mealie's AI service sends it."""
-    return await ask_ai(OpenAIService(user.repos), "prompt", CONTENT, OpenAIText, images=images)
+    providers = user.repos.group_ai_providers.get_all()
+    return await ask_ai(OpenAIService(user.repos), "prompt", CONTENT, OpenAIText, images=images, providers=providers)
 
 
 def state(user: TestUser, provider: AIProviderOut):
@@ -53,6 +55,7 @@ def notices(user: TestUser) -> list[tuple[str, str | None, str | None]]:
 @pytest.mark.asyncio
 async def test_second_answers_when_first_has_no_quota(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
     fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429)
+    used_providers.set([])
     before = get_utc_now()
     assert await ask(unique_user) == ANSWER
     assert fake_ai_calls.calls == ["A", "B"]
@@ -60,7 +63,7 @@ async def test_second_answers_when_first_has_no_quota(unique_user: TestUser, pro
     assert a.status == "quota"
     assert before + timedelta(minutes=59) < a.paused_until < get_utc_now() + timedelta(minutes=61)
     assert notices(unique_user) == [("ai_quota", "A", "B")]
-    assert used_provider.get() == "B (model-b)"
+    assert used_providers.get() == ["B (model-b)"]
 
 
 @pytest.mark.asyncio
@@ -139,14 +142,14 @@ async def test_all_quota_raises_rate_limit(unique_user: TestUser, providers, fak
 
 @pytest.mark.asyncio
 async def test_all_down_raises_unavailable(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    last = status_error(openai.InternalServerError, 503)
     fake_ai_calls.behavior.update(
-        A=openai.APIConnectionError(request=REQUEST),
-        B=status_error(openai.InternalServerError, 500),
-        C=status_error(openai.InternalServerError, 503),
+        A=openai.APIConnectionError(request=REQUEST), B=status_error(openai.InternalServerError, 500), C=last
     )
-    with pytest.raises(AIUnavailableError):
+    with pytest.raises(AIUnavailableError) as raised:
         await ask(unique_user)
     assert [kind for kind, _, _ in notices(unique_user)] == ["ai_unreachable"] * 3 + ["ai_none"]
+    assert raised.value.__cause__ is last  # the last provider's error shows in the log
 
 
 @pytest.mark.asyncio
@@ -257,3 +260,81 @@ def test_old_notices_go(unique_user: TestUser, clean_ai):
     session.commit()
     notify(session, unique_user.group_id, "ai_ready", provider="A")
     assert notices(unique_user) == [("ai_ready", "A", None)]
+
+
+def expire_pauses(user: TestUser, providers: dict[str, AIProviderOut]) -> None:
+    """Lets every provider's pause end, as if its wait were over."""
+    for provider in providers.values():
+        save_state(user.repos.session, provider.id, paused_until=get_utc_now() - timedelta(seconds=1))
+
+
+@pytest.mark.asyncio
+async def test_an_answer_ends_an_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    # every provider asks for a short wait, so no answer comes although no provider changes its state
+    def short():
+        return status_error(openai.RateLimitError, 429, {"retry-after": "30"})
+
+    for name in providers:
+        fake_ai_calls.behavior[name] = short
+    with pytest.raises(AIUnavailableError):
+        await ask(unique_user)
+    expire_pauses(unique_user, providers)
+    fake_ai_calls.behavior.clear()
+    assert await ask(unique_user) == ANSWER
+    for name in providers:
+        fake_ai_calls.behavior[name] = short
+    expire_pauses(unique_user, providers)
+    with pytest.raises(AIUnavailableError):
+        await ask(unique_user)
+    assert notices(unique_user) == [("ai_none", None, None), ("ai_ready", "A", None), ("ai_none", None, None)]
+
+
+@pytest.mark.asyncio
+async def test_a_change_during_an_outage_brings_no_second_outage(
+    unique_user: TestUser, providers, fake_ai_calls: FakeAI
+):
+    for name in providers:
+        fake_ai_calls.behavior[name] = status_error(openai.RateLimitError, 429)
+    with pytest.raises(RateLimitError):
+        await ask(unique_user)
+    # A's pause ends and now it cannot be reached; B and C are still paused
+    save_state(unique_user.repos.session, providers["A"].id, paused_until=get_utc_now() - timedelta(seconds=1))
+    fake_ai_calls.behavior["A"] = openai.APIConnectionError(request=REQUEST)
+    with pytest.raises(RateLimitError):
+        await ask(unique_user)
+    assert [kind for kind, _, _ in notices(unique_user)] == ["ai_quota"] * 3 + ["ai_none", "ai_unreachable"]
+
+
+@pytest.mark.asyncio
+async def test_quota_back_after_a_short_wait_is_noted(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    save_state(
+        unique_user.repos.session, providers["A"].id, status="quota", paused_until=get_utc_now() - timedelta(minutes=1)
+    )
+    fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429, {"retry-after": "30"})
+    assert await ask(unique_user) == ANSWER
+    assert notices(unique_user) == [("ai_ready", "A", None)]
+
+
+@pytest.mark.asyncio
+async def test_a_quota_unfit_for_the_request_is_no_quota(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    # A cannot read photos: its used-up quota says nothing about a photo the readers could not take
+    save_state(
+        unique_user.repos.session,
+        providers["A"].id,
+        status="quota",
+        paused_until=get_utc_now() + timedelta(hours=1),
+        supports_images=False,
+    )
+    for name in ("B", "C"):
+        fake_ai_calls.behavior[name] = openai.APIConnectionError(request=REQUEST)
+    with pytest.raises(AIUnavailableError):
+        await ask(unique_user, images=True)
+
+
+@pytest.mark.asyncio
+async def test_a_repository_without_group_is_refused(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    # without a group Mealie's repositories see every group's providers, with their keys
+    service = OpenAIService(get_repositories(unique_user.repos.session, group_id=None))
+    with pytest.raises(ValueError):
+        await service.get_response("p", "m", response_schema=OpenAIText)
+    assert fake_ai_calls.calls == []

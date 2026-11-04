@@ -4,6 +4,7 @@ stay untouched; the Mealie parts we hide stay off unless they are switched on he
 from functools import lru_cache
 
 from fastapi import HTTPException, status
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from mealie.schema.response import ErrorResponse
@@ -31,13 +32,14 @@ class KhSettings(BaseSettings):
     # names a recipe's language, so Mealie skips recipes already in it); empty keeps the language they came in
     recipe_language: str = ""
     # AI priority list (D39): a 429 with a wait up to this many seconds is a short pause, not a used-up quota;
-    # how long a provider is skipped when it names no wait (quota) or cannot be reached
-    ai_short_pause_seconds: int = 120
-    ai_quota_pause_minutes: int = 60
-    ai_down_pause_minutes: int = 10
+    # how long a provider is skipped when it names no wait (quota) or cannot be reached; a value out of bounds stops
+    # the start with a message naming the setting
+    ai_short_pause_seconds: int = Field(120, ge=0)
+    ai_quota_pause_minutes: int = Field(60, ge=1)
+    ai_down_pause_minutes: int = Field(10, ge=1)
     # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
-    notice_days: int = 30
-    notice_poll_minutes: int = 5
+    notice_days: int = Field(30, ge=1)
+    notice_poll_minutes: int = Field(5, ge=1)
 
 
 @lru_cache

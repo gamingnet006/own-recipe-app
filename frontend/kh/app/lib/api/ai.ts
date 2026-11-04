@@ -16,7 +16,8 @@ export interface KhProviderState {
 }
 
 export interface KhAiStatus {
-  available: boolean;
+  available: boolean; // any provider can take a request now
+  configured: boolean; // the group has a provider at all
 }
 
 export class KhAiApi extends BaseAPI {

@@ -46,7 +46,7 @@
       "error": {
         "no_recipe_data": "No recipe found there.",
         "ai_not_configured": "No AI set up: Group Settings → AI Providers",
-        "quota_exceeded": "Today's AI quota is used up, try again tomorrow.",
+        "quota_exceeded": "The AI quota is used up, please try again later.",
         "address_blocked": "This address is not allowed.",
         "invalid_result": "The recognition did not return a valid recipe.",
         "interrupted": "Interrupted, please try again.",
@@ -113,7 +113,10 @@
         "get-key": "Get a key",
         "address": "Address"
       },
-      "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later."
+      "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
+      "no-images": "reads no images",
+      "order-failed": "The order could not be saved; the list has been reloaded.",
+      "missing-hint": "No AI set up yet: Küchenhelfer reads photos and texts once someone adds an AI provider. Links with recipe data already work."
     },
     "notices": {
       "title": "Messages",

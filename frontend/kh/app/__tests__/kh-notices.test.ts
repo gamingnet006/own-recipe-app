@@ -1,7 +1,7 @@
 // KH: tests for the bell (D39): each notice in the words of the spec, with and without the provider taken next, which
 // new notice the short hint shows, and the texts in both languages.
 import { expect, test } from "vitest";
-import { noticeText, oneAtATime, toastNotice } from "../composables/use-kh-notices";
+import { noticeText, oneAtATime, openBell, toastNotice } from "../composables/use-kh-notices";
 import type { KhNotice } from "../lib/api/notices";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
@@ -63,6 +63,13 @@ test("a check while one is running is dropped, a later one runs", async () => {
   finish();
   await later;
   expect(calls).toBe(2);
+});
+
+test("opening the bell fetches what is new before marking it read", async () => {
+  // else a notice from after the last check would count as read without being seen
+  const steps: string[] = [];
+  await openBell(async () => { steps.push("fetch"); }, async () => { steps.push("read"); });
+  expect(steps).toEqual(["fetch", "read"]);
 });
 
 test("kh.notices has the same keys in German and English", () => {

@@ -46,17 +46,18 @@ def test_member_cannot_see_or_order(api_client: TestClient, household_member: Te
 def test_member_sees_only_availability(api_client: TestClient, household_member: TestUser, providers):
     response = api_client.get(STATUS, headers=household_member.token)
     assert response.status_code == 200
-    assert response.json() == {"available": True}
+    assert response.json() == {"available": True, "configured": True}
 
 
 def test_status_without_providers(api_client: TestClient, unique_user: TestUser, clean_ai):
-    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": False}
+    # no provider at all: the intake says AI is not set up, not "try later"
+    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": False, "configured": False}
 
 
 def test_status_follows_pauses(api_client: TestClient, unique_user: TestUser, providers):
-    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": True}
+    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": True, "configured": True}
     for provider in providers.values():
         save_state(
             unique_user.repos.session, provider.id, status="quota", paused_until=get_utc_now() + timedelta(hours=1)
         )
-    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": False}
+    assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": False, "configured": True}

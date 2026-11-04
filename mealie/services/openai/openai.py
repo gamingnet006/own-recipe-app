@@ -458,12 +458,12 @@ class OpenAIService(BaseService):
         # error wrapping so drafts can tell a used-up quota from no AI at all; audio, and a group without
         # providers, stay Mealie's way (D39)
         audio = any(isinstance(a, OpenAILocalAudio) for a in attachments or [])
-        if provider is None and not audio and self.repos.group_ai_providers.get_all():
+        if provider is None and not audio and (providers := self.repos.group_ai_providers.get_all()):
             from mealie.kh.ai.chain import ask_ai  # here: the chain imports this module
 
             content: list[dict] = [{"type": "text", "text": message}]
             content += [attachment.build_message() for attachment in attachments or []]
-            return await ask_ai(self, prompt, content, response_schema, images=bool(attachments))
+            return await ask_ai(self, prompt, content, response_schema, images=bool(attachments), providers=providers)
 
         try:
             provider = provider or self._get_provider(attachments)

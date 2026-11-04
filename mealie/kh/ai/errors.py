@@ -8,9 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Literal
 
-import openai
-
-from mealie.core.exceptions import RateLimitError
+from mealie.core.exceptions import OpenAIServiceError, RateLimitError
 from mealie.kh.features.settings import KhSettings
 
 FailureKind = Literal["short", "quota", "key", "model", "unreachable", "skip"]
@@ -34,12 +32,12 @@ def tame(seconds: float) -> float | None:
     return min(seconds, MAX_WAIT_SECONDS)
 
 
-class AIUnavailableError(Exception):
-    """No provider of the priority list answered; last_error is the last one's error, if any was asked."""
+class AIUnavailableError(OpenAIServiceError):
+    """No provider of the priority list answered; raised from the last provider's error, if one was asked. As
+    Mealie's OpenAIServiceError, Mealie's own import pages say that the AI request failed."""
 
-    def __init__(self, last_error: Exception | None = None) -> None:
+    def __init__(self) -> None:
         super().__init__("No AI provider answered")
-        self.last_error = last_error
 
 
 class QuotaUsedUpError(RateLimitError):
@@ -71,14 +69,18 @@ def retry_seconds(error: BaseException) -> float | None:
 
 def classify(error: BaseException, settings: KhSettings) -> Failure:
     """Sorts a provider's error. A 429 with a wait up to ai_short_pause_seconds is only a short pause (a per-minute
-    limit), any other 429, and Gemini's per-day quota whatever wait it names, a used-up quota; anything that says
-    nothing about the provider skips just this request."""
+    limit), any other 429, and Gemini's per-day quota whatever wait it names, a used-up quota, like a 402 (no credit
+    left, e.g. OpenRouter); anything that says nothing about the provider skips just this request."""
+    import openai  # here: like Mealie, load the package only when an AI is asked (about a second, longer on the Pi)
+
     if isinstance(error, openai.RateLimitError):
         if PER_DAY_QUOTA.search(body_text(error)):
             return Failure("quota")
         wait = retry_seconds(error)
         short = wait is not None and wait <= settings.ai_short_pause_seconds
         return Failure("short" if short else "quota", wait)
+    if isinstance(error, openai.APIStatusError) and error.status_code == 402:
+        return Failure("quota")
     if isinstance(error, openai.AuthenticationError | openai.PermissionDeniedError):
         return Failure("key")
     if isinstance(error, openai.NotFoundError):

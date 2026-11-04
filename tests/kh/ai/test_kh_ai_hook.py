@@ -17,6 +17,7 @@ import mealie
 from mealie.db.models.group.ai_providers import AIProviderSettings
 from mealie.kh.ai.models import KhAiProviderState
 from mealie.kh.ai.state import END_POSITION, in_order, load_states, save_state, sync_mealie_roles
+from mealie.lang import get_locale_provider
 from mealie.schema.openai.general import OpenAIText
 from mealie.schema.recipe.recipe import Recipe
 from mealie.services.openai.openai import OpenAILocalAudio, OpenAIService
@@ -24,6 +25,7 @@ from mealie.services.recipe.ai_recipe_service import AIRecipeService
 from mealie.services.scraper import scraper
 from tests.kh.ai.conftest import ANSWER, FakeAI
 from tests.kh.drafts.helpers import get_draft, png, post_draft
+from tests.utils import api_routes
 from tests.utils.fixture_schemas import TestUser
 
 REQUEST = httpx.Request("POST", "https://ai.example/v1/chat/completions")
@@ -231,3 +233,33 @@ def test_draft_names_the_provider_that_answered(
     fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429)
     draft = post_draft(api_client, unique_user, data={"text": "Testkuchen: 200 g Mehl, 2 Eier."}).json()
     assert get_draft(api_client, unique_user, draft["id"]).json()["aiModel"] == "B (model-b)"
+
+
+def test_draft_names_every_provider_that_answered(
+    api_client: TestClient, unique_user: TestUser, providers, fake_ai_calls: FakeAI, monkeypatch: pytest.MonkeyPatch
+):
+    async def build_recipe(self: AIRecipeService, **kwargs: Any) -> Recipe:
+        ai = OpenAIService(self.repos)
+        await ai.get_response("p", "m", response_schema=OpenAIText)  # A reads the source
+        fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429)
+        await ai.get_response("p", "m", response_schema=OpenAIText)  # A's quota is gone: B builds the recipe
+        recorded = Recipe.model_validate(json.loads((DRAFT_DATA / "recipe.json").read_text()))
+        return await scraper.finalize_scraped_recipe(recorded, self.translator)
+
+    monkeypatch.setattr(AIRecipeService, "build_recipe", build_recipe)
+    draft = post_draft(api_client, unique_user, data={"text": "Testkuchen: 200 g Mehl, 2 Eier."}).json()
+    assert get_draft(api_client, unique_user, draft["id"]).json()["aiModel"] == "A (model-a), B (model-b)"
+
+
+def test_mealies_import_page_names_an_outage(
+    api_client: TestClient, unique_user: TestUser, providers, fake_ai_calls: FakeAI
+):
+    # Mealie's own AI import says "AI request failed", not "unknown error", when no provider of the list answers
+    for name in providers:
+        fake_ai_calls.behavior[name] = openai.APIConnectionError(request=REQUEST)
+    response = api_client.post(
+        api_routes.recipes_create_ai, data={"content": "Testkuchen: 200 g Mehl, 2 Eier."}, headers=unique_user.token
+    )
+    assert response.status_code == 400
+    expected = get_locale_provider("en-US").t("recipe.import-errors.ai-request-failed")
+    assert response.json()["detail"]["message"] == expected

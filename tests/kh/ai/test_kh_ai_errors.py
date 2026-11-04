@@ -1,6 +1,8 @@
 """KH: tests for sorting AI provider errors (D39): which failure skips a provider for how long, read from the
 errors of the openai package, built here without any network (D23)."""
 
+import subprocess
+import sys
 from datetime import UTC, datetime, timedelta
 
 import httpx
@@ -99,3 +101,18 @@ def test_pauses():
     assert pause_until(Failure("unreachable"), NOW, S) == NOW + timedelta(minutes=10)
     assert pause_until(Failure("short", 30), NOW, S) == NOW + timedelta(seconds=30)
     assert pause_until(Failure("key"), NOW, S) is None
+
+
+def test_payment_required_is_quota():
+    # OpenRouter answers 402 once the credit is gone, even for its ":free" models
+    assert classify(status_error(openai.APIStatusError, 402), S) == Failure("quota", None)
+
+
+def test_the_ai_list_leaves_openai_unloaded():
+    # Mealie loads the openai package only when it asks an AI: it takes about a second to load, longer on the Pi
+    code = (
+        "import sys, mealie.repos.repository_factory, mealie.services.recipe.import_workflow.steps.compile_source; "
+        "print('openai' in sys.modules)"
+    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    assert result.stdout.strip().splitlines()[-1] == "False"

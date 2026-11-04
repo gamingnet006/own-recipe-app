@@ -26,6 +26,8 @@ class OrderIn(MealieModel):
 
 
 class AiStatusOut(MealieModel):
-    """Whether any provider can take a request now; all a family member learns."""
+    """Whether any provider can take a request now, and whether the group has one at all; all a family member
+    learns."""
 
     available: bool
+    configured: bool

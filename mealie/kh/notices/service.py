@@ -61,8 +61,12 @@ def mark_read(session: Session, user_id: UUID4) -> None:
     session.commit()
 
 
-def newest_kind(session: Session, group_id: UUID4) -> str | None:
-    """The kind of the group's newest notice, so "no AI reachable" comes once per outage."""
+def newest_of(session: Session, group_id: UUID4, kinds: tuple[NoticeKind, ...]) -> str | None:
+    """The kind of the group's newest notice among KINDS, e.g. whether "no AI reachable" came after the last
+    "ready again"."""
     return session.execute(
-        sa.select(KhNotice.kind).where(KhNotice.group_id == group_id).order_by(KhNotice.created_at.desc()).limit(1)
+        sa.select(KhNotice.kind)
+        .where(KhNotice.group_id == group_id, KhNotice.kind.in_(kinds))
+        .order_by(KhNotice.created_at.desc())
+        .limit(1)
     ).scalar_one_or_none()

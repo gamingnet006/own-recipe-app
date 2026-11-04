@@ -31,15 +31,6 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
     },
   },
   {
-    name: "Cerebras",
-    keyUrl: "https://cloud.cerebras.ai",
-    baseUrl: "https://api.cerebras.ai/v1",
-    note: {
-      de: "Tageskontingent; die Bedingungen beim Anmelden prüfen.",
-      en: "Daily quota; check the terms when signing up.",
-    },
-  },
-  {
     name: "Mistral",
     keyUrl: "https://console.mistral.ai/api-keys",
     baseUrl: "https://api.mistral.ai/v1",
@@ -67,30 +58,30 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
     },
   },
   {
-    name: "NVIDIA",
-    keyUrl: "https://build.nvidia.com",
-    baseUrl: "https://integrate.api.nvidia.com/v1",
-    note: {
-      de: "Startguthaben für Entwickler, bis 40 Anfragen pro Minute.",
-      en: "Starter credits for developers, up to 40 requests a minute.",
-    },
-  },
-  {
-    name: "Hugging Face",
-    keyUrl: "https://huggingface.co/settings/tokens",
-    baseUrl: "https://router.huggingface.co/v1",
-    note: {
-      de: "Kleines Guthaben jeden Monat.",
-      en: "A small allowance every month.",
-    },
-  },
-  {
     name: "Cloudflare Workers AI",
     keyUrl: "https://dash.cloudflare.com/profile/api-tokens",
-    baseUrl: "https://api.cloudflare.com/client/v4/accounts/<Konto-ID>/ai/v1",
+    baseUrl: "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1",
     note: {
-      de: "API-Token mit „Workers AI“; die Konto-ID kommt in die Adresse; 10.000 „Neurons“ am Tag.",
-      en: "API token with \"Workers AI\"; the account ID goes into the address; 10,000 \"neurons\" a day.",
+      de: "API-Token mit „Workers AI“; statt <ACCOUNT_ID> kommt die Konto-ID in die Adresse; 10.000 „Neurons“ am Tag.",
+      en: "API token with \"Workers AI\"; the account ID replaces <ACCOUNT_ID> in the address; 10,000 \"neurons\" a day.",
+    },
+  },
+  {
+    name: "Z.ai (GLM)",
+    keyUrl: "https://z.ai/manage-apikey/apikey-list",
+    baseUrl: "https://api.z.ai/api/paas/v4/",
+    note: {
+      de: "Die Flash-Modelle sind kostenlos, GLM-4.6V-Flash liest auch Fotos; Firma in Singapur, die Daten werden dort verarbeitet.",
+      en: "The Flash models are free, GLM-4.6V-Flash also reads photos; a company in Singapore, the data is processed there.",
+    },
+  },
+  {
+    name: "Vercel AI Gateway",
+    keyUrl: "https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway&title=Go+to+AI+Gateway",
+    baseUrl: "https://ai-gateway.vercel.sh/v1",
+    note: {
+      de: "Monatliches Gratis-Guthaben für ausgewählte Modelle; wer Guthaben kauft, bekommt es nicht mehr.",
+      en: "Monthly free credit for selected models; buying credits ends it.",
     },
   },
   {
@@ -98,8 +89,17 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
     keyUrl: "https://dashboard.cohere.com/api-keys",
     baseUrl: "https://api.cohere.ai/compatibility/v1",
     note: {
-      de: "Test-Schlüssel mit etwa 1.000 Anfragen im Monat, nur für Privates.",
-      en: "Trial key with about 1,000 requests a month, for private use only.",
+      de: "Test-Schlüssel mit 1.000 Anfragen im Monat und 20 pro Minute, zum Ausprobieren gedacht.",
+      en: "Trial key with 1,000 requests a month and 20 a minute, meant for trying it out.",
+    },
+  },
+  {
+    name: "NVIDIA",
+    keyUrl: "https://build.nvidia.com",
+    baseUrl: "https://integrate.api.nvidia.com/v1",
+    note: {
+      de: "Einmalig 1.000 Credits zum Ausprobieren, bis 40 Anfragen pro Minute.",
+      en: "1,000 one-time credits to try it out, up to 40 requests a minute.",
     },
   },
 ];

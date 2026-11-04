@@ -40,11 +40,14 @@
             {{ provider.model }}
           </div>
           <div class="d-flex flex-wrap ga-1 mt-2">
-            <v-chip size="small" :color="statusColor(provider.status)">
+            <v-chip size="small" :color="statusColor(provider)">
               {{ statusLabel(provider, (key, values) => i18n.t(key, values ?? {}), time) }}
             </v-chip>
             <v-chip v-if="provider.supportsImages" size="small">
               {{ $t("kh.ai.reads-images") }}
+            </v-chip>
+            <v-chip v-else-if="provider.supportsImages === false" size="small">
+              {{ $t("kh.ai.no-images") }}
             </v-chip>
           </div>
         </div>
@@ -63,7 +66,7 @@
 
 <script setup lang="ts">
 import type { KhProviderState } from "../lib/api/ai";
-import { clockTime, statusLabel } from "../composables/use-kh-ai";
+import { clockTime, shownStatus, statusLabel } from "../composables/use-kh-ai";
 
 defineProps<{ providers: KhProviderState[] }>();
 defineEmits<{ move: [index: number, delta: -1 | 1]; edit: [id: string]; delete: [id: string] }>();
@@ -76,7 +79,8 @@ function time(date: Date): string {
 }
 
 /** Green when ready, amber while paused, red while waiting for a fix. */
-function statusColor(status: string): string {
+function statusColor(provider: KhProviderState): string {
+  const status = shownStatus(provider, new Date());
   if (status === "ready") return "success";
   return status === "key" || status === "model" ? "error" : "warning";
 }

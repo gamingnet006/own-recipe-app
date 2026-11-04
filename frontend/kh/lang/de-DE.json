@@ -46,7 +46,7 @@
       "error": {
         "no_recipe_data": "Dort wurde kein Rezept gefunden.",
         "ai_not_configured": "Keine KI eingerichtet: Gruppen-Einstellungen → KI-Anbieter",
-        "quota_exceeded": "Kontingent für heute aufgebraucht, morgen neu versuchen.",
+        "quota_exceeded": "Das KI-Kontingent ist aufgebraucht, bitte später erneut versuchen.",
         "address_blocked": "Diese Adresse ist nicht erlaubt.",
         "invalid_result": "Die Erkennung lieferte kein gültiges Rezept.",
         "interrupted": "Unterbrochen, bitte neu versuchen.",
@@ -113,7 +113,10 @@
         "get-key": "Schlüssel holen",
         "address": "Adresse"
       },
-      "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen."
+      "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
+      "no-images": "liest keine Bilder",
+      "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
+      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Küchenhelfer erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
     },
     "notices": {
       "title": "Meldungen",
