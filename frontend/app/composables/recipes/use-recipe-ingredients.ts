@@ -149,7 +149,7 @@ export function useIngredientTextParser() {
       const amount = { quantity: Number(quantity), ...khExtra(ingredient.referenceId), unit, food: food?.name ?? note };
       const shown = formatAmount(amount, scale, locale.value);
       returnQty = shown.quantity;
-      unitName = shown.unit ?? unitName;
+      unitName = shown.unit ?? useUnitName(unit || undefined, shown.plural);
       if (shown.eggTip) shownNote = [note, useGlobalI18n().t("kh.amounts.egg-tip")].filter(Boolean).join(" · ");
     }
 

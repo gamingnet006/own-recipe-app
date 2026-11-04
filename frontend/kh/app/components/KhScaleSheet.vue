@@ -105,7 +105,8 @@ const way = ref(base.value ? "servings" : "have");
 const servings = ref(base.value);
 const lineIndex = ref(lines.value[0]?.index);
 const have = ref<number>();
-const oldPan = parsePan(props.recipe.recipeYield);
+// the yield's number and text joined again: Mealie's import moves "26" out of "Springform Ø 26 cm"
+const oldPan = parsePan([props.recipe.recipeYieldQuantity, props.recipe.recipeYield].filter(Boolean).join(" "));
 const pans = reactive<PanForm[]>([{ shape: "round", ...oldPan }, { shape: oldPan?.shape ?? "round" }]);
 
 const chosen = computed(() => props.recipe.recipeIngredient[lineIndex.value ?? -1]);

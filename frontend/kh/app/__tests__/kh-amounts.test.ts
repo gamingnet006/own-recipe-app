@@ -65,6 +65,8 @@ test("ranges scale at both ends", () => {
 
 test("fixed amounts stay", () => {
   expect(text({ quantity: 1, unit: prise, fixed: true }, 3)).toBe("1");
+  expect(fmt({ quantity: 1, unit: prise }, 3).plural).toBe(false); // the unit reads as shown: "1 Prise"
+  expect(fmt({ quantity: 1, unit: el }, 3).plural).toBe(true);
   expect(text({ quantity: 2, unit: el, fixed: true }, 2)).toBe("2");
 });
 
@@ -105,6 +107,10 @@ test("the old pan from the yield", () => {
   expect(parsePan("26er Springform")).toEqual({ shape: "round", diameter: 26 });
   expect(parsePan("24 x 30 cm")).toEqual({ shape: "rect", length: 24, width: 30 });
   expect(parsePan("24×30")).toEqual({ shape: "rect", length: 24, width: 30 });
+  // Mealie's import takes the number out of a yield: "26" and "Springform Ø cm"; the sheet joins them again
+  expect(parsePan("26 Springform Ø cm")).toEqual({ shape: "round", diameter: 26 });
+  expect(parsePan("26 er Springform")).toEqual({ shape: "round", diameter: 26 });
+  expect(parsePan("1 Springform Ø 26 cm")).toEqual({ shape: "round", diameter: 26 });
   expect(parsePan("1 Kuchen")).toBeNull();
   expect(parsePan(null)).toBeNull();
 });

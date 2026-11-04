@@ -228,6 +228,17 @@ describe("parseIngredientText", () => {
     expect(parseIngredientText(ingredient)).toEqual("2 tablespoons diced onion");
   });
 
+  // KH: a fixed amount reads in the singular when it shows one, at any factor (D39)
+  test("a pinch stays one pinch at any factor", () => {
+    const ingredient = createRecipeIngredient({
+      quantity: 1,
+      unit: { id: "1", name: "Prise", pluralName: "Prisen", useAbbreviation: false },
+      food: { id: "1", name: "Salz" },
+    });
+
+    expect(parseIngredientText(ingredient, 2)).toEqual("1 Prise Salz");
+  });
+
   test("decimal below minimum precision shows < 0.001", () => {
     const ingredient = createRecipeIngredient({
       quantity: 0.0001,

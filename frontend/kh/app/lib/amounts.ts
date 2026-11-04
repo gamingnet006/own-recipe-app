@@ -21,6 +21,7 @@ export interface KhAmount {
 export interface KhAmountText {
   quantity: string;
   unit: string | null; // null: Mealie's unit text stays
+  plural: boolean; // the unit reads in the plural: more than one is shown ("1 Prise" stays one at any factor)
   eggTip: boolean; // half an egg: "whisk one egg and use half"
 }
 
@@ -82,7 +83,7 @@ function endText(value: number, unit: KhUnit | null | undefined, locale: string)
 }
 
 /** A single amount, where the unit may change: grams to kg and millilitres to l from 1000, 3 TL to 1 EL. */
-function singleText(value: number, unit: KhUnit | null | undefined, locale: string): Omit<KhAmountText, "eggTip"> {
+function singleText(value: number, unit: KhUnit | null | undefined, locale: string): Pick<KhAmountText, "quantity" | "unit"> {
   const metric = unitIs(unit, GRAMS) ? "kg" : unitIs(unit, MILLILITRES) ? "l" : null;
   if (metric && roundMetric(value) >= 1000) return { quantity: decimal(roundMetric(value) / 1000, locale, 2), unit: metric };
   const spoon = SPOONS.find(spoon => unitIs(unit, spoon.from));
@@ -106,7 +107,7 @@ export function formatAmount(amount: KhAmount, scale: number, locale: string): K
   const quantity = value > 0 && /^0$/.test(shown.quantity) ? `< ${decimal(0.1, locale, 1)}` : shown.quantity;
   const pieces = !amount.unit || unitIs(amount.unit, PIECES);
   const eggTip = !upper && pieces && EGGS.includes(plain(amount.food)) && halves(value) % 1 !== 0;
-  return { quantity, unit: shown.unit, eggTip };
+  return { quantity, unit: shown.unit, plural: (upper ?? value) > 1, eggTip };
 }
 
 // The three ways to scale (A3) and the hint on times (A5). Each factor is null when the input is no usable number,
@@ -118,8 +119,10 @@ const NUMBER = String.raw`(\d+(?:[.,]\d+)?)`;
 const RECT_PAN = new RegExp(`${NUMBER}\\s*[x×]\\s*${NUMBER}`, "i");
 const ROUND_PAN = [
   new RegExp(`Ø\\s*${NUMBER}`, "i"), // "Springform Ø 26 cm"
-  new RegExp(`${NUMBER}er\\s+(?:Spring|Tarte|Back)?form`, "i"), // "26er Springform"
+  new RegExp(`${NUMBER}\\s*er\\s+(?:Spring|Tarte|Back)?form`, "i"), // "26er Springform"
   new RegExp(`(?:Springform|Tarteform|rund)\\D*${NUMBER}\\s*cm`, "i"), // "Springform 26 cm"
+  // Mealie's import moves a yield's number in front of its text: "26" and "Springform Ø cm" joined
+  new RegExp(`${NUMBER}\\s+(?:Spring|Tarte|Back)?form`, "i"),
 ];
 
 /** A positive, finite number, else null. */

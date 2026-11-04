@@ -29,8 +29,9 @@ draft run; nothing else from a draft is put into the page as HTML. -->
       {{ $t("recipe.ingredients") }}
     </h4>
     <ul class="mb-4 ml-5">
+      <!-- Mealie's display with Küchenhelfer's amounts, so a range reads "2–3 EL" as recognized (D39) -->
       <li v-for="(ingredient, index) in recipe.recipeIngredient" :key="index">
-        {{ ingredient.display || ingredient.note }}
+        <RecipeIngredientHtml :ingredient="ingredient" />
       </li>
     </ul>
     <h4 class="text-subtitle-1 font-weight-bold">
@@ -64,11 +65,13 @@ draft run; nothing else from a draft is put into the page as HTML. -->
 </template>
 
 <script setup lang="ts">
+import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtml.vue";
 import RecipeYield from "~/components/Domain/Recipe/RecipeYield.vue";
 import { useStaticRoutes } from "~/composables/api";
 import type { Recipe } from "~/lib/api/types/recipe";
 import { draftAmounts } from "../composables/use-kh-drafts";
 import { stepSegments } from "../lib/amounts";
+import { khAmounts } from "../lib/amounts-store";
 
 const props = defineProps<{ recipe: Recipe }>();
 // the indices of the step links that stay linked; without it the review only shows them
@@ -88,6 +91,10 @@ const facts = computed(() => [
 ].filter(fact => fact.value));
 
 const links = computed(() => draftAmounts(props.recipe).stepAmounts);
+// the draft's range ends and fixed lines for Mealie's display, as a recipe page loads its own
+watch(() => draftAmounts(props.recipe).extras, (extras) => { khAmounts.value = { extras, stepAmounts: [] }; }, {
+  immediate: true,
+});
 // each step's text in pieces, with the links' indices in the draft; null for a step without links
 const stepParts = computed(() =>
   (props.recipe.recipeInstructions ?? []).map((step, place) => {
