@@ -169,9 +169,10 @@ def test_admin_update_group_ai_provider_settings_clear(
         assert response.status_code == 200
 
         settings = response.json()["aiProviderSettings"]
-        assert settings["defaultProviderId"] is None
+        # KH: default and image provider follow Küchenhelfer's priority list: its only provider (D39)
+        assert settings["defaultProviderId"] == str(provider.id)
         assert settings["audioProviderId"] is None
-        assert settings["imageProviderId"] is None
+        assert settings["imageProviderId"] == str(provider.id)
     finally:
         unique_user.repos.group_ai_providers.delete(provider.id)
 

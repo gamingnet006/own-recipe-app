@@ -3,6 +3,7 @@ from functools import cached_property
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4
 
+from mealie.kh.ai.state import sync_mealie_roles  # KH: the AI priority list (D39)
 from mealie.schema.group.group import GroupAdminUpdate
 from mealie.schema.mapper import mapper
 from mealie.schema.response.pagination import PaginationQuery
@@ -66,7 +67,9 @@ class AdminGroupManagementRoutes(BaseAdminController):
         if data.ai_provider_settings:
             provider_settings = self.repos.group_ai_provider_settings.get_one(item_id)
             provider_settings = mapper(data.ai_provider_settings, provider_settings)
-            group.ai_provider_settings = self.repos.group_ai_provider_settings.update(item_id, provider_settings)
+            self.repos.group_ai_provider_settings.update(item_id, provider_settings)
+            sync_mealie_roles(self.repos.session, item_id)  # KH: default and image follow the priority list (D39)
+            group.ai_provider_settings = self.repos.group_ai_provider_settings.get_one(item_id)
 
         if data.name not in ["", group.name]:
             # only update the group if the name changed, since the name is the only field that can be updated

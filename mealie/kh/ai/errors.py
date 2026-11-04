@@ -33,7 +33,7 @@ class Failure:
     wait_seconds: float | None = None
 
 
-def retry_seconds(error: Exception) -> float | None:
+def retry_seconds(error: BaseException) -> float | None:
     """The wait a provider named for a 429: the retry-after header in seconds, else Gemini's retryDelay in the body,
     which may be an object, a list, text or missing."""
     response = getattr(error, "response", None)
@@ -47,7 +47,7 @@ def retry_seconds(error: Exception) -> float | None:
     return float(match.group(1)) if match else None
 
 
-def classify(error: Exception, settings: KhSettings) -> Failure:
+def classify(error: BaseException, settings: KhSettings) -> Failure:
     """Sorts a provider's error. A 429 with a wait up to ai_short_pause_seconds is only a short pause (a per-minute
     limit), any other 429 a used-up quota; anything that says nothing about the provider skips just this request."""
     if isinstance(error, openai.RateLimitError):

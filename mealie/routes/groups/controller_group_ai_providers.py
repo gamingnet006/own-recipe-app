@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import UUID4
 
 from mealie.core.root_logger import get_logger
+from mealie.kh.ai.state import sync_mealie_roles  # KH: the AI priority list (D39)
 from mealie.routes._base import controller
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.mixins import HttpRepo
@@ -34,7 +35,10 @@ class GroupAIProviderSettingsController(BaseUserController):
     def update_ai_provider_settings(self, settings: AIProviderSettingsUpdate) -> AIProviderSettingsOut:
         self.checks.can_manage()
 
-        return self.repos.group_ai_provider_settings.update(self.group_id, settings)
+        self.repos.group_ai_provider_settings.update(self.group_id, settings)
+        # KH: default and image provider follow the priority list, whatever the page sent; audio stays (D39)
+        sync_mealie_roles(self.repos.session, self.group_id)
+        return self.repos.group_ai_provider_settings.get_one(self.group_id)
 
 
 @controller(providers_router)

@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from mealie.core.exceptions import RateLimitError
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
+from mealie.kh.ai.chain import used_provider
+from mealie.kh.ai.errors import AIUnavailableError
 from mealie.kh.drafts.duplicates import candidates, find_duplicates
 from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
@@ -34,10 +36,22 @@ logger = get_logger()
 NO_AI = (OpenAINotEnabledException, AIProviderNotEnabledError)
 
 
+def causes(ex: BaseException) -> list[BaseException]:
+    """The exception and the ones it was raised from, as Mealie wraps errors it passes on."""
+    chain: list[BaseException] = []
+    current: BaseException | None = ex
+    while current is not None and current not in chain:
+        chain.append(current)
+        current = current.__cause__
+    return chain
+
+
 def error_code(ex: Exception) -> DraftError:
     """Turns an exception from recognizing into the code the review shows."""
     if isinstance(ex, RateLimitError):
         return DraftError.quota_exceeded
+    if any(isinstance(cause, AIUnavailableError) for cause in causes(ex)):
+        return DraftError.ai_unavailable
     if isinstance(ex, NO_AI):
         return DraftError.ai_not_configured
     if isinstance(ex, NoRecipeDataError) or (isinstance(ex, HTTPException) and ex.status_code == 400):
@@ -95,6 +109,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
         if draft is None or draft.status != DraftStatus.working:
             return
         ai = AIRecipeService(repos, user, household, translator=translator)
+        used_provider.set(None)
         try:
             recipe, used_ai = await build(draft, ai, repos, translator)
             recognized = recipe.model_dump(mode="json", by_alias=True)
@@ -108,7 +123,9 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
                 logger.info(f"KH: recognizing draft {draft_id} failed: {code}")
             set_fields(session, draft_id, status=DraftStatus.failed, error=code, recipe=None, ai_model=None)
             return
-        ai_model = ai_model_used(repos, images=draft.source_type == DraftSource.image) if used_ai else None
+        # the provider of the priority list that answered (D39), else the one Mealie's settings name
+        images = draft.source_type == DraftSource.image
+        ai_model = (used_provider.get() or ai_model_used(repos, images=images)) if used_ai else None
         set_fields(
             session,
             draft_id,

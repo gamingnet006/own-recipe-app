@@ -19,6 +19,7 @@ from pydantic import BaseModel, field_validator
 
 from mealie.core import exceptions, root_logger
 from mealie.core.config import get_app_settings
+from mealie.kh.ai.state import record_test  # KH: the provider test feeds the AI priority list (D39)
 from mealie.pkgs import img
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.group.ai_providers import AIProviderOut, AIProviderTestResult
@@ -197,6 +198,7 @@ class OpenAIService(BaseService):
             # where it's only visible to whoever runs the server.
             self.logger.exception("AI provider connection test failed")
             cause = e.__cause__ or e
+            record_test(self.repos.session, provider, error=cause)  # KH: a rejected key pauses it in the list (D39)
             status = getattr(cause, "status_code", None)
             name = type(cause).__name__
             return AIProviderTestResult(success=False, message=f"{name} (HTTP {status})" if status else name)
@@ -204,7 +206,9 @@ class OpenAIService(BaseService):
         if not response:
             return AIProviderTestResult(success=False, message="No response received from the provider.")
 
-        return AIProviderTestResult(success=True, supports_images=await self._check_image_support(provider))
+        supports_images = await self._check_image_support(provider)
+        record_test(self.repos.session, provider, supports_images=supports_images)  # KH: ready, reads images (D39)
+        return AIProviderTestResult(success=True, supports_images=supports_images)
 
     async def _check_image_support(self, provider: AIProviderOut) -> bool:
         """
@@ -442,6 +446,17 @@ class OpenAIService(BaseService):
     ) -> T | None:
         """Send data to OpenAI and return the response message content"""
         import openai
+
+        # KH: without a given provider the priority list asks the group's providers in order, outside Mealie's
+        # error wrapping so drafts can tell a used-up quota from no AI at all; audio, and a group without
+        # providers, stay Mealie's way (D39)
+        audio = any(isinstance(a, OpenAILocalAudio) for a in attachments or [])
+        if provider is None and not audio and self.repos.group_ai_providers.get_all():
+            from mealie.kh.ai.chain import ask_ai  # here: the chain imports this module
+
+            content: list[dict] = [{"type": "text", "text": message}]
+            content += [attachment.build_message() for attachment in attachments or []]
+            return await ask_ai(self, prompt, content, response_schema, images=bool(attachments))
 
         try:
             provider = provider or self._get_provider(attachments)

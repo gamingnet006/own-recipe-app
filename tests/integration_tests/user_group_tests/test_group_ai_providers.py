@@ -221,9 +221,11 @@ def test_update_settings_all_provider_types(api_client: TestClient, unique_user:
         assert response.status_code == 200
 
         settings = response.json()
-        assert settings["defaultProviderId"] == str(default_provider.id)
+        # KH: default and image provider follow Küchenhelfer's priority list, here by name; audio stays (D39)
+        first = min((default_provider, audio_provider, image_provider), key=lambda p: p.name)
+        assert settings["defaultProviderId"] == str(first.id)
         assert settings["audioProviderId"] == str(audio_provider.id)
-        assert settings["imageProviderId"] == str(image_provider.id)
+        assert settings["imageProviderId"] == str(first.id)
     finally:
         unique_user.repos.group_ai_provider_settings.update(
             unique_user.repos.group_id,
@@ -249,7 +251,9 @@ def test_update_settings_clear_providers(api_client: TestClient, unique_user: Te
         assert response.status_code == 200
 
         settings = response.json()
-        assert settings["defaultProviderId"] is None
+        # KH: a group with providers keeps the priority list's first as its default (D39)
+        assert settings["defaultProviderId"] == str(provider.id)
+        assert settings["audioProviderId"] is None
     finally:
         api_client.delete(api_routes.groups_ai_providers_providers_provider_id(provider.id), headers=unique_user.token)
 
@@ -355,7 +359,8 @@ def test_delete_image_provider_clears_settings(api_client: TestClient, unique_us
 
         settings = unique_user.repos.group_ai_provider_settings.get_one(unique_user.repos.group_id)
         assert settings is not None
-        assert settings.image_provider_id is None
+        # KH: the remaining provider of the priority list takes over the images, untested as it is (D39)
+        assert settings.image_provider_id == default_provider.id
         assert settings.default_provider_id == default_provider.id
     finally:
         unique_user.repos.group_ai_provider_settings.update(

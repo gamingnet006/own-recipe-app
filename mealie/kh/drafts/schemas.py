@@ -33,6 +33,7 @@ class DraftError(StrEnum):
     no_recipe_data = "no_recipe_data"
     ai_not_configured = "ai_not_configured"
     quota_exceeded = "quota_exceeded"
+    ai_unavailable = "ai_unavailable"  # no provider of the priority list answered (D39)
     address_blocked = "address_blocked"
     invalid_result = "invalid_result"
     interrupted = "interrupted"
