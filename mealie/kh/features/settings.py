@@ -30,6 +30,14 @@ class KhSettings(BaseSettings):
     # Language every recipe the AI reads is translated into, as an English name like "German" (the way the AI
     # names a recipe's language, so Mealie skips recipes already in it); empty keeps the language they came in
     recipe_language: str = ""
+    # AI priority list (D39): a 429 with a wait up to this many seconds is a short pause, not a used-up quota;
+    # how long a provider is skipped when it names no wait (quota) or cannot be reached
+    ai_short_pause_seconds: int = 120
+    ai_quota_pause_minutes: int = 60
+    ai_down_pause_minutes: int = 10
+    # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
+    notice_days: int = 30
+    notice_poll_minutes: int = 5
 
 
 @lru_cache

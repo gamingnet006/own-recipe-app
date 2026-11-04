@@ -77,6 +77,9 @@ class AlchemyExporter(BaseService):
         "completed_date",
         "tokens_valid_after",
         "approved_at",  # KH: kh_drafts (phase 2)
+        "paused_until",  # KH: kh_ai_provider_state (D39)
+        "until",  # KH: kh_notices (D39)
+        "last_read_at",  # KH: kh_notice_reads (D39)
     }
     """Column names restored back into datetimes. Anything stored as a `NaiveDateTime` and missing
     here comes back from a backup as a string; `test_every_datetime_column_survives_a_backup` guards

@@ -6,3 +6,5 @@ from .users import *
 # KH: Küchenhelfer's own tables (phase 2), loaded after Mealie's so Alembic and the ORM know them
 # isort: split
 from mealie.kh.drafts.models import KhDraft  # noqa: F401
+from mealie.kh.ai.models import KhAiProviderState  # noqa: F401
+from mealie.kh.notices.models import KhNotice, KhNoticeRead  # noqa: F401

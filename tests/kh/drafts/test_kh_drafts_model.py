@@ -43,7 +43,7 @@ def test_kh_branch_on_mealies_newest_and_database_at_heads(api_client: TestClien
     assert kh0001 is not None
     assert kh0001.branch_labels == {"kh"}
     assert kh0001.down_revision == mealie_newest
-    assert "kh0001" in script.get_heads()
+    assert script.get_heads() == [script.get_revision("kh@head").revision]
     assert db_is_at_head(alembic_config())
 
 
