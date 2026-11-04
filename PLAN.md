@@ -196,7 +196,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
   - [ ] Oberfläche nach D38 umsetzen: `v0.1.2` Rahmen, `v0.1.3` Rezeptseite.
   - [ ] Rezeptsprache in der App einstellbar (Admin-Einstellung statt `KH_RECIPE_LANGUAGE` in `.env`, D36).
   - [ ] Fremdsprachige Seiten mit Rezeptdaten übersetzen; kostet eine KI-Anfrage je Link.
-  - [ ] Zweiter KI-Anbieter als Ausweichweg, wenn das Gratis-Kontingent aufgebraucht ist (Spezifikation „Später“).
+  - [x] Zweiter KI-Anbieter als Ausweichweg, wenn das Gratis-Kontingent aufgebraucht ist (Spezifikation „Später“). (4.11.2026: durch die Prio-Liste mit beliebig vielen Anbietern und der Glocke, D39.)
 
 ### Phase 3 · Mengen (v0.2)
 

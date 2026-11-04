@@ -198,7 +198,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
   - [ ] Build the user interface after D38: `v0.1.2` frame, `v0.1.3` recipe page.
   - [ ] Recipe language settable in the app (an admin setting instead of `KH_RECIPE_LANGUAGE` in `.env`, D36).
   - [ ] Translate foreign-language pages with recipe data; costs one AI request per link.
-  - [ ] A second AI provider as a fallback when the free quota is used up (spec, "Later").
+  - [x] A second AI provider as a fallback when the free quota is used up (spec, "Later"). (2026-11-04: by the priority list with any number of providers and the bell, D39.)
 
 ### Phase 3 · Quantities (v0.2)
 

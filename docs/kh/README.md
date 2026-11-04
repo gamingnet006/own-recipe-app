@@ -100,12 +100,31 @@ Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Re
    - **Gemini Bilder:** dieselbe Basis-URL und derselbe Schlüssel, Modell `gemini-3.1-flash-lite`, **Supports images** anhaken
 
    Ins Feld **Modell** gehört die Kennung wie `gemini-3.5-flash-lite`, nicht der Anzeigename aus AI Studio („Gemini 3.5 Flash Lite“).
-3. Prüf beide mit **Test Connection** und speichere. Wähl **Gemini** als **Standard-Anbieter** und **Gemini Bilder** als **Bildanbieter**. Den **Audio-Anbieter** lässt du leer; Videos kommen in einer späteren Phase.
+3. Prüf beide mit **Test Connection** und speichere. Standard- und Bildanbieter wählt Küchenhelfer selbst aus der Liste (Schritt 5); den **Audio-Anbieter** lässt du leer, Videos kommen in einer späteren Phase.
 4. Sollen alle Rezepte in einer Sprache ankommen, trag sie in `kh/ops/.env` als englischen Namen ein, zum Beispiel `KH_RECIPE_LANGUAGE=German`, und starte mit `docker compose -f kh/ops/docker-compose.yml up -d` neu (D36). Was die KI liest, wird dann übersetzt; Rezepte, die schon in dieser Sprache sind, kosten nichts extra. Links mit Rezeptdaten bleiben in der Sprache der Seite.
 
 **Was es braucht (Probelauf 1.11.2026):** Ein Link mit Rezeptdaten braucht keine KI-Anfrage und ist nach etwa einer Sekunde da, ein Text braucht eine Anfrage (etwa 5 Sekunden), ein Foto zwei, eine je Modell (4 bis 12 Sekunden). Eine Übersetzung kostet eine Anfrage mehr. Im Gratis-Angebot hatten die beiden Flash-Lite-Modelle je 500 Anfragen am Tag und 15 pro Minute, Flash-Modelle ohne „Lite“ nur 20 am Tag. Den eigenen Stand zeigt AI Studio unter [Ratenbegrenzungen](https://aistudio.google.com/rate-limit).
 
 Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Küchenhelfers Datenbank und damit in jedem Backup.
+
+5. **Mehrere Anbieter, Prio-Liste (D39):** In den KI-Anbieter-Einstellungen stehen die Anbieter als Liste, die du mit ▲▼ ordnest. Die KI fragt sie von oben nach unten: Ist bei einem das Kontingent leer, der Schlüssel ungültig, das Modell weg oder er nicht erreichbar, nimmt sie den nächsten. Neben jedem Anbieter steht sein Zustand, etwa „Kontingent leer bis 9:00“.
+   - Übersprungen wird ein leeres Kontingent bis zu der Zeit, die der Anbieter nennt, sonst eine Stunde; ein ungültiger Schlüssel oder ein fehlendes Modell, bis du den Anbieter speicherst oder sein Test grün ist; ein nicht erreichbarer Anbieter zehn Minuten. Die Zeiten lassen sich in `kh/ops/.env` ändern (`KH_AI_…`).
+   - Fotos gehen zuerst an Anbieter, deren Test „liest Bilder“ ergab, dann an ungetestete. Standard- und Bildanbieter stellt Küchenhelfer dafür selbst auf den ersten passenden der Liste.
+   - **Glocke:** Wer KI-Anbieter verwalten darf, sieht oben neben der Suche eine Glocke mit der Zahl neuer Meldungen, etwa „Gemini: Kontingent aufgebraucht bis 9:00. Ich nehme jetzt Groq.“ Meldungen bleiben 30 Tage. Die übrige Familie sieht nur im Eingang einen Hinweis, wenn gar kein Anbieter frei ist.
+   - **Kostenlose Schlüssel:** Unter der Liste steht ein Infofeld mit diesen Stellen (Stand 4.11.2026). Kostenlose Stufen ändern sich oft; ob ein Modell passt, zeigt **Test Connection**. Jeder weitere Anbieter sieht die Rezepte, die er liest (siehe „Was geht wohin“).
+
+| Anbieter, Schlüssel holen | Basis-URL | Gut zu wissen |
+|---|---|---|
+| [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) | `https://generativelanguage.googleapis.com/v1beta/openai/` | liest Fotos; im Gratis-Angebot darf Google die Daten zur Verbesserung nutzen |
+| [Groq](https://console.groq.com/keys) | `https://api.groq.com/openai/v1` | sehr schnell; die feste Antwortform können nur neuere Modelle |
+| [Cerebras](https://cloud.cerebras.ai) | `https://api.cerebras.ai/v1` | Tageskontingent; die Bedingungen beim Anmelden prüfen |
+| [Mistral](https://console.mistral.ai/api-keys) | `https://api.mistral.ai/v1` | kostenloser „Free mode“; die Datenschutz-Einstellungen in der Konsole ansehen |
+| [OpenRouter](https://openrouter.ai/settings/keys) | `https://openrouter.ai/api/v1` | nur Modelle, deren Name auf „:free“ endet; 50 Anfragen am Tag |
+| [SambaNova](https://cloud.sambanova.ai) | `https://api.sambanova.ai/v1` | ohne Zahlungsmittel 20 Anfragen am Tag je Modell |
+| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | Startguthaben für Entwickler, bis 40 Anfragen pro Minute |
+| [Hugging Face](https://huggingface.co/settings/tokens) | `https://router.huggingface.co/v1` | kleines Guthaben jeden Monat |
+| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<Konto-ID>/ai/v1` | API-Token mit „Workers AI“; die Konto-ID kommt in die Adresse; 10.000 „Neurons“ am Tag |
+| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | Test-Schlüssel mit etwa 1.000 Anfragen im Monat, nur für Privates |
 
 ### So findest du dich zurecht
 
@@ -198,7 +217,7 @@ Was Küchenhelfer heute nach draußen schickt. Telemetrie gibt es keine.
 | Funktion | Was wird gesendet | An wen | Abschalten |
 |---|---|---|---|
 | Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
-| KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | Google Gemini, nur mit eingetragenem Schlüssel (D35) | KI-Anbieter in den Gruppen-Einstellungen löschen |
+| KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | die eingetragenen KI-Anbieter in der Reihenfolge der Prio-Liste, z. B. Google Gemini; jeder mit eigenen Regeln (D35, D39) | KI-Anbieter in den Gruppen-Einstellungen löschen |
 | Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Küchenhelfer, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
 | Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
@@ -293,12 +312,31 @@ An AI reads photos, screenshots, texts and links without recipe data. Links with
    - **Gemini Images:** the same base URL and key, model `gemini-3.1-flash-lite`, tick **Supports images**
 
    The **Model** field takes the ID such as `gemini-3.5-flash-lite`, not the display name from AI Studio ("Gemini 3.5 Flash Lite").
-3. Check both with **Test Connection** and save. Choose **Gemini** as **Default Provider** and **Gemini Images** as **Image Provider**. Leave the **Audio Provider** empty; videos come in a later phase.
+3. Check both with **Test Connection** and save. Küchenhelfer picks the default and the image provider from the list itself (step 5); leave the **Audio Provider** empty, videos come in a later phase.
 4. If all recipes should arrive in one language, put it into `kh/ops/.env` as an English name, for example `KH_RECIPE_LANGUAGE=German`, and restart with `docker compose -f kh/ops/docker-compose.yml up -d` (D36). Whatever the AI reads is then translated; recipes already in that language cost nothing extra. Links with recipe data stay in the page's language.
 
 **What it takes (trial run 2026-11-01):** a link with recipe data needs no AI request and is there after about a second, a text needs one request (about 5 seconds), a photo two, one per model (4 to 12 seconds). A translation costs one request more. On the free tier the two Flash-Lite models had 500 requests a day and 15 a minute each, Flash models without "Lite" only 20 a day. AI Studio shows your own numbers under [rate limits](https://aistudio.google.com/rate-limit).
 
 On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Küchenhelfer's database and so in every backup.
+
+5. **Several providers, priority list (D39):** the AI provider settings show the providers as a list you order with ▲▼. The AI asks them from top to bottom: when a quota is used up, a key is invalid, a model is gone or a provider cannot be reached, it takes the next. Next to each provider is its state, such as "quota used up until 9:00".
+   - A used-up quota is skipped until the time the provider names, else an hour; an invalid key or a missing model until you save the provider or its test is green; an unreachable provider ten minutes. The times can be changed in `kh/ops/.env` (`KH_AI_…`).
+   - Photos go first to providers whose test read an image, then to untested ones. For this Küchenhelfer sets the default and image provider to the first fitting one of the list.
+   - **Bell:** whoever may manage AI providers sees a bell next to the search with the number of new messages, such as "Gemini: quota used up until 9:00. Now using Groq." Messages are kept 30 days. The rest of the family only sees a hint in the intake when no provider is free at all.
+   - **Free keys:** under the list an info box names these places (as of 2026-11-04). Free tiers change often; **Test Connection** shows whether a model fits. Every further provider sees the recipes it reads (see "What goes where").
+
+| Provider, get a key | Base URL | Good to know |
+|---|---|---|
+| [Google AI Studio (Gemini)](https://aistudio.google.com/apikey) | `https://generativelanguage.googleapis.com/v1beta/openai/` | reads photos; on the free tier Google may use the data to improve its products |
+| [Groq](https://console.groq.com/keys) | `https://api.groq.com/openai/v1` | very fast; only newer models give the fixed answer form |
+| [Cerebras](https://cloud.cerebras.ai) | `https://api.cerebras.ai/v1` | daily quota; check the terms when signing up |
+| [Mistral](https://console.mistral.ai/api-keys) | `https://api.mistral.ai/v1` | free "Free mode"; look at the privacy settings in the console |
+| [OpenRouter](https://openrouter.ai/settings/keys) | `https://openrouter.ai/api/v1` | only models whose name ends in ":free"; 50 requests a day |
+| [SambaNova](https://cloud.sambanova.ai) | `https://api.sambanova.ai/v1` | without a payment method 20 requests a day per model |
+| [NVIDIA](https://build.nvidia.com) | `https://integrate.api.nvidia.com/v1` | starter credits for developers, up to 40 requests a minute |
+| [Hugging Face](https://huggingface.co/settings/tokens) | `https://router.huggingface.co/v1` | a small allowance every month |
+| [Cloudflare Workers AI](https://dash.cloudflare.com/profile/api-tokens) | `https://api.cloudflare.com/client/v4/accounts/<account-id>/ai/v1` | API token with "Workers AI"; the account ID goes into the address; 10,000 "neurons" a day |
+| [Cohere](https://dashboard.cohere.com/api-keys) | `https://api.cohere.ai/compatibility/v1` | trial key with about 1,000 requests a month, for private use only |
 
 ### Finding your way
 
@@ -391,7 +429,7 @@ What Küchenhelfer sends out today. There is no telemetry.
 | Feature | What is sent | To whom | Switch off |
 |---|---|---|---|
 | Read a link | fetching the page and its recipe picture | the website in question | – |
-| AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | Google Gemini, only with a key entered (D35) | delete the AI provider in the group settings |
+| AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | the AI providers entered, in the order of the priority list, e.g. Google Gemini; each with its own rules (D35, D39) | delete the AI provider in the group settings |
 | Share shortcut | link, text or photo, with the device's key | your Küchenhelfer, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |

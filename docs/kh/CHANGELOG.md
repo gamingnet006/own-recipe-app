@@ -22,6 +22,17 @@ The new interface (D38): everyday use first, in the look "Salbei", with a calm r
   with parsed ingredients. "Add to shopping list" sits under the ingredients, "Start cooking" at the bottom. No stars,
   comments, "last made", category and tag chips or unit switch; editing, cook mode and printing stay Mealie's.
 
+AI priority list and bell (D39):
+
+- Any number of AI providers in an order set with ▲▼; a request moves on to the next when a quota is used up, a key is
+  invalid, a model is gone or a provider is down, and a failing one is skipped for a while. Each provider shows its
+  state, e.g. "quota used up until 9:00"; Küchenhelfer sets Mealie's default and image provider from the list, and
+  photos go only to providers whose test read an image, or untested ones.
+- A bell next to the search for everyone who manages AI providers, with messages such as "Gemini: quota used up until
+  9:00. Now using Groq."; the intake tells the family when no provider is free. A draft no provider could read says
+  "No AI reachable".
+- Under the AI providers, ten places to get free keys, with the date they were checked.
+
 Backups explain themselves, and their copy can move:
 
 - Next to the backups, on the USB stick and in the backup folder, lie `LIESMICH.txt`, a step-by-step guide to
