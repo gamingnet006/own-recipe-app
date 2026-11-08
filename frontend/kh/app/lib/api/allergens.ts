@@ -52,7 +52,7 @@ export class KhAllergensApi extends BaseAPI {
 
   /** PRESENT true adds the allergen, false takes a recognised one out, null removes the correction. */
   async correct(slug: string, allergen: KhAllergenKey, present: boolean | null) {
-    return await this.requests.put<KhRecipeAllergens>(`${base}/recipes/${encodeURIComponent(slug)}/allergens/${allergen}`, { present });
+    return await this.requests.put<{ present: boolean | null }>(`${base}/recipes/${encodeURIComponent(slug)}/allergens/${allergen}`, { present });
   }
 
   async getAllergies() {

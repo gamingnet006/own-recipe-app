@@ -70,20 +70,22 @@ describe("KhAllergens", () => {
   });
 
   test("a tap on a chip shows its lines; 'stimmt nicht' takes the allergen out", async () => {
-    putMock.mockResolvedValue({ data: answer({ hits: [{ allergen: "milk", lines: ["200 g Butter"], corrected: false }], warnings: [] }) });
+    putMock.mockResolvedValue({ data: { present: false } }); // the real answer of the PUT is only the correction
     const wrapper = await render(answer());
+    getMock.mockResolvedValue({ data: answer({ hits: [{ allergen: "milk", lines: ["200 g Butter"], corrected: false }], warnings: [] }) });
     await button(wrapper, "Gluten")!.trigger("click");
     expect(wrapper.text()).toContain("300 g Mehl");
     await button(wrapper, "stimmt nicht")!.trigger("click");
     await flushPromises();
     expect(putMock).toHaveBeenCalledWith("/api/kh/recipes/kuchen/allergens/gluten", { present: false });
+    expect(getMock).toHaveBeenCalledTimes(2); // the report is read again after the PUT
     expect(wrapper.text()).not.toContain("verträgt das nicht");
   });
 
   test("a taken-out allergen is struck and can be undone", async () => {
     const wrapper = await render(answer({ hits: [{ allergen: "milk", lines: ["Butter"], corrected: false }], warnings: [] }));
     expect(wrapper.find(".kh-allergens__chip--out").exists()).toBe(true);
-    putMock.mockResolvedValue({ data: answer() });
+    putMock.mockResolvedValue({ data: { present: null } });
     await wrapper.find(".kh-allergens__chip--out").trigger("click");
     await button(wrapper, "Rückgängig")!.trigger("click");
     expect(putMock).toHaveBeenCalledWith("/api/kh/recipes/kuchen/allergens/milk", { present: null });
@@ -95,7 +97,7 @@ describe("KhAllergens", () => {
     const options = select.findAll("option").map(o => o.attributes("value"));
     expect(options).toContain("eggs");
     expect(options).not.toContain("milk");
-    putMock.mockResolvedValue({ data: answer() });
+    putMock.mockResolvedValue({ data: { present: true } });
     await select.setValue("eggs");
     expect(putMock).toHaveBeenCalledWith("/api/kh/recipes/kuchen/allergens/eggs", { present: true });
   });

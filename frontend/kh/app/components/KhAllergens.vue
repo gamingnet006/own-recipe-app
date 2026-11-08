@@ -112,11 +112,12 @@ function hintsFor(allergen: KhAllergenKey) {
   return data.value?.substitutions.filter(hint => hint.allergen === allergen) ?? [];
 }
 
-/** Stores a correction (true adds, false takes out, null undoes) and shows what the server made of it; the marks on the
- * recipe cards follow. */
+/** Stores a correction (true adds, false takes out, null undoes) and reads the report again, since the PUT answers with
+ * the correction only; the marks on the recipe cards follow. */
 async function correct(allergen: KhAllergenKey, present: boolean | null) {
   error.value = "";
-  const { data: next } = await api.correct(props.slug, allergen, present);
+  const { data: stored } = await api.correct(props.slug, allergen, present);
+  const { data: next } = stored ? await api.forRecipe(props.slug) : { data: null };
   if (!next) {
     error.value = t("kh.allergens.failed");
     return;
