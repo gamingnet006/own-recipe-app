@@ -10,6 +10,7 @@ import {
   draftTitle,
   errorText,
   importRedirectTarget,
+  isVideoLink,
   originLabel,
   pollingNeeded,
   recipeChanges,
@@ -65,6 +66,29 @@ describe("importRedirectTarget", () => {
     expect(importRedirectTarget("/g/familie/drafts/abc")).toBeNull();
     expect(importRedirectTarget("/g/familie/r/create/new")).toBeNull();
     expect(importRedirectTarget("/g/familie/r/create/zip")).toBeNull();
+  });
+});
+
+describe("isVideoLink", () => {
+  test("links to video sites and their subdomains are video links", () => {
+    for (const url of ["https://www.instagram.com/reel/x", "https://vm.tiktok.com/a", "https://youtu.be/1",
+      "https://m.youtube.com/watch?v=1", "https://fb.watch/x", "https://facebook.com/reel/1", "youtube.com/watch?v=1"]) {
+      expect(isVideoLink(url)).toBe(true);
+    }
+  });
+
+  test("other links and look-alikes are not", () => {
+    for (const url of ["https://example.org/testkuchen", "https://example.org/instagram.com",
+      "https://notyoutube.com/x", "", "not a link"]) {
+      expect(isVideoLink(url)).toBe(false);
+    }
+  });
+
+  test("the video link text is in both languages", () => {
+    expect(de.kh.drafts.error.video_link).toBe(
+      "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+    );
+    expect(errorText("video_link", t)).toBe("kh.drafts.error.video_link");
   });
 });
 

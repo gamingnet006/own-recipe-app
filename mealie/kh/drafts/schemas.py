@@ -35,6 +35,7 @@ class DraftError(StrEnum):
     quota_exceeded = "quota_exceeded"
     ai_unavailable = "ai_unavailable"  # no provider of the priority list answered (D39)
     address_blocked = "address_blocked"
+    video_link = "video_link"  # a link to a video site is never fetched (D5)
     invalid_result = "invalid_result"
     interrupted = "interrupted"
     unknown = "unknown"

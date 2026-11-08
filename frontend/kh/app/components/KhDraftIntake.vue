@@ -34,15 +34,19 @@ which is recognized in the background and then waits in the list below for a rev
         :label="$t('kh.drafts.link-label')"
         :rules="[validators.url]"
       />
+      <!-- D5: a video link is not fetched; its description or a screenshot makes the draft, the link stays the source -->
+      <v-alert v-if="videoLink" type="info" variant="tonal" density="compact" class="mb-3">
+        {{ $t("kh.drafts.error.video_link") }}
+      </v-alert>
       <v-textarea
-        v-else-if="source === 'text'"
+        v-if="source === 'text' || videoLink"
         v-model="text"
         auto-grow
         autofocus
         rows="6"
         :label="$t('kh.drafts.text-label')"
       />
-      <div v-else>
+      <div v-if="source === 'image' || videoLink">
         <div v-if="photos.length" class="d-flex flex-wrap ga-2 mb-3">
           <div v-for="(photo, index) in photos" :key="photo.url" class="kh-photo">
             <v-img :src="photo.url" width="88" height="88" cover rounded />
@@ -79,7 +83,7 @@ which is recognized in the background and then waits in the list below for a rev
 
 <script setup lang="ts">
 import type { KhDraftSource } from "~~/kh/app/lib/api/drafts";
-import { errorText, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
+import { errorText, isVideoLink, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
 import { aiHintKey, useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
@@ -113,7 +117,11 @@ const photos = ref<{ file: File; url: string }[]>([]);
 const picker = ref<HTMLInputElement | null>(null);
 const sending = ref(false);
 
+// A video link asks for text or photos too (D5)
+const videoLink = computed(() => source.value === "link" && isVideoLink(link.value));
+
 const complete = computed(() => {
+  if (videoLink.value) return text.value.trim() !== "" || photos.value.length > 0;
   if (source.value === "link") return validators.url(link.value) === true;
   if (source.value === "text") return text.value.trim() !== "";
   return photos.value.length > 0;
@@ -154,8 +162,8 @@ onBeforeUnmount(() => photos.value.forEach(photo => URL.revokeObjectURL(photo.ur
 async function submit() {
   const form = new FormData();
   if (source.value === "link") form.append("url", link.value.trim());
-  else if (source.value === "text") form.append("text", text.value.trim());
-  else photos.value.forEach(photo => form.append("images", photo.file));
+  if (source.value === "text" || (videoLink.value && text.value.trim())) form.append("text", text.value.trim());
+  if (source.value === "image" || videoLink.value) photos.value.forEach(photo => form.append("images", photo.file));
 
   sending.value = true;
   const { error } = await api.create(form);

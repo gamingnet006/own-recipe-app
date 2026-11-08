@@ -35,6 +35,7 @@ from mealie.kh.drafts.schemas import (
     DraftWarning,
     OriginOut,
 )
+from mealie.kh.drafts.video import is_video_link
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
@@ -72,6 +73,10 @@ class DraftService:
             for kind, present in ((DraftSource.link, url), (DraftSource.text, text), (DraftSource.image, images))
             if present
         ]
+        if url and is_video_link(url):  # never fetched (D5): text or photos that come along are the source
+            given.remove(DraftSource.link)
+            if not given:
+                raise bad_request("video_link")
         if not given:
             raise bad_request("no_source")
         if len(given) > 1:

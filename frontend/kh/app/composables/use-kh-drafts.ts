@@ -24,6 +24,9 @@ const SIDE_BY_SIDE_FROM = 768;
 const POLL_INTERVAL_MS = 3000;
 // A draft without recipe and link is named by the start of its text, cut to this many characters
 const TITLE_LENGTH = 60;
+// Links to these sites (and their subdomains) are never fetched (D5); the backend keeps the same list in
+// mealie/kh/drafts/video.py
+const VIDEO_HOSTS = ["instagram.com", "tiktok.com", "youtube.com", "youtu.be", "facebook.com", "fb.watch"];
 const ERROR_CODES = new Set(Object.keys(en.kh.drafts.error));
 
 // One counter for the menu and the drafts pages; the app runs without server rendering, so a module ref is shared state
@@ -74,6 +77,17 @@ export function importRedirectTarget(path: string): string | null {
 /** Original and result one below the other on a phone, side by side from tablet width. */
 export function reviewLayout(width: number): "stacked" | "side" {
   return width >= SIDE_BY_SIDE_FROM ? "side" : "stacked";
+}
+
+/** Whether a link points at a video site, so the intake asks for the description or a screenshot instead. */
+export function isVideoLink(url: string): boolean {
+  try {
+    const host = new URL(url.includes("//") ? url : `//${url}`, "https://x.invalid").hostname.toLowerCase();
+    return VIDEO_HOSTS.some(video => host === video || host.endsWith(`.${video}`));
+  }
+  catch {
+    return false;
+  }
 }
 
 /** The sentence for an error code from the API; codes this version does not know get the general one. */

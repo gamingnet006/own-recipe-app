@@ -54,6 +54,7 @@
         "ai_not_configured": "Keine KI eingerichtet: Gruppen-Einstellungen → KI-Anbieter",
         "quota_exceeded": "Das KI-Kontingent ist aufgebraucht, bitte später erneut versuchen.",
         "address_blocked": "Diese Adresse ist nicht erlaubt.",
+        "video_link": "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
         "invalid_result": "Die Erkennung lieferte kein gültiges Rezept.",
         "interrupted": "Unterbrochen, bitte neu versuchen.",
         "unknown": "Etwas ist schiefgegangen, bitte neu versuchen.",

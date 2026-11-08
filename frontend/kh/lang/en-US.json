@@ -54,6 +54,7 @@
         "ai_not_configured": "No AI set up: Group Settings → AI Providers",
         "quota_exceeded": "The AI quota is used up, please try again later.",
         "address_blocked": "This address is not allowed.",
+        "video_link": "Küchenhelfer does not download videos. Paste the description or upload a screenshot.",
         "invalid_result": "The recognition did not return a valid recipe.",
         "interrupted": "Interrupted, please try again.",
         "unknown": "Something went wrong, please try again.",

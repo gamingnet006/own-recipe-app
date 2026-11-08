@@ -21,6 +21,7 @@ from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
+from mealie.kh.drafts.video import is_video_link
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
@@ -37,6 +38,10 @@ from mealie.services.scraper.scraper import create_from_html
 logger = get_logger()
 
 NO_AI = (OpenAINotEnabledException, AIProviderNotEnabledError)
+
+
+class VideoLinkError(Exception):
+    """A draft's link points at a video site, which Küchenhelfer does not fetch."""
 
 
 def causes(ex: BaseException) -> list[BaseException]:
@@ -59,6 +64,8 @@ def error_code(ex: Exception) -> DraftError:
         return DraftError.ai_not_configured
     if isinstance(ex, NoRecipeDataError) or (isinstance(ex, HTTPException) and ex.status_code == 400):
         return DraftError.no_recipe_data
+    if isinstance(ex, VideoLinkError):
+        return DraftError.video_link
     if isinstance(ex, InvalidDomainError):
         return DraftError.address_blocked
     if isinstance(ex, ValidationError):
@@ -87,6 +94,8 @@ async def build(
     language = get_kh_settings().recipe_language or None
     if draft.source_type == DraftSource.link:
         url = draft.source_url or ""  # always set for links: create() refuses a link draft without one
+        if is_video_link(url):  # drafts from before D5 may still hold one; they are never fetched
+            raise VideoLinkError(url)
         try:
             recipe, _ = await create_from_html(url, repos, translator)
             return recipe, False
