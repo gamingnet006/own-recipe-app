@@ -125,12 +125,27 @@ def new_places(before: Recipe, sent: list[RecipeStep]) -> dict[int, int]:
     }
 
 
+def amount_key(ingredient: RecipeIngredient) -> tuple[float | None, UUID4 | None]:
+    """What a line's range end, fixed mark and step links depend on: its quantity and unit."""
+    return ingredient.quantity, ingredient.unit.id if ingredient.unit else None
+
+
+def kept_lines(before: Recipe, saved: Recipe) -> set[UUID4]:
+    """The lines of SAVED that BEFORE had with the same quantity and unit."""
+    old = {ingredient.reference_id: amount_key(ingredient) for ingredient in before.recipe_ingredient}
+    return {
+        i.reference_id
+        for i in saved.recipe_ingredient
+        if i.reference_id in old and old[i.reference_id] == amount_key(i)
+    }
+
+
 def recheck_amounts(session: Session, before: Recipe, sent: list[RecipeStep], saved: Recipe) -> None:
     """Follows an edit of a recipe from BEFORE to SAVED: a link moves with its step and its text or goes, and links
-    and extras of a line that is gone go too. Commits."""
+    and extras of a line that is gone or has a new quantity or unit go too ("2–3 EL" edited to 4 EL). Commits."""
     places = new_places(before, sent)
     texts = [step.text for step in saved.recipe_instructions or []]
-    references = {ingredient.reference_id for ingredient in saved.recipe_ingredient}
+    references = kept_lines(before, saved)
     rows = session.execute(sa.select(KhStepAmount).where(KhStepAmount.recipe_id == saved.id)).scalars().all()
     for row in rows:
         place = places.get(row.step)

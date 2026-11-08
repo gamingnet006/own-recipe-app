@@ -72,10 +72,8 @@ def link_quantities(recipe: Recipe, units: dict[str, IngredientUnit]) -> list[Dr
 
 
 def recheck_link(text: str, link: StepAmountOut) -> StepAmountOut | None:
-    """The link for the step's text as it is now: unchanged where its text still stands, else at the place of that
-    text nearest the old one, and None when the text is gone. Never inside another number ("1250 g")."""
-    if text[link.start : link.end] == link.text:
-        return link
+    """The link for the step's text as it is now: at the place of its text nearest the old one (the old place where
+    it still stands), and None when the text is gone. Never inside another number ("1250 g")."""
     pattern = re.compile(rf"(?<![\d.,/]){re.escape(link.text)}(?![\d.,/])")
     places = [match.start() for match in pattern.finditer(text)]
     if not places:

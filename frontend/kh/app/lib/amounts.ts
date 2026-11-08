@@ -75,35 +75,38 @@ function halves(value: number): number {
   return Math.max(0.5, Math.round(value * 2) / 2);
 }
 
-/** One end of an amount by its unit's rules, without changing the unit. */
-function endText(value: number, unit: KhUnit | null | undefined, locale: string): string {
-  if (unitIs(unit, GRAMS) || unitIs(unit, MILLILITRES)) return decimal(roundMetric(value), locale, 1);
-  if (!unit || unitIs(unit, PIECES)) return fractionText(halves(value), locale);
+/** One end of an amount by its unit's rules, without changing the unit; EXACT (unscaled) skips the rounding, so the
+ * recipe's own "¼ Zwiebel" and "12,5 g" stay. */
+function endText(value: number, unit: KhUnit | null | undefined, locale: string, exact: boolean): string {
+  if (unitIs(unit, GRAMS) || unitIs(unit, MILLILITRES)) return decimal(exact ? value : roundMetric(value), locale, 1);
+  if (!exact && (!unit || unitIs(unit, PIECES))) return fractionText(halves(value), locale);
   return fractionText(value, locale);
 }
 
 /** A single amount, where the unit may change: grams to kg and millilitres to l from 1000, 3 TL to 1 EL. */
-function singleText(value: number, unit: KhUnit | null | undefined, locale: string): Pick<KhAmountText, "quantity" | "unit"> {
+function singleText(value: number, unit: KhUnit | null | undefined, locale: string, exact: boolean): Pick<KhAmountText, "quantity" | "unit"> {
   const metric = unitIs(unit, GRAMS) ? "kg" : unitIs(unit, MILLILITRES) ? "l" : null;
-  if (metric && roundMetric(value) >= 1000) return { quantity: decimal(roundMetric(value) / 1000, locale, 2), unit: metric };
+  const rounded = exact ? value : roundMetric(value);
+  if (metric && rounded >= 1000) return { quantity: decimal(rounded / 1000, locale, 2), unit: metric };
   const spoon = SPOONS.find(spoon => unitIs(unit, spoon.from));
   const spoons = value / 3;
   if (spoon && spoons >= 1 && Math.abs(spoons - Math.round(spoons)) < 0.01) {
     const name = unit?.useAbbreviation ? spoon.abbreviation : spoons > 1 ? spoon.plural : spoon.name;
     return { quantity: fractionText(spoons, locale), unit: name };
   }
-  return { quantity: endText(value, unit, locale), unit: null };
+  return { quantity: endText(value, unit, locale, exact), unit: null };
 }
 
 /** The amount at SCALE as the reader sees it. Fixed amounts (by mark or a pinch unit) never scale; a range scales at
- * both ends and keeps its unit; a positive amount never shows as 0. */
+ * both ends and keeps its unit; only a scaled amount is rounded; a positive amount never shows as 0. */
 export function formatAmount(amount: KhAmount, scale: number, locale: string): KhAmountText {
   const factor = amount.fixed || unitIs(amount.unit, PINCHES) ? 1 : scale;
+  const exact = factor === 1;
   const value = amount.quantity * factor;
   const upper = amount.upper ? amount.upper * factor : null;
   const shown = upper
-    ? { quantity: `${endText(value, amount.unit, locale)}–${endText(upper, amount.unit, locale)}`, unit: null }
-    : singleText(value, amount.unit, locale);
+    ? { quantity: `${endText(value, amount.unit, locale, exact)}–${endText(upper, amount.unit, locale, exact)}`, unit: null }
+    : singleText(value, amount.unit, locale, exact);
   const quantity = value > 0 && /^0$/.test(shown.quantity) ? `< ${decimal(0.1, locale, 1)}` : shown.quantity;
   const pieces = !amount.unit || unitIs(amount.unit, PIECES);
   const eggTip = !upper && pieces && EGGS.includes(plain(amount.food)) && halves(value) % 1 !== 0;

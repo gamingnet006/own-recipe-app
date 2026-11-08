@@ -121,18 +121,18 @@ def food_and_note(rest: str, foods: dict[str, IngredientFood]) -> tuple[Ingredie
 def parse_ingredient(line: str, units: dict[str, IngredientUnit], foods: dict[str, IngredientFood]) -> ParsedLine:
     """Reads one ingredient line; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher. A line without an
     amount stays as it was, as note."""
-    fixed = bool(FIXED_WORDS.search(line))
     text = clean(line)
     match = QUANTITY.match(text)
-    if match is None:
-        return ParsedLine(None, None, None, None, line, fixed)
+    if match is None:  # "etwas Öl": only a line without an amount is fixed by its words
+        return ParsedLine(None, None, None, None, line, bool(FIXED_WORDS.search(line)))
     quantity, upper = amount_of(match)
     rest = text[match.end() :]
     unit = None
+    fixed = False
     if found := unit_at(rest, units):
         unit, end = found
         rest = rest[end:]
-        fixed = fixed or IngredientUnitModel.normalize(unit.name) in FIXED_UNITS
+        fixed = IngredientUnitModel.normalize(unit.name) in FIXED_UNITS
     food, note = food_and_note(rest.strip(), foods)
     return ParsedLine(quantity, upper, unit, food, note, fixed)
 

@@ -50,6 +50,9 @@ def test_recheck_follows_the_text():
     assert moved is not None and (moved.start, moved.end) == (8, 13)
     assert recheck_link("Mehl unterrühren.", link) is None
     assert recheck_link("1250 g Mehl unterrühren.", link) is None  # not part of another number
+    # also where the old place now sits inside another number
+    added = link.model_copy(update={"start": 4, "end": 9})
+    assert recheck_link("Ad 1250 g Mehl", added) is None
     # two places: the one nearest the old start
     later = link.model_copy(update={"start": 20, "end": 25})
     nearest = recheck_link("X 250 g Mehl und dann 250 g Mehl", later)
@@ -93,3 +96,27 @@ def test_moving_a_step_moves_its_links(api_client: TestClient, unique_user: Test
     bulk = {"recipes": [recipe["slug"]], "tags": [tag]}
     assert api_client.post("/api/recipes/bulk-actions/tag", json=bulk, headers=unique_user.token).status_code == 200
     assert {link["step"] for link in amounts_of(api_client, unique_user, recipe)["stepAmounts"]} == {2}
+
+
+def test_editing_a_line_drops_its_amounts(api_client: TestClient, unique_user: TestUser, german: DataMatcher, fake_ai):
+    # Review focus 3: range end, fixed mark and step links belong to a line's amount; a new amount or unit drops them
+    recipe = approved(api_client, unique_user, fake_ai)
+    lines = recipe["recipeIngredient"]
+    mehl, zucker, oel = lines[0]["referenceId"], lines[1]["referenceId"], lines[4]["referenceId"]
+    lines[0]["quantity"] = 300  # 250 g Mehl → 300 g
+    lines[1]["quantity"] = 4  # 2–3 EL Zucker → 4 EL
+    lines[4]["quantity"] = 2  # etwas Öl → 2
+    recipe = api_client.put(f"/api/recipes/{recipe['slug']}", json=recipe, headers=unique_user.token).json()
+    amounts = amounts_of(api_client, unique_user, recipe)
+    left = {extra["referenceId"] for extra in amounts["extras"]} | {
+        link["referenceId"] for link in amounts["stepAmounts"]
+    }
+    assert not left & {mehl, zucker, oel}
+    assert amounts["extras"]  # the Prise keeps its mark
+
+
+def test_a_new_unit_drops_the_links(api_client: TestClient, unique_user: TestUser, german: DataMatcher, fake_ai):
+    recipe = approved(api_client, unique_user, fake_ai)
+    recipe["recipeIngredient"][0]["unit"] = recipe["recipeIngredient"][1]["unit"]  # 250 g Mehl → 250 EL
+    recipe = api_client.put(f"/api/recipes/{recipe['slug']}", json=recipe, headers=unique_user.token).json()
+    assert [link["text"] for link in amounts_of(api_client, unique_user, recipe)["stepAmounts"]] == ["2 EL"]

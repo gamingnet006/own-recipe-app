@@ -35,6 +35,8 @@ CASES = [  # line, quantity, upper, unit name, food name, note, fixed
     ("etwas Öl", None, None, None, None, "etwas Öl", True),
     ("Salz und Pfeffer nach Geschmack", None, None, None, None, "Salz und Pfeffer nach Geschmack", True),
     ("eine Handvoll Nüsse", None, None, None, None, "eine Handvoll Nüsse", False),
+    # "etwas" only marks a line without an amount; a real amount still scales
+    ("250 g Mehl, etwas mehr zum Ausrollen", 250, None, "Gramm", "Mehl", "etwas mehr zum Ausrollen", False),
 ]
 
 

@@ -1,6 +1,7 @@
 // KH: tests for the amounts' display (D39, phase 3): fractions, the rounding of grams and millilitres with kg and l,
 // halves of pieces with the egg tip, 3 TL as 1 EL, ranges and fixed amounts, each at the factors the spec names.
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
+import { nextTick, reactive } from "vue";
 import {
   formatAmount,
   haveOnlyFactor,
@@ -12,6 +13,12 @@ import {
   timeHint,
   type KhAmount,
 } from "../lib/amounts";
+import { khAmounts } from "../lib/amounts-store";
+import { useKhAmounts } from "../composables/use-kh-amounts";
+
+const getMock = vi.hoisted(() => vi.fn());
+
+vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ get: getMock }) }));
 
 const g = { name: "Gramm", abbreviation: "g" };
 const ml = { name: "Milliliter", abbreviation: "ml" };
@@ -33,10 +40,10 @@ test("fractions near ¼ ⅓ ½ ⅔ ¾, else one decimal", () => {
 });
 
 test("grams and millilitres round by size", () => {
-  expect(text({ quantity: 7.25, unit: g })).toBe("7,3");
-  expect(text({ quantity: 45.6, unit: g })).toBe("46");
-  expect(text({ quantity: 123, unit: g })).toBe("125");
-  expect(text({ quantity: 503, unit: g })).toBe("500");
+  expect(text({ quantity: 14.5, unit: g }, 0.5)).toBe("7,3");
+  expect(text({ quantity: 91.2, unit: g }, 0.5)).toBe("46");
+  expect(text({ quantity: 246, unit: g }, 0.5)).toBe("125");
+  expect(text({ quantity: 1006, unit: g }, 0.5)).toBe("500");
   expect(fmt({ quantity: 1250, unit: g })).toMatchObject({ quantity: "1,25", unit: "kg" });
   expect(fmt({ quantity: 1000, unit: g })).toMatchObject({ quantity: "1", unit: "kg" });
   expect(fmt({ quantity: 1500, unit: ml })).toMatchObject({ quantity: "1,5", unit: "l" });
@@ -51,6 +58,14 @@ test("factors 0.5, 2 and 3", () => {
 test("pieces in halves, with the egg tip", () => {
   expect(fmt({ quantity: 3, food: "Eier" }, 0.5)).toMatchObject({ quantity: "1½", eggTip: true });
   expect(fmt({ quantity: 2 }, 1.3)).toMatchObject({ quantity: "2½", eggTip: false });
+});
+
+test("factor 1 shows the recipe's own amounts", () => {
+  expect(text({ quantity: 0.25 })).toBe("¼"); // ¼ Zwiebel, not ½
+  expect(text({ quantity: 1.25 })).toBe("1¼");
+  expect(text({ quantity: 12.5, unit: g })).toBe("12,5");
+  expect(text({ quantity: 333, unit: g })).toBe("333");
+  expect(text({ quantity: 0.25, fixed: true }, 2)).toBe("¼");
 });
 
 test("3 TL are 1 EL when it divides", () => {
@@ -183,4 +198,19 @@ test("a stale link changes nothing", () => {
 test("several links in one step", () => {
   const text = "250 g Mehl und 2 EL Zucker";
   expect(step(text, [link(0, "250 g"), link(15, "2 EL", "zucker")], 2)).toBe("500 g Mehl und 4 EL Zucker");
+});
+
+test("the amounts load when the recipe opens and again after a save, the newest answer wins", async () => {
+  const answers: ((value: unknown) => void)[] = [];
+  getMock.mockImplementation(() => new Promise(resolve => answers.push(resolve)));
+  const recipe = reactive({ id: "r1", dateUpdated: "1" });
+  useKhAmounts(() => recipe);
+  recipe.dateUpdated = "2"; // saved: the backend moved or dropped links
+  await nextTick();
+  expect(getMock).toHaveBeenCalledTimes(2);
+  const newer = { extras: [], stepAmounts: [] };
+  answers[1]!({ data: newer });
+  answers[0]!({ data: { extras: [{ referenceId: "x", upper: 3, fixed: false }], stepAmounts: [] } }); // late, older
+  await new Promise(resolve => setTimeout(resolve));
+  expect(khAmounts.value).toEqual(newer);
 });
