@@ -2,8 +2,8 @@
 // with no or one step.
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { reactive } from "vue";
-import { useKhCook } from "../composables/use-kh-cook";
+import { reactive, ref } from "vue";
+import { cookForward, handleCookKey, showsSegments, useKhCook } from "../composables/use-kh-cook";
 
 const query = reactive<Record<string, string>>({});
 
@@ -63,5 +63,61 @@ describe("useKhCook", () => {
 
   test("all steps is off at first", () => {
     expect(useKhCook(() => 2).allSteps.value).toBe(false);
+  });
+
+  test("all steps is off again when cook mode is opened anew", async () => {
+    const open = ref(true);
+    const cook = useKhCook(() => 2, () => open.value);
+    cook.allSteps.value = true;
+    open.value = false;
+    await flushPromises();
+    open.value = true;
+    await flushPromises();
+    expect(cook.allSteps.value).toBe(false);
+  });
+});
+
+test("the progress bar is one continuous bar from 12 steps on", () => {
+  expect(showsSegments(11)).toBe(true);
+  expect(showsSegments(12)).toBe(false);
+});
+
+describe("cook keys", () => {
+  const press = (key: string, target: HTMLElement = document.body, init: KeyboardEventInit = {}) => {
+    const cook = useKhCook(() => 5);
+    cook.goTo(2);
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+    target.addEventListener("keydown", e => handleCookKey(cook, e), { once: true });
+    target.dispatchEvent(event);
+    return { step: cook.step.value, event };
+  };
+
+  test("arrows and the space bar move between steps", () => {
+    expect(press("ArrowRight").step).toBe(3);
+    expect(press("ArrowLeft").step).toBe(1);
+    const space = press(" ");
+    expect(space.step).toBe(3);
+    expect(space.event.defaultPrevented).toBe(true);
+  });
+
+  test("keys with a modifier, in fields and on buttons keep their own job", () => {
+    expect(press("ArrowRight", document.body, { ctrlKey: true }).step).toBe(2);
+    const input = document.body.appendChild(document.createElement("input"));
+    expect(press("ArrowRight", input).step).toBe(2);
+    const button = document.body.appendChild(document.createElement("button"));
+    const onButton = press(" ", button);
+    expect(onButton.step).toBe(2);
+    expect(onButton.event.defaultPrevented).toBe(false);
+    expect(press("ArrowRight", button).step).toBe(3);
+  });
+
+  test("forward goes on, and on the last step it closes", () => {
+    const close = vi.fn();
+    const cook = useKhCook(() => 2);
+    cookForward(cook, close);
+    expect(cook.step.value).toBe(1);
+    expect(close).not.toHaveBeenCalled();
+    cookForward(cook, close);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

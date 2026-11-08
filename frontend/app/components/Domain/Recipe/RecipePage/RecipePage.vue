@@ -155,6 +155,7 @@
       @close="toggleCookMode()"
       @all-steps="khCook.allSteps.value = true"
     />
+    <!-- KH: Mealie's list shows only as "All steps" inside cook mode (D42) -->
     <v-sheet
       v-show="isCookMode && khCook.allSteps.value && !hasLinkedIngredients"
       key="cookmode"
@@ -197,6 +198,7 @@
         </v-col>
       </v-row>
     </v-sheet>
+    <!-- KH: same, for recipes with linked ingredients (D42) -->
     <v-sheet v-show="isCookMode && khCook.allSteps.value && hasLinkedIngredients">
       <div class="mt-2 px-2 px-md-4">
         <RecipePageScale v-model="scale" :recipe="recipe" />
@@ -233,6 +235,7 @@
     >
       {{ $t("kh.cook.step-by-step") }}
     </v-btn>
+    <!-- KH: Mealie's close button only in "All steps"; the step view has its own (D42) -->
     <v-btn
       v-if="isCookMode && khCook.allSteps.value"
       icon
@@ -297,7 +300,7 @@ const scale = ref(1);
 // KH: the recipe's range ends, fixed lines and step links, for every view of it, reloaded after a save (D39)
 useKhAmounts(() => recipe.value);
 // KH: the step view of cook mode: the current step and whether Mealie's list of all steps shows instead (D42)
-const khCook = useKhCook(() => recipe.value.recipeInstructions.length);
+const khCook = useKhCook(() => recipe.value.recipeInstructions.length, () => isCookMode.value);
 
 const { unitSystem } = useUnitSystem();
 const { convertIngredient } = useUnitConversion();

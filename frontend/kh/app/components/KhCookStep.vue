@@ -19,7 +19,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
       {{ $t("kh.cook.no-steps") }}
     </p>
     <template v-else>
-      <div v-if="total <= SEGMENT_MAX" class="d-flex ga-1">
+      <div v-if="showsSegments(total)" class="d-flex ga-1">
         <button
           v-for="n in total"
           :key="n"
@@ -57,7 +57,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
       <v-btn size="x-large" variant="tonal" :disabled="cook.isFirst.value" @click="cook.back()">
         {{ $t("kh.cook.back") }}
       </v-btn>
-      <v-btn size="x-large" color="primary" class="kh-forward" @click="forward">
+      <v-btn size="x-large" color="primary" class="kh-forward" @click="cookForward(cook, () => emit('close'))">
         {{ cook.isLast.value ? $t("kh.cook.done") : $t("kh.cook.next") }}
       </v-btn>
     </div>
@@ -67,7 +67,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useEventListener, useLocalStorage, useSwipe, useWakeLock } from "@vueuse/core";
-import { SEGMENT_MAX, type KhCook } from "../composables/use-kh-cook";
+import { cookForward, handleCookKey, showsSegments, type KhCook } from "../composables/use-kh-cook";
 import { useKhTimeTap } from "../composables/use-kh-time-tap";
 import { timersListedInStep } from "../composables/use-kh-timers";
 import { khStepDisplay, khStepNeeds } from "../lib/step-text";
@@ -84,12 +84,6 @@ const total = computed(() => steps.value.length);
 const current = computed(() => steps.value[props.cook.step.value]);
 const needs = computed(() => (current.value ? khStepNeeds(props.cook.step.value, current.value, props.recipe, props.scale) : []));
 
-/** "Weiter" goes on; on the last step "Fertig" leaves cook mode. */
-function forward(): void {
-  if (props.cook.isLast.value) emit("close");
-  else props.cook.next();
-}
-
 // A new step starts at the top of the page.
 watch(props.cook.step, () => window.scrollTo({ top: 0 }));
 
@@ -100,19 +94,7 @@ useSwipe(area, {
   },
 });
 
-/** Arrow keys and the space bar move between steps, unless a field or a button has the key's job. */
-function onKey(event: KeyboardEvent): void {
-  if (event.altKey || event.ctrlKey || event.metaKey) return;
-  const target = event.target instanceof HTMLElement ? event.target : null;
-  if (target?.closest("input, textarea, select, [contenteditable]")) return;
-  if (event.key === "ArrowRight") props.cook.next();
-  else if (event.key === "ArrowLeft") props.cook.back();
-  else if (event.key === " " && !target?.closest("button, a")) {
-    event.preventDefault();
-    props.cook.next();
-  }
-}
-useEventListener(window, "keydown", onKey);
+useEventListener(window, "keydown", event => handleCookKey(props.cook, event));
 
 // The screen stays on while the step view is open; where the device cannot, a hint says so once.
 const lock = useWakeLock();
