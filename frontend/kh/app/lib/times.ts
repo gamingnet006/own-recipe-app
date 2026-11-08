@@ -58,7 +58,10 @@ export function parseTimes(text: string): KhTime[] {
   for (const m of text.matchAll(PHRASE)) add(m, PHRASES[m[1]!.toLowerCase().replace(/\s+/g, " ")]!);
   for (const m of text.matchAll(SINGLE)) {
     const factor = unitSeconds(m[3]!);
-    add(m, amountValue(m[1]!) * factor, m[2] ? amountValue(m[2]) * factor : null);
+    const upper = m[2] ? amountValue(m[2]) * factor : null;
+    const seconds = amountValue(m[1]!) * factor;
+    // A reversed range ("30–20 Min.") is nonsense at its upper end; only the first number counts.
+    add(m, seconds, upper !== null && upper > seconds ? upper : null);
   }
 
   // Longest match first at the same start, then drop whatever overlaps an earlier keeper (the single "1 Std." inside "1 Std. 20 Min.").

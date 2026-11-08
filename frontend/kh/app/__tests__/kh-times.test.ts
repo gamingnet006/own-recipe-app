@@ -52,3 +52,7 @@ describe("parseTimes", () => {
     expect(parseTimes(s).map(t => s.slice(t.start, t.end))).toEqual(["10 Min.", "1 Std."]);
   });
 });
+
+test("a reversed range keeps only the lower end", () => {
+  expect(parseTimes("30–20 Min.")[0]).toMatchObject({ seconds: 1800, upperSeconds: null });
+});

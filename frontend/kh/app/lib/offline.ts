@@ -29,7 +29,7 @@ export function offlineCaching(): RuntimeCaching[] {
     },
     {
       // A photo never changes under its address, so the saved one is used first.
-      urlPattern: /\/api\/media\/recipes\//,
+      urlPattern: /\/api\/media\/recipes\/[^/]+\/images\//,
       handler: "CacheFirst",
       options: {
         cacheName: OFFLINE.images.name,
@@ -40,8 +40,14 @@ export function offlineCaching(): RuntimeCaching[] {
   ];
 }
 
-/** Deletes both offline caches; does nothing where the browser has no cache storage. */
+/** Deletes both offline caches; does nothing where the browser has no cache storage. A failure is only logged, so
+ * it can never stop a sign-out. */
 export async function clearOfflineCaches(): Promise<void> {
   if (typeof caches === "undefined") return;
-  await Promise.all([caches.delete(OFFLINE.recipes.name), caches.delete(OFFLINE.images.name)]);
+  try {
+    await Promise.all([caches.delete(OFFLINE.recipes.name), caches.delete(OFFLINE.images.name)]);
+  }
+  catch (error) {
+    console.warn("Could not clear the offline recipes:", error);
+  }
 }

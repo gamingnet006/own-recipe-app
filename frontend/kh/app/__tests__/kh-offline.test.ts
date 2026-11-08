@@ -20,6 +20,7 @@ describe("offlineCaching", () => {
   test("saves recipe photos", () => {
     expect(matches(imageRule, "/api/media/recipes/1/images/original.webp")).toBe(true);
     expect(matches(imageRule, "/api/media/users/1/profile.webp")).toBe(false);
+    expect(matches(imageRule, "/api/media/recipes/1/assets/file.pdf")).toBe(false);
   });
 
   test("uses the strategies, caches and limits, status 200 only", () => {
@@ -44,6 +45,12 @@ describe("clearOfflineCaches", () => {
     vi.stubGlobal("caches", { delete: remove });
     await clearOfflineCaches();
     expect(remove.mock.calls.map(c => c[0]).sort()).toEqual([OFFLINE.images.name, OFFLINE.recipes.name].sort());
+  });
+
+  test("a failing cache cannot stop the sign-out", async () => {
+    vi.stubGlobal("caches", { delete: vi.fn().mockRejectedValue(new Error("no")) });
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await expect(clearOfflineCaches()).resolves.toBeUndefined();
   });
 
   test("does nothing without cache storage", async () => {
