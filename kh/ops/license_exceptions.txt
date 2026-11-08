@@ -1,0 +1,7 @@
+# KH: packages whose license metadata is missing or unusual although the license itself is fine.
+# One per line: package name, then the reason. Checked by license_scan.sh.
+tosource  package.json has no license field; its LICENSE file is the permissive zlib license (checked 2026-11-08)
+paho-mqtt  dual Eclipse Public License 2.0 / Eclipse Distribution License 1.0; the EDL is BSD-3-Clause (checked 2026-11-08)
+pyrdfa3  W3C Software License, a permissive license compatible with the AGPL (checked 2026-11-08)
+regex  Apache-2.0 AND CNRI-Python, both permissive (checked 2026-11-08)
+text-unidecode  triple license Artistic / GPL / GPLv2+; the GPL option is usable under the AGPL-3.0 (checked 2026-11-08)
