@@ -7,5 +7,7 @@ from .users import *
 # isort: split
 from mealie.kh.ai.models import KhAiProviderState  # noqa: F401
 from mealie.kh.amounts.models import KhIngredientExtra, KhStepAmount  # noqa: F401
+from mealie.kh.books.models import KhCookbookPrint, KhRecipeFlags  # noqa: F401
 from mealie.kh.drafts.models import KhDraft  # noqa: F401
+from mealie.kh.duplicates.models import KhDuplicateIgnored  # noqa: F401
 from mealie.kh.notices.models import KhNotice, KhNoticeRead  # noqa: F401
