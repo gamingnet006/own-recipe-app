@@ -52,3 +52,11 @@ def new_recipe(
     response = api_client.put(api_routes.recipes_slug(slug), json=recipe, headers=user.token)
     assert response.status_code == 200, response.text
     return response.json()
+
+
+def set_can_organize(user: TestUser, value: bool) -> None:
+    """Gives or takes the permission to organize group data (foods, tags, categories) of USER."""
+    db_user = user.repos.users.get_one(user.user_id)
+    assert db_user
+    db_user.can_organize = value
+    user.repos.users.update(db_user.id, db_user)

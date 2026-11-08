@@ -27,7 +27,8 @@ class KhNutritionController(BaseUserController):
     @router.put("/nutrition/foods/{food_id}", response_model=FoodMappingOut)
     def put_food(self, food_id: UUID4, data: FoodMappingIn) -> FoodMappingOut:
         """Saves a food's mapping and returns it as stored; 422 for a BLS code the table does not have, 404 for a
-        food of another group."""
+        food of another group, 403 without the permission to organize (as for editing a food in Mealie)."""
+        self.checks.can_organize()
         food = get_repositories(self.session, group_id=self.group_id, household_id=None).ingredient_foods.get_one(
             food_id
         )
