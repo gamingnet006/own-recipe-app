@@ -2,7 +2,8 @@
 
 import pytest
 
-from mealie.kh.nutrition.grams import grams_of
+from mealie.kh.amounts.parse import stem
+from mealie.kh.nutrition.grams import grams_of, name_stems
 from mealie.schema.recipe.recipe_ingredient import CreateIngredientFood, CreateIngredientUnit, RecipeIngredient
 
 
@@ -59,3 +60,22 @@ def test_a_unit_found_by_its_abbreviation_or_plural() -> None:
 
     assert grams_of(by_abbreviation) == pytest.approx(27.6)
     assert grams_of(by_plural) == pytest.approx(480)
+
+
+def test_name_stems_try_the_noun_before_the_adjective() -> None:
+    assert name_stems("Grüne Bohnen")[1:] == [stem("Bohnen"), stem("Grüne")]
+
+
+@pytest.mark.parametrize(
+    ("ingredient", "expected"),
+    [
+        (line(2, "Zehe", "Knoblauch"), 8),  # a Zehe of Knoblauch: 4 g
+        (line(2, "Zehen", "Knoblauch"), 8),
+        (line(2, "Stück", "Zwiebeln", "Stk."), 160),  # a Stück counts as a piece
+        (line(2, "Stk.", "Zwiebeln"), 160),
+        (line(3, "Stück", "Petersilienwurzel"), None),  # no piece weight known
+        (line(1, "Pfund", "Hackfleisch"), 500),
+    ],
+)
+def test_pieces_and_pfund_as_units(ingredient: RecipeIngredient, expected: float | None) -> None:
+    assert grams_of(ingredient) == (pytest.approx(expected) if expected is not None else None)

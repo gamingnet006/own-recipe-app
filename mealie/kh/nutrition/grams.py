@@ -24,8 +24,9 @@ def _weights() -> tuple[dict[str, dict[str, float]], dict[str, dict[str, float]]
 
 
 def name_stems(food_name: str) -> list[str]:
-    """The stems to try for a food name: the whole name's first, then each word's, so "Rote Zwiebeln" finds Zwiebel."""
-    return [stem(food_name), *[stem(word) for word in food_name.split()]]
+    """The stems to try for a food name: the whole name's first, then each word's from the right (the noun comes
+    last in German), so "Rote Zwiebeln" finds Zwiebel and "Grüne Bohnen" Bohne, not Grünkohl."""
+    return [stem(food_name), *[stem(word) for word in reversed(food_name.split())]]
 
 
 def food_entry(food_name: str) -> dict[str, float]:
@@ -51,12 +52,13 @@ def grams_of(ingredient: RecipeIngredient, piece_grams: float | None = None) -> 
     if not ingredient.quantity or ingredient.quantity <= 0:
         return None
     entry = food_entry(ingredient.food.name) if ingredient.food else {}
-    if ingredient.unit is None:  # no unit: pieces
-        piece = piece_grams or entry.get("piece")
-        return ingredient.quantity * piece if piece else None
-    unit = _unit_entry(ingredient)
-    if unit is None:
+    unit = _unit_entry(ingredient) if ingredient.unit else None
+    if ingredient.unit and unit is None:
         return None
+    if unit is None or "piece" in unit:  # no unit, or a unit that counts pieces (Stück, Zehe)
+        # piece_default: a clove of garlic weighs 4 g, though "Knoblauch" has no piece weight
+        piece = piece_grams or entry.get("piece") or (unit or {}).get("piece_default")
+        return ingredient.quantity * piece if piece else None
     if "g" in unit:
         return ingredient.quantity * unit["g"]
     return ingredient.quantity * unit["ml"] * entry.get("density", DEFAULT_DENSITY)

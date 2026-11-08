@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from mealie.db.models.recipe import IngredientFoodModel, RecipeIngredientModel
 from mealie.kh.amounts.parse import stem
-from mealie.kh.nutrition.bls import BlsFood, load_bls
+from mealie.kh.nutrition.bls import BlsFood, compact, load_bls
 from mealie.kh.nutrition.grams import name_stems
 from mealie.kh.nutrition.models import KhFoodNutrition
 from mealie.kh.nutrition.schemas import FoodMappingIn, FoodMappingOut
@@ -25,8 +25,12 @@ MIN_PREFIX_STEM = 4  # a shorter stem ("rot", "ei") would match far too many BLS
 
 @lru_cache
 def _aliases(path: Path) -> dict[str, str]:
-    """The alias file at PATH with its food names reduced to stems. Cached per path."""
-    return {stem(name): code for name, code in json.loads(path.read_text(encoding="utf-8")).items()}
+    """The alias file at PATH with its food names reduced to stems. A name starting with "=" is for exactly that
+    name ("=Eis", else it would meet "Ei"); it is kept as "=eis". Cached per path."""
+    return {
+        "=" + name[1:].lower() if name.startswith("=") else stem(name): code
+        for name, code in json.loads(path.read_text(encoding="utf-8")).items()
+    }
 
 
 def load_aliases(path: Path | None = None) -> dict[str, str]:
@@ -36,19 +40,23 @@ def load_aliases(path: Path | None = None) -> dict[str, str]:
 
 @cache
 def _normalized(name: str) -> str:
-    """A BLS name as Mealie normalizes names, so "Möhre" meets the stem "mohr". Cached: the table has 7000 names."""
-    return IngredientFoodModel.normalize(name)
+    """A BLS name as Mealie normalizes names and without spaces, so "Möhre" meets the stem "mohr" and "Weizen Mehl"
+    meets "weizenmehl". Cached: the table has 7000 names."""
+    return compact(IngredientFoodModel.normalize(name))
 
 
 def suggest_code(food_name: str, foods: dict[str, BlsFood], aliases: dict[str, str]) -> str | None:
     """A BLS code for FOOD_NAME: the alias of its stem (or of one of its words) if the table has that code, else the
-    shortest BLS name that starts with the stem. None if nothing fits."""
+    shortest BLS name that starts with the stem (spaces ignored). None if nothing fits."""
+    exact = aliases.get("=" + food_name.strip().lower())
+    if exact in foods:
+        return exact
     stems = name_stems(food_name)
     for key in stems:
         if aliases.get(key) in foods:
             return aliases[key]
     for key in (k for k in stems if len(k) >= MIN_PREFIX_STEM):
-        hits = [food for food in foods.values() if _normalized(food.name).startswith(key)]
+        hits = [food for food in foods.values() if _normalized(food.name).startswith(compact(key))]
         if hits:
             return min(hits, key=lambda food: len(food.name)).code
     return None

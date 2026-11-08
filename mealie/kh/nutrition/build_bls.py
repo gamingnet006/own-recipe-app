@@ -11,12 +11,14 @@ import xml.etree.ElementTree as ET
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
+from typing import BinaryIO
 
 from mealie.kh.nutrition.bls import BLS_CSV, FIELDS, SALT_PER_SODIUM, BlsFood
 
 BLS_ZIP_URL = "https://www.blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip"
 BLS_ZIP_SHA256 = "12b7a6ba62807ec9b301eb276f897dc85f99b2292311618dec3749a12d984c91"
 DOWNLOAD_TIMEOUT_SECONDS = 120
+BLS_MAX_BYTES = 50 * 1024 * 1024  # the real ZIP is a few MB; a far larger answer is not it
 XLSX_IN_ZIP = "BLS_4_0_2025_DE/BLS_4_0_Daten_2025_DE.xlsx"
 
 CODE_HEADER = "BLS Code"
@@ -107,10 +109,18 @@ def write_csv(foods: list[BlsFood], path: Path) -> None:
             writer.writerow(["" if (v := getattr(food, f)) is None else v for f in FIELDS])
 
 
+def read_capped(stream: BinaryIO, max_bytes: int) -> bytes:
+    """All of STREAM, or SystemExit if it is longer than MAX_BYTES (reads at most one byte more than that)."""
+    data = stream.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        raise SystemExit(f"BLS download is larger than {max_bytes} bytes; not writing anything")
+    return data
+
+
 def main() -> None:
     """Downloads the BLS ZIP, checks its SHA-256, and writes the CSV next to bls.py."""
     with urllib.request.urlopen(BLS_ZIP_URL, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:  # noqa: S310 (fixed https URL)
-        archive = response.read()
+        archive = read_capped(response, BLS_MAX_BYTES)
     digest = hashlib.sha256(archive).hexdigest()
     if digest != BLS_ZIP_SHA256:
         raise SystemExit(f"BLS ZIP has SHA-256 {digest}, expected {BLS_ZIP_SHA256}; not writing anything")

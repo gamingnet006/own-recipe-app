@@ -1,6 +1,7 @@
 """KH: the BLS 4.0 table shipped with the app (D44): loading data/bls.csv once and searching it by name."""
 
 import csv
+import re
 from dataclasses import dataclass, fields
 from functools import lru_cache
 from pathlib import Path
@@ -48,12 +49,25 @@ def load_bls(path: Path | None = None) -> dict[str, BlsFood]:
     return _load(path or BLS_CSV)
 
 
+def compact(text: str) -> str:
+    """TEXT lowercased without spaces and punctuation, so the BLS's "Weizen Mehl, Type 405" meets "weizenmehl"."""
+    return re.sub(r"[\W_]+", "", text.lower())
+
+
 def search_bls(query: str, foods: dict[str, BlsFood], limit: int = BLS_SEARCH_LIMIT) -> list[BlsFood]:
-    """Foods whose name contains every word of QUERY (any case); names starting with the first word come first,
-    then shorter names. At most LIMIT."""
+    """Foods whose name contains every word of QUERY (any case, spaces and punctuation of the name ignored, so
+    "weizenmehl" finds "Weizen Mehl, Type 405"). Ranked: a name with a word equal to a query word, then a name
+    starting with the query, then the rest; shorter names first within each. At most LIMIT."""
     words = query.lower().split()
     if not words:
         return []
-    hits = [f for f in foods.values() if all(w in f.name.lower() for w in words)]
-    hits.sort(key=lambda f: (not f.name.lower().startswith(words[0]), len(f.name)))
-    return hits[:limit]
+    joined = "".join(compact(w) for w in words)
+
+    def hit(food: BlsFood) -> bool:
+        return all(w in food.name.lower() or compact(w) in compact(food.name) for w in words)
+
+    def rank(food: BlsFood) -> tuple[bool, bool, int]:
+        name_words = set(re.findall(r"\w+", food.name.lower()))
+        return (not name_words & set(words), not compact(food.name).startswith(joined), len(food.name))
+
+    return sorted(filter(hit, foods.values()), key=rank)[:limit]

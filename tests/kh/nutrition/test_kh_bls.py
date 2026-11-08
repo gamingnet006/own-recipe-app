@@ -8,7 +8,7 @@ import pytest
 
 from mealie.kh.nutrition import bls
 from mealie.kh.nutrition.bls import BlsFood, load_bls, search_bls
-from mealie.kh.nutrition.build_bls import SALT_PER_SODIUM, rows_from_xlsx, to_csv_rows
+from mealie.kh.nutrition.build_bls import SALT_PER_SODIUM, read_capped, rows_from_xlsx, to_csv_rows
 
 FIXTURE = Path(__file__).parent / "fixtures" / "bls.csv"
 
@@ -62,10 +62,16 @@ def test_to_csv_rows_computes_salt_from_sodium() -> None:
     assert food[1].salt is None  # empty sodium
 
 
+def test_read_capped_refuses_a_download_over_the_limit() -> None:
+    assert read_capped(io.BytesIO(b"abcd"), 4) == b"abcd"
+    with pytest.raises(SystemExit, match="larger than 4 bytes"):
+        read_capped(io.BytesIO(b"abcde"), 4)
+
+
 def test_load_bls_reads_empty_values_as_none() -> None:
     foods = load_bls(FIXTURE)
 
-    assert foods["B100000"] == BlsFood("B100000", "Weizenmehl Type 405", 340, 1.0, 0.2, 70.0, 0.8, 10.0, 3.5, None)
+    assert foods["B100000"] == BlsFood("B100000", "Weizen Mehl, Type 405", 340, 1.0, 0.2, 70.0, 0.8, 10.0, 3.5, None)
     assert foods["B500000"].name == "Milch 3,5 % Fett"  # a comma inside quotes
     assert foods["C400000"].kcal is None
     assert load_bls(FIXTURE) is foods  # cached
@@ -80,9 +86,25 @@ def test_load_bls_default_path_is_the_shipped_file(monkeypatch: pytest.MonkeyPat
 def test_search_puts_names_starting_with_the_query_first_then_shorter_ones() -> None:
     foods = load_bls(FIXTURE)
 
-    assert [f.name for f in search_bls("mehl", foods)] == ["Weizenmehl Type 405", "Roggenmehl Type 1150"]
+    assert [f.name for f in search_bls("roggen", foods)] == ["Roggenmehl Type 1150"]
     assert search_bls("kartoffel", foods)[0].name == "Kartoffel roh"
-    assert [f.name for f in search_bls("TYPE 405", foods)] == ["Weizenmehl Type 405"]  # every word, any case
+    assert [f.name for f in search_bls("TYPE 405", foods)] == ["Weizen Mehl, Type 405"]  # every word, any case
+
+
+def test_search_finds_compounds_the_bls_writes_apart() -> None:
+    foods = load_bls(FIXTURE)
+
+    assert [f.name for f in search_bls("weizenmehl", foods)] == ["Weizen Mehl, Type 405"]
+    assert [f.name for f in search_bls("dinkelvollkornmehl", foods)] == ["Dinkel Vollkornmehl"]
+
+
+def test_search_ranks_a_whole_word_before_a_name_that_starts_with_the_query() -> None:
+    foods = load_bls(FIXTURE)
+
+    names = [f.name for f in search_bls("mehl", foods)]
+
+    assert names[:2] == ["Weizen Mehl, Type 405", "Mehlmischung glutenfrei"]
+    assert names[2:] == ["Dinkel Vollkornmehl", "Roggenmehl Type 1150"]  # the rest by length
 
 
 def test_search_finds_nothing_and_caps_at_the_limit() -> None:

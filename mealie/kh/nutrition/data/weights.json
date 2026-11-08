@@ -41,6 +41,23 @@
   },
   "Becher": {
    "g": 200
+  },
+  "Pfund": {
+   "g": 500
+  },
+  "Stück": {
+   "piece": 1
+  },
+  "Stk.": {
+   "piece": 1
+  },
+  "Zehe": {
+   "piece": 1,
+   "piece_default": 4
+  },
+  "Zehen": {
+   "piece": 1,
+   "piece_default": 4
   }
  },
  "foods": {
