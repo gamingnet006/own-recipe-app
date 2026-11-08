@@ -163,7 +163,12 @@
       "more": "noch {n} Min.",
       "pause": "Pause",
       "resume": "Weiter",
-      "stop": "Timer abbrechen"
+      "stop": "Timer abbrechen",
+      "title": "Timer",
+      "clock": "Auf Uhr-Timer legen",
+      "clock-switch": "Timer auch in der Uhr-App anbieten",
+      "clock-hint": "Zeigt bei jedem Timer eine Taste, die den Timer der Uhr-App startet. Der klingelt auch bei gesperrtem Handy. Dafür braucht dieses Gerät einmal den Kurzbefehl, siehe Anleitung.",
+      "clock-name": "Name des Kurzbefehls"
     },
     "cook": {
       "step-of": "Schritt {n} von {total}",

@@ -197,6 +197,17 @@ Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, I
 
 Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
 
+### Uhr-Timer per Kurzbefehl (iPhone und iPad)
+
+Ein Timer in der App klingelt nur, solange der Kochmodus offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
+
+1. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name „KH Timer“:
+   - Aktion **Zahlen aus Eingabe abrufen**, Quelle **Kurzbefehleingabe**.
+   - Aktion **Timer starten** mit dieser Zahl als **Minuten**.
+2. **Einschalten:** In Küchenhelfer unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein.
+
+Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Küchenhelfer läuft weiter.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -431,6 +442,17 @@ With a shortcut in the share menu, links, texts and photos from Safari, Instagra
 3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Küchenhelfer key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
 Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
+
+### Clock timer via shortcut (iPhone and iPad)
+
+A timer in the app rings only while cook mode is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
+
+1. **Build the shortcut** once in the **Shortcuts** app with **+**, named "KH Timer":
+   - Action **Get Numbers from Input**, source **Shortcut Input**.
+   - Action **Start Timer** with that number as **minutes**.
+2. **Turn it on:** in Küchenhelfer under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there.
+
+Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Küchenhelfer keeps running.
 
 ### Optional
 

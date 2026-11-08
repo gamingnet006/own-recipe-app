@@ -34,6 +34,9 @@ page (`compact`). A timer that has run out rings until "Aus" is tapped. -->
         >
           <v-icon>{{ row.timer.pausedLeft === null ? $globals.icons.pause : $globals.icons.play }}</v-icon>
         </v-btn>
+        <v-btn v-if="clockEnabled" size="large" variant="tonal" @click="putOnClock(row.left)">
+          {{ $t("kh.timer.clock") }}
+        </v-btn>
         <v-btn icon variant="text" :aria-label="$t('kh.timer.stop')" @click="stop(row.timer.id)">
           <v-icon>{{ $globals.icons.close }}</v-icon>
         </v-btn>
@@ -44,7 +47,7 @@ page (`compact`). A timer that has run out rings until "Aus" is tapped. -->
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, watch } from "vue";
-import { startAlarm, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
+import { clockTimerUrl, startAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
 
 defineProps<{ compact?: boolean }>();
 
@@ -58,6 +61,8 @@ const rows = computed(() => {
   return timers.value.map(timer => ({ timer, left: left(timer), done: done(timer) }));
 });
 
+const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
+
 const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user.value?.groupSlug || "");
 
 /** Whether TIMER belongs to a recipe other than the one on screen. */
@@ -68,6 +73,11 @@ function isOtherRecipe(timer: KhTimer): boolean {
 /** The address of the recipe TIMER belongs to. */
 function recipeLink(timer: KhTimer): string {
   return `/g/${groupSlug.value}/r/${timer.recipeSlug}`;
+}
+
+/** Hands a timer with SECONDS left to the clock app through the Shortcut; ours keeps running. */
+function putOnClock(seconds: number): void {
+  location.href = clockTimerUrl(clockName.value, seconds);
 }
 
 /** SECONDS as m:ss, or h:mm:ss from an hour on. */

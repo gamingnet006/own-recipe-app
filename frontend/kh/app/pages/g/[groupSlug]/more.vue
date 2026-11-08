@@ -25,6 +25,28 @@ everything the side menu holds on bigger screens. -->
 
     <section class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.timer.title") }}
+      </h2>
+      <v-list rounded="lg" class="py-2 px-4">
+        <v-switch
+          v-model="clockEnabled"
+          color="primary"
+          :label="$t('kh.timer.clock-switch')"
+          :hint="$t('kh.timer.clock-hint')"
+          persistent-hint
+        />
+        <v-text-field
+          v-if="clockEnabled"
+          v-model="clockName"
+          :label="$t('kh.timer.clock-name')"
+          class="mt-4"
+          @blur="clockName = clockName.trim() || DEFAULT_CLOCK_SHORTCUT"
+        />
+      </v-list>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("general.settings") }}
       </h2>
       <v-list rounded="lg" class="py-0">
@@ -72,6 +94,7 @@ everything the side menu holds on bigger screens. -->
 
 <script setup lang="ts">
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
+import { DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
 
@@ -88,6 +111,7 @@ const { $globals } = useNuxtApp();
 const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
+const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
 
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 

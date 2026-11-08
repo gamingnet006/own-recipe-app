@@ -163,7 +163,12 @@
       "more": "{n} more min.",
       "pause": "Pause",
       "resume": "Resume",
-      "stop": "Cancel timer"
+      "stop": "Cancel timer",
+      "title": "Timer",
+      "clock": "Put on the clock",
+      "clock-switch": "Also offer timers in the Clock app",
+      "clock-hint": "Shows a button on every timer that starts the Clock app's timer. It rings on a locked phone, too. This device needs the shortcut set up once, see the guide.",
+      "clock-name": "Name of the shortcut"
     },
     "cook": {
       "step-of": "Step {n} of {total}",

@@ -1,10 +1,13 @@
 // KH: the cook-mode timers (D42): one shared list per page, kept in localStorage, each timer remembering its end
 // time (not the seconds left) so sleep and locked screens cannot make it late; plus the alarm and the clock link.
-import { computed, ref, watch } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import type { KhTime } from "../lib/times";
 import { uuid4 } from "~/composables/use-utils";
 
 const STORAGE_KEY = "kh-timers";
+const CLOCK_KEY = "kh-clock-timer";
+/** The name of the iOS Shortcut that starts the clock app's timer, unless the device is set to another. */
+export const DEFAULT_CLOCK_SHORTCUT = "KH Timer";
 /** The alarm stops by itself after this long if nobody taps "Aus". */
 export const ALARM_MAX_MS = 120_000;
 const ALARM_ROUND_MS = 1000;
@@ -27,15 +30,20 @@ export interface KhTimer {
   pausedLeft: number | null;
 }
 
-/** The stored list; broken or foreign data counts as no timers. */
-function loadTimers(): KhTimer[] {
+/** The JSON stored under KEY; null if there is none or it is broken. */
+function readStored(key: string): unknown {
   try {
-    const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-    return Array.isArray(stored) ? stored : [];
+    return JSON.parse(localStorage.getItem(key) ?? "null");
   }
   catch {
-    return [];
+    return null;
   }
+}
+
+/** The stored list; broken or foreign data counts as no timers. */
+function loadTimers(): KhTimer[] {
+  const stored = readStored(STORAGE_KEY);
+  return Array.isArray(stored) ? stored : [];
 }
 
 // The app runs without server rendering, so module state is shared by all users of the timers.
@@ -142,4 +150,26 @@ export function startAlarm(): () => void {
 /** The address that starts an iOS Shortcut named NAME with the minutes (rounded up) for the clock app's timer. */
 export function clockTimerUrl(name: string, seconds: number): string {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${Math.ceil(seconds / 60)}`;
+}
+
+interface ClockSetting {
+  enabled: boolean;
+  name: string;
+}
+
+/** The stored clock setting; anything missing or broken is replaced by the standard. */
+function loadClock(): ClockSetting {
+  const stored = readStored(CLOCK_KEY) as Partial<ClockSetting> | null;
+  return {
+    enabled: stored?.enabled === true,
+    name: typeof stored?.name === "string" && stored.name ? stored.name : DEFAULT_CLOCK_SHORTCUT,
+  };
+}
+
+const clock = ref(loadClock());
+watch(clock, setting => localStorage.setItem(CLOCK_KEY, JSON.stringify(setting)), { deep: true, flush: "sync" });
+
+/** Whether this device offers "Auf Uhr-Timer legen", and the name of its Shortcut; kept on the device. */
+export function useKhClockSetting() {
+  return { enabled: toRef(clock.value, "enabled"), name: toRef(clock.value, "name") };
 }

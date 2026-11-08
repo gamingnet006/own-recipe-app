@@ -1,6 +1,6 @@
 // KH: tests for the cook-mode timers (D42): end times that survive sleep, ranges, pause, several timers, storage in
 // localStorage, the alarm's limit, and the link to the clock app.
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { KhTime } from "../lib/times";
 
 const STORAGE_KEY = "kh-timers";
@@ -160,4 +160,31 @@ test("a tap on a time starts its timer and stops there; a tap elsewhere does not
   expect(clickOn(container.querySelector("span")!)).toHaveBeenCalled();
   const [timer] = useKhTimers(now).timers.value;
   expect(timer).toMatchObject({ label: "1. Teig 10 Min. ruhen", recipeSlug: "kuchen", seconds: 600 });
+});
+
+describe("the clock shortcut setting", () => {
+  const KEY = "kh-clock-timer";
+  const standard = { enabled: false, name: "KH Timer" };
+  const read = async () => {
+    const { enabled, name } = (await fresh()).useKhClockSetting();
+    return { enabled: enabled.value, name: name.value };
+  };
+
+  test("off and named KH Timer at first", async () => {
+    expect(await read()).toEqual(standard);
+  });
+  test("stored values come back, and changes are stored", async () => {
+    localStorage.setItem(KEY, JSON.stringify({ enabled: true, name: "Mein Timer" }));
+    expect(await read()).toEqual({ enabled: true, name: "Mein Timer" });
+    const setting = (await fresh()).useKhClockSetting();
+    setting.name.value = "Uhr";
+    setting.enabled.value = false;
+    expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual({ enabled: false, name: "Uhr" });
+  });
+  test("broken or foreign storage gives the standard", async () => {
+    localStorage.setItem(KEY, "{not json");
+    expect(await read()).toEqual(standard);
+    localStorage.setItem(KEY, "[1]");
+    expect(await read()).toEqual(standard);
+  });
 });
