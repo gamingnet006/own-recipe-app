@@ -412,7 +412,7 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 - [ ] **T2 Sprache:** Vosk mit deutschem Modell im Browser auf dem iPhone, mit Küchengeräuschen.
 - [ ] **T3 Whisper-Tempo:** Wie lange dauert 1 Minute Audio auf MacBook, Raspberry Pi und gegebenenfalls Mini-PC?
 - [ ] **T4 Instagram-Weg:** Beschreibung und Screenshot gegen Download, mit eigenen Beispielen.
-- [ ] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären.
+- [x] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären. (8.11.2026: BLS 4.0 vom Max Rubner-Institut ist Open Data unter CC BY 4.0, Download ohne Anmeldung unter blsdb.de, 7.140 Lebensmittel mit deutschen Namen, 138 Nährstoffe je 100 g. Darf mit Namensnennung ins Repo und ins Image; Änderungen an den Daten kennzeichnen. Open Food Facts nur für Markenprodukte, online und mit 10 Suchen pro Minute.)
 - [x] **T6 Entwurfs-Stufe:** beantwortet durch D18 (eigene `kh`-Tabelle, Mealies Datenmodell bleibt unverändert).
 - [ ] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen.
 - [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren. Wartet auf den Pi (29.10.2026 nicht erreichbar); bis dahin Ersatzwert vom Mac mit 2 CPUs/2 GB: gesund nach ~33 s, ~222 MB RAM.
