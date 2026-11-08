@@ -6,7 +6,7 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 const SHOPPING_LISTS = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "profile" | "data" | "admin";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin";
 
 export type KhTab = "recipes" | "intake" | "shopping" | "more";
 
@@ -40,6 +40,8 @@ function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LIS
     tools: target("tools", `${group}/recipes/tools`, "potSteam", "tool.tools"),
     timeline: target("timeline", `${group}/recipes/timeline`, "timelineText", "recipe.timeline"),
     duplicates: target("duplicates", `${group}/doppelte`, "duplicate", "kh.nav.duplicates"),
+    nutrition: target("nutrition", `${group}/naehrwerte`, "foods", "kh.nav.nutrition"),
+    tolerance: target("tolerance", `${group}/vertraeglichkeit`, "alertOutline", "kh.nav.tolerance"),
     profile: target("profile", "/user/profile", "cog", "profile.user-settings"),
     data: target("data", "/group/data", "manageData", "data-pages.data-management"),
     admin: target("admin", "/admin/site-settings", "wrench", "settings.admin-settings"),
@@ -70,7 +72,7 @@ export function moreSections(groupSlug: string, userId: string): { plan: KhNavTa
   const all = allTargets(groupSlug, userId);
   return {
     plan: [all.mealplan, all.cookbooks, all.finder],
-    collection: [all.favorites, all.categories, all.tags, all.tools, all.timeline, all.duplicates],
+    collection: [all.favorites, all.categories, all.tags, all.tools, all.timeline, all.duplicates, all.nutrition, all.tolerance],
   };
 }
 

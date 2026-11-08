@@ -88,6 +88,8 @@
               />
               <div v-else class="my-0 px-1 py-0" /> <!-- Empty div to keep the layout consistent -->
               <!-- KH: no stars, Küchenhelfer does not use ratings (D38) -->
+              <!-- KH: warning sign for intolerances in the household (D44) -->
+              <KhAllergenMark v-if="isOwnGroup" :slug="slug" />
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->

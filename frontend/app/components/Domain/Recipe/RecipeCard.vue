@@ -70,6 +70,8 @@
 
               <!-- KH: no stars, Küchenhelfer does not use ratings (D38) -->
               <v-spacer />
+              <!-- KH: warning sign for intolerances in the household (D44) -->
+              <KhAllergenMark v-if="isOwnGroup" :slug="slug" />
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <RecipeContextMenu
                 v-if="isOwnGroup && showRecipeContent"

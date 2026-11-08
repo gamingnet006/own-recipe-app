@@ -37,6 +37,21 @@ everything the side menu holds on bigger screens. -->
 
     <section class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.nutrition.title") }}
+      </h2>
+      <v-list rounded="lg" class="py-2 px-4">
+        <v-switch
+          v-model="showNutrition"
+          color="primary"
+          :label="$t('kh.nutrition.show')"
+          :hint="$t('kh.nutrition.show-hint')"
+          persistent-hint
+        />
+      </v-list>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.timer.title") }}
       </h2>
       <v-list rounded="lg" class="py-2 px-4">
@@ -133,6 +148,7 @@ everything the side menu holds on bigger screens. -->
 <script setup lang="ts">
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOven } from "~~/kh/app/lib/oven";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
@@ -151,6 +167,7 @@ const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
 const oven = useKhOven();
+const showNutrition = useKhNutritionSetting();
 const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
 
 /** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */
