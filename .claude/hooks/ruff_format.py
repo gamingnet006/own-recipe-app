@@ -31,7 +31,7 @@ def main() -> int:
     ruff = f"ruff@{version}" if version else "ruff"
     result = subprocess.run(["uvx", ruff, "format", str(path)], cwd=root, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"ruff format failed for {path}:\n{result.stderr or result.stdout}", file=sys.stderr)
+        sys.stderr.write(f"ruff format failed for {path}:\n{result.stderr or result.stdout}\n")
         return 2
     return 0
 

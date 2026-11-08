@@ -29,7 +29,7 @@ def main() -> int:
     root = os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd()
     path = os.path.relpath(os.path.abspath(file_path), root).replace(os.sep, "/") if file_path else ""
     if path and (why := reason(path)):
-        print(f"Blocked edit of {path}: {why}.", file=sys.stderr)
+        sys.stderr.write(f"Blocked edit of {path}: {why}.\n")
         return 2
     return 0
 
