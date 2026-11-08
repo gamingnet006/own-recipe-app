@@ -23,14 +23,15 @@ def _weights() -> tuple[dict[str, dict[str, float]], dict[str, dict[str, float]]
     return units, foods
 
 
+def name_stems(food_name: str) -> list[str]:
+    """The stems to try for a food name: the whole name's first, then each word's, so "Rote Zwiebeln" finds Zwiebel."""
+    return [stem(food_name), *[stem(word) for word in food_name.split()]]
+
+
 def food_entry(food_name: str) -> dict[str, float]:
-    """The table's entry (density, piece) for a food name: its whole stem first, then each word's stem, so "Rote
-    Zwiebeln" finds Zwiebel. Empty if the table does not know it."""
+    """The table's entry (density, piece) for a food name, found by name_stems; empty if the table does not know it."""
     foods = _weights()[1]
-    for key in [stem(food_name), *[stem(word) for word in food_name.split()]]:
-        if key in foods:
-            return foods[key]
-    return {}
+    return next((foods[key] for key in name_stems(food_name) if key in foods), {})
 
 
 def _unit_entry(ingredient: RecipeIngredient) -> dict[str, Any] | None:

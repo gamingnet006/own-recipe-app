@@ -85,7 +85,13 @@ class AlchemyExporter(BaseService):
     here comes back from a backup as a string; `test_every_datetime_column_survives_a_backup` guards
     against forgetting to add one."""
     look_for_date = {"date_added", "date"}
-    look_for_json = {"original_files", "recipe", "warnings", "settings"}  # KH: kh_drafts, kh_cookbook_print
+    look_for_json = {
+        "original_files",
+        "recipe",
+        "warnings",
+        "settings",
+        "allergens",
+    }  # KH: kh_drafts, kh_cookbook_print, kh_user_allergies
     """KH: JSON columns, restored as they were saved. Mealie's own tables have none, and walking into one
     breaks the restore; `test_every_json_column_is_restored_as_saved` guards against forgetting one."""
     look_for_time = {"scheduled_time"}

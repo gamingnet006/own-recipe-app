@@ -14,6 +14,7 @@ import sqlalchemy as sa
 from fastapi import UploadFile
 
 from mealie.core import exceptions
+from mealie.kh.allergens.service import delete_recipe_allergens  # KH: a recipe's allergen corrections (D44)
 from mealie.kh.amounts.service import delete_amounts, recheck_amounts  # KH: a recipe's amounts (D39)
 from mealie.kh.books.service import delete_flags  # KH: a recipe's book flags (D43)
 from mealie.kh.duplicates.service import delete_ignored  # KH: a recipe's ignored duplicate pairs (D43)
@@ -788,6 +789,8 @@ class RecipeService(RecipeServiceBase):
         # KH: so do their book flags and ignored duplicate pairs (D43)
         delete_flags(self.repos.session, [r.id for r in data])
         delete_ignored(self.repos.session, [r.id for r in data])
+        # KH: and their allergen corrections (D44)
+        delete_recipe_allergens(self.repos.session, [r.id for r in data])
         for r in data:
             try:
                 self.delete_assets(r)
