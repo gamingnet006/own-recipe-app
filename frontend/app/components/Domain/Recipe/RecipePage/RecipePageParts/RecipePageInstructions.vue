@@ -491,11 +491,12 @@
                         v-if="isCookMode && hasCookModeLinkedContent(step) && $vuetify.display.smAndUp"
                         vertical
                       />
-                      <v-col>
-                        <!-- KH: linked amounts in the text follow the factor; the editor keeps the text as saved (D39) -->
+                      <!-- KH: a tap on a time in the text starts a timer instead of ticking the step off (D42) -->
+                      <v-col @click="onStepTextClick($event, index, step, recipe, scale)">
+                        <!-- KH: linked amounts follow the factor, amounts and timers in the step text; the editor keeps the text as saved (D39, D41, D42) -->
                         <SafeMarkdown
                           class="markdown"
-                          :source="khStepText(index, step.text, recipe.recipeIngredient, scale)"
+                          :source="khStepDisplay(index, step, recipe, scale).html"
                         />
                       </v-col>
                     </v-row>
@@ -527,7 +528,8 @@ import DropZone from "~/components/global/DropZone.vue";
 import { alert } from "~/composables/use-toast";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
 import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtml.vue";
-import { khStepText } from "~~/kh/app/lib/amounts-store"; // KH: scaled amounts in the steps (D39)
+import { khStepDisplay } from "~~/kh/app/lib/step-text"; // KH: amounts and timers in the steps (D39, D41, D42)
+import { useKhTimeTap } from "~~/kh/app/composables/use-kh-time-tap"; // KH: tap a time to start a timer (D42)
 
 interface MergerHistory {
   target: number;
@@ -559,6 +561,7 @@ const emit = defineEmits(["click-instruction-field", "update:assets"]);
 const i18n = useI18n();
 const { isCookMode, toggleCookMode, isEditForm } = usePageState(props.recipe.slug);
 const { extractIngredientReferences } = useExtractIngredientReferences();
+const onStepTextClick = useKhTimeTap(); // KH: D42
 
 const dialog = ref(false);
 const disabledSteps = ref<number[]>([]);

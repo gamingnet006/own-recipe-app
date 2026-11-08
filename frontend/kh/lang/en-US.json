@@ -155,6 +155,41 @@
         "amount": "Amount",
         "apply": "Apply"
       }
+    },
+    "timer": {
+      "list": "Running timers",
+      "done": "done",
+      "off": "Off",
+      "more": "{n} more min.",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Cancel timer",
+      "title": "Timer",
+      "clock": "Put on the clock",
+      "clock-switch": "Also offer timers in the Clock app",
+      "clock-hint": "Shows a button on every timer that starts the Clock app's timer. It rings on a locked phone, too. This device needs the shortcut set up once, see below.",
+      "clock-name": "Name of the shortcut",
+      "clock-add": "Add shortcut",
+      "clock-setup": "How to set up the shortcut",
+      "clock-step-1": "Open the Shortcuts app and tap \"+\" at the bottom right.",
+      "clock-step-2": "Change the name at the top to \"KH Timer\" (exactly, or adjust the name below).",
+      "clock-step-3": "Add the action \"Get Numbers from Input\" with the source \"Shortcut Input\".",
+      "clock-step-4": "Add the action \"Start Timer\"; duration = the number from step 3, unit minutes. Done.",
+      "clock-try": "Try it (1 minute)"
+    },
+    "cook": {
+      "step-of": "Step {n} of {total}",
+      "step": "Step {n}",
+      "all-steps": "All steps",
+      "step-by-step": "Step by step",
+      "back": "Back",
+      "next": "Next",
+      "done": "Done",
+      "you-need": "You need:",
+      "leave": "Leave cook mode",
+      "no-steps": "This recipe has no steps.",
+      "offline": "Offline: saved version",
+      "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
     }
   }
 }

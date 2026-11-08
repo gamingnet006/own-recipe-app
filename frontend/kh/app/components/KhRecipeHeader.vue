@@ -93,6 +93,9 @@ title with its origin, the times as tiles and the amount with − and +. -->
       <SafeMarkdown v-if="recipe.description" :source="recipe.description" class="mt-2" />
     </section>
     <KhOriginBadge :recipe-id="recipe.id" />
+    <p v-if="!online" class="px-4 pt-2 text-body-medium text-medium-emphasis" role="status">
+      {{ $t("kh.cook.offline") }}
+    </p>
 
     <div v-if="times.length || base || recipe.recipeYield || hasAmounts" class="pa-4 d-flex flex-column ga-4">
       <div v-if="times.length" class="kh-times">
@@ -153,6 +156,7 @@ title with its origin, the times as tiles and the amount with − and +. -->
 </template>
 
 <script setup lang="ts">
+import { useOnline } from "@vueuse/core";
 import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import { timeHint } from "../lib/amounts";
 import KhOriginBadge from "./KhOriginBadge.vue";
@@ -170,6 +174,7 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
 
 const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
+const online = useOnline();
 defineEmits<{ edit: [] }>();
 const scale = defineModel<number>("scale", { required: true });
 

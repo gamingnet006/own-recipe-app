@@ -99,6 +99,7 @@ import {
   mdiMinusCircle,
   mdiNewBox,
   mdiOrderAlphabeticalAscending,
+  mdiPause, // KH: pausing a cook-mode timer (D42)
   mdiPlay,
   mdiPlus,
   mdiPlusCircle,
@@ -241,6 +242,7 @@ export const icons = {
   minusCircle: mdiMinusCircle,
   newBox: mdiNewBox,
   orderAlphabeticalAscending: mdiOrderAlphabeticalAscending,
+  pause: mdiPause, // KH: D42
   play: mdiPlay,
   printer: mdiPrinter,
   printerSettings: mdiPrinterPosCog,

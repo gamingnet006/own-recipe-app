@@ -182,6 +182,16 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
   - Zeiten bleiben fest. Bei mehr als dem Doppelten oder weniger als der Hälfte erinnert ein Hinweis daran, dass sich Back- und Garzeiten ändern können.
 - Ältere Rezepte bleiben, wie sie sind; ihre Zutaten zerlegst du beim Bearbeiten mit **Zutaten parsen**. Wird ein Schritt später umgeschrieben oder verschoben, wandert seine Verknüpfung mit; fehlt die Menge danach, fällt sie weg.
 
+### Kochen
+
+**Kochen starten** unten auf dem Rezept zeigt jeweils einen Schritt in großer Schrift (D42):
+
+- **Weiter** und **Zurück** unten, oder nach links und rechts wischen (am Computer die Pfeiltasten und die Leertaste). Der Balken oben zeigt, wo du stehst; bis 12 Schritte ist er in Abschnitte geteilt, auf die du tippen kannst. Die Adresse merkt sich den Schritt, ein Neuladen bleibt also beim Schritt.
+- **Du brauchst:** nennt die Zutaten dieses Schritts. Steht eine Zutat nur in diesem Schritt, steht ihre Menge dabei, sonst nur der Name. In Zutaten und Schritten stehen die Mengen mit, auch umgerechnet.
+- **Alle Schritte** zeigt Mealies Liste mit allen Schritten und Zutaten; ein Tipp hakt einen Schritt ab wie gewohnt. **Schritt für Schritt** führt zurück zum aktuellen Schritt, **✕** verlässt den Kochmodus. Der Bildschirm bleibt an; kann das Gerät das nicht, steht ein Hinweis zur automatischen Sperre da.
+- **Zeiten und Timer:** Zeiten im Text („10 Min.“, „1,5 Stunden“, „20–30 Min.“) sind antippbar und starten einen Timer. Bei einem Bereich klingelt er am unteren Ende; „noch 10 Min.“ läuft bis zum oberen weiter. Mehrere Timer laufen gleichzeitig, mit Pause und Stopp. Sie überleben Sperren, Neuladen und Seitenwechsel und stehen als schmale Leiste auf jeder Seite; ist einer abgelaufen, klingelt und vibriert das Gerät (höchstens 2 Minuten), bis du **Aus** tippst. Das klappt, solange die App offen ist; nach einem Neuladen reicht ein Tipp irgendwo auf die Seite, damit der Ton wieder erlaubt ist. Auf dem iPhone übertönt der Ton den Stummschalter (ab iOS 17); ältere Versionen bleiben bei Stumm still. Bei gesperrtem Handy hilft der Uhr-Timer (nächster Abschnitt, „Uhr-Timer per Kurzbefehl“). Zeiten wachsen beim Umrechnen nicht mit.
+- **Offline:** Die zuletzt geöffneten 30 Rezepte und ihre Fotos bleiben auf dem Gerät und öffnen sich auch ohne Netz, mit dem Hinweis „Offline: gespeicherte Fassung“. Beim Abmelden werden sie gelöscht, damit auf einem geteilten Gerät nichts liegen bleibt.
+
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
@@ -196,6 +206,21 @@ Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, I
 3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Küchenhelfer-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
 
 Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
+
+### Uhr-Timer per Kurzbefehl (iPhone und iPad)
+
+Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
+
+1. **Kurzbefehl einrichten.** Unter **Mehr → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
+   - App **Kurzbefehle** öffnen, unten rechts auf **+** tippen.
+   - Oben den Namen auf „KH Timer“ ändern (oder den Namen in Küchenhelfer anpassen).
+   - Aktion **Zahlen aus Eingabe abrufen** hinzufügen, Quelle **Kurzbefehleingabe**.
+   - Aktion **Timer starten** hinzufügen, Dauer = diese Zahl, Einheit **Minuten**.
+2. **Einschalten:** In Küchenhelfer unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
+
+Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Küchenhelfer läuft weiter.
+
+*Optional für die Admin:* Wer den Kurzbefehl einmal gebaut hat, kann ihn teilen (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` eintragen (nur `https://www.icloud.com/shortcuts/…`; alles andere wird ignoriert). Dann zeigt **Mehr → Timer** die Taste „Kurzbefehl hinzufügen“, die ihn auf dem Gerät anlegt.
 
 ### Optional
 
@@ -417,6 +442,16 @@ A badge on the saved recipe shows where it came from, with **View original**.
   - Times stay fixed. Above double or below half, a hint reminds you that baking and cooking times may change.
 - Older recipes stay as they are; split their ingredients with **Parse ingredients** while editing. If a step is rewritten or moved later, its link moves with it; if the amount is gone afterwards, the link goes.
 
+### Cooking
+
+**Start cooking** at the bottom of a recipe shows one step at a time in large type (D42):
+
+- **Next** and **Back** at the bottom, or swipe left and right (on a computer the arrow keys and the space bar). The bar at the top shows where you are; up to 12 steps it is split into segments you can tap. The address remembers the step, so a reload stays on it.
+- **You need:** lists the ingredients of this step. An ingredient that appears only in this step shows its amount, otherwise just the name. Ingredients and steps show the amounts, scaled too.
+- **All steps** shows Mealie's list of all steps and ingredients; a tap ticks a step off as usual. **Step by step** returns to the current step, **✕** leaves cook mode. The screen stays on; if the device cannot do that, a hint about the automatic lock shows.
+- **Times and timers:** times in the text ("10 Min.", "1,5 Stunden", "20–30 Min.") can be tapped and start a timer. For a range it rings at the lower end; "10 more min." runs on to the upper end. Several timers run at once, with pause and stop. They survive locking, reloading and changing pages and show as a thin bar on every page; when one runs out, the device rings and vibrates (for 2 minutes at most) until you tap **Off**. That works while the app is open; after a reload, one tap anywhere on the page allows sound again. On the iPhone the sound overrides the mute switch (iOS 17 and later); older versions stay silent when muted. On a locked phone use the Clock timer (next section, "Clock timer via shortcut"). Times do not grow when you scale.
+- **Offline:** the last 30 recipes you opened and their photos stay on the device and open without a network, with the hint "Offline: saved version". Signing out deletes them, so nothing stays on a shared device.
+
 ### Share shortcut (iPhone and iPad)
 
 With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
@@ -431,6 +466,21 @@ With a shortcut in the share menu, links, texts and photos from Safari, Instagra
 3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Küchenhelfer key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
 Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
+
+### Clock timer via shortcut (iPhone and iPad)
+
+A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
+
+1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
+   - Open the **Shortcuts** app and tap **+** at the bottom right.
+   - Change the name at the top to "KH Timer" (or adjust the name in Küchenhelfer).
+   - Add the action **Get Numbers from Input**, source **Shortcut Input**.
+   - Add the action **Start Timer**, duration = that number, unit **minutes**.
+2. **Turn it on:** in Küchenhelfer under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
+
+Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Küchenhelfer keeps running.
+
+*Optional for the admin:* once the shortcut is built, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else is ignored). **More → Timer** then shows the button "Add shortcut", which adds it on the device.
 
 ### Optional
 

@@ -8,3 +8,16 @@
     -apple-system,
     sans-serif !important;
 }
+
+/* KH: amount in parentheses behind an ingredient in a step (D41) and a time that starts a timer when tapped (D42). */
+.kh-amount {
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.kh-time {
+  background: rgba(var(--v-theme-primary), 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0 4px;
+  white-space: nowrap;
+}

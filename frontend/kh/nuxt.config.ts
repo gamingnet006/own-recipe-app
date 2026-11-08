@@ -2,6 +2,7 @@
 // Our plugins, components and pages live in kh/app/, apart from Mealie's app/; our texts in kh/lang/.
 import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";
+import { offlineCaching } from "./app/lib/offline";
 
 export default defineNuxtConfig({
   // The font of the look "Salbei" (D38); a path from this layer, because "~" is Mealie's app folder
@@ -15,4 +16,6 @@ export default defineNuxtConfig({
       { code: "de-DE", file: "de-DE.json" },
     ],
   },
+  // The last recipes and their photos stay available offline (D42); merged into Mealie's workbox settings
+  pwa: { workbox: { runtimeCaching: offlineCaching() } },
 });

@@ -48,7 +48,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
         share_links(on)
         response = api_client.get("/api/kh/features")
         assert response.status_code == 200
-        assert response.json() == {"shareLinks": on, "noticePollMinutes": 5}
+        assert response.json() == {"shareLinks": on, "noticePollMinutes": 5, "clockShortcutUrl": None}
 
 
 def test_shared_recipe_is_hidden_when_off(api_client: TestClient, share_token: str, share_links):
@@ -89,3 +89,43 @@ def test_new_group_is_private_and_shows_no_announcements(api_client: TestClient,
 
 def test_features_name_the_poll_interval(api_client: TestClient):
     assert api_client.get("/api/kh/features").json()["noticePollMinutes"] == 5
+
+
+VALID_SHORTCUT = "https://www.icloud.com/shortcuts/0123456789abcdefABCDEF"
+
+
+def test_clock_shortcut_url_is_unset_by_default(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("KH_CLOCK_SHORTCUT_URL", raising=False)
+    assert KhSettings().clock_shortcut_url is None
+
+
+@pytest.mark.parametrize("url", [VALID_SHORTCUT, VALID_SHORTCUT + "/"])
+def test_clock_shortcut_url_passes_a_shortcuts_link(monkeypatch: pytest.MonkeyPatch, url: str):
+    monkeypatch.setenv("KH_CLOCK_SHORTCUT_URL", url)
+    assert KhSettings().clock_shortcut_url == url
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://www.icloud.com/shortcuts/abc123",
+        "https://example.com/shortcuts/abc123",
+        "https://www.icloud.com.evil.test/shortcuts/abc123",
+        "https://www.icloud.com/shortcuts/",
+        "https://www.icloud.com/shortcuts/abc123?x=1",
+        "javascript:alert(1)",
+    ],
+)
+def test_clock_shortcut_url_drops_anything_else_and_warns(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, url: str
+):
+    monkeypatch.setenv("KH_CLOCK_SHORTCUT_URL", url)
+    with caplog.at_level("WARNING"):
+        assert KhSettings().clock_shortcut_url is None
+    assert "KH_CLOCK_SHORTCUT_URL" in caplog.text
+    assert url not in caplog.text
+
+
+def test_features_report_the_shortcut_url(api_client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(get_kh_settings(), "clock_shortcut_url", VALID_SHORTCUT)
+    assert api_client.get("/api/kh/features").json()["clockShortcutUrl"] == VALID_SHORTCUT

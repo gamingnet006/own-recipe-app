@@ -5,9 +5,10 @@ import axios from "axios";
 export interface KhFeatures {
   shareLinks: boolean;
   noticePollMinutes: number; // how often the bell asks for new notices (D39)
+  clockShortcutUrl: string | null; // ready-made Clock timer shortcut to add, null while not configured (D42)
 }
 
-const ALL_HIDDEN: KhFeatures = { shareLinks: false, noticePollMinutes: 5 };
+const ALL_HIDDEN: KhFeatures = { shareLinks: false, noticePollMinutes: 5, clockShortcutUrl: null };
 
 export default defineNuxtPlugin({
   async setup() {

@@ -22,13 +22,13 @@ Stand 8.11.2026. Abgestimmt über die Vorschlagsseite: sechs Entscheidungen E1 b
 - Mealies Kochmodus (`?cook=true`) bleibt der Einstieg; „Kochen starten“ aus `KhCookBar` führt wie bisher hinein.
 - Im Kochmodus zeigt ein neues `KhCookStep` statt Mealies Liste genau einen Schritt.
   - Oben links „✕“: Damit verlässt man den Kochmodus und kommt zurück zur Rezeptseite. Rechts steht „Alle Schritte“.
-  - Darunter ein Balken mit einem Abschnitt je Schritt (8.11.2026, Anregung aus Kitchen Stories): erledigte Schritte gefüllt, der aktuelle betont. Ein Tipp auf einen Abschnitt springt zu diesem Schritt, auch zurück. Daneben „Schritt 3 von 7“. Ab 12 Schritten werden die Abschnitte zu einem durchgehenden Balken, und das Springen geht über „Alle Schritte“.
+  - Darunter ein schmaler Balken (4 px) mit einem Abschnitt je Schritt (8.11.2026, Anregung aus Kitchen Stories): erledigte Schritte gefüllt, der aktuelle betont. Ein Tipp auf einen Abschnitt springt zu diesem Schritt, auch zurück. Daneben „Schritt 3 von 7“. Ab 12 Schritten werden die Abschnitte zu einem durchgehenden Balken, und das Springen geht über „Alle Schritte“.
   - Darunter eine ruhige Zeile „Du brauchst: Butter 200 g · Zucker 150 g“ mit den Zutaten, die mit diesem Schritt verknüpft sind (statt Chips). Die Mengen folgen dem Portionsfaktor. Ist eine Zutat auf mehrere Schritte verteilt, steht dort nur ihr Name ohne Menge, denn die Gesamtmenge würde zu „die Hälfte der Semmelbrösel“ nicht passen. Ohne verknüpfte Zutaten fehlt die Zeile.
   - Kochutensilien pro Schritt gibt es nicht: Mealie kennt Utensilien nur für das ganze Rezept, und die stehen schon auf der Rezeptseite.
   - Dann der Schritttext in großer Schrift, darunter die laufenden Timer.
-  - Unten zwei große Tasten: „Zurück“ (schmal) und „Weiter“ (breit, Akzentfarbe). Im letzten Schritt heißt „Weiter“ „Fertig“ und beendet den Kochmodus.
+  - Unten zwei große Tasten, immer an derselben Stelle direkt über der Leiste unten, auch bei kurzen Schritten (8.11.2026, Wunsch: beim Kochen nur eine Stelle anfassen): „Zurück“ (schmal) und „Weiter“ (breit, Akzentfarbe). Im letzten Schritt heißt „Weiter“ „Fertig“ und beendet den Kochmodus.
 - Wischen nach links geht weiter, nach rechts zurück (`useSwipe` aus `@vueuse/core`, schon vorhanden). Am iPad mit Tastatur gehen auch die Pfeiltasten und die Leertaste.
-- „Alle Schritte“ schaltet auf Mealies Liste um. Ein Tipp auf einen Schritt dort springt in die Schritt-Ansicht zu diesem Schritt.
+- „Alle Schritte“ schaltet auf Mealies Liste um. Ein Tipp auf einen Schritt dort hakt ihn ab wie bisher (8.11.2026, geändert: beim Kochen ist das Abhaken wichtiger als das Springen). Neben Mealies Schließen-Taste steht „Schritt für Schritt“; sie führt zurück in die Schritt-Ansicht, zum aktuellen Schritt.
 - Der aktuelle Schritt steht in der Adresse (`&step=3`), so bleibt er beim Neuladen erhalten.
 - Abschnitts-Überschriften aus Mealie (Schritte mit Titel) erscheinen über dem Schritt.
 - Die Bildschirmsperre ist im Kochmodus aus (`useWakeLock`) und wird beim Verlassen wieder freigegeben, unabhängig von Mealies Schalter. Kann das Gerät das nicht, kommt ein einmaliger Hinweis, die automatische Sperre selbst länger zu stellen.
@@ -45,6 +45,10 @@ Stand 8.11.2026. Abgestimmt über die Vorschlagsseite: sechs Entscheidungen E1 b
   4. Die Zutat hat eine Menge.
 - Nur beim ersten Vorkommen im Schritt.
 - Ist eine Zutat über mehrere Schritte verknüpft oder fehlt eine Bedingung, bleibt der Satz unverändert. So steht nie eine falsche Menge da.
+- Ausnahme, ergänzt am 8.11.2026 (Wunsch nach Test): Ist eine Zutat über mehrere Schritte verknüpft und der Schritttext nennt den Anteil selbst, steht dessen Menge hinter dem Namen und in der „Du brauchst:“-Zeile („Mehl 125 g“).
+  - Anteil: höchstens drei Wörter vor dem Namen, z. B. „die Hälfte des Mehls“, „ein Drittel der Milch“, „drei Viertel“, „½ vom Mehl“, „half of the flour“. Menge = Zutatenmenge × Anteil beim aktuellen Faktor, im Format der übrigen Klammern.
+  - Rest: „restliches Mehl“, „den Rest vom Mehl“, „übrigen“, „the remaining/the rest of the flour“. Menge = Gesamtmenge minus die Anteile der früheren Schritte; nur wenn jeder frühere Schritt mit der Zutat einen Anteil nannte, sonst keine Klammer.
+  - Der Name zählt auch als Genitiv („Mehls“, „Mehles“). Ohne Anteilswort bleibt es bei „keine Zahl“.
 - Der gespeicherte Text bleibt unverändert; die Klammer entsteht nur beim Anzeigen.
 - Mealies Markdown im Schritt bleibt erhalten. Die Klammer kommt als `<span class="kh-amount">` in den Text, den `SafeMarkdown` darstellt; `span` mit `class` lässt Mealies Bereinigung durch.
 - Eine Funktion für alle Ansichten, neben `khStepText()`: Die Anzeige erweitert nur die bestehende Stelle, an der Phase 3 Mengen umrechnet.

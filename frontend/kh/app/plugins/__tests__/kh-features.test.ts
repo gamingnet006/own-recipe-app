@@ -24,7 +24,7 @@ describe("kh-features plugin", () => {
   test("passes the switches on", async () => {
     getMock.mockResolvedValue({ data: { shareLinks: true } });
 
-    expect(await loadFeatures()).toEqual({ shareLinks: true, noticePollMinutes: 5 });
+    expect(await loadFeatures()).toEqual({ shareLinks: true, noticePollMinutes: 5, clockShortcutUrl: null });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features");
   });
 
@@ -32,7 +32,7 @@ describe("kh-features plugin", () => {
     getMock.mockRejectedValue(new Error("offline"));
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(await loadFeatures()).toEqual({ shareLinks: false, noticePollMinutes: 5 });
+    expect(await loadFeatures()).toEqual({ shareLinks: false, noticePollMinutes: 5, clockShortcutUrl: null });
     expect(errorSpy).toHaveBeenCalled();
   });
 });
