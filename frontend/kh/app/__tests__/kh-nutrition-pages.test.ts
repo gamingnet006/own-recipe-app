@@ -107,6 +107,15 @@ describe("KhFoodMapping", () => {
     expect(wrapper.text()).toContain("Das hat nicht geklappt");
   });
 
+  test("a missing permission (403) is said in words", async () => {
+    putMock.mockResolvedValue({ data: null, error: { response: { status: 403 } } });
+    const wrapper = render(food("Ei", false));
+    await button(wrapper, "Bestätigen").trigger("click");
+    await flushPromises();
+    expect(wrapper.text()).toContain("Dafür fehlt dir die Berechtigung");
+    expect(wrapper.emitted("saved")).toBeUndefined();
+  });
+
   test("an unknown code (422) is said in words", async () => {
     putMock.mockResolvedValue({ data: null, error: { response: { status: 422 } } });
     const wrapper = render(food("Ei", false));

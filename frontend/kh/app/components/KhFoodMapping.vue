@@ -52,6 +52,12 @@ import { parsePieceGrams } from "../lib/nutrition";
 /** How long the search waits after the last key. */
 const SEARCH_DELAY_MS = 300;
 
+/** The words for the status codes of a failed save. */
+const SAVE_ERRORS: Record<number, string> = {
+  403: "kh.nutrition.page.forbidden",
+  422: "kh.nutrition.page.unknown-code",
+};
+
 const props = defineProps<{ mapping: KhFoodMapping }>();
 const emit = defineEmits<{ saved: [mapping: KhFoodMapping] }>();
 
@@ -98,7 +104,7 @@ async function save(blsCode: string | null) {
   const { data, error: failure } = await api.putFood(props.mapping.foodId, { blsCode, confirmed: true, pieceGrams });
   saving.value = false;
   if (data) emit("saved", data);
-  else error.value = t(failure?.response?.status === 422 ? "kh.nutrition.page.unknown-code" : "kh.nutrition.page.failed");
+  else error.value = t(SAVE_ERRORS[failure?.response?.status ?? 0] ?? "kh.nutrition.page.failed");
 }
 </script>
 

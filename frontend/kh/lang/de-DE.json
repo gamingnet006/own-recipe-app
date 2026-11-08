@@ -286,6 +286,7 @@
         "piece-grams": "Stückgewicht in Gramm",
         "confirm": "Bestätigen",
         "unknown-code": "Diesen BLS-Eintrag gibt es nicht.",
+        "forbidden": "Dafür fehlt dir die Berechtigung (Daten organisieren).",
         "failed": "Das hat nicht geklappt.",
         "pick": "{name} wählen"
       }

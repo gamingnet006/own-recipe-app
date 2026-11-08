@@ -286,6 +286,7 @@
         "piece-grams": "Weight of one piece in grams",
         "confirm": "Confirm",
         "unknown-code": "That BLS entry does not exist.",
+        "forbidden": "You do not have the permission to organize data, so you cannot change this.",
         "failed": "That did not work.",
         "pick": "Choose {name}"
       }
