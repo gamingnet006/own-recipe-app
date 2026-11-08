@@ -20,6 +20,10 @@ const TEMPERATURE = /(?<![\p{L}\d.,−])(\d{2,3})(?:\s*[-–]\s*(\d{2,3}))?\s*(?
 // Words naming the oven type: group 1 is the fan, anything else matched is conventional.
 const OVEN_TYPE = /(umluft)|ober-?\s*(?:[/&]|und)\s*unterhitze|(?<![\p{L}\d])o\/u(?![\p{L}\d])/giu;
 const WORD = /[^\s,;:.()]+/g;
+// "um 180 Grad drehen": an angle for turning the tray, not an oven temperature (before: "um"; after: a turning verb
+// within two words).
+const TURN_BEFORE = /(?<![\p{L}\d])um\s+$/iu;
+const TURN_AFTER = /^\s*(?:[^\s,;:.()]+\s+){0,2}(?:dreh|wend|gedreht|gewendet)/iu;
 
 /** The oven type stated by the words around the temperature at START..END of TEXT (within LOW..HIGH, the room
  * left by the neighbouring temperatures); the nearest statement wins. Null if the text states none. */
@@ -54,6 +58,7 @@ export function ovenBrackets(text: string, oven: Oven): { at: number; text: stri
   const found = [...text.matchAll(TEMPERATURE)];
   return found.flatMap((m, i) => {
     const end = m.index + m[0].length;
+    if (TURN_BEFORE.test(text.slice(0, m.index)) || TURN_AFTER.test(text.slice(end))) return [];
     const stated = statedOven(text, m.index, end, i ? found[i - 1]!.index + found[i - 1]![0].length : 0, found[i + 1]?.index ?? text.length);
     const bracket = bracketText(Number(m[1]), m[2] ? Number(m[2]) : null, stated, oven);
     return bracket ? [{ at: end, text: bracket }] : [];

@@ -23,6 +23,14 @@ describe("fan oven", () => {
   test("a text stating the conventional heat still gets the fan value", () => {
     expect(texts("180 °C Ober-/Unterhitze", "fan")).toEqual([" (Umluft 160 °C)"]);
   });
+  test("turning the tray by an angle is no oven temperature", () => {
+    expect(texts("Blech nach 15 Min. um 180 Grad drehen", "fan")).toEqual([]);
+    expect(texts("das Blech 180 Grad drehen", "fan")).toEqual([]);
+    expect(texts("Form um 180 Grad gewendet", "fan")).toEqual([]);
+  });
+  test("preheating to the same number still gets its bracket", () => {
+    expect(texts("auf 180 Grad vorheizen und dann drehen", "fan")).toEqual([" (Umluft 160 °C)"]);
+  });
   test("a range converts both ends", () => {
     expect(texts("bei 180-200 °C backen", "fan")).toEqual([" (Umluft 160–180 °C)"]);
   });
