@@ -155,6 +155,15 @@
         "amount": "Menge",
         "apply": "Übernehmen"
       }
+    },
+    "timer": {
+      "list": "Laufende Timer",
+      "done": "fertig",
+      "off": "Aus",
+      "more": "noch {n} Min.",
+      "pause": "Pause",
+      "resume": "Weiter",
+      "stop": "Timer abbrechen"
     }
   }
 }

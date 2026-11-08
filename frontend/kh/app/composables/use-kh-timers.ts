@@ -44,7 +44,8 @@ const tick = ref(0);
 let ticker: ReturnType<typeof setInterval> | undefined;
 watch(timers, list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list)), { deep: true, flush: "sync" });
 
-/** The shared timers; NOW is the clock, replaceable for tests. */
+/** The shared timers; NOW is the clock, replaceable for tests. `tick` changes every second: read it in a render
+ * to show `left` afresh. */
 export function useKhTimers(now: () => number = Date.now) {
   // Starts once, so `ringing` notices a timer running out without anybody touching it.
   ticker ??= setInterval(() => tick.value++, TICK_MS);
@@ -102,7 +103,7 @@ export function useKhTimers(now: () => number = Date.now) {
     return timers.value.filter(done);
   });
 
-  return { timers, start, pause, resume, stop, extend, left, done, ringing };
+  return { timers, start, pause, resume, stop, extend, left, done, ringing, tick };
 }
 
 let audio: AudioContext | undefined;

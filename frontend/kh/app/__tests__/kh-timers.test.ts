@@ -132,3 +132,32 @@ test("the alarm beeps and vibrates until stopped or the limit", async () => {
   vi.advanceTimersByTime(5000);
   expect(beep).toHaveBeenCalledTimes(atLimit);
 });
+
+// The step display needs Mealie's i18n set-up; its times are all the handler takes from it (tested in kh-step-text).
+vi.mock("../lib/step-text", async importOriginal => ({
+  ...(await importOriginal<typeof import("../lib/step-text")>()),
+  khStepDisplay: () => ({ html: "", times: [ten] }),
+}));
+
+test("a tap on a time starts its timer and stops there; a tap elsewhere does nothing", async () => {
+  vi.stubGlobal("AudioContext", class { resume = vi.fn(); });
+  const { useKhTimers } = await fresh();
+  const { useKhTimeTap } = await import("../composables/use-kh-time-tap");
+  const step = { id: "s", text: "Teig 10 Min. ruhen", title: "", summary: "", ingredientReferences: [] };
+  const recipe = { slug: "kuchen", recipeIngredient: [], recipeInstructions: [step] } as never;
+  const container = document.createElement("div");
+  container.innerHTML = "<p>Teig <span class=\"kh-time\">10 Min.</span> ruhen</p>";
+  const clickOn = (target: Element) => {
+    const event = new MouseEvent("click", { bubbles: true });
+    const stop = vi.spyOn(event, "stopPropagation");
+    container.addEventListener("click", e => useKhTimeTap()(e, 0, step, recipe, 1), { once: true });
+    target.dispatchEvent(event);
+    return stop;
+  };
+
+  expect(clickOn(container.querySelector("p")!)).not.toHaveBeenCalled();
+  expect(useKhTimers(now).timers.value).toEqual([]);
+  expect(clickOn(container.querySelector("span")!)).toHaveBeenCalled();
+  const [timer] = useKhTimers(now).timers.value;
+  expect(timer).toMatchObject({ label: "1. Teig 10 Min. ruhen", recipeSlug: "kuchen", seconds: 600 });
+});

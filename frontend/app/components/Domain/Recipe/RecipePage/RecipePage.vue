@@ -127,6 +127,8 @@
     </v-container>
     <!-- KH: "Start cooking" in the view, outside the card, so the wake-lock switch never scrolls over it (D38) -->
     <KhCookBar v-if="!isEditMode && !isCookMode" @cook="toggleCookMode()" />
+    <!-- KH: the running timers as a thin bar above it, on every recipe page (D42) -->
+    <KhTimers compact />
     <!-- Floating save button when toolbar scrolls out of view -->
     <v-fab
       v-if="isEditMode && !toolbarVisible"

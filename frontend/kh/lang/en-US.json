@@ -155,6 +155,15 @@
         "amount": "Amount",
         "apply": "Apply"
       }
+    },
+    "timer": {
+      "list": "Running timers",
+      "done": "done",
+      "off": "Off",
+      "more": "{n} more min.",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Cancel timer"
     }
   }
 }

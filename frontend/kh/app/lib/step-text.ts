@@ -52,6 +52,20 @@ export function stepDisplay(
   return { html, times };
 }
 
+/** The index of the time (among the ".kh-time" elements of CONTAINER) that TARGET lies in; -1 if it lies in none. */
+export function timeIndex(target: EventTarget | null, container: HTMLElement): number {
+  if (!(target instanceof Node)) return -1;
+  return [...container.querySelectorAll(".kh-time")].findIndex(span => span.contains(target));
+}
+
+const LABEL_WORDS = 4;
+
+/** The name of a timer started in step PLACE (0-based): its number and the first words of TEXT, Markdown marks removed. */
+export function timerLabel(place: number, text: string): string {
+  const plain = text.replace(/\]\([^)]*\)/g, "").replace(/[*_`#>[\]]/g, "");
+  return `${place + 1}. ${plain.split(/\s+/).filter(Boolean).slice(0, LABEL_WORDS).join(" ")}`;
+}
+
 /** The one entry point for every view: step STEP at place PLACE of RECIPE at SCALE, with the amounts of
  * Phase 3 scaled first, then amounts and times added. */
 export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number): { html: string; times: KhTime[] } {

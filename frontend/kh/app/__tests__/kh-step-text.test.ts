@@ -1,7 +1,7 @@
 // KH: tests for the step display text (D41, D42): amount parentheses behind ingredient names under the four
 // conditions of the spec, and the highlighted times, also inside Markdown.
 import { describe, expect, test } from "vitest";
-import { onlyStepOf, stepDisplay, type KhStepIngredient } from "../lib/step-text";
+import { onlyStepOf, stepDisplay, timeIndex, timerLabel, type KhStepIngredient } from "../lib/step-text";
 
 const butter: KhStepIngredient = { referenceId: "b", names: ["Butter"], amount: "200 g" };
 const ref = (...ids: string[]) => ({ ingredientReferences: ids.map(referenceId => ({ referenceId })) });
@@ -61,5 +61,27 @@ describe("onlyStepOf", () => {
   test("null for none or several", () => {
     expect(onlyStepOf("b", [ref("b"), ref("b")])).toBeNull();
     expect(onlyStepOf("b", [ref(), {}])).toBeNull();
+  });
+});
+
+describe("timeIndex", () => {
+  const container = document.createElement("div");
+  container.innerHTML = "<p>erst <span class=\"kh-time\">10 Min.</span> dann <b><span class=\"kh-time\">1 <i>Std.</i></span></b></p>";
+  const spans = container.querySelectorAll(".kh-time");
+
+  test("the place of the clicked time among the times", () => {
+    expect(timeIndex(spans[0]!, container)).toBe(0);
+    expect(timeIndex(spans[1]!, container)).toBe(1);
+    expect(timeIndex(container.querySelector("i"), container)).toBe(1);
+  });
+  test("-1 outside a time", () => {
+    expect(timeIndex(container.querySelector("p"), container)).toBe(-1);
+    expect(timeIndex(null, container)).toBe(-1);
+  });
+});
+
+describe("timerLabel", () => {
+  test("number and first four words, without Markdown marks", () => {
+    expect(timerLabel(1, "**Den Teig** 10 Min. ruhen lassen, dann [formen](https://x.de)")).toBe("2. Den Teig 10 Min.");
   });
 });
