@@ -171,6 +171,8 @@ RUN chmod +x $MEALIE_HOME/run.sh
 # KH: ship the ops files with every image, so auto_update.sh can install the matching compose
 # file and scripts without git on the server (D29); .dockerignore keeps .env and data out.
 COPY kh/ops /app/kh-bundle/kh/ops
+# KH: the third-party notices the About page shows (P8.1); one source, the file in docs/kh
+COPY docs/kh/THIRD_PARTY_NOTICES.md /app/kh-docs/THIRD_PARTY_NOTICES.md
 COPY mealie/core/settings/settings.py /app/kh-bundle/mealie/core/settings/settings.py
 
 ENTRYPOINT ["/app/run.sh"]

@@ -46,6 +46,12 @@ services:
       KH_AI_DOWN_PAUSE_MINUTES: ${KH_AI_DOWN_PAUSE_MINUTES:-}
       KH_NOTICE_DAYS: ${KH_NOTICE_DAYS:-}
       KH_NOTICE_POLL_MINUTES: ${KH_NOTICE_POLL_MINUTES:-}
+      # About page and system check (P8): the image tag names the version; the source link (AGPL); optional
+      # modules, of which the app only learns whether they are set (empty means off).
+      KH_IMAGE: ${KH_IMAGE:-}
+      KH_SOURCE_URL: ${KH_SOURCE_URL:-}
+      KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
+      KH_WHISPER_URL: ${KH_WHISPER_URL:-}
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.

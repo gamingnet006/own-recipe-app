@@ -3,6 +3,7 @@ stay untouched; the Mealie parts we hide stay off unless they are switched on he
 
 import re
 from functools import lru_cache
+from pathlib import Path
 
 from fastapi import HTTPException, status
 from pydantic import Field, field_validator
@@ -50,6 +51,13 @@ class KhSettings(BaseSettings):
     # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
     notice_days: int = Field(30, ge=1)
     notice_poll_minutes: int = Field(5, ge=1)
+    # About and system check (P8): the running image (its tag is the version), where the source can be read (AGPL),
+    # the third-party notices shipped in the image, and the optional modules (only whether they are set is ever shown)
+    image: str | None = None
+    source_url: str = "https://github.com/gamingnet006/own-recipe-app"
+    notices_file: Path = Path("/app/kh-docs/THIRD_PARTY_NOTICES.md")
+    telegram_token: str | None = None
+    whisper_url: str | None = None
 
     @field_validator("clock_shortcut_url")
     @classmethod

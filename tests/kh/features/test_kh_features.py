@@ -48,7 +48,12 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
         share_links(on)
         response = api_client.get("/api/kh/features")
         assert response.status_code == 200
-        assert response.json() == {"shareLinks": on, "noticePollMinutes": 5, "clockShortcutUrl": None}
+        assert response.json() == {
+            "shareLinks": on,
+            "noticePollMinutes": 5,
+            "sourceUrl": get_kh_settings().source_url,
+            "clockShortcutUrl": None,
+        }
 
 
 def test_shared_recipe_is_hidden_when_off(api_client: TestClient, share_token: str, share_links):

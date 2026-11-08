@@ -13,6 +13,7 @@ class KhFeatures(MealieModel):
 
     share_links: bool
     notice_poll_minutes: int  # how often the bell asks for new notices (D39)
+    source_url: str  # where the source of this fork can be read (AGPL), shown on the About page
     clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
 
 
@@ -23,5 +24,6 @@ def get_features() -> KhFeatures:
     return KhFeatures(
         share_links=settings.share_links,
         notice_poll_minutes=settings.notice_poll_minutes,
+        source_url=settings.source_url,
         clock_shortcut_url=settings.clock_shortcut_url,
     )

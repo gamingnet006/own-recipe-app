@@ -12,6 +12,7 @@ from mealie.kh.duplicates import routes as duplicates
 from mealie.kh.features import routes as features
 from mealie.kh.notices import routes as notices
 from mealie.kh.nutrition import routes as nutrition
+from mealie.kh.system import routes as system
 
 router = APIRouter(prefix="/kh")
 
@@ -25,3 +26,4 @@ router.include_router(books.router, tags=["KH: Books"])
 router.include_router(duplicates.router, tags=["KH: Duplicates"])
 router.include_router(nutrition.router, tags=["KH: Nutrition"])
 router.include_router(allergens.router, tags=["KH: Allergens"])
+router.include_router(system.router, tags=["KH: System"])
