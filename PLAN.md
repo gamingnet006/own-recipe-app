@@ -70,6 +70,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D38 | Oberfläche (1.11.2026, Spezifikation `docs/kh/specs/2026-11-01-oberflaeche-design.md`): erst der Alltag, dann der Look. Handy und iPad hochkant: Leiste unten mit Rezepte, Eingang, Einkaufsliste, Mehr; ab 840 px Mealies Seitenmenü mit denselben Zielen aus einer Liste. Eingang heißt: Rezept hinzufügen und Entwürfe auf einer Seite. Eigene Rezeptansicht im kh-Layer, Bearbeiten und Kochmodus bleiben Mealies; Sterne, Kommentare und „Zuletzt gemacht“ sind ausgeblendet. Look „Salbei“: Akzent `#2F7A55`, Grund `#F4F5F1`, Systemschrift des Geräts. Einkaufsliste, Essensplaner und Einstellungen bleiben Mealies Seiten. Einführung in `v0.1.2` (Rahmen) und `v0.1.3` (Rezeptseite). | beschlossen |
 | D39 | `v0.2` (3.11.2026, Spezifikation `docs/kh/specs/2026-11-03-v0.2-mengen-ki-liste-design.md`): Phase 3 „Mengen“ baut auf Mealies NLP-Parser auf und erkennt deutsche Angaben beim Import ohne KI-Anfrage; Mengen im Schritttext rechnen über eine `kh`-Nebentabelle mit (D19); Umrechnen über Portionen, „Ich habe nur …“ und Backform. Dazu eine KI-Prio-Liste mit beliebig vielen kostenlosen Anbietern, die bei leerem Kontingent, ungültigem Schlüssel, fehlendem Modell oder Ausfall zum nächsten wechselt, mit Infofeld zu kostenlosen Schlüsseln (Stand mit Datum) und einer Glocke mit Meldungen für alle mit `can_manage`. Der Ton-Anbieter bleibt Mealies Auswahl; keine Push-Nachrichten aufs Handy. Beim Update beginnt die Liste mit Mealies bisherigem Standard- und Bildanbieter, neue Anbieter kommen ans Ende (4.11.2026, Review). Zwei Pläne, ein Release; erst KI-Liste und Glocke, dann Mengen. | beschlossen |
 | D40 | Deutsche Mengen liest Küchenhelfer selbst (`parse_ingredient()`), weil Mealies NLP-Bibliothek deutsche Einheiten nicht erkennt (Probe 4.11.2026); von Mealie kommt nur der Abgleich mit Einheiten und Lebensmitteln der Gruppe. Verknüpfungen im Schritttext nennen ihren Schritt nach Position, weil Mealie bei jedem Speichern neue Schritt-IDs vergibt. | beschlossen |
+| D41 | Mengen neben Zutatennamen im Schritttext („die Butter (200 g) schmelzen“) kommen in Phase 4 (Kochmodus), nicht mehr in `v0.2`; Phase 3 rechnet nur Mengen um, die schon im Schritt stehen (8.11.2026) | beschlossen |
 
 ---
 
@@ -211,6 +212,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 ### Phase 4 · Kochmodus (v0.3)
 
 - [ ] Zeiten im Schritttext erkennen und anklickbar machen (auch „20–30 Min.“ und „eine halbe Stunde“).
+- [ ] Mengen neben Zutaten im Schritttext: Nennt ein Schritt eine Zutat ohne Menge („die Butter schmelzen“), steht ihre Menge passend zum gewählten Faktor dabei, etwa „die Butter (200 g) schmelzen“. Der Text bleibt unverändert; die Darstellung wird vor dem Bau abgestimmt (D41).
 - [ ] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
 - [ ] Sprachbefehle mit Vosk im Browser (nach T2); große Tasten und Wischen als Rückfall.
 - [ ] Offline-Rezepte (Web-App, dafür ist HTTPS nötig; steht seit Phase 1).
