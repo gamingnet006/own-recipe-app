@@ -156,6 +156,12 @@
         "apply": "Übernehmen"
       }
     },
+    "oven": {
+      "title": "Unser Ofen",
+      "conventional": "Ober-/Unterhitze",
+      "fan": "Umluft",
+      "hint": "Temperaturen in den Schritten bekommen eine Klammer mit dem Wert für diesen Ofen."
+    },
     "timer": {
       "list": "Laufende Timer",
       "done": "fertig",
