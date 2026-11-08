@@ -11,6 +11,11 @@
   page: kh-book;
   background: #fff;
   color: #000;
+}
+
+/* The base size sits on the sheets, not on .kh-print: in the preview .kh-print is the size container, and an element
+   cannot measure itself, so a size on it would follow the window instead of the sheet */
+.kh-print .kh-sheet {
   font-size: calc(var(--mm) * 3.6);
   line-height: 1.4;
 }
@@ -18,6 +23,14 @@
 .kh-print a,
 .kh-print .kh-amount {
   color: inherit;
+}
+
+/* Times are plain text on paper, without the tap highlight of the recipe page */
+.kh-print .kh-time {
+  background: none;
+  color: inherit;
+  padding: 0;
+  cursor: auto;
 }
 
 .kh-print .kh-amount {
