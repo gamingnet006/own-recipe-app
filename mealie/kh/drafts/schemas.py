@@ -37,6 +37,9 @@ class DraftError(StrEnum):
     address_blocked = "address_blocked"
     video_link = "video_link"  # a link to a video site is never fetched (D5)
     invalid_result = "invalid_result"
+    whisper_unreachable = "whisper_unreachable"  # P7.3: the Whisper server does not answer
+    whisper_timeout = "whisper_timeout"
+    whisper_failed = "whisper_failed"
     interrupted = "interrupted"
     unknown = "unknown"
 
@@ -76,6 +79,7 @@ class DraftOut(MealieModel):
     source_url: str | None = None
     source_url_normalized: str | None = None
     source_text: str | None = None
+    source_note: str | None = None
     original_files: list[str] = []
     recipe: dict[str, Any] | None = None
     warnings: list[DraftWarning] = []

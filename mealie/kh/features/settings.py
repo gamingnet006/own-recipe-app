@@ -4,6 +4,7 @@ stay untouched; the Mealie parts we hide stay off unless they are switched on he
 import re
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from fastapi import HTTPException, status
 from pydantic import Field, field_validator
@@ -63,7 +64,13 @@ class KhSettings(BaseSettings):
     telegram_api_token: str | None = None
     telegram_mealie_url: str = "http://mealie:9000"
     base_url: str = "http://localhost:9091"
+    # Whisper (P7.3): the server for own recordings (none: no file field), its model (none: the profile's), and the
+    # largest recording
     whisper_url: str | None = None
+    whisper_model: str | None = None
+    draft_max_media_mb: int = Field(200, ge=1)
+    # Profile (P7.4): how much the host can carry; sets the Whisper model, "lokal" keeps everything in the house
+    profile: Literal["leicht", "normal", "stark", "lokal"] = "leicht"
 
     @field_validator("clock_shortcut_url")
     @classmethod

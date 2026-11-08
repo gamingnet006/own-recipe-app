@@ -278,6 +278,16 @@ Optional und standardmäßig aus: Wer Links, Texte oder Fotos lieber an einen Te
 
 Danach legt jeder Link, Text oder jedes Foto aus einem freigeschalteten Chat einen Entwurf an; der Bot antwortet mit „Entwurf angelegt“ und dem Link zur Prüfansicht. Bei Fotos zählt das größte, höchstens `KH_DRAFT_MAX_IMAGE_MB` groß. Videolinks (Instagram, TikTok, YouTube, Facebook) werden nicht abgerufen: Schick die Beschreibung als Text dazu oder einen Screenshot. Im Profil `lokal` startet der Bot nicht. Ausschalten: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
 
+### Audio und Video (Whisper)
+
+Optional und standardmäßig aus (P7.3): Eigene Aufnahmen, zum Beispiel ein Sprachmemo von Oma oder ein selbst gedrehtes Kochvideo, wandelt ein Whisper-Dienst in Text um. Der Text wird zum Entwurf und geht den üblichen Weg mit dem KI-Anbieter. Die Datei bleibt in deinem Netz.
+
+1. In `kh/ops/.env` `KH_WHISPER_URL=http://whisper:8000` eintragen.
+2. Dienst starten: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. Den Speicher begrenzt `KH_WHISPER_MEM_LIMIT` (Standard 2g). Beim ersten Mal lädt der Dienst das Modell aus dem Netz (Hugging Face), danach nicht mehr; nach 5 Minuten ohne Aufnahme gibt er den Speicher wieder frei.
+3. Küchenhelfer neu starten (`docker compose -f kh/ops/docker-compose.yml up -d`). Im Eingang erscheint dann **Audio- oder Videodatei (eigene Aufnahme)**.
+
+Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 200). Über den Cloudflare Tunnel sind höchstens 100 MB möglich. Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Küchenhelfer nie; es geht nur um deine eigenen Dateien.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -622,6 +632,16 @@ Optional and off by default: if you prefer to send links, texts or photos to a T
 3. Start the bot with `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, write it a message and put the chat ID it sends back ("Diese Chat-ID ist nicht freigeschaltet: …") into `KH_TELEGRAM_ALLOWED_IDS` (several with commas). Then restart the bot with the same command.
 
 From then on every link, text or photo from an allowed chat becomes a draft; the bot answers "Entwurf angelegt" with the link to the review. For photos the largest size counts, at most `KH_DRAFT_MAX_IMAGE_MB`. Video links (Instagram, TikTok, YouTube, Facebook) are not fetched: send the description as text with it, or a screenshot. In the `lokal` profile the bot does not start. Switch it off: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
+
+### Audio and video (Whisper)
+
+Optional and off by default (P7.3): a Whisper service turns your own recordings, for example a voice memo from grandma or a cooking video you filmed, into text. The text becomes a draft and takes the usual way through the AI provider. The file stays in your network.
+
+1. Put `KH_WHISPER_URL=http://whisper:8000` into `kh/ops/.env`.
+2. Start the service: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. `KH_WHISPER_MEM_LIMIT` caps its memory (default 2g). The first time, the service downloads the model from the internet (Hugging Face), never again; after 5 minutes without a recording it frees the memory.
+3. Restart Küchenhelfer (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
+
+The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 200). Through the Cloudflare tunnel 100 MB is the most. The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Küchenhelfer never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
 
 ### Optional
 

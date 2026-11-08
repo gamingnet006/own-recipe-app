@@ -52,6 +52,9 @@ services:
       KH_SOURCE_URL: ${KH_SOURCE_URL:-}
       KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
       KH_WHISPER_URL: ${KH_WHISPER_URL:-}
+      KH_WHISPER_MODEL: ${KH_WHISPER_MODEL:-}
+      KH_DRAFT_MAX_MEDIA_MB: ${KH_DRAFT_MAX_MEDIA_MB:-}
+      KH_PROFILE: ${KH_PROFILE:-}
 
   # Optional Telegram bot (P7.1, off by default): hands links, texts and photos from allowed chats in as drafts.
   # Start: docker compose --profile telegram up -d telegram (needs the three KH_TELEGRAM_* values in .env).
@@ -75,6 +78,21 @@ services:
       KH_DRAFT_MAX_IMAGE_MB: ${KH_DRAFT_MAX_IMAGE_MB:-}
       # The profile "lokal" keeps everything in the house: the bot then refuses to start.
       KH_PROFILE: ${KH_PROFILE:-}
+
+  # Optional speech recognition for own audio and video files (P7.3, off by default): an OpenAI-compatible Whisper
+  # server (speaches, MIT) that runs on the CPU. Start: docker compose --profile whisper up -d whisper, and set
+  # KH_WHISPER_URL=http://whisper:8000 in .env. It loads the model of the profile (KH_PROFILE) on first use and
+  # frees the memory again after 5 idle minutes. No open port.
+  whisper:
+    image: ghcr.io/speaches-ai/speaches:0.8.3-cpu
+    profiles: ["whisper"]
+    restart: unless-stopped
+    mem_limit: ${KH_WHISPER_MEM_LIMIT:-2g}
+    environment:
+      TZ: ${KH_TZ:-Europe/Berlin}
+      WHISPER__COMPUTE_TYPE: int8
+    volumes:
+      - whisper-models:/home/ubuntu/.cache/huggingface/hub
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.
@@ -114,3 +132,7 @@ services:
       KH_BACKUP_KEEP_LOCAL: ${KH_BACKUP_KEEP_LOCAL:-3}
       KH_BACKUP_TIMEOUT: ${KH_BACKUP_TIMEOUT:-300}
       KH_BACKUP_PUSH_URL: ${KH_BACKUP_PUSH_URL:-}
+
+# Models of the optional whisper service (downloaded once, can be deleted any time)
+volumes:
+  whisper-models:

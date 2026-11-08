@@ -29,6 +29,8 @@ describe("kh-features plugin", () => {
       noticePollMinutes: 5,
       sourceUrl: "https://github.com/gamingnet006/own-recipe-app",
       clockShortcutUrl: null,
+      media: false,
+      profile: "leicht",
     });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features");
   });
@@ -42,6 +44,8 @@ describe("kh-features plugin", () => {
       noticePollMinutes: 5,
       sourceUrl: "https://github.com/gamingnet006/own-recipe-app",
       clockShortcutUrl: null,
+      media: false,
+      profile: "leicht",
     });
     expect(errorSpy).toHaveBeenCalled();
   });

@@ -8,11 +8,13 @@
       "source": {
         "link": "Link",
         "text": "Text",
-        "image": "Photo or screenshot"
+        "image": "Photo or screenshot",
+        "media": "Audio or video file (own recording)"
       },
       "link-label": "Link to the recipe",
       "text-label": "Recipe text",
       "add-photos": "Add photos",
+      "choose-media": "Choose a recording",
       "remove-photo": "Remove photo",
       "no-drafts": "No drafts waiting.",
       "status": {
@@ -71,7 +73,13 @@
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
         "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment.",
-        "ai_unavailable": "No AI reachable, try again later."
+        "ai_unavailable": "No AI reachable, try again later.",
+        "whisper_unreachable": "The speech recognition (Whisper) does not answer. Is it running?",
+        "whisper_timeout": "The speech recognition took too long. Try a shorter recording.",
+        "whisper_failed": "The speech recognition could not read this recording.",
+        "media_too_large": "The recording is too large.",
+        "media_not_configured": "Recordings are not switched on (Whisper).",
+        "not_audio_video": "This file is not an audio or video recording."
       },
       "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
       "type-yourself": "Type a recipe in yourself"
@@ -109,6 +117,7 @@
     },
     "ai": {
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
+      "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",
       "move-down": "Move down",
       "reads-images": "reads images",

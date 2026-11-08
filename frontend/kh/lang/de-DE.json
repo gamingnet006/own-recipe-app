@@ -8,11 +8,13 @@
       "source": {
         "link": "Link",
         "text": "Text",
-        "image": "Foto oder Screenshot"
+        "image": "Foto oder Screenshot",
+        "media": "Audio- oder Videodatei (eigene Aufnahme)"
       },
       "link-label": "Link zum Rezept",
       "text-label": "Rezepttext",
       "add-photos": "Fotos hinzufügen",
+      "choose-media": "Aufnahme wählen",
       "remove-photo": "Foto entfernen",
       "no-drafts": "Keine offenen Entwürfe.",
       "status": {
@@ -71,7 +73,13 @@
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
         "not_found": "Entwurf nicht gefunden.",
         "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht.",
-        "ai_unavailable": "Keine KI erreichbar, später erneut versuchen."
+        "ai_unavailable": "Keine KI erreichbar, später erneut versuchen.",
+        "whisper_unreachable": "Die Spracherkennung (Whisper) antwortet nicht. Läuft sie?",
+        "whisper_timeout": "Die Spracherkennung hat zu lange gebraucht. Versuche eine kürzere Aufnahme.",
+        "whisper_failed": "Die Spracherkennung konnte diese Aufnahme nicht lesen.",
+        "media_too_large": "Die Aufnahme ist zu groß.",
+        "media_not_configured": "Aufnahmen sind nicht eingeschaltet (Whisper).",
+        "not_audio_video": "Diese Datei ist keine Audio- oder Videoaufnahme."
       },
       "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
       "type-yourself": "Rezept selbst eintippen"
@@ -109,6 +117,7 @@
     },
     "ai": {
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
+      "profile-lokal": "Profil \"lokal\": alles bleibt im Haus. Nur lokale KI-Anbieter nutzen (z. B. Ollama), keine Cloud-Schlüssel.",
       "move-up": "Nach oben",
       "move-down": "Nach unten",
       "reads-images": "liest Bilder",

@@ -42,9 +42,11 @@ class KhDraftsController(_DraftsBase):
         url: Annotated[str | None, Form()] = None,
         text: Annotated[str | None, Form()] = None,
         images: list[UploadFile] = File(default_factory=list),
+        media: UploadFile | None = File(default=None),
     ) -> DraftOut:
-        """New draft from exactly one of a link, a text or up to KH_DRAFT_MAX_IMAGES images."""
-        draft = self.service.create(url, text, images)
+        """New draft from exactly one of a link, a text, up to KH_DRAFT_MAX_IMAGES images or, with a Whisper
+        server, one audio or video recording."""
+        draft = self.service.create(url, text, images, media)
         self._recognize_later(tasks, draft)
         return draft
 

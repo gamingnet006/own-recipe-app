@@ -22,6 +22,7 @@ from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
 from mealie.kh.drafts.video import is_video_link
+from mealie.kh.drafts.whisper import WhisperError, media_path, transcribe
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
@@ -64,6 +65,8 @@ def error_code(ex: Exception) -> DraftError:
         return DraftError.ai_not_configured
     if isinstance(ex, NoRecipeDataError) or (isinstance(ex, HTTPException) and ex.status_code == 400):
         return DraftError.no_recipe_data
+    if isinstance(ex, WhisperError):
+        return ex.code
     if isinstance(ex, VideoLinkError):
         return DraftError.video_link
     if isinstance(ex, InvalidDomainError):
@@ -112,6 +115,17 @@ async def build(
     return await ai.build_recipe(images=images, translate_language=language), True
 
 
+async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:
+    """A draft that waits for the transcript of its recording gets it as its text, and the recording is deleted.
+    An empty transcript counts as no recipe found."""
+    text = (await transcribe(draft.id, draft.source_note or "recording", get_kh_settings())).strip()
+    if not text:
+        raise NoRecipeDataError()
+    set_fields(session, draft.id, source_text=text)
+    media_path(draft.id).unlink()
+    return draft.model_copy(update={"source_text": text})
+
+
 async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdInDB, translator: Translator) -> None:
     """Runs after the response: recognizes a working draft and stores the result as ready, with hints on
     possible duplicates, or the reason as failed."""
@@ -123,6 +137,8 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
         ai = AIRecipeService(repos, user, household, translator=translator)
         used_providers.set([])  # the priority list notes each provider that answers (D39)
         try:
+            if draft.source_type == DraftSource.text and not draft.source_text and media_path(draft_id).exists():
+                draft = await transcribe_recording(draft, session)
             recipe, used_ai = await build(draft, ai, repos, translator)
             amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)

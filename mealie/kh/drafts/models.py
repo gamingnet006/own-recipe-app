@@ -40,6 +40,7 @@ class KhDraft(SqlAlchemyBase, BaseMixins):
     source_url: Mapped[str | None] = mapped_column(sa.String)
     source_url_normalized: Mapped[str | None] = mapped_column(sa.String, index=True)
     source_text: Mapped[str | None] = mapped_column(sa.Text)
+    source_note: Mapped[str | None] = mapped_column(sa.String)  # P7.3: the file name of a recording
     original_files: Mapped[list[str]] = mapped_column(JSON, default=list)
     recipe: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     warnings: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)

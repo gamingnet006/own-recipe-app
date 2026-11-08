@@ -33,6 +33,7 @@ export interface KhDraft {
   userName: string;
   status: KhDraftStatus;
   sourceType: KhDraftSource;
+  sourceNote: string | null; // the file name of a recording (P7.3)
   sourceUrl: string | null;
   sourceUrlNormalized: string | null;
   sourceText: string | null;

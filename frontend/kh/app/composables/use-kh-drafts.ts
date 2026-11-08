@@ -99,6 +99,7 @@ export function errorText(code: string, t: Translate): string {
 export function draftTitle(draft: KhDraft): string {
   if (draft.recipe?.name) return draft.recipe.name;
   if (draft.sourceUrl) return draft.sourceUrl.replace(/^https?:\/\/(?:www\.)?/, "");
+  if (draft.sourceNote) return draft.sourceNote;
   const firstLine = (draft.sourceText ?? "").trim().split("\n")[0] ?? "";
   return firstLine.length > TITLE_LENGTH ? `${firstLine.slice(0, TITLE_LENGTH)}…` : firstLine;
 }

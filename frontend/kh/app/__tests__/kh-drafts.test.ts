@@ -98,6 +98,13 @@ describe("texts", () => {
     expect(errorText("something_new", t)).toBe(t("kh.drafts.error.unknown"));
   });
 
+  test("the recording errors have their own texts, a recording is titled by its file name", () => {
+    for (const code of ["whisper_unreachable", "whisper_timeout", "whisper_failed", "media_too_large", "media_not_configured", "not_audio_video"]) {
+      expect(errorText(code, t)).toBe(`kh.drafts.error.${code}`);
+    }
+    expect(draftTitle({ recipe: null, sourceUrl: null, sourceNote: "oma.m4a", sourceText: null } as KhDraft)).toBe("oma.m4a");
+  });
+
   test("the origin names the source, the day and who added it", () => {
     const origin = { sourceType: "image", createdAt: "2026-10-31T09:30:00", userName: "Alex" } as KhOrigin;
     const day = () => "31.10.2026";

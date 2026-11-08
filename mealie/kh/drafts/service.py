@@ -36,6 +36,7 @@ from mealie.kh.drafts.schemas import (
     OriginOut,
 )
 from mealie.kh.drafts.video import is_video_link
+from mealie.kh.drafts.whisper import store_media
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
@@ -43,6 +44,8 @@ from mealie.schema.household.household import HouseholdInDB
 from mealie.schema.recipe.recipe import Recipe
 from mealie.schema.user.user import PrivateUser
 from mealie.services.recipe.recipe_service import RecipeService
+
+MAX_NOTE = 200  # longest file name kept as a draft's note
 
 
 def bad_request(code: str) -> HTTPException:
@@ -66,13 +69,25 @@ class DraftService:
         self.repo = drafts_repo(session, user.group_id, user.household_id)
         self.settings = get_kh_settings()
 
-    def _source(self, url: str | None, text: str | None, images: list[UploadFile]) -> DraftSource:
-        """The one source of a new draft; anything else is answered with 400 before something is stored."""
+    def _source(
+        self, url: str | None, text: str | None, images: list[UploadFile], media: UploadFile | None
+    ) -> DraftSource:
+        """The one source of a new draft; anything else is answered with 400 before something is stored. A
+        recording is a text source: its transcript becomes the text."""
         given = [
             kind
-            for kind, present in ((DraftSource.link, url), (DraftSource.text, text), (DraftSource.image, images))
+            for kind, present in (
+                (DraftSource.link, url),
+                (DraftSource.text, text),
+                (DraftSource.text, media),
+                (DraftSource.image, images),
+            )
             if present
         ]
+        if media and not self.settings.whisper_url:
+            raise bad_request("media_not_configured")
+        if media and not (media.content_type or "").startswith(("audio/", "video/")):
+            raise bad_request("not_audio_video")
         if url and is_video_link(url):  # never fetched (D5): text or photos that come along are the source
             given.remove(DraftSource.link)
             if not given:
@@ -87,10 +102,12 @@ class DraftService:
             raise bad_request("text_too_long")
         return given[0]
 
-    def create(self, url: str | None, text: str | None, images: list[UploadFile]) -> DraftOut:
-        """Stores a new draft as working, with its originals; the route starts the recognition."""
+    def create(
+        self, url: str | None, text: str | None, images: list[UploadFile], media: UploadFile | None = None
+    ) -> DraftOut:
+        """Stores a new draft as working, with its originals or its recording; the route starts the recognition."""
         url, text = (url or "").strip() or None, (text or "").strip() or None
-        source = self._source(url, text, images)
+        source = self._source(url, text, images, media)
         try:
             prepared = [prepare_original(upload.file.read(), self.settings.draft_max_image_mb) for upload in images]
         except ValueError as error:
@@ -105,8 +122,11 @@ class DraftService:
                 "source_url": url,
                 "source_url_normalized": normalize_url(url) if url else None,
                 "source_text": text,
+                "source_note": Path(media.filename or "").name[:MAX_NOTE] if media else None,
             }
         )
+        if media:
+            self._keep_recording(draft.id, media)
         if not prepared:
             return draft
         try:
@@ -117,6 +137,17 @@ class DraftService:
             raise
         set_fields(self.session, draft.id, original_files=names)
         return self.get(draft.id)
+
+    def _keep_recording(self, draft_id: UUID4, media: UploadFile) -> None:
+        """Stores the recording with the draft; too big or unwritable removes the draft again."""
+        try:
+            store_media(draft_id, media.file, self.settings.draft_max_media_mb)
+        except (ValueError, OSError) as error:
+            remove_draft_dir(draft_id)
+            self.repo.delete(draft_id)
+            if isinstance(error, ValueError):
+                raise bad_request(str(error)) from error
+            raise
 
     def mark_stale(self) -> None:
         """Drafts that stayed working too long, e.g. after a restart mid-recognition, become failed."""

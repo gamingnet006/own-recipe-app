@@ -53,6 +53,8 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
             "clockShortcutUrl": None,
+            "media": False,
+            "profile": "leicht",
         }
 
 
