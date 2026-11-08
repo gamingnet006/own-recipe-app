@@ -212,12 +212,12 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 4 · Kochmodus (v0.3)
 
-- [ ] Zeiten im Schritttext erkennen und anklickbar machen (auch „20–30 Min.“ und „eine halbe Stunde“).
-- [ ] Mengen neben Zutaten im Schritttext: Nennt ein Schritt eine Zutat ohne Menge („die Butter schmelzen“), steht ihre Menge passend zum gewählten Faktor dabei, etwa „die Butter (200 g) schmelzen“. Der Text bleibt unverändert; die Darstellung wird vor dem Bau abgestimmt (D41).
-- [ ] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
-- [ ] Große Tasten und Wischen für Weiter und Zurück (D42).
+- [x] Zeiten im Schritttext erkennen und anklickbar machen (auch „20–30 Min.“ und „eine halbe Stunde“).
+- [x] Mengen neben Zutaten im Schritttext: Nennt ein Schritt eine Zutat ohne Menge („die Butter schmelzen“), steht ihre Menge passend zum gewählten Faktor dabei, etwa „die Butter (200 g) schmelzen“. Der Text bleibt unverändert; die Darstellung wird vor dem Bau abgestimmt (D41).
+- [x] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
+- [x] Große Tasten und Wischen für Weiter und Zurück (D42).
 - [ ] Sprachbefehle mit Vosk im Browser, als `v0.3.1` nach T2 (D42).
-- [ ] Offline-Rezepte: die letzten 30 geöffneten (Web-App, dafür ist HTTPS nötig; steht seit Phase 1; D42).
+- [x] Offline-Rezepte: die letzten 30 geöffneten (Web-App, dafür ist HTTPS nötig; steht seit Phase 1; D42).
 - **Fertig wenn:** Auf dem iPhone klingelt ein Timer bei gesperrtem Handy, und die Tasten führen durch die Schritte; „weiter“ per Sprache folgt mit `v0.3.1`.
 
 ### Phase 5 · Familienkochbuch und Teilen (v0.4)

@@ -182,6 +182,16 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
   - Zeiten bleiben fest. Bei mehr als dem Doppelten oder weniger als der Hälfte erinnert ein Hinweis daran, dass sich Back- und Garzeiten ändern können.
 - Ältere Rezepte bleiben, wie sie sind; ihre Zutaten zerlegst du beim Bearbeiten mit **Zutaten parsen**. Wird ein Schritt später umgeschrieben oder verschoben, wandert seine Verknüpfung mit; fehlt die Menge danach, fällt sie weg.
 
+### Kochen
+
+**Kochen starten** unten auf dem Rezept zeigt jeweils einen Schritt in großer Schrift (D42):
+
+- **Weiter** und **Zurück** unten, oder nach links und rechts wischen (am Computer die Pfeiltasten und die Leertaste). Der Balken oben zeigt, wo du stehst; bis 12 Schritte ist er in Abschnitte geteilt, auf die du tippen kannst. Die Adresse merkt sich den Schritt, ein Neuladen bleibt also beim Schritt.
+- **Du brauchst:** nennt die Zutaten dieses Schritts. Steht eine Zutat nur in diesem Schritt, steht ihre Menge dabei, sonst nur der Name. In Zutaten und Schritten stehen die Mengen mit, auch umgerechnet.
+- **Alle Schritte** zeigt Mealies Liste mit allen Schritten und Zutaten; ein Tipp hakt einen Schritt ab wie gewohnt. **Schritt für Schritt** führt zurück zum aktuellen Schritt, **✕** verlässt den Kochmodus. Der Bildschirm bleibt an; kann das Gerät das nicht, steht ein Hinweis zur automatischen Sperre da.
+- **Zeiten und Timer:** Zeiten im Text („10 Min.“, „1,5 Stunden“, „20–30 Min.“) sind antippbar und starten einen Timer. Bei einem Bereich klingelt er am unteren Ende; „noch 10 Min.“ läuft bis zum oberen weiter. Mehrere Timer laufen gleichzeitig, mit Pause und Stopp. Sie überleben Sperren, Neuladen und Seitenwechsel und stehen als schmale Leiste auf jeder Seite; ist einer abgelaufen, klingelt und vibriert das Gerät (höchstens 2 Minuten), bis du **Aus** tippst. Das klappt, solange die App offen ist. Bei gesperrtem Handy hilft der Uhr-Timer (nächster Abschnitt, „Uhr-Timer per Kurzbefehl“). Zeiten wachsen beim Umrechnen nicht mit.
+- **Offline:** Die zuletzt geöffneten 30 Rezepte und ihre Fotos bleiben auf dem Gerät und öffnen sich auch ohne Netz, mit dem Hinweis „Offline: gespeicherte Fassung“. Beim Abmelden werden sie gelöscht, damit auf einem geteilten Gerät nichts liegen bleibt.
+
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
@@ -199,7 +209,7 @@ Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Ei
 
 ### Uhr-Timer per Kurzbefehl (iPhone und iPad)
 
-Ein Timer in der App klingelt nur, solange der Kochmodus offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
+Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
 
 1. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name „KH Timer“:
    - Aktion **Zahlen aus Eingabe abrufen**, Quelle **Kurzbefehleingabe**.
@@ -428,6 +438,16 @@ A badge on the saved recipe shows where it came from, with **View original**.
   - Times stay fixed. Above double or below half, a hint reminds you that baking and cooking times may change.
 - Older recipes stay as they are; split their ingredients with **Parse ingredients** while editing. If a step is rewritten or moved later, its link moves with it; if the amount is gone afterwards, the link goes.
 
+### Cooking
+
+**Start cooking** at the bottom of a recipe shows one step at a time in large type (D42):
+
+- **Next** and **Back** at the bottom, or swipe left and right (on a computer the arrow keys and the space bar). The bar at the top shows where you are; up to 12 steps it is split into segments you can tap. The address remembers the step, so a reload stays on it.
+- **You need:** lists the ingredients of this step. An ingredient that appears only in this step shows its amount, otherwise just the name. Ingredients and steps show the amounts, scaled too.
+- **All steps** shows Mealie's list of all steps and ingredients; a tap ticks a step off as usual. **Step by step** returns to the current step, **✕** leaves cook mode. The screen stays on; if the device cannot do that, a hint about the automatic lock shows.
+- **Times and timers:** times in the text ("10 Min.", "1,5 Stunden", "20–30 Min.") can be tapped and start a timer. For a range it rings at the lower end; "10 more min." runs on to the upper end. Several timers run at once, with pause and stop. They survive locking, reloading and changing pages and show as a thin bar on every page; when one runs out, the device rings and vibrates (for 2 minutes at most) until you tap **Off**. That works while the app is open. On a locked phone use the Clock timer (next section, "Clock timer via shortcut"). Times do not grow when you scale.
+- **Offline:** the last 30 recipes you opened and their photos stay on the device and open without a network, with the hint "Offline: saved version". Signing out deletes them, so nothing stays on a shared device.
+
 ### Share shortcut (iPhone and iPad)
 
 With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
@@ -445,7 +465,7 @@ Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake
 
 ### Clock timer via shortcut (iPhone and iPad)
 
-A timer in the app rings only while cook mode is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
+A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
 
 1. **Build the shortcut** once in the **Shortcuts** app with **+**, named "KH Timer":
    - Action **Get Numbers from Input**, source **Shortcut Input**.

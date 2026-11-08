@@ -4,6 +4,23 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+Cook mode (Phase 4, D41, D42):
+
+- Cook mode shows one step at a time in large type with big Back and Next buttons, swipe and arrow keys, a bar of
+  segments (up to 12 steps) and the ingredients of the step ("You need:"). "All steps" shows Mealie's list; the screen
+  stays on while you cook.
+- Amounts stand next to ingredient names in the steps ("melt the butter (200 g)"), following the chosen factor; the
+  stored text never changes.
+- Times in the steps ("10 Min.", "1,5 Stunden", "20-30 Min.", "eine halbe Stunde") can be tapped and start a timer.
+  Several timers run at once and survive sleep, reloads and page changes; a thin bar shows them on every page, and a
+  timer that runs out rings and vibrates until "Off" (2 minutes at most). A range rings at the lower end and offers
+  "more min." up to the upper end.
+- Optional "Put on the clock" button hands a timer to the iPhone's Clock app through a Shortcut named "KH Timer"
+  (More -> Timer), so it rings on a locked phone, too.
+- The last 30 recipes you opened and their photos open offline, with a hint; signing out deletes them.
+
 ## [v0.2] - 2026-11-08
 
 The new interface (D38): everyday use first, in the look "Salbei", with a calm recipe page.
