@@ -5,10 +5,16 @@ import axios from "axios";
 export interface KhFeatures {
   shareLinks: boolean;
   noticePollMinutes: number; // how often the bell asks for new notices (D39)
+  sourceUrl: string; // where the source of this fork can be read (AGPL), from KH_SOURCE_URL
   clockShortcutUrl: string | null; // ready-made Clock timer shortcut to add, null while not configured (D42)
 }
 
-const ALL_HIDDEN: KhFeatures = { shareLinks: false, noticePollMinutes: 5, clockShortcutUrl: null };
+const ALL_HIDDEN: KhFeatures = {
+  shareLinks: false,
+  noticePollMinutes: 5,
+  sourceUrl: "https://github.com/gamingnet006/own-recipe-app",
+  clockShortcutUrl: null,
+};
 
 export default defineNuxtPlugin({
   async setup() {

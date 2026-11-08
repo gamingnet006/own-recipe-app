@@ -41,7 +41,7 @@ function everyTarget(): KhNavTarget[] {
   const { plan, collection } = moreSections("familie", "u1");
   const all = [...barTargets("familie", "/shopping-lists"), ...sidebarTargets("familie", "/shopping-lists"), ...plan,
     ...collection];
-  all.push(...settingsTargets({ canOrganize: true, admin: true }));
+  all.push(...settingsTargets({ canOrganize: true, admin: true }, "familie"));
   return all.flatMap(target => [target, ...(target.children ?? [])]);
 }
 
@@ -73,9 +73,11 @@ describe("destinations", () => {
   });
 
   test("the settings follow the user's rights", () => {
-    expect(settingsTargets({}).map(target => target.key)).toEqual(["profile"]);
-    expect(settingsTargets({ canOrganize: true, admin: true }).map(target => target.key))
-      .toEqual(["profile", "data", "admin"]);
+    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "about"]);
+    expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
+      .toEqual(["profile", "data", "admin", "system", "about"]);
+    expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
+      .toEqual(["/g/familie/systempruefung", "/g/familie/ueber"]);
   });
 
   test("every destination has one of Mealie's icons and a text", () => {

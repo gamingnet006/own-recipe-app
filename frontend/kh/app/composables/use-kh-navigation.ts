@@ -6,7 +6,7 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 const SHOPPING_LISTS = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system";
 
 export type KhTab = "recipes" | "intake" | "shopping" | "more";
 
@@ -45,6 +45,8 @@ function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LIS
     profile: target("profile", "/user/profile", "cog", "profile.user-settings"),
     data: target("data", "/group/data", "manageData", "data-pages.data-management"),
     admin: target("admin", "/admin/site-settings", "wrench", "settings.admin-settings"),
+    about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
+    system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
   };
 }
 
@@ -76,10 +78,15 @@ export function moreSections(groupSlug: string, userId: string): { plan: KhNavTa
   };
 }
 
-/** The settings pages this user may open, as in Mealie's side menu. */
-export function settingsTargets(user: { canOrganize?: boolean; admin?: boolean }): KhNavTarget[] {
-  const all = allTargets("", "");
-  return [all.profile, ...(user.canOrganize ? [all.data] : []), ...(user.admin ? [all.admin] : [])];
+/** The settings pages this user may open, as in Mealie's side menu, plus our system check (admins) and About page. */
+export function settingsTargets(user: { canOrganize?: boolean; admin?: boolean }, groupSlug: string): KhNavTarget[] {
+  const all = allTargets(groupSlug, "");
+  return [
+    all.profile,
+    ...(user.canOrganize ? [all.data] : []),
+    ...(user.admin ? [all.admin, all.system] : []),
+    all.about,
+  ];
 }
 
 /** The tab of the bar a page belongs to; whatever is not recipes, intake or shopping list sits under More. */

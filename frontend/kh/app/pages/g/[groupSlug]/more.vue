@@ -137,7 +137,7 @@ everything the side menu holds on bigger screens. -->
     <p class="text-center text-body-2 text-medium-emphasis">
       {{ $appInfo.brandingName }} ·
       <a :href="MEALIE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.based-on-mealie") }}</a> ·
-      <a :href="SOURCE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
+      <a :href="$khFeatures.sourceUrl" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
 
     <UserInviteDialog v-model="inviteDialog" />
@@ -157,8 +157,7 @@ definePageMeta({
   middleware: ["auth", "group-only"],
 });
 
-// Where the source of this fork and of Mealie can be read (AGPL)
-const SOURCE_URL = "https://github.com/gamingnet006/own-recipe-app";
+// Where the source of Mealie can be read (AGPL); this fork's comes from KH_SOURCE_URL
 const MEALIE_URL = "https://github.com/mealie-recipes/mealie";
 
 const i18n = useI18n();
@@ -188,7 +187,9 @@ const sections = computed(() => {
     { title: "kh.nav.collection", targets: collection },
   ];
 });
-const settings = computed(() => settingsTargets({ canOrganize: user.value?.canOrganize, admin: user.value?.admin }));
+const settings = computed(() =>
+  settingsTargets({ canOrganize: user.value?.canOrganize, admin: user.value?.admin }, route.params.groupSlug as string),
+);
 
 /** One of Mealie's icons by its name in the list of destinations. */
 function icon(name: string): string {

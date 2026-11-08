@@ -253,6 +253,8 @@
         </template>
       </v-card>
     </section>
+    <!-- KH: the checkbox for automatic updates (P8.2) -->
+    <KhAutoUpdate />
   </v-container>
 </template>
 

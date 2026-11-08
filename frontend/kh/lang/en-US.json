@@ -91,7 +91,9 @@
       "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review",
       "duplicates": "Duplicate recipes",
       "nutrition": "Nutrition",
-      "tolerance": "I do not tolerate"
+      "tolerance": "I do not tolerate",
+      "about": "About Küchenhelfer",
+      "system": "System check"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -338,6 +340,87 @@
         "replacement": "Replacement",
         "allergen": "Allergen",
         "rule-add": "Add rule"
+      }
+    },
+    "about": {
+      "title": "About Küchenhelfer",
+      "version": "Version {version}",
+      "built-on": "Küchenhelfer is built on Mealie.",
+      "copyright": "Mealie: Copyright © Hayden and the Mealie contributors, licensed under AGPL-3.0.",
+      "license": "Küchenhelfer is licensed under the AGPL-3.0 as well.",
+      "source": "View the source code",
+      "notices": "Third-party components",
+      "notices-missing": "The list of third-party components is not part of this installation.",
+      "failed": "The details could not be loaded."
+    },
+    "system": {
+      "description": "One traffic light per item. Nothing is changed here.",
+      "on": "on",
+      "off": "off",
+      "failed": "The system check could not be loaded.",
+      "rows": {
+        "version": {
+          "info": "Version: {value}"
+        },
+        "database": {
+          "info": "Database: {value}"
+        },
+        "disk": {
+          "ok": "Free space: {value}",
+          "warn": "Little free space: {value}",
+          "bad": "Almost no free space left: {value}"
+        },
+        "backup": {
+          "ok": "Last backup: {value}",
+          "warn": "Last backup is older than 2 days: {value}",
+          "bad": "Last backup is older than 7 days: {value}",
+          "none": "There is no backup yet."
+        },
+        "ai": {
+          "ok": "AI provider set up ({value})",
+          "warn": "No AI provider set up yet"
+        },
+        "signup": {
+          "ok": "Self-registration is off",
+          "bad": "Self-registration is on, please switch it off"
+        },
+        "defaultAccount": {
+          "ok": "The default account is no longer in use",
+          "bad": "The default account (changeme@example.com) still exists, please replace it"
+        },
+        "autoUpdate": {
+          "ok": "Automatic updates are on.",
+          "warn": "Automatic updates are off.",
+          "info": "Automatic updates: .env decides.",
+          "bad": "The last automatic update failed:"
+        },
+        "nutrition": {
+          "ok": "Nutrition table loaded ({value} foods)",
+          "bad": "Nutrition table is missing"
+        },
+        "telegram": {
+          "info": "Telegram bot: {value}"
+        },
+        "whisper": {
+          "info": "Speech recognition (Whisper): {value}"
+        }
+      },
+      "start": {
+        "title": "First steps",
+        "ai": "Set up an AI provider",
+        "accounts": "Create family accounts",
+        "backup": "Check the backup location",
+        "tunnel": "Access from outside (guide)",
+        "shortcut": "Share shortcut (guide)"
+      },
+      "auto-update": {
+        "title": "Automatic updates",
+        "label": "Update to the newest stable version every night",
+        "hint": "Takes effect at the next nightly run. Without a saved choice, KH_AUTO_UPDATE in .env decides.",
+        "env": "Not set yet: KH_AUTO_UPDATE in .env decides.",
+        "last": "Last run: {status}",
+        "never": "No run yet.",
+        "failed": "The checkbox could not be saved."
       }
     }
   }

@@ -91,7 +91,9 @@
       "drafts-waiting": "1 Entwurf wartet auf Prüfung | {count} Entwürfe warten auf Prüfung",
       "duplicates": "Doppelte Rezepte",
       "nutrition": "Nährwerte",
-      "tolerance": "Ich vertrage nicht"
+      "tolerance": "Ich vertrage nicht",
+      "about": "Über Küchenhelfer",
+      "system": "Systemprüfung"
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -338,6 +340,87 @@
         "replacement": "Ersatz",
         "allergen": "Allergen",
         "rule-add": "Regel hinzufügen"
+      }
+    },
+    "about": {
+      "title": "Über Küchenhelfer",
+      "version": "Version {version}",
+      "built-on": "Küchenhelfer baut auf Mealie auf.",
+      "copyright": "Mealie: Copyright © Hayden und die Mealie-Mitwirkenden, Lizenz AGPL-3.0.",
+      "license": "Küchenhelfer steht ebenfalls unter der AGPL-3.0.",
+      "source": "Quellcode ansehen",
+      "notices": "Fremde Bausteine",
+      "notices-missing": "Die Liste der Fremd-Bausteine ist in dieser Installation nicht enthalten.",
+      "failed": "Die Angaben konnten nicht geladen werden."
+    },
+    "system": {
+      "description": "Eine Ampel pro Punkt. Hier wird nichts verändert.",
+      "on": "an",
+      "off": "aus",
+      "failed": "Die Systemprüfung konnte nicht geladen werden.",
+      "rows": {
+        "version": {
+          "info": "Version: {value}"
+        },
+        "database": {
+          "info": "Datenbank: {value}"
+        },
+        "disk": {
+          "ok": "Freier Speicher: {value}",
+          "warn": "Wenig freier Speicher: {value}",
+          "bad": "Fast kein Speicher mehr frei: {value}"
+        },
+        "backup": {
+          "ok": "Letztes Backup: {value}",
+          "warn": "Letztes Backup ist älter als 2 Tage: {value}",
+          "bad": "Letztes Backup ist älter als 7 Tage: {value}",
+          "none": "Es gibt noch kein Backup."
+        },
+        "ai": {
+          "ok": "KI-Anbieter eingerichtet ({value})",
+          "warn": "Noch kein KI-Anbieter eingerichtet"
+        },
+        "signup": {
+          "ok": "Selbstregistrierung ist aus",
+          "bad": "Selbstregistrierung ist an, bitte ausschalten"
+        },
+        "defaultAccount": {
+          "ok": "Das Standard-Konto ist nicht mehr in Gebrauch",
+          "bad": "Das Standard-Konto (changeme@example.com) gibt es noch, bitte ersetzen"
+        },
+        "autoUpdate": {
+          "ok": "Automatische Updates sind an.",
+          "warn": "Automatische Updates sind aus.",
+          "info": "Automatische Updates: .env entscheidet.",
+          "bad": "Das letzte automatische Update ist fehlgeschlagen:"
+        },
+        "nutrition": {
+          "ok": "Nährwert-Tabelle geladen ({value} Lebensmittel)",
+          "bad": "Nährwert-Tabelle fehlt"
+        },
+        "telegram": {
+          "info": "Telegram-Bot: {value}"
+        },
+        "whisper": {
+          "info": "Spracherkennung (Whisper): {value}"
+        }
+      },
+      "start": {
+        "title": "Erste Schritte",
+        "ai": "KI-Anbieter einrichten",
+        "accounts": "Familienkonten anlegen",
+        "backup": "Backup-Ort prüfen",
+        "tunnel": "Zugang von unterwegs (Anleitung)",
+        "shortcut": "Kurzbefehl zum Teilen (Anleitung)"
+      },
+      "auto-update": {
+        "title": "Automatische Updates",
+        "label": "Jede Nacht auf die neueste stabile Version aktualisieren",
+        "hint": "Wirkt ab dem nächsten nächtlichen Lauf. Ohne Häkchen-Einstellung entscheidet KH_AUTO_UPDATE in der .env.",
+        "env": "Noch nicht gesetzt: KH_AUTO_UPDATE in der .env entscheidet.",
+        "last": "Letzter Lauf: {status}",
+        "never": "Noch kein Lauf.",
+        "failed": "Das Häkchen ließ sich nicht speichern."
       }
     }
   }
