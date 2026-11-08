@@ -2,7 +2,7 @@
 // servings; stale settings; the empty cookbook.
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
-import { loadCookbookBook, useBookSaving } from "../composables/use-kh-book";
+import { loadCookbookBook, loadRecipeCard, useBookSaving } from "../composables/use-kh-book";
 import { deleteFailureKey, latestRequest, originOf, pairLabel } from "../lib/duplicates";
 import { BOOK_AUTOSAVE_MS, bookRecipes, defaultBookSettings, editorState, fillDefaults, recipeSettings, withRecipe } from "../lib/book";
 import type { KhBookSettings, KhDuplicatePair, KhRecipeFlags } from "../lib/api/books";
@@ -247,6 +247,32 @@ describe("loading a cookbook", () => {
   test("when a recipe failed, nothing is dropped", async () => {
     serve(stored(), ["b"]);
     expect(Object.keys((await load()).settings.recipes).sort()).toEqual(["a", "gone"]);
+  });
+});
+
+describe("loading a recipe card", () => {
+  function serve(found: boolean) {
+    userApi.recipes.getOne.mockResolvedValue(found ? { data: { slug: "kuchen", name: "Kuchen" } } : { data: null });
+    getMock.mockResolvedValue({ data: { kuchen: { ownPhoto: true } } });
+  }
+
+  test("a recipe that cannot be read gives no card", async () => {
+    serve(false);
+    expect(await loadRecipeCard("kuchen", 8)).toBeNull();
+  });
+
+  test("the card has no title page or contents and takes the chosen servings", async () => {
+    serve(true);
+    const card = (await loadRecipeCard("kuchen", 8))!;
+    expect([card.settings.titlePage, card.settings.toc]).toEqual([false, false]);
+    expect(recipeSettings(card.settings, "kuchen").servings).toBe(8);
+    expect(card.flags.kuchen?.ownPhoto).toBe(true);
+  });
+
+  test("without servings, or with 0, the recipe keeps its own", async () => {
+    serve(true);
+    expect((await loadRecipeCard("kuchen", null))!.settings.recipes).toEqual({});
+    expect((await loadRecipeCard("kuchen", 0))!.settings.recipes).toEqual({});
   });
 });
 
