@@ -69,6 +69,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useEventListener, useLocalStorage, useSwipe, useWakeLock } from "@vueuse/core";
 import { SEGMENT_MAX, type KhCook } from "../composables/use-kh-cook";
 import { useKhTimeTap } from "../composables/use-kh-time-tap";
+import { timersListedInStep } from "../composables/use-kh-timers";
 import { khStepDisplay, khStepNeeds } from "../lib/step-text";
 import type { Recipe } from "~/lib/api/types/recipe";
 
@@ -117,8 +118,14 @@ useEventListener(window, "keydown", onKey);
 const lock = useWakeLock();
 const lockFailed = ref(false);
 const lockHintSeen = useLocalStorage("kh-cook-lock-hint-seen", false);
-onMounted(() => lock.request("screen").catch(() => (lockFailed.value = true)));
-onBeforeUnmount(() => lock.release());
+onMounted(() => {
+  timersListedInStep.value = true;
+  lock.request("screen").catch(() => (lockFailed.value = true));
+});
+onBeforeUnmount(() => {
+  timersListedInStep.value = false;
+  lock.release();
+});
 </script>
 
 <style scoped>

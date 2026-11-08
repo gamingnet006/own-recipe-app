@@ -1,6 +1,6 @@
 // KH: the cook-mode timers (D42): one shared list per page, kept in localStorage, each timer remembering its end
 // time (not the seconds left) so sleep and locked screens cannot make it late; plus the alarm and the clock link.
-import { computed, ref, toRef, watch } from "vue";
+import { computed, effectScope, ref, toRef, watch, type EffectScope } from "vue";
 import type { KhTime } from "../lib/times";
 import { uuid4 } from "~/composables/use-utils";
 
@@ -145,6 +145,31 @@ export function startAlarm(): () => void {
     clearInterval(rounds);
     clearTimeout(limit);
   };
+}
+
+let alarmScope: EffectScope | undefined;
+/** True while the step view lists the timers itself; the app-wide bar then stays away. */
+export const timersListedInStep = ref(false);
+
+/** Makes a due timer ring on every page: the one app-wide alarm, rung from the first timer running out until none
+ * is left. Safe to call from many places; only the first call sets it up, so there is never a second alarm. */
+export function useKhAlarm(): void {
+  if (alarmScope) return;
+  const { ringing } = useKhTimers();
+  let stopAlarm: (() => void) | undefined;
+  // Own scope, so the alarm outlives the component that happened to start it.
+  alarmScope = effectScope(true);
+  alarmScope.run(() => {
+    watch(() => ringing.value.length > 0, (ringingNow) => {
+      if (ringingNow) {
+        stopAlarm ??= startAlarm();
+      }
+      else {
+        stopAlarm?.();
+        stopAlarm = undefined;
+      }
+    }, { immediate: true });
+  });
 }
 
 /** The address that starts an iOS Shortcut named NAME with the minutes (rounded up) for the clock app's timer. */

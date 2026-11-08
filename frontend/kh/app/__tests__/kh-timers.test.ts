@@ -188,3 +188,28 @@ describe("the clock shortcut setting", () => {
     expect(await read()).toEqual(standard);
   });
 });
+
+test("only one alarm rings, however often the alarm is requested, and it ends when the timer is stopped", async () => {
+  const vibrate = vi.fn();
+  vi.stubGlobal("navigator", { vibrate });
+  vi.useFakeTimers();
+  const { useKhAlarm, useKhTimers } = await fresh();
+
+  // Every page and the step view ask for the alarm; the timers are never given a clock of their own here.
+  useKhAlarm();
+  useKhAlarm();
+  const timers = useKhTimers();
+  const timer = timers.start(ten, "Schritt 1", "kuchen");
+  await vi.advanceTimersByTimeAsync(ten.seconds * 1000 + 1500);
+  expect(vibrate).toHaveBeenCalled();
+
+  vibrate.mockClear();
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(vibrate).toHaveBeenCalledTimes(3); // one round per second; a second alarm would make it 6
+
+  timers.stop(timer.id);
+  await vi.advanceTimersByTimeAsync(1500); // the list notices the stop within a tick
+  vibrate.mockClear();
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(vibrate).not.toHaveBeenCalled();
+});

@@ -14,6 +14,8 @@
     </AppHeader>
 
     <KhBottomNav v-if="!khWide" />
+    <!-- KH: the running timers and their alarm on every page (D42) -->
+    <KhTimers compact />
     <AppSidebar
       v-if="khWide"
       v-model="sidebar"

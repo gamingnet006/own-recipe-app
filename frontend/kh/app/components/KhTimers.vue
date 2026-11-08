@@ -1,8 +1,8 @@
-<!-- KH: the running timers (D42): a list under the step in cook mode, a thin bar above the bottom bar on the recipe
-page (`compact`). A timer that has run out rings until "Aus" is tapped. -->
+<!-- KH: the running timers (D42): a list under the step in cook mode, a thin bar on every page (`compact`, mounted in
+the default layout). A timer that has run out rings, wherever the user is, until "Aus" is tapped. -->
 <template>
   <v-footer
-    v-if="rows.length"
+    v-if="rows.length && !(compact && timersListedInStep)"
     :app="compact"
     :color="compact ? undefined : 'transparent'"
     class="d-print-none flex-column align-stretch ga-1 pa-2"
@@ -46,14 +46,14 @@ page (`compact`). A timer that has run out rings until "Aus" is tapped. -->
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from "vue";
-import { clockTimerUrl, startAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
+import { computed } from "vue";
+import { clockTimerUrl, timersListedInStep, useKhAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
 
 defineProps<{ compact?: boolean }>();
 
 const route = useRoute();
 const auth = useMealieAuth();
-const { timers, ringing, tick, left, done, pause, resume, stop, extend } = useKhTimers();
+const { timers, tick, left, done, pause, resume, stop, extend } = useKhTimers();
 
 // `tick` makes the list read the clock again every second.
 const rows = computed(() => {
@@ -88,18 +88,7 @@ function format(seconds: number): string {
   return hours ? `${hours}:${rest}` : rest;
 }
 
-// One alarm for all ringing timers, from the first one running out until none is left.
-let stopAlarm: (() => void) | undefined;
-watch(() => ringing.value.length > 0, (ringingNow) => {
-  if (ringingNow) {
-    stopAlarm ??= startAlarm();
-  }
-  else {
-    stopAlarm?.();
-    stopAlarm = undefined;
-  }
-}, { immediate: true });
-onBeforeUnmount(() => stopAlarm?.());
+useKhAlarm();
 </script>
 
 <style scoped>
