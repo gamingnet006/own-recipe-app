@@ -181,6 +181,7 @@
       "you-need": "You need:",
       "leave": "Leave cook mode",
       "no-steps": "This recipe has no steps.",
+      "offline": "Offline: saved version",
       "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
     }
   }

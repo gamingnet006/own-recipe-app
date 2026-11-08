@@ -2,6 +2,7 @@ import { ref, computed, watch } from "vue";
 import type { UserOut } from "~/lib/api/types/user";
 import { clearAllStores } from "~/composables/store";
 import { clearComposableCaches } from "~/composables/use-clear-composable-caches";
+import { clearOfflineCaches } from "~~/kh/app/lib/offline"; // KH: offline recipes (D42)
 import { getTokenCookieOptions, getTokenExpiry, nextRefreshDelay, readTokenCookie } from "~/composables/use-token-cookie";
 
 interface AuthData {
@@ -168,6 +169,7 @@ export const useAuthBackend = function (): AuthState {
 
       // Clear all cached store data to prevent data leakage between users
       clearAllStores();
+      await clearOfflineCaches(); // KH: no recipes stay on a shared device (D42)
 
       // Clear cached composable refs to prevent data leakage between users
       clearComposableCaches();
