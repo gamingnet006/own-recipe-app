@@ -1,0 +1,61 @@
+"""KH: how many grams an ingredient line weighs (D44): its quantity, unit and food against data/weights.json.
+A line that cannot be weighed gives None and is then not counted in the nutrition."""
+
+import json
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
+from mealie.db.models.recipe import IngredientUnitModel
+from mealie.kh.amounts.parse import stem
+from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
+
+WEIGHTS_JSON = Path(__file__).parent / "data" / "weights.json"
+DEFAULT_DENSITY = 1.0  # g per ml for a food the table does not know
+
+
+@lru_cache
+def _weights() -> tuple[dict[str, dict[str, float]], dict[str, dict[str, float]]]:
+    """The units (by normalized name) and the foods (by stem) of weights.json."""
+    data = json.loads(WEIGHTS_JSON.read_text(encoding="utf-8"))
+    units = {IngredientUnitModel.normalize(name): value for name, value in data["units"].items()}
+    foods = {stem(name): value for name, value in data["foods"].items()}
+    return units, foods
+
+
+def food_entry(food_name: str) -> dict[str, float]:
+    """The table's entry (density, piece) for a food name: its whole stem first, then each word's stem, so "Rote
+    Zwiebeln" finds Zwiebel. Empty if the table does not know it."""
+    foods = _weights()[1]
+    for key in [stem(food_name), *[stem(word) for word in food_name.split()]]:
+        if key in foods:
+            return foods[key]
+    return {}
+
+
+def _unit_entry(ingredient: RecipeIngredient) -> dict[str, Any] | None:
+    """The table's entry ({"g": n} or {"ml": n}) for the line's unit, found by name, plural, abbreviation or alias."""
+    unit = ingredient.unit
+    if unit is None:
+        return None
+    names = [unit.name, unit.plural_name, unit.abbreviation, unit.plural_abbreviation]
+    names += [alias.name for alias in unit.aliases]
+    units = _weights()[0]
+    return next((units[n] for n in (IngredientUnitModel.normalize(n) for n in names if n) if n in units), None)
+
+
+def grams_of(ingredient: RecipeIngredient, piece_grams: float | None = None) -> float | None:
+    """The line's weight in grams, or None if it has no quantity, no known unit or no piece weight. PIECE_GRAMS is the
+    food's own piece weight; it goes before the table's."""
+    if not ingredient.quantity or ingredient.quantity <= 0:
+        return None
+    entry = food_entry(ingredient.food.name) if ingredient.food else {}
+    if ingredient.unit is None:  # no unit: pieces
+        piece = piece_grams or entry.get("piece")
+        return ingredient.quantity * piece if piece else None
+    unit = _unit_entry(ingredient)
+    if unit is None:
+        return None
+    if "g" in unit:
+        return ingredient.quantity * unit["g"]
+    return ingredient.quantity * unit["ml"] * entry.get("density", DEFAULT_DENSITY)

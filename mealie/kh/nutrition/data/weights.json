@@ -1,0 +1,249 @@
+{
+ "units": {
+  "g": {
+   "g": 1
+  },
+  "Gramm": {
+   "g": 1
+  },
+  "kg": {
+   "g": 1000
+  },
+  "Kilogramm": {
+   "g": 1000
+  },
+  "ml": {
+   "ml": 1
+  },
+  "Milliliter": {
+   "ml": 1
+  },
+  "l": {
+   "ml": 1000
+  },
+  "Liter": {
+   "ml": 1000
+  },
+  "EL": {
+   "ml": 15
+  },
+  "Esslöffel": {
+   "ml": 15
+  },
+  "TL": {
+   "ml": 5
+  },
+  "Teelöffel": {
+   "ml": 5
+  },
+  "Tasse": {
+   "ml": 240
+  },
+  "Becher": {
+   "g": 200
+  }
+ },
+ "foods": {
+  "Wasser": {
+   "density": 1.0
+  },
+  "Milch": {
+   "density": 1.03
+  },
+  "Sahne": {
+   "density": 1.0
+  },
+  "Joghurt": {
+   "density": 1.03
+  },
+  "Quark": {
+   "density": 1.05
+  },
+  "Öl": {
+   "density": 0.92
+  },
+  "Olivenöl": {
+   "density": 0.92
+  },
+  "Butter": {
+   "density": 0.95
+  },
+  "Essig": {
+   "density": 1.0
+  },
+  "Honig": {
+   "density": 1.4
+  },
+  "Mehl": {
+   "density": 0.55
+  },
+  "Zucker": {
+   "density": 0.85
+  },
+  "Puderzucker": {
+   "density": 0.55
+  },
+  "Salz": {
+   "density": 1.2
+  },
+  "Reis": {
+   "density": 0.8
+  },
+  "Haferflocken": {
+   "density": 0.35
+  },
+  "Speisestärke": {
+   "density": 0.6
+  },
+  "Grieß": {
+   "density": 0.7
+  },
+  "Paniermehl": {
+   "density": 0.45
+  },
+  "Semmelbrösel": {
+   "density": 0.45
+  },
+  "Kakao": {
+   "density": 0.5
+  },
+  "Backpulver": {
+   "density": 0.9
+  },
+  "Sojasauce": {
+   "density": 1.15
+  },
+  "Tomatenmark": {
+   "density": 1.1
+  },
+  "Senf": {
+   "density": 1.05
+  },
+  "Sirup": {
+   "density": 1.4
+  },
+  "Rosinen": {
+   "density": 0.6
+  },
+  "Mandeln": {
+   "density": 0.6
+  },
+  "Wein": {
+   "density": 1.0
+  },
+  "Brühe": {
+   "density": 1.0
+  },
+  "Ei": {
+   "piece": 55
+  },
+  "Eigelb": {
+   "piece": 20
+  },
+  "Eiweiß": {
+   "piece": 35
+  },
+  "Zwiebel": {
+   "piece": 80
+  },
+  "Knoblauchzehe": {
+   "piece": 4
+  },
+  "Apfel": {
+   "piece": 150
+  },
+  "Kartoffel": {
+   "piece": 120
+  },
+  "Zitrone": {
+   "piece": 100
+  },
+  "Limette": {
+   "piece": 70
+  },
+  "Möhre": {
+   "piece": 80
+  },
+  "Karotte": {
+   "piece": 80
+  },
+  "Tomate": {
+   "piece": 100
+  },
+  "Paprika": {
+   "piece": 160
+  },
+  "Gurke": {
+   "piece": 350
+  },
+  "Zucchini": {
+   "piece": 250
+  },
+  "Birne": {
+   "piece": 160
+  },
+  "Banane": {
+   "piece": 120
+  },
+  "Orange": {
+   "piece": 180
+  },
+  "Lauch": {
+   "piece": 200
+  },
+  "Porree": {
+   "piece": 200
+  },
+  "Aubergine": {
+   "piece": 300
+  },
+  "Champignon": {
+   "piece": 20
+  },
+  "Brötchen": {
+   "piece": 50
+  },
+  "Frühlingszwiebel": {
+   "piece": 15
+  },
+  "Chilischote": {
+   "piece": 10
+  },
+  "Süßkartoffel": {
+   "piece": 250
+  },
+  "Fenchel": {
+   "piece": 250
+  },
+  "Avocado": {
+   "piece": 200
+  },
+  "Mango": {
+   "piece": 300
+  },
+  "Kiwi": {
+   "piece": 80
+  },
+  "Pfirsich": {
+   "piece": 150
+  },
+  "Pflaume": {
+   "piece": 40
+  },
+  "Radieschen": {
+   "piece": 15
+  },
+  "Kohlrabi": {
+   "piece": 250
+  },
+  "Mozzarella": {
+   "piece": 125
+  },
+  "Schalotte": {
+   "piece": 25
+  },
+  "Knoblauch": {
+   "piece": 4
+  }
+ }
+}
