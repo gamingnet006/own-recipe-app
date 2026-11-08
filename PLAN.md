@@ -72,6 +72,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D40 | Deutsche Mengen liest Küchenhelfer selbst (`parse_ingredient()`), weil Mealies NLP-Bibliothek deutsche Einheiten nicht erkennt (Probe 4.11.2026); von Mealie kommt nur der Abgleich mit Einheiten und Lebensmitteln der Gruppe. Verknüpfungen im Schritttext nennen ihren Schritt nach Position, weil Mealie bei jedem Speichern neue Schritt-IDs vergibt. | beschlossen |
 | D41 | Mengen neben Zutatennamen im Schritttext („die Butter (200 g) schmelzen“) kommen in Phase 4 (Kochmodus), nicht mehr in `v0.2`; Phase 3 rechnet nur Mengen um, die schon im Schritt stehen (8.11.2026) | beschlossen |
 | D42 | Kochmodus `v0.3` (8.11.2026, Spezifikation `docs/kh/specs/2026-11-08-kochmodus-design.md`), alles wie empfohlen: ein Schritt groß mit großen Tasten und Wischen, „Alle Schritte“ öffnet Mealies Liste, Bildschirmsperre im Kochmodus aus, „✕“ zurück zum Rezept, Balken mit einem Abschnitt je Schritt zum Springen, Zeile „Du brauchst: …“ mit den Zutaten des Schritts, keine Utensilien pro Schritt (E1); Mengen in Klammern hinter der Zutat, nur bei Verknüpfung mit genau diesem Schritt und ohne Menge im Satz, überall wo Schritte stehen (E2); Zeiten werden Timer, bei Spannen bis zur kürzeren Zeit mit „noch … Min.“ (E3); Timer klingelt in der App, dazu „Auf Uhr-Timer legen“ per Kurzbefehl, falls T1 klappt, Push nur wenn nicht (E4); Sprachbefehle erst in `v0.3.1` nach T2 (E5); die letzten 30 geöffneten Rezepte offline, beim Abmelden geleert (E6) | beschlossen |
+| D43 | Familienkochbuch `v0.4` (8.11.2026, Spezifikation `docs/kh/specs/2026-11-08-familienkochbuch-design.md`), alles wie empfohlen: PDF über den Druckdialog, Inhaltsverzeichnis mit Rezeptnummern statt Seitenzahlen (F1); Buch-Editor mit Vorschau pro Mealie-Kochbuch, Einstellungen pro Kochbuch gespeichert (F2, Wunsch nach dem Vorschlag); Rezeptkarte A4 mit demselben Editor (F3); Fotos nur mit der Markierung „Foto ist von uns“ (F4); Umzug über Mealies Migrationen plus Duplikat-Bericht (F5); Umluft-Klammer im Schritt, Menü-Zeitplan später (F6) | beschlossen |
 
 ---
 
@@ -222,10 +223,10 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 5 · Familienkochbuch und Teilen (v0.4)
 
-- [ ] PDF: Rezeptkarte und Familienkochbuch (Auswahl, Inhaltsverzeichnis, freie Schriften, nur eigene Fotos).
+- [ ] PDF: Rezeptkarte und Familienkochbuch mit Buch-Editor und Vorschau (Auswahl, Inhaltsverzeichnis, Systemschrift, nur eigene Fotos; D43).
 - [x] Kurzbefehl für das Teilen-Menü mit einem widerrufbaren Token pro Gerät. (1.11.2026: vorgezogen in `v0.1.1`, D35, D37.)
 - [ ] Umzug: Anleitung für Mealies Migrationen, danach Duplikat-Scan.
-- [ ] Umluft-Umrechner und Menü-Zeitplan.
+- [ ] Umluft-Umrechner (D43); Menü-Zeitplan später, sobald ihn jemand vermisst.
 - **Fertig wenn:** Ein Link über das Teilen-Menü landet als Entwurf in der Prüfansicht und ein Kochbuch mit 10 Rezepten ist als PDF druckbar.
 
 ### Phase 6 · Nährwerte und Allergene (v0.5)
