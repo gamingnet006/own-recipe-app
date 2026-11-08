@@ -20,6 +20,7 @@ All licenses below were checked at the source on 2026-10-31, from the license da
 | cloudflared | 2026.10.1 | Apache-2.0 | image `cloudflare/cloudflared`, [cloudflare/cloudflared](https://github.com/cloudflare/cloudflared) | Tunnel for access from outside without an open router port (D14, D27). The `tunnel` service only starts with `kh/ops/tunnel.sh on`. |
 | distroless base image (Debian 13) | as pinned by cloudflared 2026.10.1 | Debian packages under their own licenses | `gcr.io/distroless/base-debian13`, the base of the cloudflared image | Comes with cloudflared. |
 | Alpine Linux | 3.22 | see the package list below | image `alpine:3.22` | Small base for the backup service (`kh/ops/backup/Dockerfile`, D20, D21). |
+| Bundeslebensmittelschlüssel (BLS) | 4.0 (2025) | CC BY 4.0 | [blsdb.de](https://www.blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip), Max Rubner-Institut | Nutrition values per 100 g in `mealie/kh/nutrition/data/bls.csv` (D44). Citation: Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 – Deutsche Nährstoffdatenbank. Karlsruhe. DOI 10.25826/Data20251217-134202-0. Changed: reduced to 9 values, salt computed from sodium × 2.5. Built by `mealie/kh/nutrition/build_bls.py` from the ZIP with a pinned SHA-256. |
 
 ### Packages in the backup image
 
