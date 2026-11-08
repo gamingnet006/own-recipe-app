@@ -41,8 +41,15 @@ delete one after a confirmation. -->
         </div>
       </div>
       <div class="d-flex flex-wrap ga-2 mt-3">
-        <v-btn variant="tonal" @click="view(pair)">
-          {{ $t("kh.duplicates.view") }}
+        <v-btn
+          v-for="recipe in [pair.a, pair.b]"
+          :key="recipe.slug"
+          variant="tonal"
+          :href="`/g/${route.params.groupSlug as string}/r/${recipe.slug}`"
+          target="_blank"
+          rel="noopener"
+        >
+          {{ $t("kh.duplicates.view", { title: recipe.name }) }}
         </v-btn>
         <v-btn variant="tonal" @click="keepBoth(pair)">
           {{ $t("kh.duplicates.keep-both") }}
@@ -72,7 +79,7 @@ delete one after a confirmation. -->
 
 <script setup lang="ts">
 import { KhBooksApi, type KhDuplicatePair, type KhRecipeRef } from "~~/kh/app/lib/api/books";
-import { originOf, pairLabel } from "~~/kh/app/lib/duplicates";
+import { deleteFailureKey, latestRequest, originOf, pairLabel } from "~~/kh/app/lib/duplicates";
 import { useUserApi } from "~/composables/api";
 import { useRequests } from "~/composables/api/api-client";
 import { alert } from "~/composables/use-toast";
@@ -93,10 +100,14 @@ const loading = ref(true);
 const failed = ref(false);
 const toDelete = ref<KhRecipeRef | null>(null);
 
-/** Looks for pairs again, for the chosen tag. */
+const startRequest = latestRequest();
+
+/** Looks for pairs again, for the chosen tag; the answer to an older request (the tag changed since) is ignored. */
 async function load() {
+  const isCurrent = startRequest();
   loading.value = true;
   const { data } = await books.getDuplicates(tagId.value ?? undefined);
+  if (!isCurrent()) return;
   failed.value = !data;
   pairs.value = data ?? [];
   loading.value = false;
@@ -107,11 +118,6 @@ onMounted(async () => {
   await load();
 });
 watch(tagId, load);
-
-/** Opens both recipes in new tabs. */
-function view(pair: KhDuplicatePair) {
-  for (const recipe of [pair.a, pair.b]) window.open(`/g/${route.params.groupSlug as string}/r/${recipe.slug}`, "_blank");
-}
 
 /** "Keep both": the pair is saved as not a double and leaves the list. */
 async function keepBoth(pair: KhDuplicatePair) {
@@ -126,7 +132,7 @@ async function confirmDelete() {
   toDelete.value = null;
   if (!recipe) return;
   const { error } = await api.recipes.deleteOne(recipe.slug);
-  if (error) alert.error(i18n.t("kh.duplicates.failed"));
+  if (error) alert.error(i18n.t(deleteFailureKey(error.response?.status)));
   else pairs.value = pairs.value.filter(pair => pair.a.slug !== recipe.slug && pair.b.slug !== recipe.slug);
 }
 </script>

@@ -17,3 +17,18 @@ export function originOf(orgUrl: string | null): string | null {
     return null;
   }
 }
+
+/** Starts numbering requests: calling the result begins a request and returns a check that stays true only while no
+ * newer request has begun, so an older answer arriving late can be ignored. */
+export function latestRequest(): () => () => boolean {
+  let newest = 0;
+  return () => {
+    const mine = ++newest;
+    return () => mine === newest;
+  };
+}
+
+/** The message for a recipe that could not be deleted: 403 means somebody else created it. */
+export function deleteFailureKey(status: number | undefined): string {
+  return status === 403 ? "kh.duplicates.delete-forbidden" : "kh.duplicates.failed";
+}

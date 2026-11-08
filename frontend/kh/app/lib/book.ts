@@ -75,6 +75,11 @@ export function fillDefaults(stored: KhBookSettings, cookbookName: string, house
   return { ...stored, title: stored.title ?? defaults.title, subtitle: stored.subtitle ?? defaults.subtitle };
 }
 
+/** SETTINGS without the entries of recipes not among SLUGS, so a recipe that comes back starts with the defaults. */
+export function withoutRecipesOutside(settings: KhBookSettings, slugs: string[]): KhBookSettings {
+  return { ...settings, recipes: Object.fromEntries(Object.entries(settings.recipes).filter(([slug]) => slugs.includes(slug))) };
+}
+
 /** SETTINGS with PATCH applied to the recipe SLUG only (a new object, so a v-model sees the change). */
 export function withRecipe(settings: KhBookSettings, slug: string, patch: Partial<KhBookRecipeSettings>): KhBookSettings {
   return { ...settings, recipes: { ...settings.recipes, [slug]: { ...recipeSettings(settings, slug), ...patch } } };

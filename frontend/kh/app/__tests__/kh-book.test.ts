@@ -2,13 +2,20 @@
 // servings; stale settings; the empty cookbook.
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
-import { useBookSaving } from "../composables/use-kh-book";
-import { originOf, pairLabel } from "../lib/duplicates";
+import { loadCookbookBook, useBookSaving } from "../composables/use-kh-book";
+import { deleteFailureKey, latestRequest, originOf, pairLabel } from "../lib/duplicates";
 import { BOOK_AUTOSAVE_MS, bookRecipes, defaultBookSettings, editorState, fillDefaults, recipeSettings, withRecipe } from "../lib/book";
 import type { KhBookSettings, KhDuplicatePair, KhRecipeFlags } from "../lib/api/books";
 
 const putMock = vi.hoisted(() => vi.fn());
-vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ put: putMock }) }));
+const getMock = vi.hoisted(() => vi.fn());
+const userApi = vi.hoisted(() => ({
+  cookbooks: { getOne: vi.fn() },
+  recipes: { getAll: vi.fn(), getOne: vi.fn() },
+  households: { getCurrentUserHousehold: vi.fn() },
+}));
+vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ put: putMock, get: getMock }) }));
+vi.mock("~/composables/api", () => ({ useUserApi: () => userApi }));
 
 const recipe = (slug: string, name: string, category?: string, extra: object = {}) =>
   ({ slug, name, recipeCategory: category ? [{ name: category }] : [], recipeServings: 4, image: "x", ...extra }) as never;
@@ -143,6 +150,42 @@ describe("autosave", () => {
     stop();
   });
 
+  test("a save that is still running is not overtaken: the latest state follows after it, one at a time", async () => {
+    vi.useFakeTimers();
+    let release!: () => void;
+    putMock.mockImplementationOnce(() => new Promise(resolve => (release = () => resolve({ error: null, data: {} }))));
+    putMock.mockResolvedValue({ error: null, data: {} });
+    const { model, status, stop } = saving();
+    await change(model, "A");
+    await vi.advanceTimersByTimeAsync(BOOK_AUTOSAVE_MS);
+    await change(model, "AB");
+    await vi.advanceTimersByTimeAsync(BOOK_AUTOSAVE_MS);
+    expect(putMock).toHaveBeenCalledTimes(1);
+    release();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(putMock).toHaveBeenCalledTimes(2);
+    expect(putMock.mock.calls[1]![1]).toMatchObject({ title: "AB" });
+    expect(status.value).toBe("saved");
+    stop();
+  });
+
+  test("a change in the last second is saved when the page is left", async () => {
+    vi.useFakeTimers();
+    putMock.mockResolvedValue({ error: null, data: {} });
+    const { model, stop } = saving();
+    await change(model, "A");
+    stop();
+    expect(putMock).toHaveBeenCalledTimes(1);
+    expect(putMock.mock.calls[0]![1]).toMatchObject({ title: "A" });
+  });
+
+  test("leaving the page without a change saves nothing", async () => {
+    vi.useFakeTimers();
+    const { stop } = saving();
+    stop();
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
   test("nothing is saved when saving is not allowed", async () => {
     vi.useFakeTimers();
     const { model, stop } = saving(false);
@@ -166,5 +209,58 @@ describe("duplicate pairs", () => {
     expect(originOf("https://www.example.com/rezept/1")).toBe("example.com");
     expect(originOf(null)).toBeNull();
     expect(originOf("kein link")).toBeNull();
+  });
+});
+
+describe("loading a cookbook", () => {
+  const stale = { include: false, photo: false, servings: 12 };
+  const stored = (over: Partial<KhBookSettings> = {}) => ({ ...defaultBookSettings("Kuchen", "Muster", 2026), recipes: { gone: stale, a: stale }, ...over });
+  /** Answers the book's GETs: SETTINGS for the print route (null: fails), flags empty. */
+  function serve(settingsAnswer: KhBookSettings | null, failing: string[] = []) {
+    userApi.cookbooks.getOne.mockResolvedValue({ data: { id: "c1", name: "Kuchen", householdId: "h1" } });
+    userApi.recipes.getAll.mockResolvedValue({ data: { items: [{ slug: "a" }, { slug: "b" }] } });
+    userApi.recipes.getOne.mockImplementation(async (slug: string) => (failing.includes(slug) ? { data: null } : { data: { slug, name: slug } }));
+    userApi.households.getCurrentUserHousehold.mockResolvedValue({ data: { name: "Muster" } });
+    getMock.mockImplementation(async (url: string) => (url.includes("/print") ? (settingsAnswer ? { data: settingsAnswer } : { data: null, error: new Error("down") }) : { data: {} }));
+  }
+  const load = async () => (await loadCookbookBook("kuchen", "h1")) as Exclude<Awaited<ReturnType<typeof loadCookbookBook>>, null | "error">;
+
+  test("settings that cannot be read give an error, never the defaults to save over them", async () => {
+    serve(null);
+    expect(await loadCookbookBook("kuchen", "h1")).toBe("error");
+  });
+
+  test("recipes that cannot be read are counted, the others stay", async () => {
+    serve(stored(), ["b"]);
+    const book = await load();
+    expect(book.failedRecipes).toBe(1);
+    expect(book.recipes.map(recipe => recipe.slug)).toEqual(["a"]);
+  });
+
+  test("when every recipe loaded, settings of recipes no longer in the cookbook are dropped", async () => {
+    serve(stored());
+    const book = await load();
+    expect(book.failedRecipes).toBe(0);
+    expect(Object.keys(book.settings.recipes)).toEqual(["a"]);
+  });
+
+  test("when a recipe failed, nothing is dropped", async () => {
+    serve(stored(), ["b"]);
+    expect(Object.keys((await load()).settings.recipes).sort()).toEqual(["a", "gone"]);
+  });
+});
+
+describe("duplicate report helpers", () => {
+  test("only the newest request counts as current", () => {
+    const start = latestRequest();
+    const first = start();
+    const second = start();
+    expect(first()).toBe(false);
+    expect(second()).toBe(true);
+  });
+  test("deleting somebody else's recipe (403) has its own message", () => {
+    expect(deleteFailureKey(403)).toBe("kh.duplicates.delete-forbidden");
+    expect(deleteFailureKey(500)).toBe("kh.duplicates.failed");
+    expect(deleteFailureKey(undefined)).toBe("kh.duplicates.failed");
   });
 });

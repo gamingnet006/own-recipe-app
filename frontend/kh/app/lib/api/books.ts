@@ -58,6 +58,7 @@ export class KhBooksApi extends BaseAPI {
   }
 
   /** The own-photo flags of SLUGS; a slug the server does not know is left out. */
+  // ponytail: all slugs go in the URL; about 450+ recipes would hit the 16 KiB header limit, switch to POST then.
   async getFlags(slugs: string[]) {
     return await this.requests.get<Record<string, KhRecipeFlags>>(`${base}/recipes/flags?slugs=${slugs.map(encodeURIComponent).join(",")}`);
   }
