@@ -82,12 +82,15 @@ services:
   # Optional speech recognition for own audio and video files (P7.3, off by default): an OpenAI-compatible Whisper
   # server (speaches, MIT) that runs on the CPU. Start: docker compose --profile whisper up -d whisper, and set
   # KH_WHISPER_URL=http://whisper:8000 in .env. It loads the model of the profile (KH_PROFILE) on first use and
-  # frees the memory again after 5 idle minutes. No open port.
+  # frees the memory again after 5 idle minutes. Reachable from this machine only.
   whisper:
     image: ghcr.io/speaches-ai/speaches:0.8.3-cpu
     profiles: ["whisper"]
     restart: unless-stopped
     mem_limit: ${KH_WHISPER_MEM_LIMIT:-2g}
+    # Only this machine, for kh/ops/hardware_test.sh --audio; the app reaches it as http://whisper:8000
+    ports:
+      - "127.0.0.1:${KH_WHISPER_PORT:-8000}:8000"
     environment:
       TZ: ${KH_TZ:-Europe/Berlin}
       WHISPER__COMPUTE_TYPE: int8

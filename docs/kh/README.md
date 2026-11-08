@@ -288,6 +288,14 @@ Optional und standardmäßig aus (P7.3): Eigene Aufnahmen, zum Beispiel ein Spra
 
 Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 200). Über den Cloudflare Tunnel sind höchstens 100 MB möglich. Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Küchenhelfer nie; es geht nur um deine eigenen Dateien.
 
+### Profile und Hardware-Test
+
+Das Profil sagt Küchenhelfer, wie viel dein Rechner trägt (P7.4). Es steht in `kh/ops/.env` als `KH_PROFILE` (Standard `leicht`) und setzt das Whisper-Modell: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. Im Profil `lokal` startet der Telegram-Bot nicht; Whisper bleibt erlaubt, weil es bei dir läuft. KI-Anbieter solltest du dann nur lokale eintragen (z. B. Ollama); die App weist bei den KI-Anbietern und in der Systemprüfung darauf hin. Die Systemprüfung zeigt das Profil an.
+
+Welches Profil passt, misst `sh kh/ops/hardware_test.sh`: Architektur, Prozessorkerne und Arbeitsspeicher, dazu ein Vorschlag (unter 4 GB oder bis 4 Kerne: `leicht`; ab 8 GB und mehr als 4 Kernen: `normal`; Apple Silicon mit 16 GB oder 8 und mehr Kerne: `stark`). Ein Raspberry Pi landet damit bei `leicht`.
+
+Mit einer eigenen Aufnahme von etwa 1 Minute misst es auch die Spracherkennung: `sh kh/ops/hardware_test.sh --audio memo.m4a`. Der Whisper-Dienst muss laufen; er ist auf diesem Rechner unter `localhost:8000` erreichbar (`KH_WHISPER_PORT`). Ohne `ffprobe` gibst du die Länge mit `--seconds 60` an. Das Ergebnis ist ein Faktor (Dauer der Umwandlung durch Länge der Aufnahme): bis 1 passt das Profil, bis 3 ist es als Hintergrundarbeit brauchbar, darüber nimm das nächstkleinere. Beim ersten Mal lädt der Dienst das Modell; miss danach noch einmal.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -362,10 +370,10 @@ Was Küchenhelfer nach draußen schickt. Telemetrie gibt es keine.
 
 **Profile (`KH_PROFILE` in `kh/ops/.env`, Standard `leicht`):**
 
-- **leicht:** Raspberry Pi und alte Rechner. Text- und Screenshot-Import, Prüfansicht, Kochmodus; keine große lokale KI.
-- **normal:** aktueller Mini-PC oder Mac. Zusätzlich kleines Whisper und kleine lokale KI.
-- **stark:** Apple Silicon oder Mini-PC mit viel Arbeitsspeicher. Großes Whisper und lokale KI.
-- **lokal:** alles auf eigener Hardware, kein Telegram, keine Cloud-KI. Dann verlässt nichts das Haus (Tunnel aus, Updates aus).
+- **leicht:** Raspberry Pi und alte Rechner. Text- und Screenshot-Import, Prüfansicht, Kochmodus; Whisper `tiny`, keine große lokale KI.
+- **normal:** aktueller Mini-PC oder Mac. Zusätzlich Whisper `base` und kleine lokale KI.
+- **stark:** Apple Silicon oder Mini-PC mit viel Arbeitsspeicher. Whisper `small` und lokale KI.
+- **lokal:** alles auf eigener Hardware, kein Telegram, keine Cloud-KI, Whisper `base`. Dann verlässt nichts das Haus (Tunnel aus, Updates aus).
 
 ---
 
@@ -643,6 +651,14 @@ Optional and off by default (P7.3): a Whisper service turns your own recordings,
 
 The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 200). Through the Cloudflare tunnel 100 MB is the most. The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Küchenhelfer never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
 
+### Profiles and hardware test
+
+The profile tells Küchenhelfer how much your machine can carry (P7.4). It lives in `kh/ops/.env` as `KH_PROFILE` (default `leicht`) and sets the Whisper model: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. In the `lokal` profile the Telegram bot does not start; Whisper stays allowed because it runs at your place. You should then enter only local AI providers (e.g. Ollama); the app reminds you at the AI providers and in the system check. The system check shows the profile.
+
+`sh kh/ops/hardware_test.sh` measures which profile fits: architecture, CPU cores and RAM, plus a proposal (under 4 GB or up to 4 cores: `leicht`; from 8 GB and more than 4 cores: `normal`; Apple Silicon with 16 GB or 8 and more cores: `stark`). A Raspberry Pi ends up at `leicht`.
+
+With your own recording of about 1 minute it also measures speech recognition: `sh kh/ops/hardware_test.sh --audio memo.m4a`. The Whisper service must be running; it is reachable on this machine at `localhost:8000` (`KH_WHISPER_PORT`). Without `ffprobe` give the length with `--seconds 60`. The result is a factor (time of the conversion divided by the length of the recording): up to 1 the profile fits, up to 3 it is usable as background work, above that take the next smaller one. The first time the service downloads the model; measure again afterwards.
+
 ### Optional
 
 - **Access from outside** (Cloudflare Tunnel, D27):
@@ -717,7 +733,7 @@ What Küchenhelfer sends out. There is no telemetry.
 
 **Profiles (`KH_PROFILE` in `kh/ops/.env`, default `leicht`):**
 
-- **leicht** (light): Raspberry Pi and old machines. Text and screenshot import, review view, cooking mode; no large local AI.
-- **normal:** current mini PC or Mac. Adds a small Whisper and a small local AI.
-- **stark** (strong): Apple Silicon or a mini PC with a lot of RAM. Large Whisper and local AI.
-- **lokal** (local): everything on your own hardware, no Telegram, no cloud AI. Then nothing leaves the house (tunnel off, updates off).
+- **leicht** (light): Raspberry Pi and old machines. Text and screenshot import, review view, cooking mode; Whisper `tiny`, no large local AI.
+- **normal:** current mini PC or Mac. Adds Whisper `base` and a small local AI.
+- **stark** (strong): Apple Silicon or a mini PC with a lot of RAM. Whisper `small` and local AI.
+- **lokal** (local): everything on your own hardware, no Telegram, no cloud AI, Whisper `base`. Then nothing leaves the house (tunnel off, updates off).

@@ -239,10 +239,10 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 7 · Video, Bots und schwere KI (v0.6)
 
-- [ ] Whisper-Dienst (OpenAI-kompatibel, lokal) nach T3.
+- [x] Whisper-Dienst (OpenAI-kompatibel, lokal) nach T3. (8.11.2026: P7.3 im Paket v0.5; Dienst `whisper` im Profil `whisper`, Image `ghcr.io/speaches-ai/speaches:0.8.3-cpu` (MIT, amd64 und arm64); eigene Audio- und Videodateien werden im Hintergrund transkribiert, Tests mit Fake-Transport; Pi-Probelauf steht noch aus.)
 - [ ] Eingang Video (Teil erledigt, 8.11.2026, P7.2; Rest ist P7.3 Whisper für eigene Dateien): Weg nach T4/D5 ohne Download: Videolinks werden nicht abgerufen, Beschreibung oder Screenshot machen den Entwurf, der Link bleibt Quelle; Mealies yt-dlp ist entfernt (8.11.2026, P7.2; ein Whisper-Weg für eigene Dateien ist P7.3).
 - [x] Telegram-Bot (holt Nachrichten selbst ab, nur erlaubte IDs). (8.11.2026: P7.1 im Paket v0.5; Dienst `telegram` im Profil `telegram`, Tests mit aufgezeichnetem HTTP; Pi-Probelauf und Telegram-Probe von Hand stehen noch aus.)
-- [ ] Profile `leicht`, `normal`, `stark`, `lokal` und Hardware-Test (1 Minute Audio messen, Profil vorschlagen).
+- [x] Profile `leicht`, `normal`, `stark`, `lokal` und Hardware-Test (1 Minute Audio messen, Profil vorschlagen). (8.11.2026: P7.4 im Paket v0.5; `KH_PROFILE` setzt das Whisper-Modell, `kh/ops/hardware_test.sh` misst und schlägt vor; Messung auf dem echten Pi steht noch aus.)
 - **Fertig wenn:** Ein Reel-Link über das Teilen-Menü oder Telegram landet als Entwurf in der Prüfansicht und das Profil `leicht` läuft auf dem Pi.
 
 ### Phase 8 · Betrieb und Veröffentlichung (v1.0)

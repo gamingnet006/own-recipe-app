@@ -60,6 +60,13 @@ def test_no_backup_is_red():
 def test_simple_lights():
     assert checks.ai_check(2) == checks.Check(key="ai", state="ok", value="2")
     assert checks.ai_check(0).state == "warn"
+
+
+def test_profile_row_shows_the_profile_and_warns_about_cloud_ai_in_lokal():
+    assert checks.profile_check("leicht", 2) == checks.Check(key="profile", state="info", value="leicht")
+    assert checks.profile_check("stark", 0).state == "info"
+    assert checks.profile_check("lokal", 0) == checks.Check(key="profile", state="info", value="lokal")
+    assert checks.profile_check("lokal", 1) == checks.Check(key="profile", state="warn", value="lokal")
     assert checks.signup_check(False).state == "ok"
     assert checks.signup_check(True).state == "bad"
     assert checks.default_account_check(False).state == "ok"
@@ -169,7 +176,7 @@ def test_auto_update_route_is_for_admins(api_client: TestClient, unique_user: Te
 def test_system_route_lists_every_row(api_client: TestClient, admin_token, data_dir: Path):
     rows = api_client.get(SYSTEM, headers=admin_token).json()
     assert [row["key"] for row in rows] == [
-        "version", "database", "disk", "backup", "ai", "signup", "defaultAccount", "autoUpdate", "nutrition",
+        "version", "database", "disk", "backup", "ai", "profile", "signup", "defaultAccount", "autoUpdate", "nutrition",
         "telegram", "whisper",
     ]  # fmt: skip
     assert {row["state"] for row in rows} <= {"ok", "warn", "bad", "info"}

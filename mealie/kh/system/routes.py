@@ -65,12 +65,14 @@ class KhSystemController(BaseAdminController):
         """One traffic light per row of the system check; changes nothing."""
         settings, app_settings, folder = get_kh_settings(), get_app_settings(), data_dir()
         now = datetime.now(UTC)
+        providers = len(self.repos.group_ai_providers.get_all())
         rows = [
             checks.version_check(settings.image),
             checks.database_check(app_settings.DB_ENGINE),
             checks.disk_check(shutil.disk_usage(folder).free),
             checks.backup_check(newest_backup(folder / "backups"), now),
-            checks.ai_check(len(self.repos.group_ai_providers.get_all())),
+            checks.ai_check(providers),
+            checks.profile_check(settings.profile, providers),
             checks.signup_check(app_settings.ALLOW_SIGNUP),
             checks.default_account_check(self.repos.users.get_one(app_settings._DEFAULT_EMAIL, "email") is not None),
             checks.auto_update_check(auto_update.read_enabled(folder), auto_update.read_status(folder)),

@@ -2,6 +2,10 @@
   <!-- KH: the AI priority list in Mealie's AI settings (D39): the group's providers top to bottom, each with its state,
        ▲▼ to move it and Mealie's edit and delete buttons -->
   <div>
+    <!-- P7.4: the profile "lokal" keeps everything in the house, so no cloud keys here -->
+    <v-alert v-if="$khFeatures.profile === 'lokal'" type="warning" variant="tonal" density="compact" class="mb-3">
+      {{ $t("kh.ai.profile-lokal") }}
+    </v-alert>
     <p class="text-body-medium mb-3">
       {{ $t("kh.ai.order-hint") }}
     </p>

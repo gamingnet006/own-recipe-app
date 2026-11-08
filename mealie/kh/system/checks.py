@@ -63,6 +63,11 @@ def ai_check(providers: int) -> Check:
     return Check("ai", "ok" if providers else "warn", str(providers))
 
 
+def profile_check(profile: str, ai_providers: int) -> Check:
+    """The profile (P7.4). In "lokal" every AI provider is a hint to check that none of them is a cloud one."""
+    return Check("profile", "warn" if profile == "lokal" and ai_providers else "info", profile)
+
+
 def signup_check(allowed: bool) -> Check:
     """Self-registration must stay off (D22); on is red."""
     return Check("signup", "bad" if allowed else "ok", "on" if allowed else "off")

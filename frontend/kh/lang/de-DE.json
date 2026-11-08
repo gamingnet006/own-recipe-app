@@ -394,6 +394,10 @@
           "ok": "Selbstregistrierung ist aus",
           "bad": "Selbstregistrierung ist an, bitte ausschalten"
         },
+        "profile": {
+          "info": "Profil: {value}",
+          "warn": "Profil: {value}. KI-Anbieter prüfen: Nur lokale (z. B. Ollama) passen, keine Cloud-Schlüssel."
+        },
         "defaultAccount": {
           "ok": "Das Standard-Konto ist nicht mehr in Gebrauch",
           "bad": "Das Standard-Konto (changeme@example.com) gibt es noch, bitte ersetzen"

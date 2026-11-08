@@ -394,6 +394,10 @@
           "ok": "Self-registration is off",
           "bad": "Self-registration is on, please switch it off"
         },
+        "profile": {
+          "info": "Profile: {value}",
+          "warn": "Profile: {value}. Check the AI providers: only local ones (e.g. Ollama) fit, no cloud keys."
+        },
         "defaultAccount": {
           "ok": "The default account is no longer in use",
           "bad": "The default account (changeme@example.com) still exists, please replace it"

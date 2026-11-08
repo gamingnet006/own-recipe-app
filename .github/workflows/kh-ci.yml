@@ -42,6 +42,8 @@ jobs:
         run: sh kh/ops/test_auto_update.sh
       - name: Backup copy script tests
         run: sh kh/ops/test_backup_copy.sh
+      - name: Hardware test script tests
+        run: sh kh/ops/test_hardware_test.sh
       - name: License scan tests
         run: sh kh/ops/test_license_scan.sh
   # Licenses of everything that ships in the image: Python runtime packages (with the pgsql

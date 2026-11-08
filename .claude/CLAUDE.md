@@ -91,6 +91,8 @@ kh/ops/auto_update.sh on|off|status|check|run
 # verschlüsselt), ohne Ordner fragt es nach dem Ort (so lässt er sich auch später wechseln, am Mac per Doppelklick auf
 # kh/ops/backup-ort-aendern.command), "decrypt" öffnet eine verschlüsselte Kopie. Am Mac mini mit echtem Stick in Betrieb
 kh/ops/backup_copy.sh on [<ordner>]|off|status|run|decrypt <datei.zip.age>
+# Passendes Profil vorschlagen; mit --audio <datei> (etwa 1 Minute) auch die Whisper-Geschwindigkeit messen (Phase 7)
+sh kh/ops/hardware_test.sh [--audio <datei> [--seconds <länge>]]
 # Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
@@ -98,7 +100,7 @@ kh/ops/upgrade_test.sh <altes-image> <neues-image>
 # Restore-Test: neuestes oder angegebenes Backup mit restore.sh in eine Wegwerf-Installation einspielen, Rezepte und Dateien vergleichen (Port 9191)
 kh/ops/restore_test.sh [backup.zip]
 # Tests der Betriebs-Skripte (laufen auch in der CI)
-sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh && sh kh/ops/test_backup_copy.sh
+sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh && sh kh/ops/test_backup_copy.sh && sh kh/ops/test_hardware_test.sh
 
 # Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \

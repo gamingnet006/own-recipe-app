@@ -22,6 +22,7 @@ const STATES: Record<string, string[]> = {
   disk: ["ok", "warn", "bad"],
   backup: ["ok", "warn", "bad"],
   ai: ["ok", "warn"],
+  profile: ["info", "warn"],
   signup: ["ok", "bad"],
   defaultAccount: ["ok", "bad"],
   autoUpdate: ["ok", "warn", "info", "bad"],
