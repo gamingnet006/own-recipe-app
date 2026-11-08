@@ -1,0 +1,32 @@
+name: "Küchenhelfer: Idee vorschlagen"
+description: "An idea or wish for Küchenhelfer / Eine Idee oder ein Wunsch für Küchenhelfer"
+title: "[Idee] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Idee vorschlagen** / *Suggest an idea*. Küchenhelfer bleibt kostenlos und privat; Ideen, die das ändern, passen nicht. / Küchenhelfer stays free and private; ideas that change this do not fit.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was möchtest du erreichen? / What do you want to achieve?
+      description: Beschreib die Situation in der Küche, nicht die Lösung. / Describe the situation in the kitchen, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Deine Idee / Your idea
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Steht unter „Mehr → Über Küchenhelfer“. / Shown under "More → About Küchenhelfer".
+      placeholder: v0.5.0
+  - type: input
+    id: device
+    attributes:
+      label: Gerät und Browser / Device and browser

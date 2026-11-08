@@ -1,0 +1,40 @@
+name: "Küchenhelfer: Fehler melden"
+description: "Something does not work in Küchenhelfer / Etwas funktioniert in Küchenhelfer nicht"
+title: "[Fehler] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Fehler melden** / *Report a bug*. Bitte keine Passwörter, Schlüssel oder Tokens einfügen. / Please do not paste passwords, keys or tokens.
+  - type: textarea
+    id: what
+    attributes:
+      label: Was ist passiert? / What happened?
+      description: Was hast du erwartet, was ist stattdessen geschehen? / What did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen / Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Steht unter „Mehr → Über Küchenhelfer“. / Shown under "More → About Küchenhelfer".
+      placeholder: v0.5.0
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Gerät und Browser / Device and browser
+      description: Zum Beispiel iPhone 15 mit Safari, Pi 5 als Server. / For example iPhone 15 with Safari, Pi 5 as server.
+    validations:
+      required: true
