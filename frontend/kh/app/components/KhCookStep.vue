@@ -32,7 +32,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
           <span :class="n - 1 < cook.step.value ? 'kh-done' : n - 1 === cook.step.value ? 'kh-current' : ''" />
         </button>
       </div>
-      <v-progress-linear v-else :model-value="((cook.step.value + 1) / total) * 100" height="8" rounded class="my-2" />
+      <v-progress-linear v-else :model-value="((cook.step.value + 1) / total) * 100" height="4" rounded class="my-2" />
       <p class="text-body-2 text-medium-emphasis">
         {{ $t("kh.cook.step-of", { n: cook.step.value + 1, total }) }}
       </p>
@@ -53,7 +53,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
 
     <KhTimers class="mt-4" />
 
-    <div class="kh-cook-buttons d-flex ga-3 py-3">
+    <div class="kh-cook-buttons d-flex ga-3">
       <v-btn size="x-large" variant="tonal" :disabled="cook.isFirst.value" @click="cook.back()">
         {{ $t("kh.cook.back") }}
       </v-btn>
@@ -113,19 +113,24 @@ onBeforeUnmount(() => {
 <style scoped>
 .kh-cook {
   max-width: 720px;
+  /* room for the fixed buttons, so they never cover the end of the step */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 .kh-segment {
   flex: 1;
   display: flex;
   align-items: center;
-  min-height: 48px;
+  min-height: 24px; /* a thin line, but still easy to tap */
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .kh-segment span {
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
+  height: 4px;
+  border-radius: 2px;
   background: rgba(var(--v-theme-on-surface), 0.15);
 }
 
@@ -152,11 +157,19 @@ onBeforeUnmount(() => {
   padding: 4px 8px;
 }
 
-/* Always within reach, above the bar at the bottom. */
+/* Always at the same place, right above the bar at the bottom, so only that spot of the screen gets touched while
+   cooking (user's wish, 8.11.2026). */
 .kh-cook-buttons {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: var(--v-layout-bottom, 0px);
+  z-index: 5;
+  padding-top: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-inline: max(16px, calc((100% - 720px) / 2));
   background: rgb(var(--v-theme-background));
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
 .kh-cook-buttons .v-btn {

@@ -22,11 +22,11 @@ Stand 8.11.2026. Abgestimmt über die Vorschlagsseite: sechs Entscheidungen E1 b
 - Mealies Kochmodus (`?cook=true`) bleibt der Einstieg; „Kochen starten“ aus `KhCookBar` führt wie bisher hinein.
 - Im Kochmodus zeigt ein neues `KhCookStep` statt Mealies Liste genau einen Schritt.
   - Oben links „✕“: Damit verlässt man den Kochmodus und kommt zurück zur Rezeptseite. Rechts steht „Alle Schritte“.
-  - Darunter ein Balken mit einem Abschnitt je Schritt (8.11.2026, Anregung aus Kitchen Stories): erledigte Schritte gefüllt, der aktuelle betont. Ein Tipp auf einen Abschnitt springt zu diesem Schritt, auch zurück. Daneben „Schritt 3 von 7“. Ab 12 Schritten werden die Abschnitte zu einem durchgehenden Balken, und das Springen geht über „Alle Schritte“.
+  - Darunter ein schmaler Balken (4 px) mit einem Abschnitt je Schritt (8.11.2026, Anregung aus Kitchen Stories): erledigte Schritte gefüllt, der aktuelle betont. Ein Tipp auf einen Abschnitt springt zu diesem Schritt, auch zurück. Daneben „Schritt 3 von 7“. Ab 12 Schritten werden die Abschnitte zu einem durchgehenden Balken, und das Springen geht über „Alle Schritte“.
   - Darunter eine ruhige Zeile „Du brauchst: Butter 200 g · Zucker 150 g“ mit den Zutaten, die mit diesem Schritt verknüpft sind (statt Chips). Die Mengen folgen dem Portionsfaktor. Ist eine Zutat auf mehrere Schritte verteilt, steht dort nur ihr Name ohne Menge, denn die Gesamtmenge würde zu „die Hälfte der Semmelbrösel“ nicht passen. Ohne verknüpfte Zutaten fehlt die Zeile.
   - Kochutensilien pro Schritt gibt es nicht: Mealie kennt Utensilien nur für das ganze Rezept, und die stehen schon auf der Rezeptseite.
   - Dann der Schritttext in großer Schrift, darunter die laufenden Timer.
-  - Unten zwei große Tasten: „Zurück“ (schmal) und „Weiter“ (breit, Akzentfarbe). Im letzten Schritt heißt „Weiter“ „Fertig“ und beendet den Kochmodus.
+  - Unten zwei große Tasten, immer an derselben Stelle direkt über der Leiste unten, auch bei kurzen Schritten (8.11.2026, Wunsch: beim Kochen nur eine Stelle anfassen): „Zurück“ (schmal) und „Weiter“ (breit, Akzentfarbe). Im letzten Schritt heißt „Weiter“ „Fertig“ und beendet den Kochmodus.
 - Wischen nach links geht weiter, nach rechts zurück (`useSwipe` aus `@vueuse/core`, schon vorhanden). Am iPad mit Tastatur gehen auch die Pfeiltasten und die Leertaste.
 - „Alle Schritte“ schaltet auf Mealies Liste um. Ein Tipp auf einen Schritt dort hakt ihn ab wie bisher (8.11.2026, geändert: beim Kochen ist das Abhaken wichtiger als das Springen). Neben Mealies Schließen-Taste steht „Schritt für Schritt“; sie führt zurück in die Schritt-Ansicht, zum aktuellen Schritt.
 - Der aktuelle Schritt steht in der Adresse (`&step=3`), so bleibt er beim Neuladen erhalten.
