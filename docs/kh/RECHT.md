@@ -8,7 +8,7 @@ Stand: 8.11.2026 (v0.5). Status: **erfüllt**, **teilweise**, **offen**.
 | # | Leitplanke | Stand | Was dazu gilt |
 |---|---|---|---|
 | 1 | Nur private Instanzen: keine fremden Rezepte hosten oder ins Repo legen; Quelle mitspeichern; Teilen-Links bewusst | teilweise | Im Repo liegen nur selbst geschriebene Testrezepte (Regel 9 in `.claude/CLAUDE.md`). Mealie speichert die Quelladresse; ob zusätzlich der Autor gespeichert wird, ist noch nicht geprüft. Öffentliche Gruppen und Haushalte sperrt `kh/ops/tunnel.sh on`. |
-| 2 | Kein Downloader im Repo | teilweise | Küchenhelfer liefert keinen eigenen Downloader mit (D5). **Aber:** Mealie selbst hat `yt-dlp` als Abhängigkeit (`pyproject.toml`) und lädt damit in `mealie/services/openai/transcription.py` Audio von Videolinks. Seit v0.5 (P7.2) fängt der Küchenhelfer-Eingang Videolinks vorher ab und ruft sie nicht ab; der Mealie-Weg selbst ist nicht entfernt. Entscheidung offen: abschalten oder entfernen. |
+| 2 | Kein Downloader im Repo | erfüllt | Küchenhelfer liefert keinen Downloader mit (D5). Seit v0.5 (P7.2) ist auch Mealies `yt-dlp` entfernt (nicht mehr in `pyproject.toml` und `uv.lock`); der Mealie-Weg zum Herunterladen von Videoaudio antwortet mit einem Fehler, und Mealies Importwege rufen Links zu Instagram, TikTok, YouTube und Facebook weder ab noch laden sie. Der Küchenhelfer-Eingang (und Bot und Kurzbefehl) bauen den Entwurf aus Text oder Bild, der Link bleibt die Quelle. |
 | 3 | Standardweg ohne Download: Beschreibung einfügen oder Screenshot hochladen | erfüllt (v0.5) | Videolinks zeigen den Hinweis „Videos lädt Küchenhelfer nicht herunter“ und bieten Text- und Bildfeld an (P7.2, D5). |
 | 4 | Lizenzen: AGPL-3.0, Mealies Hinweise bleiben, Quellcode-Link in der Oberfläche, `THIRD_PARTY_NOTICES.md`, keine „source-available“-Teile; Open Food Facts und BLS prüfen | erfüllt | Quellcode-Link unter „Mehr“. Jede eigene Abhängigkeit steht in `docs/kh/THIRD_PARTY_NOTICES.md`. `kh/ops/license_scan.sh` prüft alle Python- und npm-Pakete gegen eine Erlaubt-Liste und läuft in `kh-ci.yml` mit; Ausnahmen mit Grund in `kh/ops/license_exceptions.txt`. BLS 4.0 steht unter CC BY 4.0 und darf mitgeliefert werden (PLAN T5). Open Food Facts (Namensnennung, Share-Alike) ist nur optional und noch nicht eingebaut. |
 | 5 | Keys: nur eigene, keine im Repo, Secret-Scan aktivieren | teilweise | Keys liegen nur in `kh/ops/.env` und in der Datenbank; `.env` und `.secret` stehen in `.gitignore`, die Beispiele haben nur Platzhalter. Der Secret-Scan von GitHub ist noch nicht eingeschaltet (Einstellung im Repo, nicht im Code). |
@@ -20,8 +20,8 @@ Stand: 8.11.2026 (v0.5). Status: **erfüllt**, **teilweise**, **offen**.
 
 ## English summary
 
-- Met: 3 (default way without download), 4 (licenses, scan in CI), 6 (privacy table), 8 (health notes), 9 (own test data), 10 (licence scan).
-- Partly: 1, 2, 5. **Point 2:** Mealie itself still depends on `yt-dlp` and has a code path that downloads audio from video links; since v0.5 the Küchenhelfer intake stops video links before it, but the upstream path is not removed yet.
+- Met: 2 (no downloader: yt-dlp removed in v0.5, video links are neither downloaded nor fetched), 3 (default way without download), 4 (licenses, scan in CI), 6 (privacy table), 8 (health notes), 9 (own test data), 10 (licence scan).
+- Partly: 1, 5.
 - Open: 7 (name and fonts check before any release).
 
 ## Wie man die Liste pflegt

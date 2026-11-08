@@ -1,12 +1,11 @@
-import functools
 import re
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TypedDict
 
 from mealie.core import exceptions
-from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
+from mealie.kh.drafts.video import is_video_link  # KH: one list of video sites
 
 from .openai import OpenAIService
 
@@ -24,22 +23,10 @@ class TranscribedAudio(TypedDict):
     transcription: str
 
 
-@functools.cache
-def get_yt_dlp_extractors() -> list:
-    """Build and cache the yt-dlp extractor list once per process lifetime."""
-    import yt_dlp
-    from yt_dlp.extractor.generic import GenericIE
-
-    return [ie for ie in yt_dlp.extractor.gen_extractors() if ie.working() and not isinstance(ie, GenericIE)]
-
-
 def is_video_url(url: str) -> bool:
-    """Whether yt-dlp recognizes the URL as something it can download."""
+    """KH: whether the URL points at a video site, whose videos Küchenhelfer never downloads (D5)."""
 
-    if not url:
-        return False
-
-    return any(ie.suitable(url) for ie in get_yt_dlp_extractors())
+    return is_video_link(url)
 
 
 def parse_subtitle_content(subtitle_content: str) -> str:
@@ -56,63 +43,9 @@ def parse_subtitle_content(subtitle_content: str) -> str:
 
 
 def download_video(url: str, temp_path: Path) -> TranscribedAudio:
-    """Downloads audio and subtitles from a video URL."""
+    """KH: Küchenhelfer ships no video downloader (D5, RECHT.md point 2); yt-dlp was removed from the dependencies."""
 
-    import yt_dlp
-
-    output_template = temp_path / "mealie"  # No extension here
-
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": str(output_template) + ".%(ext)s",
-        "quiet": True,
-        "writesubtitles": True,
-        "writeautomaticsub": True,
-        "subtitleslangs": SUBTITLE_LANGS,
-        "skip_download": False,
-        "ignoreerrors": True,
-        "postprocessors": [
-            {
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "32",
-            }
-        ],
-        "postprocessor_args": ["-ac", "1"],
-    }
-
-    settings = get_app_settings()
-    if settings.YTDLP_COOKIEFILE:
-        ydl_opts["cookiefile"] = settings.YTDLP_COOKIEFILE
-
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-
-            if info is None:
-                raise exceptions.VideoDownloadError(
-                    "Failed to extract video information. The video may be unavailable or the URL is invalid."
-                )
-
-            sub_path = None
-            for lang in SUBTITLE_LANGS:
-                potential_path = output_template.with_suffix(f".{lang}.vtt")
-                if potential_path.exists():
-                    sub_path = potential_path
-                    break
-
-            return {
-                "audio": output_template.with_suffix(".mp3"),
-                "subtitle": sub_path,
-                "title": info.get("title", ""),
-                "description": info.get("description", ""),
-                "thumbnail_url": info.get("thumbnail") or None,
-                "transcription": "",
-            }
-    except exceptions.VideoDownloadError:
-        raise
-    except Exception as e:
-        raise exceptions.VideoDownloadError(f"Failed to download video: {e}") from e
+    raise exceptions.VideoDownloadError("Küchenhelfer does not download videos")
 
 
 def read_subtitles(video_data: TranscribedAudio) -> str:
