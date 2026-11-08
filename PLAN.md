@@ -407,7 +407,7 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 
 ## 12. Frühe Tests
 
-- [ ] **T1 Timer:** Startet ein Kurzbefehl-Link bei gesperrtem iPhone einen klingelnden Uhr-Timer? Alternativ Server-Timer mit Push.
+- [x] **T1 Timer:** Startet ein Kurzbefehl-Link bei gesperrtem iPhone einen klingelnden Uhr-Timer? Alternativ Server-Timer mit Push. (8.11.2026: ja. Der Link `shortcuts://run-shortcut?name=KH%20Timer&input=text&text=1` aus Safari startet den Uhr-Timer, und er klingelt bei gesperrtem iPhone. Damit kommt „Auf Uhr-Timer legen“ in `v0.3`, Push entfällt; D42.)
 - [ ] **T2 Sprache:** Vosk mit deutschem Modell im Browser auf dem iPhone, mit Küchengeräuschen.
 - [ ] **T3 Whisper-Tempo:** Wie lange dauert 1 Minute Audio auf MacBook, Raspberry Pi und gegebenenfalls Mini-PC?
 - [ ] **T4 Instagram-Weg:** Beschreibung und Screenshot gegen Download, mit eigenen Beispielen.

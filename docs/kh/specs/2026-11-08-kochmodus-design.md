@@ -135,5 +135,5 @@ Auf dem iPhone klingelt ein Timer bei gesperrtem Handy (über den Uhr-Timer) und
 
 ## Offene Punkte
 
-- T1 macht der Nutzer am iPhone. Die Anleitung steht auf der Vorschlagsseite, und das Ergebnis entscheidet über „Auf Uhr-Timer legen“.
+- T1 ist erledigt (8.11.2026, ja): Der Kurzbefehl-Link startet den Uhr-Timer, und der klingelt bei gesperrtem iPhone. „Auf Uhr-Timer legen“ kommt also in `v0.3`.
 - T2 kommt vor `v0.3.1`.
