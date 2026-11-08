@@ -2,6 +2,7 @@
 viewer's own household, corrections that remove a warning, and the warnings map."""
 
 import pytest
+import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
 from tests.kh.nutrition.helpers import new_recipe
@@ -95,3 +96,23 @@ def test_warnings_map_holds_only_recipes_with_warnings(
     set_allergies(api_client, household_member, ["nuts"])
     found = api_client.get(f"{KH}/allergens/warnings", headers=unique_user.token).json()
     assert found[nuts] == ["nuts"] and found[other] == ["nuts"] and plain not in found
+
+
+def test_warnings_map_reads_the_corrections_in_one_query(api_client: TestClient, unique_user: TestUser):
+    """Not one query per recipe (N+1) for the corrections."""
+    for _ in range(3):
+        new_recipe(api_client, unique_user, [(200, "ml", "Milch", "")])
+    set_allergies(api_client, unique_user, ["milk"])
+    seen: list[str] = []
+
+    def count(conn, cursor, statement, parameters, context, executemany):  # noqa: ANN001
+        if "FROM kh_recipe_allergen" in statement:
+            seen.append(statement)
+
+    sa.event.listen(sa.engine.Engine, "before_cursor_execute", count)
+    try:
+        response = api_client.get(f"{KH}/allergens/warnings", headers=unique_user.token)
+    finally:
+        sa.event.remove(sa.engine.Engine, "before_cursor_execute", count)
+    assert len(response.json()) >= 3
+    assert len(seen) == 1

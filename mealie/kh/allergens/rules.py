@@ -16,10 +16,14 @@ RULES_JSON = Path(__file__).parent / "data" / "rules.json"
 
 @cache
 def _rules() -> dict[str, dict[str, list[str]]]:
-    """rules.json: per allergen the words that point to it ("match") and the words that cancel it ("except"). A
-    match starting with "=" must be a whole word (the short "ei"); every other is a lowercase substring, which is
-    how German compounds (Dinkelvollkornmehl) are found."""
-    return json.loads(RULES_JSON.read_text(encoding="utf-8"))
+    """rules.json: per allergen the words that point to it ("match"), the compounds cut out of the text before
+    matching ("except": Buchweizenmehl is no gluten, but Kartoffelbrot still is) and the words that cancel the
+    allergen for the whole text ("cancel": glutenfrei, vegan). A match starting with "=" must be a whole word (the
+    short "ei"); every other is a lowercase substring, which is how German compounds (Dinkelvollkornmehl) are found."""
+    rules = json.loads(RULES_JSON.read_text(encoding="utf-8"))
+    for rule in rules.values():
+        rule["except"].sort(key=len, reverse=True)  # Buchweizenmehl is cut before Buchweizen
+    return rules
 
 
 def _normalized(text: str) -> str:
@@ -36,13 +40,16 @@ def text_has(text: str, key: str) -> bool:
 
 
 def allergens_of_line(text: str) -> set[str]:
-    """The allergens an ingredient text probably contains: a keyword matches, and no exception word of the same
-    allergen is in the text (Buchweizenmehl is no gluten, Kokosmilch no milk)."""
-    return {
-        allergen
-        for allergen, rule in _rules().items()
-        if any(text_has(text, key) for key in rule["match"]) and not any(text_has(text, key) for key in rule["except"])
-    }
+    """The allergens an ingredient text probably contains: a keyword matches in the text with the allergen's
+    exception compounds cut out (Kokosmilch is no milk, Kakaomilch is), unless a cancel word is in the text."""
+    found = set()
+    for allergen, rule in _rules().items():
+        cut = _normalized(text)
+        for compound in rule["except"]:
+            cut = cut.replace(compound, " ")
+        if any(text_has(cut, key) for key in rule["match"]) and not any(text_has(text, key) for key in rule["cancel"]):
+            found.add(allergen)
+    return found
 
 
 def line_text(line: RecipeIngredient) -> tuple[str, str]:

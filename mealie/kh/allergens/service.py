@@ -23,10 +23,18 @@ def delete_user_allergies(session: Session, user_id: UUID4) -> None:
     session.commit()
 
 
+def corrections_by_recipe(session: Session, recipe_ids: list[UUID4]) -> dict[UUID4, dict[str, bool]]:
+    """The corrections of all RECIPE_IDS by recipe and allergen key, in one query."""
+    rows = session.execute(sa.select(KhRecipeAllergen).where(KhRecipeAllergen.recipe_id.in_(recipe_ids))).scalars()
+    found: dict[UUID4, dict[str, bool]] = {}
+    for row in rows:
+        found.setdefault(row.recipe_id, {})[row.allergen] = row.present
+    return found
+
+
 def corrections_of(session: Session, recipe_id: UUID4) -> dict[str, bool]:
     """The recipe's corrections by allergen key."""
-    rows = session.execute(sa.select(KhRecipeAllergen).where(KhRecipeAllergen.recipe_id == recipe_id)).scalars()
-    return {row.allergen: row.present for row in rows}
+    return corrections_by_recipe(session, [recipe_id]).get(recipe_id, {})
 
 
 def set_correction(session: Session, recipe_id: UUID4, allergen: str, present: bool | None) -> None:

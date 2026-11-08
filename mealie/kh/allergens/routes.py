@@ -24,6 +24,7 @@ from mealie.kh.allergens.schemas import (
 )
 from mealie.kh.allergens.service import (
     add_rule,
+    corrections_by_recipe,
     corrections_of,
     delete_rule,
     group_recipes,
@@ -103,8 +104,10 @@ class KhAllergensController(BaseUserController):
         if not members:
             return {}
         found = {}
-        for recipe in group_recipes(self.session, self.group_id):
-            warnings = warnings_for(members, recipe_allergens(recipe, corrections_of(self.session, recipe.id)))
+        recipes = group_recipes(self.session, self.group_id)
+        corrections = corrections_by_recipe(self.session, [recipe.id for recipe in recipes])
+        for recipe in recipes:
+            warnings = warnings_for(members, recipe_allergens(recipe, corrections.get(recipe.id, {})))
             if warnings:
                 found[recipe.slug] = [w.allergen for w in warnings]
         return found

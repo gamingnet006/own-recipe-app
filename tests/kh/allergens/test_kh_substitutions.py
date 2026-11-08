@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from mealie.kh.allergens.models import KhSubstitution
 from mealie.kh.allergens.rules import allergens_of_line
+from mealie.kh.allergens.schemas import ALLERGEN_NAMES_DE, ALLERGENS
 from mealie.kh.allergens.substitutions import standard_rules
 from tests.kh.nutrition.helpers import new_recipe
 from tests.utils import api_routes, random_string
@@ -181,4 +182,46 @@ def test_variant_of_a_line_without_food_replaces_its_note(api_client: TestClient
         headers=unique_user.token,
     ).json()
     assert new["recipeIngredient"][0]["note"] == "Sonnenblumenkerne"
-    assert new["name"].endswith("(ohne Nüsse)")
+    assert new["name"].endswith("(ohne Schalenfrüchte)")
+
+
+def test_variant_names_are_the_spec_names_from_one_dict():
+    assert tuple(ALLERGEN_NAMES_DE) == ALLERGENS
+    assert list(ALLERGEN_NAMES_DE.values()) == [
+        "Gluten", "Krebstiere", "Ei", "Fisch", "Erdnüsse", "Soja", "Milch", "Schalenfrüchte", "Sellerie", "Senf",
+        "Sesam", "Sulfite", "Lupinen", "Weichtiere",
+    ]  # fmt: skip
+
+
+def test_generic_rules_do_not_hit_compounds(api_client: TestClient, unique_user: TestUser):
+    """Vollmilchschokolade is no milk to swap for Reisdrink, Butterkekse no butter to swap for Margarine."""
+    clear_rules(api_client, unique_user)
+    slug = new_recipe(api_client, unique_user, [(100, "g", "Vollmilchschokolade", ""), (100, "g", "Butterkekse", "")])[
+        "slug"
+    ]
+    found = report(api_client, unique_user, slug)
+    assert {h["allergen"] for h in found["hits"]} >= {"milk", "gluten"}
+    assert found["substitutions"] == []
+
+
+def test_a_variant_only_names_what_it_removed(api_client: TestClient, unique_user: TestUser):
+    """Mozzarella has no rule, so the milk stays: no variant for milk, and the name of one for more says Gluten only."""
+    clear_rules(api_client, unique_user)
+    lines = [(200, "ml", "Milch", ""), (100, "g", "Mozzarella", ""), (100, "g", "Weizenmehl", "")]
+    slug = new_recipe(api_client, unique_user, lines)["slug"]
+    assert variant(api_client, unique_user, slug, ["milk"]).status_code == 422
+    response = variant(api_client, unique_user, slug, ["milk", "gluten"])
+    assert response.status_code == 201
+    new = api_client.get(api_routes.recipes_slug(response.json()["slug"]), headers=unique_user.token).json()
+    assert new["name"].endswith("(ohne Gluten)")
+
+
+def test_a_variant_keeps_added_corrections_but_not_removed_ones(api_client: TestClient, unique_user: TestUser):
+    clear_rules(api_client, unique_user)
+    slug = dairy_recipe(api_client, unique_user)["slug"]
+    headers = unique_user.token
+    api_client.put(f"{KH}/recipes/{slug}/allergens/sesame", json={"present": True}, headers=headers)
+    api_client.put(f"{KH}/recipes/{slug}/allergens/celery", json={"present": False}, headers=headers)
+    new_slug = variant(api_client, unique_user, slug, ["milk"]).json()["slug"]
+    hits = {h["allergen"]: h["corrected"] for h in report(api_client, unique_user, new_slug)["hits"]}
+    assert hits == {"sesame": True}

@@ -6,23 +6,24 @@ from pydantic import UUID4, StringConstraints, field_validator
 
 from mealie.schema._mealie import MealieModel
 
-# The 14 EU allergens, in the order the app lists them.
-ALLERGENS = (
-    "gluten",
-    "crustaceans",
-    "eggs",
-    "fish",
-    "peanuts",
-    "soy",
-    "milk",
-    "nuts",
-    "celery",
-    "mustard",
-    "sesame",
-    "sulphites",
-    "lupin",
-    "molluscs",
-)
+# The 14 EU allergens in the order the app lists them, with the German names of the spec (used in variant names).
+ALLERGEN_NAMES_DE = {
+    "gluten": "Gluten",
+    "crustaceans": "Krebstiere",
+    "eggs": "Ei",
+    "fish": "Fisch",
+    "peanuts": "Erdnüsse",
+    "soy": "Soja",
+    "milk": "Milch",
+    "nuts": "Schalenfrüchte",
+    "celery": "Sellerie",
+    "mustard": "Senf",
+    "sesame": "Sesam",
+    "sulphites": "Sulfite",
+    "lupin": "Lupinen",
+    "molluscs": "Weichtiere",
+}
+ALLERGENS = tuple(ALLERGEN_NAMES_DE)
 
 
 def allergen_key(value: str) -> str:

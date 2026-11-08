@@ -1,58 +1,72 @@
 {
   "gluten": {
-    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße"],
-    "except": ["buchweizen", "lupin", "kokos", "mandel", "reis", "mais", "hirse", "kartoffel", "kichererbs", "quinoa", "amaranth", "glutenfrei"]
+    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße", "bröt", "penne", "fusilli", "tagliatelle", "lasagne", "makkaroni", "gnocchi", "tortellini", "ravioli", "blätterteig", "toast", "baguette", "zwieback", "keks", "graupen", "bier", "malz", "panko"],
+    "except": ["buchweizenmehl", "buchweizen", "lupinenmehl", "kokosmehl", "mandelmehl", "reismehl", "reisgrieß", "reisnudel", "glasnudel", "maismehl", "maisgrieß", "hirsemehl", "kartoffelmehl", "kichererbsenmehl", "quinoamehl", "amaranthmehl", "sojamehl", "schmalz"],
+    "cancel": ["glutenfrei"]
   },
   "crustaceans": {
     "match": ["garnele", "shrimp", "scampi", "krabbe", "hummer", "krebs", "langustine", "crevette"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "eggs": {
     "match": ["=ei", "eier", "eigelb", "eiweiß", "eiklar", "mayonnaise", "mayo", "aioli"],
-    "except": ["eierschwamm", "eierfrucht"]
+    "except": ["eierschwamm", "eierfrucht"],
+    "cancel": []
   },
   "fish": {
     "match": ["fisch", "lachs", "thunfisch", "forelle", "kabeljau", "hering", "makrele", "sardine", "sardelle", "anchovis", "zander", "karpfen", "kaviar", "worcester"],
-    "except": []
+    "except": ["tintenfisch"],
+    "cancel": []
   },
   "peanuts": {
     "match": ["erdnuss", "erdnüsse", "peanut"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "soy": {
     "match": ["soja", "tofu", "edamame", "miso", "tempeh", "tamari", "shoyu"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "milk": {
-    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "creme fraiche", "crème fraîche", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto"],
-    "except": ["kokos", "soja", "hafer", "mandel", "reis", "erdnuss", "kakao", "pflanzlich", "vegan", "pflanzen"]
+    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto", "fraiche", "fraîche"],
+    "except": ["kokosmilch", "kokossahne", "kokosjoghurt", "kokosrahm", "kokosbutter", "sojamilch", "sojasahne", "sojajoghurt", "hafermilch", "hafersahne", "haferjoghurt", "mandelmilch", "mandeljoghurt", "reismilch", "erdnussbutter", "mandelbutter", "cashewbutter", "kakaobutter", "sheabutter", "butternut", "butterbohne"],
+    "cancel": ["vegan", "pflanzlich", "pflanzen"]
   },
   "nuts": {
     "match": ["haselnuss", "haselnüsse", "walnuss", "walnüsse", "mandel", "cashew", "pistazie", "pekannuss", "pekannüsse", "paranuss", "paranüsse", "macadamia", "marzipan", "nougat", "nüsse", "pesto"],
-    "except": ["erdnüsse", "muskat", "kokos"]
+    "except": ["erdnüsse", "muskatnüsse", "kokosnüsse"],
+    "cancel": []
   },
   "celery": {
     "match": ["sellerie", "brühe", "brühwürfel", "bouillon", "suppenwürfel", "suppengrün"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "mustard": {
     "match": ["senf", "mayonnaise", "mayo", "remoulade"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "sesame": {
     "match": ["sesam", "tahin", "hummus"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "sulphites": {
     "match": ["wein", "sekt", "rosine", "sultanine", "balsamico", "trockenfrüchte", "trockenobst", "sulfit"],
-    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere"]
+    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere", "schwein"],
+    "cancel": []
   },
   "lupin": {
     "match": ["lupine"],
-    "except": []
+    "except": [],
+    "cancel": []
   },
   "molluscs": {
     "match": ["muschel", "auster", "tintenfisch", "calamari", "kalmar", "schnecke", "oktopus", "krake"],
-    "except": []
+    "except": ["austernpilz", "austernseitling", "zimtschnecke", "schneckennudel", "nussschnecke", "muschelnudel"],
+    "cancel": []
   }
 }
