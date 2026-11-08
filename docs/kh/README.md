@@ -304,9 +304,26 @@ docker compose -f kh/ops/docker-compose.yml up -d
 
 Auf dem Mac brauchen eigene Hintergrund-Jobs (cron, launchd) `/usr/local/bin` im PATH, sonst finden sie `docker` nicht. `auto_update.sh` ergänzt das selbst.
 
+### Wartung
+
+**Jeden Monat (10 Minuten):**
+
+1. Backup prüfen: `kh/ops/restore_test.sh`. Es spielt das neueste Backup in eine Wegwerf-Installation ein und vergleicht Rezepte und Dateien. Melde einen Fehler sofort.
+2. Freien Platz prüfen: `df -h` auf dem Laufwerk mit den Daten und mit den Backups. Unter 20 % frei: alte Backups löschen oder ein größeres Laufwerk nehmen.
+3. Updates prüfen: `kh/ops/auto_update.sh status` und das Protokoll darin lesen. Steht dort ein Fehler, ist das alte Image noch aktiv; die Daten sind sicher.
+4. USB-Kopie prüfen: `kh/ops/backup_copy.sh status`.
+5. Auf neue Hinweise zu Sicherheitslücken in Mealie achten und Küchenhelfer dann von Hand aktualisieren.
+
+**Nach jedem Update:**
+
+1. Öffne Küchenhelfer und schau unter **Mehr → Über Küchenhelfer**, ob die neue Version steht.
+2. Öffne ein Rezept und starte den Kochmodus.
+3. Mach ein Backup sofort: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
+4. Läuft etwas nicht, spiel das Backup vor dem Update wieder ein (siehe „Alltag“).
+
 ### Was geht wohin
 
-Was Küchenhelfer heute nach draußen schickt. Telemetrie gibt es keine.
+Was Küchenhelfer nach draußen schickt. Telemetrie gibt es keine.
 
 | Funktion | Was wird gesendet | An wen | Abschalten |
 |---|---|---|---|
@@ -318,6 +335,17 @@ Was Küchenhelfer heute nach draußen schickt. Telemetrie gibt es keine.
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
 | Backups und Kopie | alle Daten, auch der KI-Schlüssel | dein Backup-Ordner und, falls eingerichtet, der USB-Stick; verschlüsselt, wenn beim Einrichten ein Passwort gewählt wurde (D32, D33) | `kh/ops/backup_copy.sh off` für die Kopie |
 | Meldungen | ob Backup, Kopie und Update geklappt haben | dein Uptime Kuma | Push-Adressen in `kh/ops/.env` leer lassen |
+| Nährwerte | die Zutatennamen, nur zum Abgleich mit der Tabelle in deinem eigenen Küchenhelfer | nirgends: Die BLS-Tabelle (CC BY 4.0) liegt im Image | – |
+| Videolinks (Instagram, TikTok, YouTube, Facebook) | nichts: Küchenhelfer ruft sie nicht ab und lädt keine Videos (D5); du fügst die Beschreibung ein oder lädst einen Screenshot hoch | niemand | – |
+| Teilen per Telegram (Zusatzmodul, standardmäßig aus) | Link, Text oder Foto aus deinem Chat | Telegram-Server; im Profil „lokal“ gesperrt | Dienst `telegram` nicht starten |
+| Audio und Video mit Whisper (Zusatzmodul, standardmäßig aus) | die eigene Datei, nur an das Whisper im eigenen Netz | dein Whisper-Dienst, nicht nach draußen | Dienst `whisper` nicht starten |
+
+**Profile (`KH_PROFILE` in `kh/ops/.env`, Standard `leicht`):**
+
+- **leicht:** Raspberry Pi und alte Rechner. Text- und Screenshot-Import, Prüfansicht, Kochmodus; keine große lokale KI.
+- **normal:** aktueller Mini-PC oder Mac. Zusätzlich kleines Whisper und kleine lokale KI.
+- **stark:** Apple Silicon oder Mini-PC mit viel Arbeitsspeicher. Großes Whisper und lokale KI.
+- **lokal:** alles auf eigener Hardware, kein Telegram, keine Cloud-KI. Dann verlässt nichts das Haus (Tunnel aus, Updates aus).
 
 ---
 
@@ -611,9 +639,26 @@ docker compose -f kh/ops/docker-compose.yml up -d
 
 On a Mac, your own background jobs (cron, launchd) need `/usr/local/bin` in PATH, or they do not find `docker`. `auto_update.sh` adds it itself.
 
+### Maintenance
+
+**Every month (10 minutes):**
+
+1. Check the backup: `kh/ops/restore_test.sh`. It restores the newest backup into a throwaway installation and compares recipes and files. Report a failure right away.
+2. Check free space: `df -h` on the drive with the data and on the one with the backups. Below 20 % free: delete old backups or use a bigger drive.
+3. Check updates: `kh/ops/auto_update.sh status` and read the log it shows. On an error the old image stays active; the data is safe.
+4. Check the USB copy: `kh/ops/backup_copy.sh status`.
+5. Watch for security notices about Mealie and then update Küchenhelfer by hand.
+
+**After every update:**
+
+1. Open Küchenhelfer and check under **More → About Küchenhelfer** that the new version shows.
+2. Open a recipe and start cooking mode.
+3. Take a backup right now: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
+4. If something fails, restore the backup from before the update (see "Day to day").
+
 ### What goes where
 
-What Küchenhelfer sends out today. There is no telemetry.
+What Küchenhelfer sends out. There is no telemetry.
 
 | Feature | What is sent | To whom | Switch off |
 |---|---|---|---|
@@ -625,3 +670,14 @@ What Küchenhelfer sends out today. There is no telemetry.
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |
 | Backups and copy | all data, the AI key included | your backup folder and, if set up, the USB stick; encrypted when a password was chosen during setup (D32, D33) | `kh/ops/backup_copy.sh off` for the copy |
 | Reports | whether backup, copy and update worked | your Uptime Kuma | leave the push addresses in `kh/ops/.env` empty |
+| Nutrition | the ingredient names, only to match them with the table inside your own Küchenhelfer | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
+| Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Küchenhelfer does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
+| Share via Telegram (optional module, off by default) | link, text or photo from your chat | Telegram servers; blocked in the "lokal" profile | do not start the `telegram` service |
+| Audio and video with Whisper (optional module, off by default) | your own file, only to the Whisper in your own network | your Whisper service, not outside | do not start the `whisper` service |
+
+**Profiles (`KH_PROFILE` in `kh/ops/.env`, default `leicht`):**
+
+- **leicht** (light): Raspberry Pi and old machines. Text and screenshot import, review view, cooking mode; no large local AI.
+- **normal:** current mini PC or Mac. Adds a small Whisper and a small local AI.
+- **stark** (strong): Apple Silicon or a mini PC with a lot of RAM. Large Whisper and local AI.
+- **lokal** (local): everything on your own hardware, no Telegram, no cloud AI. Then nothing leaves the house (tunnel off, updates off).
