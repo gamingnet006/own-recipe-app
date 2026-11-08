@@ -88,7 +88,8 @@
       "invite": "Invite family",
       "based-on-mealie": "based on Mealie",
       "source": "Source code (AGPL)",
-      "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
+      "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review",
+      "duplicates": "Duplicate recipes"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -225,6 +226,20 @@
       "save-failed": "Saving did not work.",
       "retry": "Try again",
       "flag-forbidden": "You may not change this recipe"
+    },
+    "duplicates": {
+      "description": "Recipes that may be the same. Keep both or delete one.",
+      "tag-filter": "Only recipes with the tag",
+      "failed": "That did not work.",
+      "none": "No possible duplicates found.",
+      "own": "entered here",
+      "view": "View",
+      "keep-both": "Keep both",
+      "delete": "Delete {title}",
+      "delete-confirm": "Delete \"{title}\"? This cannot be undone.",
+      "duplicate_link": "same link",
+      "similar_title": "similar title",
+      "similar_ingredients": "similar ingredients"
     }
   }
 }

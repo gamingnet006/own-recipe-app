@@ -3,8 +3,9 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
 import { useBookSaving } from "../composables/use-kh-book";
+import { originOf, pairLabel } from "../lib/duplicates";
 import { BOOK_AUTOSAVE_MS, bookRecipes, defaultBookSettings, editorState, fillDefaults, recipeSettings, withRecipe } from "../lib/book";
-import type { KhBookSettings, KhRecipeFlags } from "../lib/api/books";
+import type { KhBookSettings, KhDuplicatePair, KhRecipeFlags } from "../lib/api/books";
 
 const putMock = vi.hoisted(() => vi.fn());
 vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ put: putMock }) }));
@@ -149,5 +150,21 @@ describe("autosave", () => {
     await vi.advanceTimersByTimeAsync(BOOK_AUTOSAVE_MS * 2);
     expect(putMock).not.toHaveBeenCalled();
     stop();
+  });
+});
+
+describe("duplicate pairs", () => {
+  const ref = (slug: string) => ({ slug, name: slug, orgUrl: null, tags: [] });
+  const pair = (kind: KhDuplicatePair["kind"], similarity: number): KhDuplicatePair => ({ a: ref("a"), b: ref("b"), kind, similarity });
+  const t = (key: string) => `[${key}]`;
+  test("the similarity in whole percent and the kind in words", () => {
+    expect(pairLabel(pair("similar_title", 0.846), t)).toBe("[kh.duplicates.similar_title] · 85 %");
+    expect(pairLabel(pair("duplicate_link", 1), t)).toBe("[kh.duplicates.duplicate_link] · 100 %");
+    expect(pairLabel(pair("similar_ingredients", 0.004), t)).toBe("[kh.duplicates.similar_ingredients] · 0 %");
+  });
+  test("the origin is the site, nothing for a recipe typed in or a broken link", () => {
+    expect(originOf("https://www.example.com/rezept/1")).toBe("example.com");
+    expect(originOf(null)).toBeNull();
+    expect(originOf("kein link")).toBeNull();
   });
 });
