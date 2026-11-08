@@ -97,6 +97,12 @@ export function khStepNeeds(place: number, step: RecipeStep, recipe: Recipe, sca
   return stepNeeds(place, step, needs, recipe.recipeInstructions ?? []);
 }
 
+/** The times of step PLACE in the order its text shows them, matching khStepDisplay's times. Needs no Vuetify locale,
+ * so a click handler can call it (the display's amount text can only be built while a component renders). */
+export function khStepTimes(place: number, step: RecipeStep, recipe: Recipe, scale: number): KhTime[] {
+  return parseTimes(khStepText(place, step.text, recipe.recipeIngredient ?? [], scale));
+}
+
 /** The one entry point for every view: step STEP at place PLACE of RECIPE at SCALE, with the amounts of
  * Phase 3 scaled first, then amounts and times added. */
 export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number): { html: string; times: KhTime[] } {

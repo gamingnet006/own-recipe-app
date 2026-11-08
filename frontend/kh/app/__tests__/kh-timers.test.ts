@@ -136,7 +136,12 @@ test("the alarm beeps and vibrates until stopped or the limit", async () => {
 // The step display needs Mealie's i18n set-up; its times are all the handler takes from it (tested in kh-step-text).
 vi.mock("../lib/step-text", async importOriginal => ({
   ...(await importOriginal<typeof import("../lib/step-text")>()),
-  khStepDisplay: () => ({ html: "", times: [ten] }),
+  // The display needs Vuetify's locale, which is only there while a component renders, not in a click handler
+  // (8.11.2026, found by hand): the tap must get its times without it.
+  khStepDisplay: () => {
+    throw new Error("[Vuetify] Could not find injected locale instance");
+  },
+  khStepTimes: () => [ten],
 }));
 
 test("a tap on a time starts its timer and stops there; a tap elsewhere does nothing", async () => {
