@@ -5,19 +5,26 @@ import { khAmounts, khStepText } from "./amounts-store";
 import { useIngredientTextParser } from "~/composables/recipes/use-recipe-ingredients";
 import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 
-/** An ingredient of the recipe as a step needs it; AMOUNT is html-safe, e.g. "200 g" at the current factor. */
+/** An ingredient of the recipe as a step needs it; AMOUNT is html-safe, e.g. "200 g" at the current factor.
+ * SHAREAMOUNT gives the amount of a FRACTION (0 to 1) of it in the same format. */
 export interface KhStepIngredient {
   referenceId: string;
   names: string[];
   amount: string | null;
+  shareAmount?: (fraction: number) => string | null;
 }
 
-type StepReferences = { ingredientReferences?: { referenceId?: string | null }[] };
+type StepReferences = { text?: string; ingredientReferences?: { referenceId?: string | null }[] };
+
+/** Whether STEP references the ingredient REFERENCEID. */
+function references(step: StepReferences | undefined, referenceId: string): boolean {
+  return !!step?.ingredientReferences?.some(r => r.referenceId === referenceId);
+}
 
 /** The place of the one step that references REFERENCEID; null if no step or several do (then no amount is
  * shown, since the whole amount would not fit one step). */
 export function onlyStepOf(referenceId: string, steps: StepReferences[]): number | null {
-  const places = steps.flatMap((step, place) => (step.ingredientReferences?.some(r => r.referenceId === referenceId) ? [place] : []));
+  const places = steps.flatMap((step, place) => (references(step, referenceId) ? [place] : []));
   return places.length === 1 ? places[0]! : null;
 }
 
@@ -28,9 +35,79 @@ function wholeWord(names: string[]): RegExp {
   return new RegExp(`(?<![\\p{L}\\d])(?:${escaped.join("|")})(?![\\p{L}\\d])`, "iu");
 }
 
+// Words that name a part of an ingredient right before its name (German and English), as regex sources.
+const FRACTION_PHRASES: [string, number][] = [
+  ["drei viertel|three quarters?", 3 / 4],
+  ["zwei drittel|two thirds?", 2 / 3],
+  ["ein drittel|a third", 1 / 3],
+  ["ein viertel|a quarter", 1 / 4],
+  ["(?:die )?hälfte|half|½|1/2", 1 / 2],
+  ["⅓|1/3", 1 / 3],
+  ["⅔|2/3", 2 / 3],
+  ["¼|1/4", 1 / 4],
+  ["¾|3/4", 3 / 4],
+];
+const REMAINDER_WORDS = "rest|restliche[nmrs]?|übrige[nmrs]?|remaining";
+/** How many words may stand between such a phrase and the ingredient name ("die Hälfte vom Mehl"). */
+const PHRASE_GAP_WORDS = 3;
+/** Marks "the rest" in place of a fraction. */
+const REST = "rest";
+
+/** NAMES plus their genitive forms ("Mehl" gives "Mehls", "Mehles"). */
+function withGenitive(names: string[]): string[] {
+  return names.filter(Boolean).flatMap(n => [n, `${n}s`, `${n}es`]);
+}
+
+/** What the text right before the first appearance of one of NAMES in TEXT says about the part: a fraction of the
+ * whole, REST, or null; END is where the name ends. Null if the name does not appear. */
+function partNamed(text: string, names: string[]): { part: number | typeof REST | null; end: number } | null {
+  const match = wholeWord(withGenitive(names)).exec(text);
+  if (!match) return null;
+  const before = text.slice(0, match.index);
+  const gap = `(?:\\s+\\p{L}+){0,${PHRASE_GAP_WORDS}}\\s+$`;
+  const ends = (words: string) => new RegExp(`(?<![\\p{L}\\d])(?:${words})${gap}`, "iu").test(before);
+  const phrase = FRACTION_PHRASES.find(([words]) => ends(words));
+  return { part: phrase ? phrase[1] : ends(REMAINDER_WORDS) ? REST : null, end: match.index + match[0].length };
+}
+
+/** The fraction of an ingredient that step PLACE (text TEXT) names and the end of its name there; null if the
+ * step names none, or the rest after earlier steps that did not all name their share. */
+function namedShare(
+  referenceId: string,
+  names: string[],
+  place: number,
+  text: string,
+  steps: StepReferences[],
+): { fraction: number; end: number } | null {
+  let used: number | null = 0; // null once an earlier step named no share, so the rest is unknown
+  for (let i = 0; i < place; i++) {
+    if (!references(steps[i], referenceId)) continue;
+    const part = partNamed(steps[i]!.text ?? "", names)?.part ?? null;
+    used = part === null || used === null ? null : used + (part === REST ? 1 - used : part);
+  }
+  const named = partNamed(text, names);
+  if (!named || named.part === null) return null;
+  const fraction = named.part === REST ? (used === null ? 0 : 1 - used) : named.part;
+  return fraction > 0 ? { fraction, end: named.end } : null;
+}
+
+/** Where in TEXT (step PLACE) INGREDIENT's amount goes and which: the whole amount for an ingredient of this step
+ * only, the share the text names for one of several steps; null if none applies. */
+function amountSpot(ingredient: KhStepIngredient, place: number, text: string, steps: StepReferences[]): { end: number; amount: string } | null {
+  if (onlyStepOf(ingredient.referenceId, steps) === place) {
+    const match = wholeWord(ingredient.names).exec(text);
+    return match && ingredient.amount ? { end: match.index + match[0].length, amount: ingredient.amount } : null;
+  }
+  if (!references(steps[place], ingredient.referenceId)) return null;
+  const share = namedShare(ingredient.referenceId, ingredient.names, place, text, steps);
+  const amount = share && ingredient.shareAmount?.(share.fraction);
+  return share && amount ? { end: share.end, amount } : null;
+}
+
 /** TEXT (already scaled) of step PLACE for display: HTML-wrapped times (TIMES[i] belongs to the i-th
  * "kh-time" span) and amounts behind the names of ingredients that only this step uses and that have no
- * step amount (LINKEDIDS) in it already. Markdown stays as written. */
+ * step amount (LINKEDIDS) in it already. An ingredient of several steps gets an amount where the text
+ * names its share ("die Hälfte des Mehls"). Markdown stays as written. */
 export function stepDisplay(
   place: number,
   text: string,
@@ -42,9 +119,8 @@ export function stepDisplay(
   const inserts: [number, string][] = times.flatMap(t => [[t.start, "<span class=\"kh-time\">"], [t.end, "</span>"]] as [number, string][]);
   for (const ingredient of ingredients) {
     if (!ingredient.amount || !ingredient.names.length || linkedIds.has(ingredient.referenceId)) continue;
-    if (onlyStepOf(ingredient.referenceId, steps) !== place) continue;
-    const match = wholeWord(ingredient.names).exec(text);
-    if (match) inserts.push([match.index + match[0].length, ` <span class="kh-amount">(${ingredient.amount})</span>`]);
+    const spot = amountSpot(ingredient, place, text, steps);
+    if (spot) inserts.push([spot.end, ` <span class="kh-amount">(${spot.amount})</span>`]);
   }
   // From the end, so earlier offsets stay valid; the sort is stable, so equal offsets keep their order.
   let html = text;
@@ -70,16 +146,24 @@ export function timerLabel(place: number, text: string): string {
 export interface KhNeed {
   referenceId: string;
   name: string;
+  names: string[];
   amount: string | null;
+  shareAmount?: (fraction: number) => string | null;
 }
 
 /** The entries of the "Du brauchst:" line of step PLACE ("Butter 200 g"): the ingredients the step references, with
- * the amount only for those no other step uses (the whole amount would not fit one of several steps). */
+ * the amount for those no other step uses, or the share the step text names ("Mehl 125 g"); else the name alone
+ * (the whole amount would not fit one of several steps). */
 export function stepNeeds(place: number, step: StepReferences, needs: KhNeed[], steps: StepReferences[]): string[] {
   const referenced = new Set(step.ingredientReferences?.map(r => r.referenceId));
   return needs
     .filter(need => referenced.has(need.referenceId))
-    .map(need => (need.amount && onlyStepOf(need.referenceId, steps) === place ? `${need.name} ${need.amount}` : need.name));
+    .map((need) => {
+      if (onlyStepOf(need.referenceId, steps) === place) return need.amount ? `${need.name} ${need.amount}` : need.name;
+      const share = namedShare(need.referenceId, need.names, place, step.text ?? "", steps);
+      const amount = share && need.shareAmount?.(share.fraction);
+      return amount ? `${need.name} ${amount}` : need.name;
+    });
 }
 
 /** The shown amount ("200 g") of ingredient LINE at SCALE; null without a quantity. */
@@ -92,7 +176,8 @@ function lineAmount(line: RecipeIngredient, scale: number): string | null {
 export function khStepNeeds(place: number, step: RecipeStep, recipe: Recipe, scale: number): string[] {
   const needs = (recipe.recipeIngredient ?? []).flatMap((line): KhNeed[] => {
     const name = line.food?.name ?? line.note;
-    return line.referenceId && name ? [{ referenceId: line.referenceId, name, amount: lineAmount(line, scale) }] : [];
+    if (!line.referenceId || !name) return [];
+    return [{ referenceId: line.referenceId, name, names: [name, line.food?.pluralName ?? ""], amount: lineAmount(line, scale), shareAmount: fraction => lineAmount(line, scale * fraction) }];
   });
   return stepNeeds(place, step, needs, recipe.recipeInstructions ?? []);
 }
@@ -109,7 +194,12 @@ export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, s
   const lines = recipe.recipeIngredient ?? [];
   const ingredients = lines.flatMap((line): KhStepIngredient[] => {
     if (!line.referenceId || !line.food) return [];
-    return [{ referenceId: line.referenceId, names: [line.food.name, line.food.pluralName ?? ""], amount: lineAmount(line, scale) }];
+    return [{
+      referenceId: line.referenceId,
+      names: [line.food.name, line.food.pluralName ?? ""],
+      amount: lineAmount(line, scale),
+      shareAmount: fraction => lineAmount(line, scale * fraction),
+    }];
   });
   const linkedIds = new Set(khAmounts.value.stepAmounts.filter(link => link.step === place).map(link => link.referenceId));
   return stepDisplay(place, khStepText(place, step.text, lines, scale), ingredients, recipe.recipeInstructions ?? [], linkedIds);

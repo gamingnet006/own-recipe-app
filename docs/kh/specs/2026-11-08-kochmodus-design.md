@@ -45,6 +45,10 @@ Stand 8.11.2026. Abgestimmt über die Vorschlagsseite: sechs Entscheidungen E1 b
   4. Die Zutat hat eine Menge.
 - Nur beim ersten Vorkommen im Schritt.
 - Ist eine Zutat über mehrere Schritte verknüpft oder fehlt eine Bedingung, bleibt der Satz unverändert. So steht nie eine falsche Menge da.
+- Ausnahme, ergänzt am 8.11.2026 (Wunsch nach Test): Ist eine Zutat über mehrere Schritte verknüpft und der Schritttext nennt den Anteil selbst, steht dessen Menge hinter dem Namen und in der „Du brauchst:“-Zeile („Mehl 125 g“).
+  - Anteil: höchstens drei Wörter vor dem Namen, z. B. „die Hälfte des Mehls“, „ein Drittel der Milch“, „drei Viertel“, „½ vom Mehl“, „half of the flour“. Menge = Zutatenmenge × Anteil beim aktuellen Faktor, im Format der übrigen Klammern.
+  - Rest: „restliches Mehl“, „den Rest vom Mehl“, „übrigen“, „the remaining/the rest of the flour“. Menge = Gesamtmenge minus die Anteile der früheren Schritte; nur wenn jeder frühere Schritt mit der Zutat einen Anteil nannte, sonst keine Klammer.
+  - Der Name zählt auch als Genitiv („Mehls“, „Mehles“). Ohne Anteilswort bleibt es bei „keine Zahl“.
 - Der gespeicherte Text bleibt unverändert; die Klammer entsteht nur beim Anzeigen.
 - Mealies Markdown im Schritt bleibt erhalten. Die Klammer kommt als `<span class="kh-amount">` in den Text, den `SafeMarkdown` darstellt; `span` mit `class` lässt Mealies Bereinigung durch.
 - Eine Funktion für alle Ansichten, neben `khStepText()`: Die Anzeige erweitert nur die bestehende Stelle, an der Phase 3 Mengen umrechnet.
