@@ -71,6 +71,7 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D39 | `v0.2` (3.11.2026, Spezifikation `docs/kh/specs/2026-11-03-v0.2-mengen-ki-liste-design.md`): Phase 3 „Mengen“ baut auf Mealies NLP-Parser auf und erkennt deutsche Angaben beim Import ohne KI-Anfrage; Mengen im Schritttext rechnen über eine `kh`-Nebentabelle mit (D19); Umrechnen über Portionen, „Ich habe nur …“ und Backform. Dazu eine KI-Prio-Liste mit beliebig vielen kostenlosen Anbietern, die bei leerem Kontingent, ungültigem Schlüssel, fehlendem Modell oder Ausfall zum nächsten wechselt, mit Infofeld zu kostenlosen Schlüsseln (Stand mit Datum) und einer Glocke mit Meldungen für alle mit `can_manage`. Der Ton-Anbieter bleibt Mealies Auswahl; keine Push-Nachrichten aufs Handy. Beim Update beginnt die Liste mit Mealies bisherigem Standard- und Bildanbieter, neue Anbieter kommen ans Ende (4.11.2026, Review). Zwei Pläne, ein Release; erst KI-Liste und Glocke, dann Mengen. | beschlossen |
 | D40 | Deutsche Mengen liest Küchenhelfer selbst (`parse_ingredient()`), weil Mealies NLP-Bibliothek deutsche Einheiten nicht erkennt (Probe 4.11.2026); von Mealie kommt nur der Abgleich mit Einheiten und Lebensmitteln der Gruppe. Verknüpfungen im Schritttext nennen ihren Schritt nach Position, weil Mealie bei jedem Speichern neue Schritt-IDs vergibt. | beschlossen |
 | D41 | Mengen neben Zutatennamen im Schritttext („die Butter (200 g) schmelzen“) kommen in Phase 4 (Kochmodus), nicht mehr in `v0.2`; Phase 3 rechnet nur Mengen um, die schon im Schritt stehen (8.11.2026) | beschlossen |
+| D42 | Kochmodus `v0.3` (8.11.2026, Spezifikation `docs/kh/specs/2026-11-08-kochmodus-design.md`), alles wie empfohlen: ein Schritt groß mit großen Tasten und Wischen, „Alle Schritte“ öffnet Mealies Liste, Bildschirmsperre im Kochmodus aus, „✕“ zurück zum Rezept, Balken mit einem Abschnitt je Schritt zum Springen, Zeile „Du brauchst: …“ mit den Zutaten des Schritts, keine Utensilien pro Schritt (E1); Mengen in Klammern hinter der Zutat, nur bei Verknüpfung mit genau diesem Schritt und ohne Menge im Satz, überall wo Schritte stehen (E2); Zeiten werden Timer, bei Spannen bis zur kürzeren Zeit mit „noch … Min.“ (E3); Timer klingelt in der App, dazu „Auf Uhr-Timer legen“ per Kurzbefehl, falls T1 klappt, Push nur wenn nicht (E4); Sprachbefehle erst in `v0.3.1` nach T2 (E5); die letzten 30 geöffneten Rezepte offline, beim Abmelden geleert (E6) | beschlossen |
 
 ---
 
@@ -214,9 +215,10 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [ ] Zeiten im Schritttext erkennen und anklickbar machen (auch „20–30 Min.“ und „eine halbe Stunde“).
 - [ ] Mengen neben Zutaten im Schritttext: Nennt ein Schritt eine Zutat ohne Menge („die Butter schmelzen“), steht ihre Menge passend zum gewählten Faktor dabei, etwa „die Butter (200 g) schmelzen“. Der Text bleibt unverändert; die Darstellung wird vor dem Bau abgestimmt (D41).
 - [ ] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
-- [ ] Sprachbefehle mit Vosk im Browser (nach T2); große Tasten und Wischen als Rückfall.
-- [ ] Offline-Rezepte (Web-App, dafür ist HTTPS nötig; steht seit Phase 1).
-- **Fertig wenn:** Auf dem iPhone klingelt ein Timer bei gesperrtem Handy, und „weiter“ funktioniert in der Küche oder die Tasten übernehmen.
+- [ ] Große Tasten und Wischen für Weiter und Zurück (D42).
+- [ ] Sprachbefehle mit Vosk im Browser, als `v0.3.1` nach T2 (D42).
+- [ ] Offline-Rezepte: die letzten 30 geöffneten (Web-App, dafür ist HTTPS nötig; steht seit Phase 1; D42).
+- **Fertig wenn:** Auf dem iPhone klingelt ein Timer bei gesperrtem Handy, und die Tasten führen durch die Schritte; „weiter“ per Sprache folgt mit `v0.3.1`.
 
 ### Phase 5 · Familienkochbuch und Teilen (v0.4)
 
