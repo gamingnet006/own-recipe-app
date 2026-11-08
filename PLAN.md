@@ -223,10 +223,10 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 5 · Familienkochbuch und Teilen (v0.4)
 
-- [ ] PDF: Rezeptkarte und Familienkochbuch mit Buch-Editor und Vorschau (Auswahl, Inhaltsverzeichnis, Systemschrift, nur eigene Fotos; D43).
+- [x] PDF: Rezeptkarte und Familienkochbuch mit Buch-Editor und Vorschau (Auswahl, Inhaltsverzeichnis, Systemschrift, nur eigene Fotos; D43).
 - [x] Kurzbefehl für das Teilen-Menü mit einem widerrufbaren Token pro Gerät. (1.11.2026: vorgezogen in `v0.1.1`, D35, D37.)
-- [ ] Umzug: Anleitung für Mealies Migrationen, danach Duplikat-Scan.
-- [ ] Umluft-Umrechner (D43); Menü-Zeitplan später, sobald ihn jemand vermisst.
+- [x] Umzug: Anleitung für Mealies Migrationen, danach Duplikat-Scan.
+- [x] Umluft-Umrechner (D43); Menü-Zeitplan später, sobald ihn jemand vermisst.
 - **Fertig wenn:** Ein Link über das Teilen-Menü landet als Entwurf in der Prüfansicht und ein Kochbuch mit 10 Rezepten ist als PDF druckbar.
 
 ### Phase 6 · Nährwerte und Allergene (v0.5)

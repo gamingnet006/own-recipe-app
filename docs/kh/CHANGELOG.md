@@ -4,6 +4,23 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+Family cookbook and moving house (Phase 5, D43):
+
+- "Print as book" on a Mealie cookbook opens an editor with a live preview: title, subtitle, title page, contents with
+  recipe numbers, order, description, notes, fan-oven brackets and, per recipe, in the book / with photo / servings.
+  Print or "Save as PDF" on the Mac and the iPhone (Share -> Print). Settings are saved per cookbook for every
+  device; only the own household can change them, others can print.
+- Single recipes print as a recipe card (recipe menu -> Print).
+- Photos enter the book only with "The photo is ours" (photos you took yourselves).
+- Fan-oven brackets: "180 °C (Umluft 160 °C)" after each oven temperature in the steps, following the oven chosen
+  under More -> Our oven. The difference is 20 °C; nothing below 100 °C is converted; the stored text never changes.
+- More -> "Duplicate recipes" lists possible duplicates (optionally only recipes with an import tag) so you can keep
+  both or delete one after a migration from another app.
+- New additive migration `kh0004` for the book settings and duplicate decisions.
+- Docs: how to move from another app with Mealie's migrations.
+
 ## [v0.3] - 2026-11-08
 
 Cook mode (Phase 4, D41, D42):
