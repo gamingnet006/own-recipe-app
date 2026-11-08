@@ -41,7 +41,7 @@ class KhBooksController(BaseUserController):
     def get_print(self, cookbook_id: UUID4) -> BookSettings:
         """The cookbook's stored print settings, or the defaults."""
         self._cookbook(cookbook_id)
-        return load_settings(self.session, cookbook_id)
+        return load_settings(self.session, self.group_id, cookbook_id)
 
     @router.put("/cookbooks/{cookbook_id}/print", response_model=BookSettings)
     def put_print(self, cookbook_id: UUID4, data: BookSettings) -> BookSettings:

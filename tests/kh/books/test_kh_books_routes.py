@@ -92,6 +92,15 @@ def test_photo_stays_on_only_for_a_recipe_marked_as_ours(api_client: TestClient,
     assert stored["recipes"][slug]["photo"] is True and stored["recipes"]["gibt-es-nicht"]["photo"] is False
 
 
+def test_photo_is_off_on_reading_when_the_flag_was_removed_later(api_client: TestClient, unique_user: TestUser):
+    cookbook, slug = new_cookbook(api_client, unique_user), new_recipe(api_client, unique_user)
+    set_flag(api_client, unique_user, slug)
+    api_client.put(print_url(cookbook), json={"recipes": {slug: {"photo": True}}}, headers=unique_user.token)
+    set_flag(api_client, unique_user, slug, own_photo=False)
+    read = api_client.get(print_url(cookbook), headers=unique_user.token).json()
+    assert read["recipes"][slug]["photo"] is False
+
+
 def test_invalid_settings_are_refused(api_client: TestClient, unique_user: TestUser):
     cookbook = new_cookbook(api_client, unique_user)
     for body in (

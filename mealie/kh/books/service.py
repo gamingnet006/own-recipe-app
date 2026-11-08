@@ -49,17 +49,10 @@ def _print_row(session: Session, cookbook_id: UUID4) -> KhCookbookPrint | None:
     ).scalar_one_or_none()
 
 
-def load_settings(session: Session, cookbook_id: UUID4) -> BookSettings:
-    """The cookbook's stored print settings, or the defaults when it has none."""
-    row = _print_row(session, cookbook_id)
-    return BookSettings.model_validate(row.settings) if row else BookSettings()
-
-
-def save_settings(session: Session, group_id: UUID4, cookbook_id: UUID4, settings: BookSettings) -> BookSettings:
-    """Stores the settings and returns them as stored: a photo is only allowed for a recipe marked as ours
-    (D43 F4), so the others come back with photo off. Commits."""
+def _only_own_photos(session: Session, group_id: UUID4, settings: BookSettings) -> BookSettings:
+    """SETTINGS with the photo switched off for every recipe not marked as ours (D43 F4)."""
     ours = own_photo_slugs(session, group_id, list(settings.recipes))
-    stored = settings.model_copy(
+    return settings.model_copy(
         update={
             "recipes": {
                 slug: recipe.model_copy(update={"photo": recipe.photo and ours.get(slug, False)})
@@ -67,6 +60,19 @@ def save_settings(session: Session, group_id: UUID4, cookbook_id: UUID4, setting
             }
         }
     )
+
+
+def load_settings(session: Session, group_id: UUID4, cookbook_id: UUID4) -> BookSettings:
+    """The cookbook's stored print settings, or the defaults when it has none. A photo whose own-photo flag was
+    removed after saving is off, as on saving."""
+    row = _print_row(session, cookbook_id)
+    return _only_own_photos(session, group_id, BookSettings.model_validate(row.settings)) if row else BookSettings()
+
+
+def save_settings(session: Session, group_id: UUID4, cookbook_id: UUID4, settings: BookSettings) -> BookSettings:
+    """Stores the settings and returns them as stored: a photo is only allowed for a recipe marked as ours,
+    so the others come back with photo off. Commits."""
+    stored = _only_own_photos(session, group_id, settings)
     data = stored.model_dump(mode="json")
     row = _print_row(session, cookbook_id)
     if row is None:
