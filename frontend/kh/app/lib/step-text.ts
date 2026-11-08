@@ -3,7 +3,7 @@
 import { parseTimes, type KhTime } from "./times";
 import { khAmounts, khStepText } from "./amounts-store";
 import { useIngredientTextParser } from "~/composables/recipes/use-recipe-ingredients";
-import type { Recipe, RecipeStep } from "~/lib/api/types/recipe";
+import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 
 /** An ingredient of the recipe as a step needs it; AMOUNT is html-safe, e.g. "200 g" at the current factor. */
 export interface KhStepIngredient {
@@ -66,19 +66,44 @@ export function timerLabel(place: number, text: string): string {
   return `${place + 1}. ${plain.split(/\s+/).filter(Boolean).slice(0, LABEL_WORDS).join(" ")}`;
 }
 
+/** An ingredient as the step view lists it under "Du brauchst:". */
+export interface KhNeed {
+  referenceId: string;
+  name: string;
+  amount: string | null;
+}
+
+/** The entries of the "Du brauchst:" line of step PLACE ("Butter 200 g"): the ingredients the step references, with
+ * the amount only for those no other step uses (the whole amount would not fit one of several steps). */
+export function stepNeeds(place: number, step: StepReferences, needs: KhNeed[], steps: StepReferences[]): string[] {
+  const referenced = new Set(step.ingredientReferences?.map(r => r.referenceId));
+  return needs
+    .filter(need => referenced.has(need.referenceId))
+    .map(need => (need.amount && onlyStepOf(need.referenceId, steps) === place ? `${need.name} ${need.amount}` : need.name));
+}
+
+/** The shown amount ("200 g") of ingredient LINE at SCALE; null without a quantity. */
+function lineAmount(line: RecipeIngredient, scale: number): string | null {
+  const { quantity, unit } = useIngredientTextParser().useParsedIngredientText(line, scale, false);
+  return quantity ? `${quantity} ${unit ?? ""}`.trim() : null;
+}
+
+/** The "Du brauchst:" entries of step STEP at place PLACE of RECIPE at SCALE. */
+export function khStepNeeds(place: number, step: RecipeStep, recipe: Recipe, scale: number): string[] {
+  const needs = (recipe.recipeIngredient ?? []).flatMap((line): KhNeed[] => {
+    const name = line.food?.name ?? line.note;
+    return line.referenceId && name ? [{ referenceId: line.referenceId, name, amount: lineAmount(line, scale) }] : [];
+  });
+  return stepNeeds(place, step, needs, recipe.recipeInstructions ?? []);
+}
+
 /** The one entry point for every view: step STEP at place PLACE of RECIPE at SCALE, with the amounts of
  * Phase 3 scaled first, then amounts and times added. */
 export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number): { html: string; times: KhTime[] } {
-  const { useParsedIngredientText } = useIngredientTextParser();
   const lines = recipe.recipeIngredient ?? [];
   const ingredients = lines.flatMap((line): KhStepIngredient[] => {
     if (!line.referenceId || !line.food) return [];
-    const { quantity, unit } = useParsedIngredientText(line, scale, false);
-    return [{
-      referenceId: line.referenceId,
-      names: [line.food.name, line.food.pluralName ?? ""],
-      amount: quantity ? `${quantity} ${unit ?? ""}`.trim() : null,
-    }];
+    return [{ referenceId: line.referenceId, names: [line.food.name, line.food.pluralName ?? ""], amount: lineAmount(line, scale) }];
   });
   const linkedIds = new Set(khAmounts.value.stepAmounts.filter(link => link.step === place).map(link => link.referenceId));
   return stepDisplay(place, khStepText(place, step.text, lines, scale), ingredients, recipe.recipeInstructions ?? [], linkedIds);

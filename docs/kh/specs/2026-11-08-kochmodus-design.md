@@ -28,7 +28,7 @@ Stand 8.11.2026. Abgestimmt über die Vorschlagsseite: sechs Entscheidungen E1 b
   - Dann der Schritttext in großer Schrift, darunter die laufenden Timer.
   - Unten zwei große Tasten: „Zurück“ (schmal) und „Weiter“ (breit, Akzentfarbe). Im letzten Schritt heißt „Weiter“ „Fertig“ und beendet den Kochmodus.
 - Wischen nach links geht weiter, nach rechts zurück (`useSwipe` aus `@vueuse/core`, schon vorhanden). Am iPad mit Tastatur gehen auch die Pfeiltasten und die Leertaste.
-- „Alle Schritte“ schaltet auf Mealies Liste um. Ein Tipp auf einen Schritt dort springt in die Schritt-Ansicht zu diesem Schritt.
+- „Alle Schritte“ schaltet auf Mealies Liste um. Ein Tipp auf einen Schritt dort hakt ihn ab wie bisher (8.11.2026, geändert: beim Kochen ist das Abhaken wichtiger als das Springen). Neben Mealies Schließen-Taste steht „Schritt für Schritt“; sie führt zurück in die Schritt-Ansicht, zum aktuellen Schritt.
 - Der aktuelle Schritt steht in der Adresse (`&step=3`), so bleibt er beim Neuladen erhalten.
 - Abschnitts-Überschriften aus Mealie (Schritte mit Titel) erscheinen über dem Schritt.
 - Die Bildschirmsperre ist im Kochmodus aus (`useWakeLock`) und wird beim Verlassen wieder freigegeben, unabhängig von Mealies Schalter. Kann das Gerät das nicht, kommt ein einmaliger Hinweis, die automatische Sperre selbst länger zu stellen.

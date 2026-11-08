@@ -127,8 +127,8 @@
     </v-container>
     <!-- KH: "Start cooking" in the view, outside the card, so the wake-lock switch never scrolls over it (D38) -->
     <KhCookBar v-if="!isEditMode && !isCookMode" @cook="toggleCookMode()" />
-    <!-- KH: the running timers as a thin bar above it, on every recipe page (D42) -->
-    <KhTimers compact />
+    <!-- KH: the running timers as a thin bar above it, on every recipe page except in the step view, which lists them itself (D42) -->
+    <KhTimers v-if="!isCookMode || khCook.allSteps.value" compact />
     <!-- Floating save button when toolbar scrolls out of view -->
     <v-fab
       v-if="isEditMode && !toolbarVisible"
@@ -148,8 +148,17 @@
     <!-- Cook mode displayes two columns with ingredients and instructions side by side, each being scrolled individually, allowing to view both at the same time -->
     <!-- The calc is to account for the navabar height (48px) -->
     <!-- KH: and for the bar at the bottom on upright iPads, which would cover the end of both columns (D38) -->
+    <!-- KH: the step view takes over cook mode; Mealie's list below is "All steps" (D42) -->
+    <KhCookStep
+      v-if="isCookMode && !khCook.allSteps.value"
+      :recipe="displayedRecipe"
+      :scale="scale"
+      :cook="khCook"
+      @close="toggleCookMode()"
+      @all-steps="khCook.allSteps.value = true"
+    />
     <v-sheet
-      v-show="isCookMode && !hasLinkedIngredients"
+      v-show="isCookMode && khCook.allSteps.value && !hasLinkedIngredients"
       key="cookmode"
       :height="$vuetify.display.smAndUp ? 'calc(100vh - 48px - var(--v-layout-bottom, 0px))' : 'auto'"
       class-name="overflow-hidden"
@@ -190,7 +199,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-sheet v-show="isCookMode && hasLinkedIngredients">
+    <v-sheet v-show="isCookMode && khCook.allSteps.value && hasLinkedIngredients">
       <div class="mt-2 px-2 px-md-4">
         <RecipePageScale v-model="scale" :recipe="recipe" />
       </div>
@@ -216,8 +225,18 @@
         </v-card>
       </div>
     </v-sheet>
+    <!-- KH: back to the step view from the list of all steps (D42) -->
     <v-btn
-      v-if="isCookMode"
+      v-if="isCookMode && khCook.allSteps.value"
+      color="primary"
+      height="48"
+      style="position: fixed; right: 68px; top: 60px"
+      @click="khCook.allSteps.value = false"
+    >
+      {{ $t("kh.cook.step-by-step") }}
+    </v-btn>
+    <v-btn
+      v-if="isCookMode && khCook.allSteps.value"
       icon
       color="primary"
       style="position: fixed; right: 12px; top: 60px"
@@ -279,6 +298,8 @@ const { deactivateNavigationWarning } = useNavigationWarning();
 const scale = ref(1);
 // KH: the recipe's range ends, fixed lines and step links, for every view of it, reloaded after a save (D39)
 useKhAmounts(() => recipe.value);
+// KH: the step view of cook mode: the current step and whether Mealie's list of all steps shows instead (D42)
+const khCook = useKhCook(() => recipe.value.recipeInstructions.length);
 
 const { unitSystem } = useUnitSystem();
 const { convertIngredient } = useUnitConversion();

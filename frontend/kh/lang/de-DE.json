@@ -164,6 +164,19 @@
       "pause": "Pause",
       "resume": "Weiter",
       "stop": "Timer abbrechen"
+    },
+    "cook": {
+      "step-of": "Schritt {n} von {total}",
+      "step": "Schritt {n}",
+      "all-steps": "Alle Schritte",
+      "step-by-step": "Schritt für Schritt",
+      "back": "Zurück",
+      "next": "Weiter",
+      "done": "Fertig",
+      "you-need": "Du brauchst:",
+      "leave": "Kochmodus verlassen",
+      "no-steps": "Dieses Rezept hat keine Schritte.",
+      "lock-hint": "Dieses Gerät kann die Bildschirmsperre nicht von selbst ausschalten. Stell die automatische Sperre in den Einstellungen länger, damit der Bildschirm beim Kochen an bleibt."
     }
   }
 }

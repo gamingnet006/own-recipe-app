@@ -164,6 +164,19 @@
       "pause": "Pause",
       "resume": "Resume",
       "stop": "Cancel timer"
+    },
+    "cook": {
+      "step-of": "Step {n} of {total}",
+      "step": "Step {n}",
+      "all-steps": "All steps",
+      "step-by-step": "Step by step",
+      "back": "Back",
+      "next": "Next",
+      "done": "Done",
+      "you-need": "You need:",
+      "leave": "Leave cook mode",
+      "no-steps": "This recipe has no steps.",
+      "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
     }
   }
 }
