@@ -199,7 +199,32 @@
     },
     "book": {
       "toc": "Contents",
-      "number": "No. {n}"
+      "number": "No. {n}",
+      "print-as-book": "Print as book",
+      "page-title": "Family cookbook",
+      "card-title": "Recipe card",
+      "not-found": "This cookbook does not exist.",
+      "recipe-not-found": "This recipe does not exist.",
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "title-page": "Title page",
+      "order": "Order",
+      "order-category": "by category, then A–Z",
+      "order-alpha": "A–Z",
+      "all-recipes": "For all recipes",
+      "oven": "Fan-oven brackets",
+      "recipes": "Recipes",
+      "in-book": "in the book",
+      "with-photo": "with photo",
+      "own-photo": "The photo is ours",
+      "own-photo-hint": "Only for photos you took yourselves",
+      "servings": "Servings",
+      "print": "Print / Save as PDF",
+      "empty": "This cookbook finds no recipes. Adjust the filter in Mealie's cookbook.",
+      "forbidden": "Only the own household can change this cookbook",
+      "save-failed": "Saving did not work.",
+      "retry": "Try again",
+      "flag-forbidden": "You may not change this recipe"
     }
   }
 }

@@ -63,3 +63,19 @@ export function bookRecipes(recipes: Recipe[], settings: KhBookSettings, flags: 
     };
   });
 }
+
+/** What the editor shows: the hint for a cookbook whose filter finds no recipes, else the entries. */
+export function editorState(recipes: Recipe[], settings: KhBookSettings, flags: Record<string, KhRecipeFlags>): { empty: boolean; entries: BookEntry[] } {
+  return recipes.length === 0 ? { empty: true, entries: [] } : { empty: false, entries: bookRecipes(recipes, settings, flags) };
+}
+
+/** Stored settings where the title or subtitle was never set get the defaults for them; the rest stays as stored. */
+export function fillDefaults(stored: KhBookSettings, cookbookName: string, householdName: string, year: number): KhBookSettings {
+  const defaults = defaultBookSettings(cookbookName, householdName, year);
+  return { ...stored, title: stored.title ?? defaults.title, subtitle: stored.subtitle ?? defaults.subtitle };
+}
+
+/** SETTINGS with PATCH applied to the recipe SLUG only (a new object, so a v-model sees the change). */
+export function withRecipe(settings: KhBookSettings, slug: string, patch: Partial<KhBookRecipeSettings>): KhBookSettings {
+  return { ...settings, recipes: { ...settings.recipes, [slug]: { ...recipeSettings(settings, slug), ...patch } } };
+}

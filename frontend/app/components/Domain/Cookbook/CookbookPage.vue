@@ -43,6 +43,15 @@
             :edit="true"
             @click="handleEditCookbook"
           />
+          <!-- KH: the family cookbook's editor (D43) -->
+          <v-btn
+            v-if="isOwnGroup"
+            variant="text"
+            :prepend-icon="$globals.icons.printer"
+            :to="`/g/${route.params.groupSlug}/kochbuch/${slug}`"
+          >
+            {{ $t("kh.book.print-as-book") }}
+          </v-btn>
         </div>
         <div v-if="book.description" class="subtitle-1 text-grey-lighten-1 mb-2">
           {{ book.description }}

@@ -199,7 +199,32 @@
     },
     "book": {
       "toc": "Inhaltsverzeichnis",
-      "number": "Nr. {n}"
+      "number": "Nr. {n}",
+      "print-as-book": "Als Buch drucken",
+      "page-title": "Familienkochbuch",
+      "card-title": "Rezeptkarte",
+      "not-found": "Dieses Kochbuch gibt es nicht.",
+      "recipe-not-found": "Dieses Rezept gibt es nicht.",
+      "title": "Titel",
+      "subtitle": "Untertitel",
+      "title-page": "Titelseite",
+      "order": "Reihenfolge",
+      "order-category": "nach Kategorie, dann A–Z",
+      "order-alpha": "A–Z",
+      "all-recipes": "Für alle Rezepte",
+      "oven": "Umluft-Klammern",
+      "recipes": "Rezepte",
+      "in-book": "ins Buch",
+      "with-photo": "mit Foto",
+      "own-photo": "Foto ist von uns",
+      "own-photo-hint": "Nur für Fotos, die ihr selbst gemacht habt",
+      "servings": "Portionen",
+      "print": "Drucken / Als PDF sichern",
+      "empty": "Dieses Kochbuch findet keine Rezepte. Passe den Filter in Mealies Kochbuch an.",
+      "forbidden": "Nur der eigene Haushalt kann dieses Kochbuch ändern",
+      "save-failed": "Speichern hat nicht geklappt.",
+      "retry": "Erneut versuchen",
+      "flag-forbidden": "Dieses Rezept darfst du nicht ändern"
     }
   }
 }
