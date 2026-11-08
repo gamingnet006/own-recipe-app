@@ -13,10 +13,15 @@ class KhFeatures(MealieModel):
 
     share_links: bool
     notice_poll_minutes: int  # how often the bell asks for new notices (D39)
+    clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
 
 
 @router.get("", response_model=KhFeatures)
 def get_features() -> KhFeatures:
     """Public, because the frontend loads it before anyone logs in; the switches hold no secrets."""
     settings = get_kh_settings()
-    return KhFeatures(share_links=settings.share_links, notice_poll_minutes=settings.notice_poll_minutes)
+    return KhFeatures(
+        share_links=settings.share_links,
+        notice_poll_minutes=settings.notice_poll_minutes,
+        clock_shortcut_url=settings.clock_shortcut_url,
+    )

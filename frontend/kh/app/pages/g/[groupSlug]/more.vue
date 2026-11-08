@@ -35,6 +35,29 @@ everything the side menu holds on bigger screens. -->
           :hint="$t('kh.timer.clock-hint')"
           persistent-hint
         />
+        <!-- Optional ready-made shortcut (KH_CLOCK_SHORTCUT_URL); the steps below stay as the fallback -->
+        <v-btn
+          v-if="$khFeatures.clockShortcutUrl"
+          :href="$khFeatures.clockShortcutUrl"
+          target="_blank"
+          rel="noopener"
+          color="primary"
+          class="mt-2"
+          block
+        >
+          {{ $t("kh.timer.clock-add") }}
+        </v-btn>
+        <v-expansion-panels variant="accordion" class="mt-2">
+          <v-expansion-panel :title="$t('kh.timer.clock-setup')">
+            <v-expansion-panel-text>
+              <ol class="pl-4">
+                <li v-for="n in 4" :key="n" class="mb-1">
+                  {{ $t(`kh.timer.clock-step-${n}`) }}
+                </li>
+              </ol>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
         <v-text-field
           v-if="clockEnabled"
           v-model="clockName"
@@ -42,6 +65,9 @@ everything the side menu holds on bigger screens. -->
           class="mt-4"
           @blur="clockName = clockName.trim() || DEFAULT_CLOCK_SHORTCUT"
         />
+        <v-btn variant="tonal" class="mt-2" block @click="tryClockShortcut">
+          {{ $t("kh.timer.clock-try") }}
+        </v-btn>
       </v-list>
     </section>
 
@@ -94,7 +120,7 @@ everything the side menu holds on bigger screens. -->
 
 <script setup lang="ts">
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
-import { DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
 
@@ -112,6 +138,11 @@ const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
 const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
+
+/** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */
+function tryClockShortcut() {
+  location.href = clockTimerUrl(clockName.value, 60);
+}
 
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 

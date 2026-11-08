@@ -211,12 +211,16 @@ Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Ei
 
 Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
 
-1. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name „KH Timer“:
-   - Aktion **Zahlen aus Eingabe abrufen**, Quelle **Kurzbefehleingabe**.
-   - Aktion **Timer starten** mit dieser Zahl als **Minuten**.
-2. **Einschalten:** In Küchenhelfer unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein.
+1. **Kurzbefehl einrichten.** Unter **Mehr → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
+   - App **Kurzbefehle** öffnen, unten rechts auf **+** tippen.
+   - Oben den Namen auf „KH Timer“ ändern (oder den Namen in Küchenhelfer anpassen).
+   - Aktion **Zahlen aus Eingabe abrufen** hinzufügen, Quelle **Kurzbefehleingabe**.
+   - Aktion **Timer starten** hinzufügen, Dauer = diese Zahl, Einheit **Minuten**.
+2. **Einschalten:** In Küchenhelfer unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
 
 Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Küchenhelfer läuft weiter.
+
+*Optional für die Admin:* Wer den Kurzbefehl einmal gebaut hat, kann ihn teilen (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` eintragen (nur `https://www.icloud.com/shortcuts/…`; alles andere wird ignoriert). Dann zeigt **Mehr → Timer** die Taste „Kurzbefehl hinzufügen“, die ihn auf dem Gerät anlegt.
 
 ### Optional
 
@@ -467,12 +471,16 @@ Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake
 
 A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
 
-1. **Build the shortcut** once in the **Shortcuts** app with **+**, named "KH Timer":
-   - Action **Get Numbers from Input**, source **Shortcut Input**.
-   - Action **Start Timer** with that number as **minutes**.
-2. **Turn it on:** in Küchenhelfer under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there.
+1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
+   - Open the **Shortcuts** app and tap **+** at the bottom right.
+   - Change the name at the top to "KH Timer" (or adjust the name in Küchenhelfer).
+   - Add the action **Get Numbers from Input**, source **Shortcut Input**.
+   - Add the action **Start Timer**, duration = that number, unit **minutes**.
+2. **Turn it on:** in Küchenhelfer under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
 
 Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Küchenhelfer keeps running.
+
+*Optional for the admin:* once the shortcut is built, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else is ignored). **More → Timer** then shows the button "Add shortcut", which adds it on the device.
 
 ### Optional
 

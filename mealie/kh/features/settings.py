@@ -1,13 +1,20 @@
 """KH: Küchenhelfer's switches from KH_* environment variables (kh/ops/.env). Mealie's own settings
 stay untouched; the Mealie parts we hide stay off unless they are switched on here."""
 
+import re
 from functools import lru_cache
 
 from fastapi import HTTPException, status
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from mealie.core.root_logger import get_logger
 from mealie.schema.response import ErrorResponse
+
+logger = get_logger()
+
+# The only address the "add shortcut" button may open: a shared iOS Shortcut on iCloud
+CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]+/?")
 
 
 class KhSettings(BaseSettings):
@@ -18,6 +25,9 @@ class KhSettings(BaseSettings):
 
     # Public recipe pages by link; Leitplanke 1: share links only on purpose, off by default
     share_links: bool = False
+
+    # Ready-made iOS Shortcut for the Clock timer (D42), an iCloud share link; anything else counts as unset
+    clock_shortcut_url: str | None = None
 
     # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
     draft_max_images: int = 5
@@ -40,6 +50,15 @@ class KhSettings(BaseSettings):
     # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
     notice_days: int = Field(30, ge=1)
     notice_poll_minutes: int = Field(5, ge=1)
+
+    @field_validator("clock_shortcut_url")
+    @classmethod
+    def only_icloud_shortcut_links(cls, value: str | None) -> str | None:
+        """Drops any address that is not an iCloud Shortcuts link; the warning names the setting, not the value."""
+        if value is not None and not CLOCK_SHORTCUT_URL.fullmatch(value):
+            logger.warning("KH_CLOCK_SHORTCUT_URL is not an iCloud Shortcuts link, ignored")
+            return None
+        return value
 
 
 @lru_cache
