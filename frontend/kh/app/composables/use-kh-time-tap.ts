@@ -14,6 +14,6 @@ export function useKhTimeTap() {
     event.stopPropagation();
     unlockAudio();
     const time = khStepDisplay(place, step, recipe, scale).times[index];
-    if (time) start(time, timerLabel(place, step.text ?? ""), recipe.slug ?? "");
+    if (time) start(time, timerLabel(place, step.text ?? ""), recipe.slug ?? "", place);
   };
 }

@@ -21,6 +21,8 @@ export interface KhTimer {
   id: string;
   label: string;
   recipeSlug: string;
+  /** The 0-based step the timer was started in, so its link leads back there. */
+  step: number;
   /** Epoch milliseconds when it rings; meaningless while paused. */
   endsAt: number;
   seconds: number;
@@ -71,10 +73,10 @@ export function useKhTimers(now: () => number = Date.now) {
     return timer.pausedLeft === null && timer.endsAt <= now();
   }
 
-  /** Starts a timer for TIME, named LABEL, belonging to the recipe RECIPESLUG. */
-  function start(time: KhTime, label: string, recipeSlug: string): KhTimer {
+  /** Starts a timer for TIME, named LABEL, started in step STEP (0-based) of the recipe RECIPESLUG. */
+  function start(time: KhTime, label: string, recipeSlug: string, step: number): KhTimer {
     const extraSeconds = time.upperSeconds === null ? null : time.upperSeconds - time.seconds;
-    timers.value.push({ id: uuid4(), label, recipeSlug, endsAt: now() + time.seconds * 1000, seconds: time.seconds, extraSeconds, pausedLeft: null });
+    timers.value.push({ id: uuid4(), label, recipeSlug, step, endsAt: now() + time.seconds * 1000, seconds: time.seconds, extraSeconds, pausedLeft: null });
     return timers.value[timers.value.length - 1]!;
   }
 
@@ -114,17 +116,39 @@ export function useKhTimers(now: () => number = Date.now) {
   return { timers, start, pause, resume, stop, extend, left, done, ringing, tick };
 }
 
+/** Removes all timers, in the list and in storage (at sign-out, so a shared device keeps none). */
+export function clearKhTimers(): void {
+  timers.value = [];
+}
+
+/** The address of the recipe TIMER belongs to, at the step it was started in. */
+export function timerRecipePath(groupSlug: string, timer: KhTimer): string {
+  return `/g/${groupSlug}/r/${timer.recipeSlug}?step=${timer.step + 1}`;
+}
+
+/** SECONDS as m:ss, or h:mm:ss from an hour on. */
+export function formatTimeLeft(seconds: number): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const hours = Math.floor(seconds / 3600);
+  const rest = `${hours ? pad(Math.floor(seconds / 60) % 60) : Math.floor(seconds / 60)}:${pad(seconds % 60)}`;
+  return hours ? `${hours}:${rest}` : rest;
+}
+
 let audio: AudioContext | undefined;
 
-/** Allows sounds: iOS only plays Web Audio that was started by a tap, so call this from the first timer tap. */
+/** Allows sounds: iOS only plays Web Audio that was started by a tap, so call this from a tap. */
 export function unlockAudio(): void {
+  // The "playback" channel ignores the iPhone's mute switch (Safari 17+); without it the alarm stays silent there.
+  const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (session) session.type = "playback";
   audio ??= new AudioContext();
   void audio.resume();
 }
 
-/** One short beep, if sound was unlocked. */
+/** One short beep, if sound was unlocked; wakes the audio context if iOS has suspended it. */
 function beep(): void {
   if (!audio) return;
+  if (audio.state !== "running") void audio.resume();
   const oscillator = audio.createOscillator();
   oscillator.frequency.value = BEEP_HZ;
   oscillator.connect(audio.destination);
@@ -152,7 +176,7 @@ let alarmScope: EffectScope | undefined;
 export const timersListedInStep = ref(false);
 
 /** Makes a due timer ring on every page: the one app-wide alarm, rung from the first timer running out until none
- * is left. Safe to call from many places; only the first call sets it up, so there is never a second alarm. */
+ * is left, and again whenever a further timer runs out. Safe to call from many places; only the first call sets it up, so there is never a second alarm. */
 export function useKhAlarm(): void {
   if (alarmScope) return;
   const { ringing } = useKhTimers();
@@ -160,13 +184,17 @@ export function useKhAlarm(): void {
   // Own scope, so the alarm outlives the component that happened to start it.
   alarmScope = effectScope(true);
   alarmScope.run(() => {
-    watch(() => ringing.value.length > 0, (ringingNow) => {
-      if (ringingNow) {
-        stopAlarm ??= startAlarm();
-      }
-      else {
+    // After a reload no tap has unlocked sound yet; the first tap anywhere does.
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    // A timer that runs out while another is still ringing restarts the alarm, which may have timed out meanwhile.
+    watch(() => ringing.value.map(timer => timer.id), (ids, oldIds = []) => {
+      if (!ids.length) {
         stopAlarm?.();
         stopAlarm = undefined;
+      }
+      else if (!stopAlarm || ids.some(id => !oldIds.includes(id))) {
+        stopAlarm?.();
+        stopAlarm = startAlarm();
       }
     }, { immediate: true });
   });

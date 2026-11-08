@@ -10,12 +10,12 @@ the default layout). A timer that has run out rings, wherever the user is, until
     :aria-label="$t('kh.timer.list')"
   >
     <div v-for="row in rows" :key="row.timer.id" class="d-flex align-center ga-2" :class="{ 'text-primary': row.done }">
-      <NuxtLink v-if="isOtherRecipe(row.timer)" :to="recipeLink(row.timer)" class="flex-grow-1 text-truncate py-3">
+      <NuxtLink v-if="isOtherRecipe(row.timer)" :to="timerRecipePath(groupSlug, row.timer)" class="flex-grow-1 text-truncate py-3">
         {{ row.timer.label }}
       </NuxtLink>
       <span v-else class="flex-grow-1 text-truncate">{{ row.timer.label }}</span>
 
-      <strong class="text-h6 kh-timer-time">{{ row.done ? $t("kh.timer.done") : format(row.left) }}</strong>
+      <strong class="text-h6 kh-timer-time">{{ row.done ? $t("kh.timer.done") : formatTimeLeft(row.left) }}</strong>
 
       <template v-if="row.done">
         <v-btn v-if="row.timer.extraSeconds" size="large" variant="tonal" @click="extend(row.timer.id)">
@@ -47,7 +47,7 @@ the default layout). A timer that has run out rings, wherever the user is, until
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { clockTimerUrl, timersListedInStep, useKhAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
+import { clockTimerUrl, formatTimeLeft, timerRecipePath, timersListedInStep, useKhAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
 
 defineProps<{ compact?: boolean }>();
 
@@ -70,22 +70,9 @@ function isOtherRecipe(timer: KhTimer): boolean {
   return timer.recipeSlug !== route.params.slug;
 }
 
-/** The address of the recipe TIMER belongs to. */
-function recipeLink(timer: KhTimer): string {
-  return `/g/${groupSlug.value}/r/${timer.recipeSlug}`;
-}
-
 /** Hands a timer with SECONDS left to the clock app through the Shortcut; ours keeps running. */
 function putOnClock(seconds: number): void {
   location.href = clockTimerUrl(clockName.value, seconds);
-}
-
-/** SECONDS as m:ss, or h:mm:ss from an hour on. */
-function format(seconds: number): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const hours = Math.floor(seconds / 3600);
-  const rest = `${hours ? pad(Math.floor(seconds / 60) % 60) : Math.floor(seconds / 60)}:${pad(seconds % 60)}`;
-  return hours ? `${hours}:${rest}` : rest;
 }
 
 useKhAlarm();

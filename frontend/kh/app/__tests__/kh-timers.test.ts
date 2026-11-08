@@ -29,7 +29,7 @@ afterEach(() => {
 test("runs for its seconds, then rings", async () => {
   const { useKhTimers } = await fresh();
   const t = useKhTimers(now);
-  const timer = t.start(ten, "Schritt 1", "kuchen");
+  const timer = t.start(ten, "Schritt 1", "kuchen", 0);
   clock += 599_000;
   expect(t.left(timer)).toBe(1);
   expect(t.done(timer)).toBe(false);
@@ -41,7 +41,7 @@ test("runs for its seconds, then rings", async () => {
 test("a long sleep shows done at once", async () => {
   const { useKhTimers } = await fresh();
   const t = useKhTimers(now);
-  const timer = t.start(ten, "Schritt 1", "kuchen");
+  const timer = t.start(ten, "Schritt 1", "kuchen", 0);
   clock += 3_600_000;
   expect(t.done(timer)).toBe(true);
   expect(t.left(timer)).toBe(0);
@@ -50,7 +50,7 @@ test("a long sleep shows done at once", async () => {
 test("a range rings at the lower end and extends by the difference", async () => {
   const { useKhTimers } = await fresh();
   const t = useKhTimers(now);
-  const timer = t.start(range, "Schritt 2", "kuchen");
+  const timer = t.start(range, "Schritt 2", "kuchen", 1);
   clock += 1_200_000;
   expect(t.done(timer)).toBe(true);
   t.extend(timer.id);
@@ -63,7 +63,7 @@ test("a range rings at the lower end and extends by the difference", async () =>
 test("a paused timer keeps its time", async () => {
   const { useKhTimers } = await fresh();
   const t = useKhTimers(now);
-  const timer = t.start(ten, "Schritt 1", "kuchen");
+  const timer = t.start(ten, "Schritt 1", "kuchen", 0);
   clock += 500_000;
   t.pause(timer.id);
   clock += 1_000_000;
@@ -77,15 +77,15 @@ test("a paused timer keeps its time", async () => {
 test("timers run independently", async () => {
   const { useKhTimers } = await fresh();
   const t = useKhTimers(now);
-  const first = t.start(ten, "Schritt 1", "kuchen");
-  const second = t.start(range, "Schritt 2", "kuchen");
+  const first = t.start(ten, "Schritt 1", "kuchen", 0);
+  const second = t.start(range, "Schritt 2", "kuchen", 1);
   t.stop(first.id);
   expect(t.timers.value.map(x => x.id)).toEqual([second.id]);
 });
 
 test("timers survive a reload; broken storage gives an empty list", async () => {
   let mod = await fresh();
-  const started = mod.useKhTimers(now).start(ten, "Schritt 1", "kuchen");
+  const started = mod.useKhTimers(now).start(ten, "Schritt 1", "kuchen", 0);
   mod = await fresh();
   expect(mod.useKhTimers(now).timers.value).toEqual([started]);
 
@@ -159,7 +159,7 @@ test("a tap on a time starts its timer and stops there; a tap elsewhere does not
   expect(useKhTimers(now).timers.value).toEqual([]);
   expect(clickOn(container.querySelector("span")!)).toHaveBeenCalled();
   const [timer] = useKhTimers(now).timers.value;
-  expect(timer).toMatchObject({ label: "1. Teig 10 Min. ruhen", recipeSlug: "kuchen", seconds: 600 });
+  expect(timer).toMatchObject({ label: "1. Teig 10 Min. ruhen", recipeSlug: "kuchen", seconds: 600, step: 0 });
 });
 
 describe("the clock shortcut setting", () => {
@@ -199,7 +199,7 @@ test("only one alarm rings, however often the alarm is requested, and it ends wh
   useKhAlarm();
   useKhAlarm();
   const timers = useKhTimers();
-  const timer = timers.start(ten, "Schritt 1", "kuchen");
+  const timer = timers.start(ten, "Schritt 1", "kuchen", 0);
   await vi.advanceTimersByTimeAsync(ten.seconds * 1000 + 1500);
   expect(vibrate).toHaveBeenCalled();
 
@@ -212,4 +212,84 @@ test("only one alarm rings, however often the alarm is requested, and it ends wh
   vibrate.mockClear();
   await vi.advanceTimersByTimeAsync(3000);
   expect(vibrate).not.toHaveBeenCalled();
+});
+
+/** A stand-in for AudioContext that counts how often it was made and resumed. */
+function fakeAudio(state = "running") {
+  const made = vi.fn();
+  const resume = vi.fn();
+  vi.stubGlobal("AudioContext", class {
+    state = state;
+    destination = {};
+    currentTime = 0;
+    resume = resume;
+    constructor() {
+      made();
+    }
+
+    createOscillator = () => ({ connect: vi.fn(), start: vi.fn(), stop: vi.fn(), frequency: { value: 0 } });
+  });
+  return { made, resume };
+}
+
+test("unlocking sound puts iOS audio on the playback channel, so the mute switch does not silence it", async () => {
+  const audioSession = { type: "auto" };
+  vi.stubGlobal("navigator", { vibrate: vi.fn(), audioSession });
+  fakeAudio();
+  (await fresh()).unlockAudio();
+  expect(audioSession.type).toBe("playback");
+});
+
+test("after a reload the first tap anywhere unlocks sound, and a beep wakes a suspended audio context", async () => {
+  vi.stubGlobal("navigator", { vibrate: vi.fn() });
+  const audio = fakeAudio("suspended");
+  const { useKhAlarm, startAlarm } = await fresh();
+  useKhAlarm();
+  expect(audio.made).not.toHaveBeenCalled();
+  document.dispatchEvent(new Event("pointerdown"));
+  expect(audio.made).toHaveBeenCalled(); // earlier tests' listeners may have made one, too
+  const before = audio.resume.mock.calls.length;
+  startAlarm()();
+  expect(audio.resume.mock.calls.length).toBeGreaterThan(before);
+});
+
+test("a timer left ringing does not silence a later one", async () => {
+  const vibrate = vi.fn();
+  vi.stubGlobal("navigator", { vibrate });
+  vi.useFakeTimers();
+  const { useKhAlarm, useKhTimers, ALARM_MAX_MS } = await fresh();
+  useKhAlarm();
+  const timers = useKhTimers();
+  timers.start(ten, "Schritt 1", "kuchen", 0);
+  await vi.advanceTimersByTimeAsync(ten.seconds * 1000 + 1500);
+  timers.start(ten, "Schritt 2", "kuchen", 1);
+  await vi.advanceTimersByTimeAsync(ALARM_MAX_MS + 1000); // the first alarm has given up by now
+  await vi.advanceTimersByTimeAsync((ten.seconds - 123) * 1000);
+  vibrate.mockClear();
+  await vi.advanceTimersByTimeAsync(5000); // the second timer runs out
+  expect(vibrate).toHaveBeenCalled();
+});
+
+test("signing out clears the timers from the list and from storage", async () => {
+  const { useKhTimers, clearKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  t.start(ten, "Schritt 1", "kuchen", 0);
+  clearKhTimers();
+  expect(t.timers.value).toEqual([]);
+  expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")).toEqual([]);
+});
+
+test("a timer remembers its step, and its link leads back to that step", async () => {
+  const { useKhTimers, timerRecipePath } = await fresh();
+  const timer = useKhTimers(now).start(ten, "Schritt 3", "kuchen", 2);
+  expect(timerRecipePath("home", timer)).toBe("/g/home/r/kuchen?step=3");
+});
+
+test("the time left as m:ss, h:mm:ss from an hour on", async () => {
+  const { formatTimeLeft } = await fresh();
+  expect(formatTimeLeft(0)).toBe("0:00");
+  expect(formatTimeLeft(65)).toBe("1:05");
+  expect(formatTimeLeft(3599)).toBe("59:59");
+  expect(formatTimeLeft(3600)).toBe("1:00:00");
+  expect(formatTimeLeft(3725)).toBe("1:02:05");
 });
