@@ -92,6 +92,9 @@
               />
               <!-- KH: under the ingredients (D38) -->
               <KhAddToShoppingList v-if="!isEditForm && isOwnGroup" :recipe="recipe" :scale="scale" class="pr-2" />
+              <!-- KH: nutrition values and allergens under the ingredients (D44) -->
+              <KhNutrition v-if="!isEditForm && isOwnGroup" :slug="recipe.slug" :group-slug="groupSlug" />
+              <KhAllergens v-if="!isEditForm && isOwnGroup" :slug="recipe.slug" :group-slug="groupSlug" :can-edit="canEditRecipe" />
               <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
             </v-col>
             <!--
@@ -278,6 +281,7 @@ import { uuid4, deepCopy } from "~/composables/use-utils";
 import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.vue";
 import RecipeNotes from "~/components/Domain/Recipe/RecipeNotes.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
+import { useKhCanEdit } from "~~/kh/app/composables/use-kh-can-edit";
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useUnitConversion, useUnitSystem } from "~/composables/recipes";
 
@@ -287,6 +291,8 @@ const display = useDisplay();
 const auth = useMealieAuth();
 const route = useRoute();
 const { isOwnGroup } = useLoggedInState();
+// KH: edit right for the allergen corrections (D44)
+const canEditRecipe = useKhCanEdit(recipe.value);
 
 const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user?.value?.groupSlug || "");
 const ingredientStorageKey = computed(() => `recipe-ingredients:${recipe.value.id || recipe.value.slug}:checked`);
