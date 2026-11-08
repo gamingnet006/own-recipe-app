@@ -268,6 +268,16 @@ Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öf
 
 *Optional für die Admin:* Wer den Kurzbefehl einmal gebaut hat, kann ihn teilen (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` eintragen (nur `https://www.icloud.com/shortcuts/…`; alles andere wird ignoriert). Dann zeigt **Mehr → Timer** die Taste „Kurzbefehl hinzufügen“, die ihn auf dem Gerät anlegt.
 
+### Telegram-Bot einrichten
+
+Optional und standardmäßig aus: Wer Links, Texte oder Fotos lieber an einen Telegram-Chat schickt, bekommt sie als Entwurf im **Eingang** (P7.1). Der Bot fragt Telegram selbst nach Nachrichten, es wird kein Port geöffnet.
+
+1. In Telegram den Chat mit **@BotFather** öffnen, `/newbot` senden und die Fragen beantworten. Den Token, den er nennt, trägst du in `kh/ops/.env` als `KH_TELEGRAM_TOKEN` ein.
+2. In Küchenhelfer unter **Profil → API-Tokens** einen eigenen Token anlegen, zum Beispiel „Telegram-Bot“, und als `KH_TELEGRAM_API_TOKEN` eintragen.
+3. Starte den Bot mit `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, schreib ihm eine Nachricht und trag die Chat-ID, die er zurückschickt („Diese Chat-ID ist nicht freigeschaltet: …“), in `KH_TELEGRAM_ALLOWED_IDS` ein (mehrere mit Komma). Dann startest du den Bot mit demselben Befehl neu.
+
+Danach legt jeder Link, Text oder jedes Foto aus einem freigeschalteten Chat einen Entwurf an; der Bot antwortet mit „Entwurf angelegt“ und dem Link zur Prüfansicht. Bei Fotos zählt das größte, höchstens `KH_DRAFT_MAX_IMAGE_MB` groß. Videolinks (Instagram, TikTok, YouTube, Facebook) werden nicht abgerufen: Schick die Beschreibung als Text dazu oder einen Screenshot. Im Profil `lokal` startet der Bot nicht. Ausschalten: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
+
 ### Optional
 
 - **Zugang von unterwegs** (Cloudflare Tunnel, D27):
@@ -602,6 +612,16 @@ A timer in the app rings only while the app is open. So that it rings on a locke
 Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Küchenhelfer keeps running.
 
 *Optional for the admin:* once the shortcut is built, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else is ignored). **More → Timer** then shows the button "Add shortcut", which adds it on the device.
+
+### Set up the Telegram bot
+
+Optional and off by default: if you prefer to send links, texts or photos to a Telegram chat, they arrive as a draft in the **inbox** (P7.1). The bot asks Telegram for messages itself, no port is opened.
+
+1. In Telegram open the chat with **@BotFather**, send `/newbot` and answer the questions. Put the token it gives you into `kh/ops/.env` as `KH_TELEGRAM_TOKEN`.
+2. In Küchenhelfer create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
+3. Start the bot with `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, write it a message and put the chat ID it sends back ("Diese Chat-ID ist nicht freigeschaltet: …") into `KH_TELEGRAM_ALLOWED_IDS` (several with commas). Then restart the bot with the same command.
+
+From then on every link, text or photo from an allowed chat becomes a draft; the bot answers "Entwurf angelegt" with the link to the review. For photos the largest size counts, at most `KH_DRAFT_MAX_IMAGE_MB`. Video links (Instagram, TikTok, YouTube, Facebook) are not fetched: send the description as text with it, or a screenshot. In the `lokal` profile the bot does not start. Switch it off: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
 
 ### Optional
 

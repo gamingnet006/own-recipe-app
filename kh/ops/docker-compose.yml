@@ -53,6 +53,29 @@ services:
       KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
       KH_WHISPER_URL: ${KH_WHISPER_URL:-}
 
+  # Optional Telegram bot (P7.1, off by default): hands links, texts and photos from allowed chats in as drafts.
+  # Start: docker compose --profile telegram up -d telegram (needs the three KH_TELEGRAM_* values in .env).
+  # Same image, no open port: it asks Telegram for messages itself. Stops by itself (exit 0) when not set up.
+  telegram:
+    image: ${KH_IMAGE:-kuechenhelfer:dev}
+    profiles: ["telegram"]
+    restart: on-failure
+    entrypoint: ["python", "-m", "mealie.kh.telegram"]
+    working_dir: /app
+    user: "${KH_PUID:-1000}:${KH_PGID:-1000}"
+    mem_limit: 256m
+    depends_on:
+      - mealie
+    environment:
+      TZ: ${KH_TZ:-Europe/Berlin}
+      KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
+      KH_TELEGRAM_ALLOWED_IDS: ${KH_TELEGRAM_ALLOWED_IDS:-}
+      KH_TELEGRAM_API_TOKEN: ${KH_TELEGRAM_API_TOKEN:-}
+      KH_BASE_URL: ${KH_BASE_URL:-http://localhost:9091}
+      KH_DRAFT_MAX_IMAGE_MB: ${KH_DRAFT_MAX_IMAGE_MB:-}
+      # The profile "lokal" keeps everything in the house: the bot then refuses to start.
+      KH_PROFILE: ${KH_PROFILE:-}
+
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.
   tunnel:

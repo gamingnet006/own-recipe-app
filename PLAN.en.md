@@ -236,7 +236,7 @@ A phase is only done when its "Done when" is met. The family uses the fork from 
 
 - [ ] Whisper service (OpenAI-compatible, local) after T3.
 - [ ] Video intake: existing AI import with transcript, result as a draft; path after T4 (description and screenshot as default, download only as an optional plug-in, D5).
-- [ ] Telegram bot (polls messages itself, only allowed IDs).
+- [x] Telegram bot (polls messages itself, only allowed IDs). (8 Nov 2026: P7.1 in the v0.5 bundle; service `telegram` in profile `telegram`, tests with recorded HTTP; Pi trial and a hand test with Telegram are still to do.)
 - [ ] Profiles `leicht` (light), `normal`, `stark` (strong), `lokal` (local) and hardware test (measure 1 minute of audio, suggest a profile).
 - **Done when:** a reel link via the share sheet or Telegram lands as a draft in the review view and the `leicht` profile runs on the Pi.
 

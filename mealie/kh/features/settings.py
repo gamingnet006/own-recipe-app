@@ -57,6 +57,12 @@ class KhSettings(BaseSettings):
     source_url: str = "https://github.com/gamingnet006/own-recipe-app"
     notices_file: Path = Path("/app/kh-docs/THIRD_PARTY_NOTICES.md")
     telegram_token: str | None = None
+    # Telegram bot (P7.1): chats it listens to (comma list of chat IDs), the Mealie API token it hands drafts in
+    # with, where Mealie is for it, and the address the family opens the app at (for the review link)
+    telegram_allowed_ids: str = ""
+    telegram_api_token: str | None = None
+    telegram_mealie_url: str = "http://mealie:9000"
+    base_url: str = "http://localhost:9091"
     whisper_url: str | None = None
 
     @field_validator("clock_shortcut_url")
