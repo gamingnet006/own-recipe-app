@@ -1,6 +1,7 @@
 // KH: the text of a step as the views show it (D41, D42): the amount of an ingredient in parentheses behind its name,
 // and every recognized time wrapped in a span that can be tapped. The stored text never changes.
 import { parseTimes, type KhTime } from "./times";
+import { ovenBrackets, type Oven } from "./oven";
 import { khAmounts, khStepText } from "./amounts-store";
 import { useIngredientTextParser } from "~/composables/recipes/use-recipe-ingredients";
 import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
@@ -105,7 +106,7 @@ function amountSpot(ingredient: KhStepIngredient, place: number, text: string, s
 }
 
 /** TEXT (already scaled) of step PLACE for display: HTML-wrapped times (TIMES[i] belongs to the i-th
- * "kh-time" span) and amounts behind the names of ingredients that only this step uses and that have no
+ * "kh-time" span), the bracket for the reader's OVEN behind each oven temperature (none for null), and amounts behind the names of ingredients that only this step uses and that have no
  * step amount (LINKEDIDS) in it already. An ingredient of several steps gets an amount where the text
  * names its share ("die Hälfte des Mehls"). Markdown stays as written. */
 export function stepDisplay(
@@ -114,6 +115,7 @@ export function stepDisplay(
   ingredients: KhStepIngredient[],
   steps: StepReferences[],
   linkedIds: Set<string>,
+  oven: Oven | null = null,
 ): { html: string; times: KhTime[] } {
   const times = parseTimes(text);
   const inserts: [number, string][] = times.flatMap(t => [[t.start, "<span class=\"kh-time\">"], [t.end, "</span>"]] as [number, string][]);
@@ -121,6 +123,9 @@ export function stepDisplay(
     if (!ingredient.amount || !ingredient.names.length || linkedIds.has(ingredient.referenceId)) continue;
     const spot = amountSpot(ingredient, place, text, steps);
     if (spot) inserts.push([spot.end, ` <span class="kh-amount">(${spot.amount})</span>`]);
+  }
+  if (oven) {
+    for (const { at, text: bracket } of ovenBrackets(text, oven)) inserts.push([at, ` <span class="kh-amount">${bracket.trimStart()}</span>`]);
   }
   // From the end, so earlier offsets stay valid; the sort is stable, so equal offsets keep their order.
   let html = text;
@@ -189,8 +194,9 @@ export function khStepTimes(place: number, step: RecipeStep, recipe: Recipe, sca
 }
 
 /** The one entry point for every view: step STEP at place PLACE of RECIPE at SCALE, with the amounts of
- * Phase 3 scaled first, then amounts and times added. */
-export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number): { html: string; times: KhTime[] } {
+ * Phase 3 scaled first, then amounts, times and the OVEN's temperature brackets added (OVEN null: no brackets).
+ * Call it while a component renders only: the amount text needs Vuetify's locale. */
+export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number, oven: Oven | null = null): { html: string; times: KhTime[] } {
   const lines = recipe.recipeIngredient ?? [];
   const ingredients = lines.flatMap((line): KhStepIngredient[] => {
     if (!line.referenceId || !line.food) return [];
@@ -202,5 +208,5 @@ export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, s
     }];
   });
   const linkedIds = new Set(khAmounts.value.stepAmounts.filter(link => link.step === place).map(link => link.referenceId));
-  return stepDisplay(place, khStepText(place, step.text, lines, scale), ingredients, recipe.recipeInstructions ?? [], linkedIds);
+  return stepDisplay(place, khStepText(place, step.text, lines, scale), ingredients, recipe.recipeInstructions ?? [], linkedIds, oven);
 }

@@ -156,6 +156,12 @@
         "apply": "Apply"
       }
     },
+    "oven": {
+      "title": "Our oven",
+      "conventional": "Conventional (top and bottom heat)",
+      "fan": "Fan",
+      "hint": "Temperatures in the steps get a bracket with the value for this oven."
+    },
     "timer": {
       "list": "Running timers",
       "done": "done",
