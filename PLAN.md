@@ -195,7 +195,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - **Fertig wenn:** Ein Foto eines handgeschriebenen Rezepts landet als Entwurf in der Prüfansicht, die Testfälle (ohne Video) ergeben prüfbare Entwürfe, nichts wird ohne Freigabe gespeichert und die Duplikat-Testfälle schlagen an. Danach Release v0.1. (1.11.2026: erfüllt. `v0.1` ist mit beiden Images veröffentlicht, Upgrade-Test von `v0.0.2` und CI auf SQLite und Postgres grün. Am selben Tag folgte `v0.1.1` (Teilen per Kurzbefehl, D37), Upgrade-Test von `v0.1` grün; der Mac mini geht in der Nacht auf den 2.11. von `v0.0.2` direkt auf `v0.1.1`.)
 - **Danach** (Wünsche aus dem Probelauf, 1.11.2026):
   - [x] Design und Funktionen durchsehen: Vorschläge mit Mockups zum Abstimmen, bevor Code entsteht; nach `v0.1`, vor Phase 3. (1.11.2026: Look „Salbei“ gewählt, Leiste unten, eigene Rezeptseite; D38.)
-  - [ ] Oberfläche nach D38 umsetzen: `v0.1.2` Rahmen, `v0.1.3` Rezeptseite.
+  - [x] Oberfläche nach D38 umsetzen: `v0.1.2` Rahmen, `v0.1.3` Rezeptseite. (8.11.2026: beides ausgeliefert mit `v0.2`, ohne eigene Releases.)
   - [ ] Rezeptsprache in der App einstellbar (Admin-Einstellung statt `KH_RECIPE_LANGUAGE` in `.env`, D36).
   - [ ] Fremdsprachige Seiten mit Rezeptdaten übersetzen; kostet eine KI-Anfrage je Link.
   - [x] Zweiter KI-Anbieter als Ausweichweg, wenn das Gratis-Kontingent aufgebraucht ist (Spezifikation „Später“). (4.11.2026: durch die Prio-Liste mit beliebig vielen Anbietern und der Glocke, D39.)
