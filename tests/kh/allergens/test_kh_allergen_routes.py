@@ -27,7 +27,7 @@ def pesto_pasta(api_client: TestClient, user: TestUser) -> str:
 
 
 def hits(api_client: TestClient, user: TestUser, slug: str) -> dict:
-    return {h["allergen"]: h for h in api_client.get(url(slug), headers=user.token).json()}
+    return {h["allergen"]: h for h in api_client.get(url(slug), headers=user.token).json()["hits"]}
 
 
 def test_hits_list_the_source_lines(api_client: TestClient, unique_user: TestUser):

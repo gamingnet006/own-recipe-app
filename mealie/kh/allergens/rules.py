@@ -7,27 +7,10 @@ import unicodedata
 from functools import cache
 from pathlib import Path
 
-from mealie.kh.allergens.schemas import AllergenHit
+from mealie.kh.allergens.schemas import ALLERGENS, AllergenHit
 from mealie.schema.recipe.recipe import Recipe
 
 RULES_JSON = Path(__file__).parent / "data" / "rules.json"
-
-ALLERGENS = (
-    "gluten",
-    "crustaceans",
-    "eggs",
-    "fish",
-    "peanuts",
-    "soy",
-    "milk",
-    "nuts",
-    "celery",
-    "mustard",
-    "sesame",
-    "sulphites",
-    "lupin",
-    "molluscs",
-)
 
 
 @cache
