@@ -13,6 +13,7 @@ from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftStatus, DraftWarning
 from mealie.kh.features.settings import KhSettings
 from mealie.repos.repository_factory import AllRepositories
+from mealie.schema.recipe.recipe import Recipe
 
 # Query parameters that only track where a link was shared, never which page it is
 TRACKING = re.compile(r"^(utm_.*|fbclid|gclid|igshid|igsh|si|ref)$")
@@ -80,20 +81,22 @@ def ingredient_overlap(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
+def recipe_candidate(recipe: Recipe) -> Candidate:
+    """A saved recipe as something to compare against."""
+    return Candidate(
+        kind="recipe",
+        name=recipe.name or "",
+        url=normalize_url(recipe.org_url) if recipe.org_url else None,
+        ingredients=ingredient_names(recipe.model_dump(mode="json", by_alias=True)),
+        recipe_slug=recipe.slug,
+        draft_id=None,
+    )
+
+
 def candidates(repos: AllRepositories, exclude_draft: UUID4) -> list[Candidate]:
     """The household's recipes and its other drafts that are not approved yet.
     ponytail: loads every recipe; fine for a family cookbook, a name index is the way up if it grows."""
-    found = [
-        Candidate(
-            kind="recipe",
-            name=recipe.name or "",
-            url=normalize_url(recipe.org_url) if recipe.org_url else None,
-            ingredients=ingredient_names(recipe.model_dump(mode="json", by_alias=True)),
-            recipe_slug=recipe.slug,
-            draft_id=None,
-        )
-        for recipe in repos.recipes.get_all()
-    ]
+    found = [recipe_candidate(recipe) for recipe in repos.recipes.get_all()]
     for draft in drafts_repo(repos.session, repos.group_id, repos.household_id).get_all():
         if draft.id == exclude_draft or draft.status == DraftStatus.approved:
             continue
@@ -110,30 +113,39 @@ def candidates(repos: AllRepositories, exclude_draft: UUID4) -> list[Candidate]:
     return found
 
 
+def match_kind(
+    title: str, url: str | None, ingredients: set[str], candidate: Candidate, settings: KhSettings
+) -> Literal["duplicate_link", "similar_title", "similar_ingredients"] | None:
+    """Why the candidate may be the same dish as the one with this title, normalized url and ingredients, the
+    strongest reason first: same link, similar title, or the same ingredients under a halfway similar title. None if
+    it is not."""
+    if url and candidate.url == url:
+        return "duplicate_link"
+    similarity = title_similarity(title, candidate.name)
+    if similarity >= settings.duplicate_title:
+        return "similar_title"
+    if (
+        similarity >= settings.duplicate_title_with_ingredients
+        and ingredient_overlap(ingredients, candidate.ingredients) >= settings.duplicate_ingredients
+    ):
+        return "similar_ingredients"
+    return None
+
+
 def find_duplicates(
     recipe: dict[str, Any], url: str | None, candidates: list[Candidate], settings: KhSettings
 ) -> list[DraftWarning]:
-    """One hint per candidate that may be the same dish, the strongest reason first: same link, similar
-    title, or the same ingredients under a halfway similar title."""
+    """One hint per candidate that may be the same dish, see match_kind."""
     url_key = normalize_url(url) if url else None
     title = recipe.get("name") or ""
     ingredients = ingredient_names(recipe)
     warnings = []
     for candidate in candidates:
-        if url_key and candidate.url == url_key:
-            kind = "duplicate_link"
-        else:
-            similarity = title_similarity(title, candidate.name)
-            if similarity >= settings.duplicate_title:
-                kind = "similar_title"
-            elif (
-                similarity >= settings.duplicate_title_with_ingredients
-                and ingredient_overlap(ingredients, candidate.ingredients) >= settings.duplicate_ingredients
-            ):
-                kind = "similar_ingredients"
-            else:
-                continue
-        warnings.append(
-            DraftWarning(kind=kind, name=candidate.name, recipe_slug=candidate.recipe_slug, draft_id=candidate.draft_id)
-        )
+        kind = match_kind(title, url_key, ingredients, candidate, settings)
+        if kind:
+            warnings.append(
+                DraftWarning(
+                    kind=kind, name=candidate.name, recipe_slug=candidate.recipe_slug, draft_id=candidate.draft_id
+                )
+            )
     return warnings

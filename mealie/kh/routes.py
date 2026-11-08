@@ -7,6 +7,7 @@ from mealie.kh.ai import routes as ai
 from mealie.kh.amounts import routes as amounts
 from mealie.kh.books import routes as books
 from mealie.kh.drafts import routes as drafts
+from mealie.kh.duplicates import routes as duplicates
 from mealie.kh.features import routes as features
 from mealie.kh.notices import routes as notices
 
@@ -19,3 +20,4 @@ router.include_router(ai.router, tags=["KH: AI"])
 router.include_router(notices.router, tags=["KH: Notices"])
 router.include_router(amounts.router, tags=["KH: Amounts"])
 router.include_router(books.router, tags=["KH: Books"])
+router.include_router(duplicates.router, tags=["KH: Duplicates"])
