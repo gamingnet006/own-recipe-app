@@ -4,6 +4,7 @@ each of our functions adds its routes here."""
 from fastapi import APIRouter
 
 from mealie.kh.ai import routes as ai
+from mealie.kh.allergens import routes as allergens
 from mealie.kh.amounts import routes as amounts
 from mealie.kh.books import routes as books
 from mealie.kh.drafts import routes as drafts
@@ -23,3 +24,4 @@ router.include_router(amounts.router, tags=["KH: Amounts"])
 router.include_router(books.router, tags=["KH: Books"])
 router.include_router(duplicates.router, tags=["KH: Duplicates"])
 router.include_router(nutrition.router, tags=["KH: Nutrition"])
+router.include_router(allergens.router, tags=["KH: Allergens"])
