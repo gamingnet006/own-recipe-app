@@ -12,13 +12,12 @@ import zipfile
 from collections.abc import Callable
 from pathlib import Path
 
-from mealie.kh.nutrition.bls import BLS_CSV, FIELDS, BlsFood
+from mealie.kh.nutrition.bls import BLS_CSV, FIELDS, SALT_PER_SODIUM, BlsFood
 
 BLS_ZIP_URL = "https://www.blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip"
 BLS_ZIP_SHA256 = "12b7a6ba62807ec9b301eb276f897dc85f99b2292311618dec3749a12d984c91"
 DOWNLOAD_TIMEOUT_SECONDS = 120
 XLSX_IN_ZIP = "BLS_4_0_2025_DE/BLS_4_0_Daten_2025_DE.xlsx"
-SALT_PER_SODIUM = 2.5  # g salt per g sodium; the BLS table gives sodium in mg
 
 CODE_HEADER = "BLS Code"
 NAME_HEADER = "Lebensmittelbezeichnung"  # the German name; "Food name" is the English one

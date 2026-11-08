@@ -7,6 +7,7 @@ from pathlib import Path
 
 BLS_CSV = Path(__file__).parent / "data" / "bls.csv"
 BLS_SEARCH_LIMIT = 20
+SALT_PER_SODIUM = 2.5  # g salt per g sodium; the BLS table has sodium in mg
 
 
 @dataclass(frozen=True)

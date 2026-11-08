@@ -4,8 +4,9 @@ from fastapi import HTTPException, Query, status
 from pydantic import UUID4
 
 from mealie.kh.nutrition.bls import BLS_SEARCH_LIMIT, load_bls, search_bls
-from mealie.kh.nutrition.mapping import food_mapping, list_mappings, save_mapping
-from mealie.kh.nutrition.schemas import BlsHitOut, FoodMappingIn, FoodMappingOut
+from mealie.kh.nutrition.calculate import calculate
+from mealie.kh.nutrition.mapping import food_mapping, list_mappings, load_aliases, mappings_for, save_mapping
+from mealie.kh.nutrition.schemas import BlsHitOut, FoodMappingIn, FoodMappingOut, NutritionOut
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -41,3 +42,11 @@ class KhNutritionController(BaseUserController):
     def get_bls(self, q: str = Query("", description="Words the BLS name must contain")) -> list[BlsHitOut]:
         """At most BLS_SEARCH_LIMIT BLS foods whose names contain every word of the query."""
         return [BlsHitOut(code=f.code, name=f.name, kcal=f.kcal) for f in search_bls(q, load_bls(), BLS_SEARCH_LIMIT)]
+
+    @router.get("/recipes/{slug}/nutrition", response_model=NutritionOut)
+    def get_nutrition(self, slug: str) -> NutritionOut:
+        """The nutrition of any recipe of the user's group (also another household's); 404 for other groups."""
+        recipe = get_repositories(self.session, group_id=self.group_id, household_id=None).recipes.get_one(slug, "slug")
+        if recipe is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Recipe not found"))
+        return calculate(recipe, mappings_for(self.session, recipe), load_bls(), load_aliases())

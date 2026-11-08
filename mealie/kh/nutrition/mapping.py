@@ -4,6 +4,7 @@ shows. One mapping per Mealie food, for the whole group."""
 import json
 from functools import cache, lru_cache
 from pathlib import Path
+from uuid import UUID
 
 import sqlalchemy as sa
 from pydantic import UUID4
@@ -15,6 +16,7 @@ from mealie.kh.nutrition.bls import BlsFood, load_bls
 from mealie.kh.nutrition.grams import name_stems
 from mealie.kh.nutrition.models import KhFoodNutrition
 from mealie.kh.nutrition.schemas import FoodMappingIn, FoodMappingOut
+from mealie.schema.recipe.recipe import Recipe
 from mealie.schema.recipe.recipe_ingredient import IngredientFood
 
 ALIASES_JSON = Path(__file__).parent / "data" / "aliases.json"
@@ -114,6 +116,13 @@ def list_mappings(session: Session, group_id: UUID4) -> list[FoodMappingOut]:
     }
     out = [_mapping_out(food_id, name, rows.get(food_id), count) for food_id, name, count in used]
     return sorted(out, key=lambda mapping: (mapping.confirmed, mapping.food_name.lower()))
+
+
+def mappings_for(session: Session, recipe: Recipe) -> dict[UUID, KhFoodNutrition]:
+    """The stored mappings of the foods the recipe uses, by food ID."""
+    food_ids = [line.food.id for line in recipe.recipe_ingredient if line.food and line.food.id]
+    rows = session.execute(sa.select(KhFoodNutrition).where(KhFoodNutrition.food_id.in_(food_ids))).scalars()
+    return {row.food_id: row for row in rows}
 
 
 def save_mapping(session: Session, food_id: UUID4, data: FoodMappingIn) -> None:
