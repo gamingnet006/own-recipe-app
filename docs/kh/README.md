@@ -200,6 +200,26 @@ Die Rezepte nennen meist Ober-/Unterhitze. Unter **Mehr** → **Unser Ofen** ste
 - Unter 100 °C wird nichts umgerechnet.
 - Die Rezepte selbst bleiben unverändert; die Klammer ist nur Anzeige.
 
+### Nährwerte
+
+Unter den Zutaten steht der Block **Nährwerte pro Portion (ca.)**.
+
+- Gerechnet wird mit den Zeilen, die eine Menge haben und zu einem bekannten Lebensmittel passen. Darunter steht, wie viele: „aus 7 von 9 Zutaten“, und „ohne: …“ nennt die Zeilen, die fehlen.
+- Solange du die Zuordnung nicht bestätigt hast, steht dort **geschätzt**. Die Werte sind immer ungefähr, nie genau.
+- **Mehr** → **Nährwerte**: Dort bestätigst du einmal pro Zutat, welcher Eintrag der Tabelle passt, und trägst bei Bedarf ein Stückgewicht in Gramm ein (zum Beispiel für „1 Ei“). Das gilt dann für alle Rezepte.
+- **Mehr** → **Nährwerte zeigen**: Schalter, der den Block ein- oder ausblendet. Er wird auf diesem Gerät gespeichert.
+- Hast du in Mealie Nährwerte von Hand eingetragen, gehen diese vor.
+- Quelle: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, CC BY 4.0.
+
+### Allergene und Unverträglichkeiten
+
+Aus den Zutaten erkennt Küchenhelfer die 14 Allergen-Gruppen der EU. Das ist immer „wahrscheinlich, ohne Gewähr“ und nie eine Garantie. Prüfe im Zweifel die Packung.
+
+- Am Rezept kannst du Fehler korrigieren: **stimmt nicht** nimmt ein Allergen heraus, **Allergen ergänzen** fügt eines hinzu. Beides gilt nur für dieses Rezept.
+- **Mehr** → **Ich vertrage nicht**: Hier hakt jede Person für ihr Konto an, was sie nicht verträgt. Enthält ein Rezept das wahrscheinlich, steht auf der Rezeptseite eine Warnung mit den Namen, und die Rezeptkarte trägt ein Zeichen.
+- Zur Warnung zeigt Küchenhelfer Ersatz-Hinweise („Statt Butter: Margarine“). Dort legt der Haushalt auch eigene Regeln an; sie gehen vor der Standardliste.
+- **Als Variante speichern** macht eine Kopie „(ohne …)“ mit den Ersatz-Zutaten. Das Original bleibt unverändert.
+
 ### Familienkochbuch drucken
 
 1. Öffne in Mealie ein Kochbuch und tippe **Als Buch drucken**. Es öffnet sich der Editor mit Live-Vorschau.
@@ -485,6 +505,27 @@ Recipes usually give conventional (top and bottom) heat. Under **More** → **Ou
 - A fan oven runs 20 °C cooler than conventional; the other way round, 20 °C warmer.
 - Nothing below 100 °C is converted.
 - The recipes themselves stay unchanged; the bracket is display only.
+
+### Nutrition
+
+Under the ingredients there is the block **Nutrition per serving (approx.)**.
+
+- It counts the lines that have an amount and match a known food. Below it says how many: "from 7 of 9 ingredients", and "without: ..." names the lines that are missing.
+- Until you have confirmed the matching, it says **estimated**. The values are always approximate, never exact.
+- **More** → **Nutrition**: There you confirm once per ingredient which entry of the table fits, and set a weight of one piece in grams if needed (for example for "1 egg"). It then applies to all recipes.
+- **More** → **Show nutrition**: a switch that shows or hides the block. It is stored on this device.
+- If you entered nutrition values by hand in Mealie, they win.
+- Source: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, CC BY 4.0.
+- Developer note: rebuild the table with `uv run python -m mealie.kh.nutrition.build_bls`.
+
+### Allergens and intolerances
+
+Küchenhelfer detects the 14 EU allergen groups from the ingredients. This is always "probably, without guarantee" and never a promise. When in doubt, check the packaging.
+
+- On the recipe you can correct mistakes: **not correct** takes an allergen out, **Add an allergen** adds one. Both apply to this recipe only.
+- **More** → **I do not tolerate**: Each person ticks, for their own account, what they do not tolerate. If a recipe probably contains it, the recipe page shows a warning with the names and the recipe card carries a mark.
+- With the warning, Küchenhelfer shows substitution hints ("Instead of butter: margarine"). The household can also add its own rules there; they come before the standard list.
+- **Save as variant** makes a copy "(ohne ...)" with the replacement ingredients. The original stays unchanged.
 
 ### Print the family cookbook
 

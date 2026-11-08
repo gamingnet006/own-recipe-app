@@ -232,9 +232,9 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 6 · Nährwerte und Allergene (v0.5)
 
-- [ ] Nährwerte: BLS lokal (nach T5), Open Food Facts optional; Zuordnung bestätigen und merken; Standardgewichte; Anzeige „ca.“.
-- [ ] Allergen-Tags: feste Regeln für die 14 EU-Hauptallergene, KI nur als Vorschlag, Familienprofil als Warnung, Hinweis „ohne Gewähr“.
-- [ ] Austausch-Regeln: Standardliste plus eigene Regeln; danach Allergen-Check neu; als Variante speichern, nie das Original überschreiben.
+- [x] Nährwerte: BLS lokal (nach T5), Open Food Facts optional und später; Zuordnung bestätigen und merken; Standardgewichte; Anzeige „ca.“.
+- [x] Allergen-Tags: feste Regeln für die 14 EU-Hauptallergene, KI nur als Vorschlag, Familienprofil als Warnung, Hinweis „ohne Gewähr“.
+- [x] Austausch-Regeln: Standardliste plus eigene Regeln; danach Allergen-Check neu; als Variante speichern, nie das Original überschreiben.
 - **Fertig wenn:** Jeder Allergen-Tag und Nährwert ist auf eine Zutat rückführbar und die Allergen-Testfälle (Abschnitt 7) bestehen.
 
 ### Phase 7 · Video, Bots und schwere KI (v0.6)
