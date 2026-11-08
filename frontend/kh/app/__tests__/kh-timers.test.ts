@@ -1,0 +1,134 @@
+// KH: tests for the cook-mode timers (D42): end times that survive sleep, ranges, pause, several timers, storage in
+// localStorage, the alarm's limit, and the link to the clock app.
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import type { KhTime } from "../lib/times";
+
+const STORAGE_KEY = "kh-timers";
+const ten: KhTime = { start: 0, end: 7, text: "10 Min.", seconds: 600, upperSeconds: null };
+const range: KhTime = { start: 0, end: 10, text: "20-30 Min.", seconds: 1200, upperSeconds: 1800 };
+
+let clock = 0;
+const now = () => clock;
+
+// The timers live in module state, so each test loads the module anew, as a page reload would.
+async function fresh() {
+  vi.resetModules();
+  return await import("../composables/use-kh-timers");
+}
+
+beforeEach(() => {
+  clock = 1_000_000;
+  localStorage.clear();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
+
+test("runs for its seconds, then rings", async () => {
+  const { useKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  const timer = t.start(ten, "Schritt 1", "kuchen");
+  clock += 599_000;
+  expect(t.left(timer)).toBe(1);
+  expect(t.done(timer)).toBe(false);
+  clock += 1_000;
+  expect(t.done(timer)).toBe(true);
+  expect(t.ringing.value.map(r => r.id)).toEqual([timer.id]);
+});
+
+test("a long sleep shows done at once", async () => {
+  const { useKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  const timer = t.start(ten, "Schritt 1", "kuchen");
+  clock += 3_600_000;
+  expect(t.done(timer)).toBe(true);
+  expect(t.left(timer)).toBe(0);
+});
+
+test("a range rings at the lower end and extends by the difference", async () => {
+  const { useKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  const timer = t.start(range, "Schritt 2", "kuchen");
+  clock += 1_200_000;
+  expect(t.done(timer)).toBe(true);
+  t.extend(timer.id);
+  expect(t.done(timer)).toBe(false);
+  expect(timer.extraSeconds).toBeNull();
+  clock += 600_000;
+  expect(t.done(timer)).toBe(true);
+});
+
+test("a paused timer keeps its time", async () => {
+  const { useKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  const timer = t.start(ten, "Schritt 1", "kuchen");
+  clock += 500_000;
+  t.pause(timer.id);
+  clock += 1_000_000;
+  expect(t.left(timer)).toBe(100);
+  t.resume(timer.id);
+  expect(t.left(timer)).toBe(100);
+  clock += 100_000;
+  expect(t.done(timer)).toBe(true);
+});
+
+test("timers run independently", async () => {
+  const { useKhTimers } = await fresh();
+  const t = useKhTimers(now);
+  const first = t.start(ten, "Schritt 1", "kuchen");
+  const second = t.start(range, "Schritt 2", "kuchen");
+  t.stop(first.id);
+  expect(t.timers.value.map(x => x.id)).toEqual([second.id]);
+});
+
+test("timers survive a reload; broken storage gives an empty list", async () => {
+  let mod = await fresh();
+  const started = mod.useKhTimers(now).start(ten, "Schritt 1", "kuchen");
+  mod = await fresh();
+  expect(mod.useKhTimers(now).timers.value).toEqual([started]);
+
+  localStorage.setItem(STORAGE_KEY, "{not json");
+  mod = await fresh();
+  expect(mod.useKhTimers(now).timers.value).toEqual([]);
+  localStorage.setItem(STORAGE_KEY, "{\"a\":1}");
+  mod = await fresh();
+  expect(mod.useKhTimers(now).timers.value).toEqual([]);
+});
+
+test("the link to the clock app", async () => {
+  const { clockTimerUrl } = await fresh();
+  expect(clockTimerUrl("KH Timer", 61)).toBe("shortcuts://run-shortcut?name=KH%20Timer&input=text&text=2");
+});
+
+test("the alarm beeps and vibrates until stopped or the limit", async () => {
+  const { startAlarm, unlockAudio, ALARM_MAX_MS } = await fresh();
+  const beep = vi.fn();
+  class FakeAudio {
+    destination = {};
+    currentTime = 0;
+    resume = vi.fn();
+    createOscillator = () => ({ connect: vi.fn(), start: beep, stop: vi.fn(), frequency: { value: 0 } });
+  }
+  const vibrate = vi.fn();
+  vi.stubGlobal("AudioContext", FakeAudio);
+  vi.stubGlobal("navigator", { vibrate });
+  vi.useFakeTimers();
+
+  unlockAudio();
+  const stop = startAlarm();
+  vi.advanceTimersByTime(2500);
+  expect(beep.mock.calls.length).toBeGreaterThanOrEqual(2);
+  expect(vibrate).toHaveBeenCalledWith([300, 200, 300]);
+  stop();
+  const calls = beep.mock.calls.length;
+  vi.advanceTimersByTime(5000);
+  expect(beep).toHaveBeenCalledTimes(calls);
+
+  startAlarm();
+  vi.advanceTimersByTime(ALARM_MAX_MS + 1);
+  const atLimit = beep.mock.calls.length;
+  vi.advanceTimersByTime(5000);
+  expect(beep).toHaveBeenCalledTimes(atLimit);
+});
