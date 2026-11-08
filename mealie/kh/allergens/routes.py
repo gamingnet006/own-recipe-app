@@ -1,7 +1,8 @@
 """KH: the allergen routes under /api/kh (D44): a recipe's allergens with corrections, the "Ich vertrage nicht"
-profile and the warnings for the viewer's household."""
+profile, the warnings for the viewer's household, substitution rules and variants."""
 
 from fastapi import HTTPException, status
+from pydantic import UUID4
 
 from mealie.kh.allergens.profile import (
     household_members,
@@ -15,9 +16,21 @@ from mealie.kh.allergens.schemas import (
     AllergenCorrectionIn,
     AllergenProfile,
     AllergenReport,
+    SubstitutionIn,
+    SubstitutionOut,
+    VariantIn,
+    VariantOut,
     allergen_key,
 )
-from mealie.kh.allergens.service import corrections_of, group_recipes, set_correction
+from mealie.kh.allergens.service import (
+    add_rule,
+    corrections_of,
+    delete_rule,
+    group_recipes,
+    household_rules,
+    set_correction,
+)
+from mealie.kh.allergens.substitutions import Substitution, save_variant, substitutions_for
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -39,6 +52,13 @@ class KhAllergensController(BaseUserController):
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Recipe not found"))
         return recipe
 
+    def _own_rules(self) -> list[Substitution]:
+        """The viewer's household's own substitution rules, as rules."""
+        return [
+            Substitution(row.match, row.replacement, row.allergen, own=True)
+            for row in household_rules(self.session, self.household_id)
+        ]
+
     @router.get("/recipes/{slug}/allergens", response_model=AllergenReport)
     def get_allergens(self, slug: str) -> AllergenReport:
         """The allergens of any recipe of the user's group (also another household's), with their source lines and
@@ -46,7 +66,9 @@ class KhAllergensController(BaseUserController):
         recipe = self._recipe(slug)
         hits = recipe_allergens(recipe, corrections_of(self.session, recipe.id))
         return AllergenReport(
-            hits=hits, warnings=household_warnings(self.session, self.household_id, hits), substitutions=[]
+            hits=hits,
+            warnings=household_warnings(self.session, self.household_id, hits),
+            substitutions=substitutions_for(recipe, hits, self._own_rules()),
         )
 
     @router.put("/recipes/{slug}/allergens/{allergen}", response_model=AllergenCorrectionIn)
@@ -86,3 +108,38 @@ class KhAllergensController(BaseUserController):
             if warnings:
                 found[recipe.slug] = [w.allergen for w in warnings]
         return found
+
+    @router.get("/substitutions", response_model=list[SubstitutionOut])
+    def get_rules(self) -> list[SubstitutionOut]:
+        """The user's household's own substitution rules."""
+        return [
+            SubstitutionOut.model_validate(row, from_attributes=True)
+            for row in household_rules(self.session, self.household_id)
+        ]
+
+    @router.post("/substitutions", response_model=SubstitutionOut, status_code=status.HTTP_201_CREATED)
+    def post_rule(self, data: SubstitutionIn) -> SubstitutionOut:
+        """Adds an own rule to the user's household."""
+        row = add_rule(self.session, self.household_id, data.match, data.replacement, data.allergen)
+        return SubstitutionOut.model_validate(row, from_attributes=True)
+
+    @router.delete("/substitutions/{rule_id}", response_model=SubstitutionOut)
+    def remove_rule(self, rule_id: UUID4) -> SubstitutionOut:
+        """Removes an own rule of the user's household; 404 for any other."""
+        row = delete_rule(self.session, self.household_id, rule_id)
+        if row is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Rule not found"))
+        return SubstitutionOut.model_validate(row, from_attributes=True)
+
+    @router.post("/recipes/{slug}/variant", response_model=VariantOut, status_code=status.HTTP_201_CREATED)
+    def post_variant(self, slug: str, data: VariantIn) -> VariantOut:
+        """Saves a copy of any recipe of the group with the foods of the chosen allergens replaced; 422 when no
+        line can be replaced."""
+        recipe = self._recipe(slug)
+        hits = recipe_allergens(recipe, corrections_of(self.session, recipe.id))
+        service = RecipeService(self.repos, self.user, self.household, self.translator)
+        try:
+            new = save_variant(service, self.repos, recipe, hits, data.allergens, self._own_rules())
+        except ValueError as e:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(str(e))) from e
+        return VariantOut(slug=new.slug)

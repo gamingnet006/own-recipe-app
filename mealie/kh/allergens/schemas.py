@@ -1,6 +1,8 @@
 """KH: what the allergen endpoints send and take (D44), in camelCase like every Mealie answer."""
 
-from pydantic import field_validator
+from typing import Annotated
+
+from pydantic import UUID4, StringConstraints, field_validator
 
 from mealie.schema._mealie import MealieModel
 
@@ -71,6 +73,51 @@ class LineSubstitution(MealieModel):
     line: str
     allergen: str
     replacement: str
+
+
+RuleText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+
+
+class SubstitutionIn(MealieModel):
+    """A household's own rule: an ingredient text containing MATCH (case does not matter) that has ALLERGEN can be
+    replaced by REPLACEMENT."""
+
+    match: RuleText
+    replacement: RuleText
+    allergen: str
+
+    @field_validator("match")
+    @classmethod
+    def lowercase(cls, value: str) -> str:
+        return value.lower()
+
+    @field_validator("allergen")
+    @classmethod
+    def known(cls, value: str) -> str:
+        return allergen_key(value)
+
+
+class SubstitutionOut(SubstitutionIn):
+    """An own rule as stored."""
+
+    id: UUID4
+
+
+class VariantIn(MealieModel):
+    """The allergens a saved variant of a recipe should be free of."""
+
+    allergens: list[str]
+
+    @field_validator("allergens")
+    @classmethod
+    def known(cls, value: list[str]) -> list[str]:
+        return [allergen_key(key) for key in value]
+
+
+class VariantOut(MealieModel):
+    """The new recipe's slug."""
+
+    slug: str
 
 
 class AllergenReport(MealieModel):

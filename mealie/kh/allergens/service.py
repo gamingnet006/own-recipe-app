@@ -6,7 +6,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models.recipe.recipe import RecipeModel
-from mealie.kh.allergens.models import KhRecipeAllergen, KhUserAllergies
+from mealie.kh.allergens.models import KhRecipeAllergen, KhSubstitution, KhUserAllergies
 from mealie.schema.recipe.recipe import Recipe
 
 
@@ -53,3 +53,41 @@ def group_recipes(session: Session, group_id: UUID4) -> list[Recipe]:
         sa.select(RecipeModel).where(RecipeModel.group_id == group_id).options(*Recipe.loader_options())
     )
     return [Recipe.model_validate(row) for row in rows.unique().scalars()]
+
+
+def delete_household_substitutions(session: Session, household_id: UUID4) -> None:
+    """Deletes a deleted household's own substitution rules, for the same reason. Commits."""
+    session.execute(sa.delete(KhSubstitution).where(KhSubstitution.household_id == household_id))
+    session.commit()
+
+
+def household_rules(session: Session, household_id: UUID4) -> list[KhSubstitution]:
+    """The household's own substitution rules, oldest first."""
+    return list(
+        session.execute(
+            sa.select(KhSubstitution)
+            .where(KhSubstitution.household_id == household_id)
+            .order_by(KhSubstitution.created_at, KhSubstitution.id)
+        ).scalars()
+    )
+
+
+def add_rule(session: Session, household_id: UUID4, match: str, replacement: str, allergen: str) -> KhSubstitution:
+    """Stores a new own rule for the household. Commits."""
+    row = KhSubstitution(
+        session=session, household_id=household_id, match=match, replacement=replacement, allergen=allergen
+    )
+    session.add(row)
+    session.commit()
+    return row
+
+
+def delete_rule(session: Session, household_id: UUID4, rule_id: UUID4) -> KhSubstitution | None:
+    """Removes the household's rule and returns it; None when the household has no such rule. Commits."""
+    row = session.execute(
+        sa.select(KhSubstitution).where(KhSubstitution.id == rule_id, KhSubstitution.household_id == household_id)
+    ).scalar_one_or_none()
+    if row is not None:
+        session.delete(row)
+        session.commit()
+    return row

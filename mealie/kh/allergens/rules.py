@@ -9,6 +9,7 @@ from pathlib import Path
 
 from mealie.kh.allergens.schemas import ALLERGENS, AllergenHit
 from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 
 RULES_JSON = Path(__file__).parent / "data" / "rules.json"
 
@@ -26,20 +27,29 @@ def _normalized(text: str) -> str:
     return unicodedata.normalize("NFC", text).lower()
 
 
+def text_has(text: str, key: str) -> bool:
+    """Whether TEXT contains the rule word KEY (a lowercase substring, or a whole word when it starts with "=")."""
+    lowered = _normalized(text)
+    if key.startswith("="):
+        return key[1:] in re.findall(r"[^\W\d_]+", lowered)
+    return key in lowered
+
+
 def allergens_of_line(text: str) -> set[str]:
     """The allergens an ingredient text probably contains: a keyword matches, and no exception word of the same
     allergen is in the text (Buchweizenmehl is no gluten, Kokosmilch no milk)."""
-    lowered = _normalized(text)
-    words = set(re.findall(r"[^\W\d_]+", lowered))
-
-    def hit(key: str) -> bool:
-        return key[1:] in words if key.startswith("=") else key in lowered
-
     return {
         allergen
         for allergen, rule in _rules().items()
-        if any(hit(key) for key in rule["match"]) and not any(hit(key) for key in rule["except"])
+        if any(text_has(text, key) for key in rule["match"]) and not any(text_has(text, key) for key in rule["except"])
     }
+
+
+def line_text(line: RecipeIngredient) -> tuple[str, str]:
+    """An ingredient line as (shown, checked): the text the family sees, and the text the rules read, which is the
+    food's name when the line has a food and the shown text otherwise."""
+    shown = line.display or line.original_text or ""
+    return shown, line.food.name if line.food else shown
 
 
 def recipe_allergens(recipe: Recipe, corrections: dict[str, bool]) -> list[AllergenHit]:
@@ -47,8 +57,7 @@ def recipe_allergens(recipe: Recipe, corrections: dict[str, bool]) -> list[Aller
     allergen in the list with corrected=False (so it can be undone); True adds one the rules did not find."""
     lines: dict[str, list[str]] = {}
     for line in recipe.recipe_ingredient:
-        shown = line.display or line.original_text or ""
-        text = line.food.name if line.food else shown
+        shown, text = line_text(line)
         for allergen in allergens_of_line(text):
             lines.setdefault(allergen, []).append(shown or text)
     return [

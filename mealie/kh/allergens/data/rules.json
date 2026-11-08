@@ -25,7 +25,7 @@
   },
   "milk": {
     "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "creme fraiche", "crème fraîche", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto"],
-    "except": ["kokos", "soja", "hafer", "mandel", "reis", "erdnuss", "kakao", "pflanzlich", "vegan"]
+    "except": ["kokos", "soja", "hafer", "mandel", "reis", "erdnuss", "kakao", "pflanzlich", "vegan", "pflanzen"]
   },
   "nuts": {
     "match": ["haselnuss", "haselnüsse", "walnuss", "walnüsse", "mandel", "cashew", "pistazie", "pekannuss", "pekannüsse", "paranuss", "paranüsse", "macadamia", "marzipan", "nougat", "nüsse", "pesto"],

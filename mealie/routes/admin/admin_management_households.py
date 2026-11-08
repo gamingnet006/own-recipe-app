@@ -5,6 +5,7 @@ from pydantic import UUID4
 from sqlalchemy import func, select
 
 from mealie.db.models.users.users import User
+from mealie.kh.allergens.service import delete_household_substitutions  # KH: a household's own rules (D44)
 from mealie.schema.household.household import (
     HouseholdCreate,
     HouseholdInDB,
@@ -88,4 +89,7 @@ class AdminHouseholdManagementRoutes(BaseAdminController):
                     detail=ErrorResponse.respond(message="Cannot delete household with users"),
                 )
 
-        return self.mixins.delete_one(item_id)
+        deleted = self.mixins.delete_one(item_id)
+        # KH: its own substitution rules go too; SQLite in Mealie skips cascades (D44)
+        delete_household_substitutions(self.session, item_id)
+        return deleted
