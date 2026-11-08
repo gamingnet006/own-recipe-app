@@ -1,0 +1,160 @@
+/* KH: the family cookbook's printout and its preview (D43). One layout for both: --mm is a real millimetre when
+   printing and 1/210 of the preview's width on screen, so the preview is the printout scaled down. Black on white
+   whatever the theme. */
+@page kh-book {
+  size: A4;
+  margin: 15mm;
+}
+
+.kh-print {
+  --mm: 1mm;
+  page: kh-book;
+  background: #fff;
+  color: #000;
+  font-size: calc(var(--mm) * 3.6);
+  line-height: 1.4;
+}
+
+.kh-print a,
+.kh-print .kh-amount {
+  color: inherit;
+}
+
+.kh-print .kh-amount {
+  font-weight: 600;
+}
+
+.kh-print h1 {
+  font-size: calc(var(--mm) * 12);
+  line-height: 1.15;
+  margin: 0 0 calc(var(--mm) * 4);
+}
+.kh-print h2 {
+  font-size: calc(var(--mm) * 7);
+  line-height: 1.2;
+  margin: 0 0 calc(var(--mm) * 2);
+}
+.kh-print h3 {
+  font-size: calc(var(--mm) * 4.4);
+  margin: 0 0 calc(var(--mm) * 2);
+  border-bottom: 1px solid #000;
+}
+.kh-print h4 {
+  font-size: calc(var(--mm) * 3.8);
+  margin: calc(var(--mm) * 2) 0 calc(var(--mm) * 1);
+}
+.kh-print p {
+  margin: 0 0 calc(var(--mm) * 1.5);
+}
+
+.kh-title-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  min-height: calc(var(--mm) * 260); /* about the height inside the margins, so the title sits in the middle */
+}
+
+.kh-toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.kh-toc li {
+  padding: calc(var(--mm) * 0.8) 0;
+}
+
+.kh-nr {
+  font-weight: 400;
+  margin-right: calc(var(--mm) * 2);
+}
+.kh-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(var(--mm) * 4);
+}
+.kh-photo {
+  max-width: 100%;
+  max-height: calc(var(--mm) * 80);
+  object-fit: cover;
+  margin-bottom: calc(var(--mm) * 3);
+}
+
+.kh-columns {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* ingredients a third, steps two thirds */
+  gap: calc(var(--mm) * 6);
+}
+
+.kh-ingredients,
+.kh-line,
+.kh-step,
+.kh-notes > div {
+  break-inside: avoid;
+}
+
+.kh-line {
+  margin-bottom: calc(var(--mm) * 1);
+}
+.kh-step {
+  margin-bottom: calc(var(--mm) * 2);
+}
+.kh-notes {
+  margin-top: calc(var(--mm) * 4);
+}
+
+/* On screen: each sheet a white A4 page scaled to the column, with a shadow */
+.kh-preview {
+  container-type: inline-size;
+  --mm: calc(100cqw / 210);
+  background: transparent;
+}
+
+.kh-preview .kh-sheet {
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  margin-bottom: calc(var(--mm) * 6);
+  min-height: calc(var(--mm) * 297);
+  padding: calc(var(--mm) * 15);
+}
+
+.kh-preview .kh-title-page {
+  min-height: calc(var(--mm) * 297);
+}
+
+@media print {
+  /* Only the book stays: Mealie's frame and the editor's controls (d-print-none) go */
+  body:has(.kh-print) .v-main {
+    padding: 0 !important;
+  }
+  body:has(.kh-print) {
+    background: #fff !important;
+  }
+  body:has(.kh-print) .v-container {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  /* The preview on screen prints as the plain book: real millimetres, no shadow, no padding (the page has margins) */
+  .kh-preview {
+    --mm: 1mm;
+    container-type: normal;
+  }
+  .kh-preview .kh-sheet {
+    box-shadow: none;
+    margin: 0;
+    min-height: 0;
+    padding: 0;
+  }
+  .kh-preview .kh-title-page {
+    min-height: calc(var(--mm) * 260);
+  }
+
+  .kh-sheet + .kh-sheet {
+    break-before: page;
+  }
+  .kh-sheet {
+    break-after: auto;
+  }
+}

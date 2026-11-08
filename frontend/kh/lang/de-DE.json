@@ -196,6 +196,10 @@
       "no-steps": "Dieses Rezept hat keine Schritte.",
       "offline": "Offline: gespeicherte Fassung",
       "lock-hint": "Dieses Gerät kann die Bildschirmsperre nicht von selbst ausschalten. Stell die automatische Sperre in den Einstellungen länger, damit der Bildschirm beim Kochen an bleibt."
+    },
+    "book": {
+      "toc": "Inhaltsverzeichnis",
+      "number": "Nr. {n}"
     }
   }
 }
