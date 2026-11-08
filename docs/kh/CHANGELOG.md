@@ -4,7 +4,7 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
-## [Unreleased]
+## [v0.3] - 2026-11-08
 
 Cook mode (Phase 4, D41, D42):
 
@@ -17,8 +17,11 @@ Cook mode (Phase 4, D41, D42):
   Several timers run at once and survive sleep, reloads and page changes; a thin bar shows them on every page, and a
   timer that runs out rings and vibrates until "Off" (2 minutes at most). A range rings at the lower end and offers
   "more min." up to the upper end.
+- Where a step uses only part of an ingredient, the share stands in brackets ("half of the flour (125 g)", "the
+  rest of the flour (125 g)").
 - Optional "Put on the clock" button hands a timer to the iPhone's Clock app through a Shortcut named "KH Timer"
-  (More -> Timer), so it rings on a locked phone, too.
+  (More -> Timer), so it rings on a locked phone, too. The switch explains the setup; with `KH_CLOCK_SHORTCUT_URL`
+  set, it links straight to the shared Shortcut.
 - The last 30 recipes you opened and their photos open offline, with a hint; signing out deletes them.
 
 ## [v0.2] - 2026-11-08
