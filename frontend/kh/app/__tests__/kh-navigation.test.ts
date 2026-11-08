@@ -68,7 +68,7 @@ describe("destinations", () => {
   test("More holds what the bar does not have", () => {
     const { plan, collection } = moreSections("familie", "u1");
     expect(plan.map(target => target.key)).toEqual(["mealplan", "cookbooks", "finder"]);
-    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline"]);
+    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline", "duplicates"]);
     expect(collection[0]!.to).toBe("/user/u1/favorites");
   });
 

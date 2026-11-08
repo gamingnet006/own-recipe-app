@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import UUID4
 
 from mealie.core.exceptions import mealie_registered_exceptions
+from mealie.kh.books.service import delete_print_settings  # KH: a cookbook's print settings (D43)
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseCrudController, controller
 from mealie.routes._base.mixins import HttpRepo
@@ -136,6 +137,8 @@ class GroupCookbookController(BaseCrudController):
     @router.delete("/{item_id}", response_model=ReadCookBook)
     def delete_one(self, item_id: str):
         cookbook = self.mixins.delete_one(item_id)
+        # KH: its print settings go too; SQLite in Mealie skips cascades (D43)
+        delete_print_settings(self.session, cookbook.id)
         if cookbook:
             self.publish_event(
                 event_type=EventTypes.cookbook_deleted,

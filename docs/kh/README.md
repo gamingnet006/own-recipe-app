@@ -192,6 +192,32 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
 - **Zeiten und Timer:** Zeiten im Text („10 Min.“, „1,5 Stunden“, „20–30 Min.“) sind antippbar und starten einen Timer. Bei einem Bereich klingelt er am unteren Ende; „noch 10 Min.“ läuft bis zum oberen weiter. Mehrere Timer laufen gleichzeitig, mit Pause und Stopp. Sie überleben Sperren, Neuladen und Seitenwechsel und stehen als schmale Leiste auf jeder Seite; ist einer abgelaufen, klingelt und vibriert das Gerät (höchstens 2 Minuten), bis du **Aus** tippst. Das klappt, solange die App offen ist; nach einem Neuladen reicht ein Tipp irgendwo auf die Seite, damit der Ton wieder erlaubt ist. Auf dem iPhone übertönt der Ton den Stummschalter (ab iOS 17); ältere Versionen bleiben bei Stumm still. Bei gesperrtem Handy hilft der Uhr-Timer (nächster Abschnitt, „Uhr-Timer per Kurzbefehl“). Zeiten wachsen beim Umrechnen nicht mit.
 - **Offline:** Die zuletzt geöffneten 30 Rezepte und ihre Fotos bleiben auf dem Gerät und öffnen sich auch ohne Netz, mit dem Hinweis „Offline: gespeicherte Fassung“. Beim Abmelden werden sie gelöscht, damit auf einem geteilten Gerät nichts liegen bleibt.
 
+#### Umluft
+
+Die Rezepte nennen meist Ober-/Unterhitze. Unter **Mehr** → **Unser Ofen** stellst du ein, welchen Ofen du hast (gilt nur für dieses Gerät). Temperaturen in den Schritten bekommen dann eine Klammer mit dem Wert für deinen Ofen, zum Beispiel „180 °C (Umluft 160 °C)“.
+
+- Umluft ist 20 °C kühler als Ober-/Unterhitze; umgekehrt 20 °C wärmer.
+- Unter 100 °C wird nichts umgerechnet.
+- Die Rezepte selbst bleiben unverändert; die Klammer ist nur Anzeige.
+
+### Familienkochbuch drucken
+
+1. Öffne in Mealie ein Kochbuch und tippe **Als Buch drucken**. Es öffnet sich der Editor mit Live-Vorschau.
+2. Stelle ein: Titel, Untertitel, Titelseite, Inhaltsverzeichnis (mit Rezeptnummern), Reihenfolge, Beschreibung, Notizen und die Umluft-Klammern. Pro Rezept wählst du: **ins Buch**, **mit Foto** und **Portionen**.
+3. **Drucken / Als PDF sichern** drücken. Am Mac wählst du im Druckdialog **Als PDF sichern**. Am iPhone: **Teilen** → **Drucken**, dann das Teilen-Symbol und **In Dateien sichern** (das ergibt ein PDF).
+
+- Die Einstellungen werden pro Kochbuch gespeichert und gelten auf allen Geräten. Nur der eigene Haushalt kann sie ändern; andere können das Buch drucken.
+- Ein einzelnes Rezept druckst du als Rezeptkarte: Rezeptmenü **⋯** → **Drucken**.
+- Fotos kommen nur ins Buch, wenn du **Foto ist von uns** anhakst. Hake das nur bei Fotos an, die ihr selbst gemacht habt.
+
+### Umzug aus einer anderen App
+
+1. Unter `/group/migrations` (in Mealie: Gruppe → Migrationen) bietet Mealie Importe aus diesen Apps an: Nextcloud Cookbook, Paprika, Chowdown, Copy Me That, My Recipe Box, Plan to Eat, Recipe Keeper, Tandoor, Cook'n und Mealie (alt). Lade die Exportdatei der alten App dort hoch.
+2. Gib den importierten Rezepten einen Tag, zum Beispiel „Import“.
+3. Öffne **Mehr** → **Doppelte Rezepte**, filtere nach dem Tag und entscheide bei jedem Paar: **Beide behalten** oder eines löschen (Löschen lässt sich nicht rückgängig machen).
+
+Rezepte aus Kitchen Stories und Chefkoch holst du über den Link im **Eingang**, Rezepte auf Papier über ein Foto.
+
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
@@ -451,6 +477,32 @@ A badge on the saved recipe shows where it came from, with **View original**.
 - **All steps** shows Mealie's list of all steps and ingredients; a tap ticks a step off as usual. **Step by step** returns to the current step, **✕** leaves cook mode. The screen stays on; if the device cannot do that, a hint about the automatic lock shows.
 - **Times and timers:** times in the text ("10 Min.", "1,5 Stunden", "20–30 Min.") can be tapped and start a timer. For a range it rings at the lower end; "10 more min." runs on to the upper end. Several timers run at once, with pause and stop. They survive locking, reloading and changing pages and show as a thin bar on every page; when one runs out, the device rings and vibrates (for 2 minutes at most) until you tap **Off**. That works while the app is open; after a reload, one tap anywhere on the page allows sound again. On the iPhone the sound overrides the mute switch (iOS 17 and later); older versions stay silent when muted. On a locked phone use the Clock timer (next section, "Clock timer via shortcut"). Times do not grow when you scale.
 - **Offline:** the last 30 recipes you opened and their photos stay on the device and open without a network, with the hint "Offline: saved version". Signing out deletes them, so nothing stays on a shared device.
+
+#### Fan oven
+
+Recipes usually give conventional (top and bottom) heat. Under **More** → **Our oven** you choose which oven you have (this device only). Temperatures in the steps then get a bracket with the value for your oven, for example "180 °C (fan 160 °C)".
+
+- A fan oven runs 20 °C cooler than conventional; the other way round, 20 °C warmer.
+- Nothing below 100 °C is converted.
+- The recipes themselves stay unchanged; the bracket is display only.
+
+### Print the family cookbook
+
+1. In Mealie, open a cookbook and tap **Print as book**. The editor opens with a live preview.
+2. Set: title, subtitle, title page, contents (with recipe numbers), order, description, notes and the fan-oven brackets. Per recipe you choose: **in the book**, **with photo** and **servings**.
+3. Press **Print / Save as PDF**. On the Mac, choose **Save as PDF** in the print dialog. On the iPhone: **Share** → **Print**, then the share icon and **Save to Files** (this makes a PDF).
+
+- Settings are saved per cookbook and apply on every device. Only your own household can change them; others can print the book.
+- To print a single recipe as a recipe card, use the recipe menu **⋯** → **Print**.
+- Photos go into the book only if you tick **The photo is ours**. Tick it only for photos you took yourselves.
+
+### Moving from another app
+
+1. Under `/group/migrations` (in Mealie: group → migrations), Mealie offers imports from these apps: Nextcloud Cookbook, Paprika, Chowdown, Copy Me That, My Recipe Box, Plan to Eat, Recipe Keeper, Tandoor, Cook'n and Mealie (old). Upload the old app's export file there.
+2. Put a tag on the imported recipes, for example "Import".
+3. Open **More** → **Duplicate recipes**, filter by the tag and decide for each pair: **Keep both** or delete one (deleting cannot be undone).
+
+Recipes from Kitchen Stories and Chefkoch come in by link through the **Inbox**, paper recipes by photo.
 
 ### Share shortcut (iPhone and iPad)
 

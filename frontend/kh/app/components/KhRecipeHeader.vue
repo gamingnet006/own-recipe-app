@@ -230,8 +230,10 @@ function back() {
   else router.push(`/g/${route.params.groupSlug as string}`);
 }
 
+/** The recipe card (D43) with the servings chosen here, instead of printing this page. */
 function print() {
-  window.print();
+  const servings = Number(((props.recipe.recipeServings || 0) * scale.value).toFixed(3));
+  router.push({ path: `/g/${route.params.groupSlug as string}/kochbuch/rezept/${props.recipe.slug}`, query: servings ? { servings } : {} });
 }
 </script>
 

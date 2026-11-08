@@ -6,7 +6,11 @@ import { offlineCaching } from "./app/lib/offline";
 
 export default defineNuxtConfig({
   // The font of the look "Salbei" (D38); a path from this layer, because "~" is Mealie's app folder
-  css: [fileURLToPath(new URL("./app/assets/kh-theme.css", import.meta.url))],
+  // and the family cookbook's printout (D43)
+  css: [
+    fileURLToPath(new URL("./app/assets/kh-theme.css", import.meta.url)),
+    fileURLToPath(new URL("./app/assets/kh-print.css", import.meta.url)),
+  ],
   i18n: {
     // Merged into Mealie's languages; the others fall back to English. Like in Mealie's config the
     // path starts in kh/i18n, so it goes one folder up.

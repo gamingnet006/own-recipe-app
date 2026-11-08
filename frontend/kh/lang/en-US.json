@@ -88,7 +88,8 @@
       "invite": "Invite family",
       "based-on-mealie": "based on Mealie",
       "source": "Source code (AGPL)",
-      "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review"
+      "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review",
+      "duplicates": "Duplicate recipes"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -156,6 +157,12 @@
         "apply": "Apply"
       }
     },
+    "oven": {
+      "title": "Our oven",
+      "conventional": "Conventional (top and bottom heat)",
+      "fan": "Fan",
+      "hint": "Temperatures in the steps get a bracket with the value for this oven."
+    },
     "timer": {
       "list": "Running timers",
       "done": "done",
@@ -190,6 +197,53 @@
       "no-steps": "This recipe has no steps.",
       "offline": "Offline: saved version",
       "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
+    },
+    "book": {
+      "toc": "Contents",
+      "number": "No. {n}",
+      "print-as-book": "Print as book",
+      "page-title": "Family cookbook",
+      "card-title": "Recipe card",
+      "not-found": "This cookbook does not exist.",
+      "recipe-not-found": "This recipe does not exist.",
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "title-page": "Title page",
+      "order": "Order",
+      "order-category": "by category, then A–Z",
+      "order-alpha": "A–Z",
+      "all-recipes": "For all recipes",
+      "oven": "Fan-oven brackets",
+      "recipes": "Recipes",
+      "in-book": "in the book",
+      "with-photo": "with photo",
+      "own-photo": "The photo is ours",
+      "own-photo-hint": "Only for photos you took yourselves",
+      "servings": "Servings",
+      "print": "Print / Save as PDF",
+      "empty": "This cookbook finds no recipes. Adjust the filter in Mealie's cookbook.",
+      "forbidden": "Only the own household can change this cookbook",
+      "save-failed": "Saving did not work.",
+      "load-failed": "The cookbook could not be loaded.",
+      "recipes-failed": "{n} recipes could not be loaded, so the book is incomplete.",
+      "reload": "Reload",
+      "retry": "Try again",
+      "flag-forbidden": "You may not change this recipe"
+    },
+    "duplicates": {
+      "description": "Recipes that may be the same. Keep both or delete one.",
+      "tag-filter": "Only recipes with the tag",
+      "failed": "That did not work.",
+      "none": "No possible duplicates found.",
+      "own": "entered here",
+      "view": "View {title}",
+      "keep-both": "Keep both",
+      "delete": "Delete {title}",
+      "delete-forbidden": "Only whoever created the recipe can delete it.",
+      "delete-confirm": "Delete \"{title}\"? This cannot be undone.",
+      "duplicate_link": "same link",
+      "similar_title": "similar title",
+      "similar_ingredients": "similar ingredients"
     }
   }
 }
