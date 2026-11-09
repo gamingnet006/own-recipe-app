@@ -292,7 +292,7 @@ Optional und standardmäßig aus (P7.3): Eigene Aufnahmen, zum Beispiel ein Spra
 2. Dienst starten: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. Den Speicher begrenzt `KH_WHISPER_MEM_LIMIT` (Standard 2g). Beim ersten Mal lädt der Dienst das Modell aus dem Netz (Hugging Face), danach nicht mehr; nach 5 Minuten ohne Aufnahme gibt er den Speicher wieder frei.
 3. Küchenhelfer neu starten (`docker compose -f kh/ops/docker-compose.yml up -d`). Im Eingang erscheint dann **Audio- oder Videodatei (eigene Aufnahme)**.
 
-Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 200). Über den Cloudflare Tunnel sind höchstens 100 MB möglich. Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Küchenhelfer nie; es geht nur um deine eigenen Dateien.
+Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 95, weil Cloudflare Tunnel im Gratis-Tarif bei 100 MB abschneidet). Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Küchenhelfer nie; es geht nur um deine eigenen Dateien.
 
 ### Profile und Hardware-Test
 
@@ -662,7 +662,7 @@ Optional and off by default (P7.3): a Whisper service turns your own recordings,
 2. Start the service: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. `KH_WHISPER_MEM_LIMIT` caps its memory (default 2g). The first time, the service downloads the model from the internet (Hugging Face), never again; after 5 minutes without a recording it frees the memory.
 3. Restart Küchenhelfer (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
 
-The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 200). Through the Cloudflare tunnel 100 MB is the most. The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Küchenhelfer never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
+The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 95, because the free Cloudflare tunnel cuts uploads at 100 MB). The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Küchenhelfer never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
 
 ### Profiles and hardware test
 

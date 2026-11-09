@@ -139,10 +139,12 @@ export function warningTarget(warning: KhDraftWarning, groupSlug: string): strin
 }
 
 /** The detail of a failed drafts request, e.g. 409 with code "duplicates"; "offline" when the request never
- * reached the server, "unknown" when the answer has no code. */
+ * reached the server, "media_too_large" for a 413 (a proxy such as Cloudflare cuts big uploads before the app
+ * answers), "unknown" when the answer has no code. */
 export function requestError(error: unknown): KhRequestError {
-  const failed = error as { isAxiosError?: boolean; response?: { data?: { detail?: unknown } } } | null;
+  const failed = error as { isAxiosError?: boolean; response?: { status?: number; data?: { detail?: unknown } } } | null;
   if (failed?.isAxiosError && !failed.response) return { code: "offline" };
+  if (failed?.response?.status === 413) return { code: "media_too_large" };
   const detail = failed?.response?.data?.detail;
   const known = typeof detail === "object" && detail !== null && typeof (detail as KhRequestError).code === "string";
   return known ? detail as KhRequestError : { code: "unknown" };

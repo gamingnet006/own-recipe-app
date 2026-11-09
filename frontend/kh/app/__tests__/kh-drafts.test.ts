@@ -191,6 +191,10 @@ describe("drafts list and review", () => {
     expect(requestError(new Error("offline")).code).toBe("unknown");
   });
 
+  test("a 413 from a proxy in front of the app counts as a too big recording", () => {
+    expect(requestError({ response: { status: 413, data: "<html>Payload Too Large</html>" } }).code).toBe("media_too_large");
+  });
+
   test("a request that never reached the server counts as offline", () => {
     expect(requestError({ isAxiosError: true, message: "Network Error" }).code).toBe("offline");
     expect(errorText("offline", t)).toBe(t("kh.drafts.error.offline"));

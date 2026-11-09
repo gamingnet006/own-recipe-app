@@ -39,6 +39,7 @@ from mealie.services.scraper.scraper import create_from_html
 logger = get_logger()
 
 NO_AI = (OpenAINotEnabledException, AIProviderNotEnabledError)
+TRUNCATED_NOTE = "\n[... transcript cut here: it was longer than the limit]"  # visible in the review
 
 
 class VideoLinkError(Exception):
@@ -82,6 +83,15 @@ def set_fields(session: Session, draft_id: UUID4, **values: Any) -> None:
     session.commit()
 
 
+def finish(session: Session, draft_id: UUID4, **values: Any) -> None:
+    """Writes the end of a recognition only while the draft is still working, so a stale duplicate job
+    cannot overwrite what another job or the interruption check already decided."""
+    session.execute(
+        sa.update(KhDraft).where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.working).values(**values)
+    )
+    session.commit()
+
+
 def ai_model_used(repos: AllRepositories, *, images: bool) -> str | None:
     """Name and model of the provider Mealie's AI picks for this draft, as "<name> (<model>)"."""
     ai = OpenAIService(repos)
@@ -117,12 +127,16 @@ async def build(
 
 async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:
     """A draft that waits for the transcript of its recording gets it as its text, and the recording is deleted.
-    An empty transcript counts as no recipe found."""
-    text = (await transcribe(draft.id, draft.source_note or "recording", get_kh_settings())).strip()
+    An empty transcript counts as no recipe found; one over the text limit is cut with a note."""
+    set_fields(session, draft.id, status=DraftStatus.working)  # restarts the interruption clock for a long wait
+    settings = get_kh_settings()
+    text = (await transcribe(draft.id, draft.source_note or "recording", settings)).strip()
     if not text:
         raise NoRecipeDataError()
+    if len(text) > settings.draft_max_text:
+        text = text[: settings.draft_max_text - len(TRUNCATED_NOTE)] + TRUNCATED_NOTE
     set_fields(session, draft.id, source_text=text)
-    media_path(draft.id).unlink()
+    media_path(draft.id).unlink(missing_ok=True)  # a duplicate job may have removed it already
     return draft.model_copy(update={"source_text": text})
 
 
@@ -154,13 +168,13 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
                 logger.exception(f"KH: recognizing draft {draft_id} failed")
             else:
                 logger.info(f"KH: recognizing draft {draft_id} failed: {code}")
-            set_fields(session, draft_id, status=DraftStatus.failed, error=code, recipe=None, ai_model=None)
+            finish(session, draft_id, status=DraftStatus.failed, error=code, recipe=None, ai_model=None)
             return
         # the providers of the priority list that answered, in order (D39), else the one Mealie's settings name
         images = draft.source_type == DraftSource.image
         answered = ", ".join(used_providers.get() or [])
         ai_model = (answered or ai_model_used(repos, images=images)) if used_ai else None
-        set_fields(
+        finish(
             session,
             draft_id,
             status=DraftStatus.ready,

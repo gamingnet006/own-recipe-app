@@ -3,6 +3,7 @@ Whisper server (the compose service `whisper`, KH_WHISPER_URL) turn it into text
 ever contacted; the recording never leaves the house unless that address does."""
 
 import shutil
+from datetime import timedelta
 from pathlib import Path
 from typing import BinaryIO
 
@@ -16,7 +17,10 @@ from mealie.kh.features.settings import KhSettings
 MEDIA_FILE = "media"  # the recording inside the draft's folder, deleted once it is transcribed
 LANGUAGE = "de"
 # A long recording on a small host takes minutes; only the wait for the answer is long
-TIMEOUT = httpx.Timeout(connect=10, read=1800, write=600, pool=10)
+READ_TIMEOUT_SECONDS = 1800
+TIMEOUT = httpx.Timeout(connect=10, read=READ_TIMEOUT_SECONDS, write=600, pool=10)
+# A draft with its recording is only interrupted after the longest wait for Whisper plus a margin
+RECORDING_STALE_AFTER = timedelta(seconds=READ_TIMEOUT_SECONDS + 300)
 MODEL_PREFIX = "Systran/faster-whisper-"  # the models speaches serves, named by size in the settings
 PROFILE_MODELS = {"leicht": "tiny", "normal": "base", "stark": "small", "lokal": "base"}  # D45, PLAN.md section 8
 CHUNK = 1024 * 1024

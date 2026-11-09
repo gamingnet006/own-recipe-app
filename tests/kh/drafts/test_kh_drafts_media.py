@@ -1,14 +1,22 @@
 """KH: own audio and video files (P7.3): with KH_WHISPER_URL a recording is transcribed by a Whisper server and the
 transcript becomes the text of the draft. The Whisper server is a fake transport here, never a real one (D23)."""
 
+import asyncio
+import io
 from collections.abc import Callable
+from datetime import timedelta
 
 import httpx
 import pytest
+import sqlalchemy as sa
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
-from mealie.kh.drafts import whisper
-from mealie.kh.drafts.files import draft_dir
+from mealie.db.models._model_utils.datetime import get_utc_now
+from mealie.kh.drafts import recognize, whisper
+from mealie.kh.drafts.files import draft_dir, drafts_root
+from mealie.kh.drafts.models import KhDraft
+from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.features.settings import KhSettings, get_kh_settings
 from tests.kh.drafts.helpers import get_draft, open_ids, png, post_draft
 from tests.utils.fixture_schemas import TestUser
@@ -165,3 +173,99 @@ def test_features_tell_whether_recordings_are_accepted(api_client: TestClient, m
     assert api_client.get("/api/kh/features").json()["media"] is False
     monkeypatch.setattr(get_kh_settings(), "whisper_url", "http://whisper:8000")
     assert api_client.get("/api/kh/features").json()["media"] is True
+
+
+def _working_draft_with_recording(session: Session, user: TestUser, minutes_old: int) -> str:
+    """A working recording draft whose last change was MINUTES_OLD minutes ago."""
+    draft = drafts_repo(session, user.group_id, user.household_id).create(
+        {
+            "user_id": user.user_id,
+            "status": "working",
+            "source_type": "text",
+            "source_note": "a.m4a",
+            "group_id": user.group_id,
+            "household_id": user.household_id,
+        }
+    )
+    whisper.store_media(draft.id, io.BytesIO(b"audio"), 1)
+    session.execute(
+        sa.update(KhDraft)
+        .where(KhDraft.id == draft.id)
+        .values(update_at=get_utc_now() - timedelta(minutes=minutes_old))
+    )
+    session.commit()
+    return str(draft.id)
+
+
+def test_a_draft_with_its_recording_is_not_stale_while_whisper_may_still_work(
+    api_client: TestClient, session: Session, unique_user: TestUser
+):
+    young = _working_draft_with_recording(session, unique_user, 20)  # over the stale minutes, under the read timeout
+    old = _working_draft_with_recording(session, unique_user, 60)
+    assert get_draft(api_client, unique_user, young).json()["status"] == "working"
+    assert get_draft(api_client, unique_user, old).json()["error"] == "interrupted"
+
+
+def test_transcribing_refreshes_the_drafts_clock(session: Session, unique_user: TestUser, fake_whisper):
+    draft_id = _working_draft_with_recording(session, unique_user, 20)
+    seen: list = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        session.expire_all()
+        seen.append(session.get(KhDraft, draft_id).update_at)
+        return httpx.Response(200, json={"text": TRANSCRIPT})
+
+    fake_whisper(handler)
+    draft = drafts_repo(session, unique_user.group_id, unique_user.household_id).get_one(draft_id)
+    asyncio.run(recognize.transcribe_recording(draft, session))
+    assert seen[0] > get_utc_now() - timedelta(minutes=1)
+
+
+def test_a_duplicate_job_that_lost_the_recording_does_not_fail_the_draft(
+    api_client: TestClient, unique_user: TestUser, fake_ai, fake_whisper
+):
+    fake_ai("recipe.json")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        for recording in drafts_root().glob(f"*/{whisper.MEDIA_FILE}"):  # a second job finished first
+            recording.unlink()
+        return httpx.Response(200, json={"text": TRANSCRIPT})
+
+    fake_whisper(handler)
+    response = post_draft(api_client, unique_user, files=[AUDIO])
+    assert get_draft(api_client, unique_user, response.json()["id"]).json()["status"] == "ready"
+
+
+def test_a_job_whose_draft_was_marked_failed_meanwhile_does_not_overwrite_it(
+    api_client: TestClient, session: Session, unique_user: TestUser, fake_ai, fake_whisper
+):
+    fake_ai("recipe.json")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        session.execute(
+            sa.update(KhDraft).where(KhDraft.status == "working").values(status="failed", error="interrupted")
+        )
+        session.commit()
+        return httpx.Response(200, json={"text": TRANSCRIPT})
+
+    fake_whisper(handler)
+    response = post_draft(api_client, unique_user, files=[AUDIO])
+    draft = get_draft(api_client, unique_user, response.json()["id"]).json()
+    assert (draft["status"], draft["error"], draft["recipe"]) == ("failed", "interrupted", None)
+
+
+def test_a_transcript_over_the_text_limit_is_cut_with_a_note(
+    api_client: TestClient, unique_user: TestUser, fake_ai, fake_whisper, monkeypatch: pytest.MonkeyPatch
+):
+    fake_ai("recipe.json")
+    monkeypatch.setattr(get_kh_settings(), "draft_max_text", 100)
+    fake_whisper(lambda _: httpx.Response(200, json={"text": "x" * 500}))
+    response = post_draft(api_client, unique_user, files=[AUDIO])
+    draft = get_draft(api_client, unique_user, response.json()["id"]).json()
+    assert draft["status"] == "ready"
+    assert len(draft["sourceText"]) <= 100
+    assert draft["sourceText"].endswith(recognize.TRUNCATED_NOTE)
+
+
+def test_the_default_recording_limit_fits_cloudflares_upload_limit():
+    assert KhSettings().draft_max_media_mb == 95

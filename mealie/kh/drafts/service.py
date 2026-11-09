@@ -36,7 +36,7 @@ from mealie.kh.drafts.schemas import (
     OriginOut,
 )
 from mealie.kh.drafts.video import is_video_link
-from mealie.kh.drafts.whisper import store_media
+from mealie.kh.drafts.whisper import RECORDING_STALE_AFTER, media_path, store_media
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
@@ -150,19 +150,29 @@ class DraftService:
             raise
 
     def mark_stale(self) -> None:
-        """Drafts that stayed working too long, e.g. after a restart mid-recognition, become failed."""
-        cutoff = get_utc_now() - timedelta(minutes=self.settings.draft_stale_minutes)
-        self.session.execute(
-            sa.update(KhDraft)
-            .where(
+        """Drafts that stayed working too long, e.g. after a restart mid-recognition, become failed. One that still
+        has its recording may be waiting for Whisper, so it gets the longer RECORDING_STALE_AFTER."""
+        now = get_utc_now()
+        rows = self.session.execute(
+            sa.select(KhDraft.id, KhDraft.update_at).where(
                 KhDraft.group_id == self.user.group_id,
                 KhDraft.household_id == self.user.household_id,
                 KhDraft.status == DraftStatus.working,
-                KhDraft.update_at < cutoff,
+                KhDraft.update_at < now - timedelta(minutes=self.settings.draft_stale_minutes),
             )
-            .values(status=DraftStatus.failed, error=DraftError.interrupted)
-        )
-        self.session.commit()
+        ).all()
+        stale = [
+            draft_id
+            for draft_id, changed in rows
+            if not (media_path(draft_id).exists() and changed >= now - RECORDING_STALE_AFTER)
+        ]
+        if stale:
+            self.session.execute(
+                sa.update(KhDraft)
+                .where(KhDraft.id.in_(stale), KhDraft.status == DraftStatus.working)
+                .values(status=DraftStatus.failed, error=DraftError.interrupted)
+            )
+            self.session.commit()
 
     def list_open(self) -> list[DraftOut]:
         """The household's drafts that are not approved yet, newest first."""

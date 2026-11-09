@@ -18,6 +18,9 @@ logger = get_logger()
 # The only address the "add shortcut" button may open: a shared iOS Shortcut on iCloud
 CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]+/?")
 
+# Cloudflare's free plan cuts uploads at 100 MB, so a bigger recording could never reach the app through the tunnel
+TUNNEL_UPLOAD_MB = 95
+
 
 class KhSettings(BaseSettings):
     """Switches and limits read from the environment, e.g. KH_SHARE_LINKS=true."""
@@ -68,7 +71,7 @@ class KhSettings(BaseSettings):
     # largest recording
     whisper_url: str | None = None
     whisper_model: str | None = None
-    draft_max_media_mb: int = Field(200, ge=1)
+    draft_max_media_mb: int = Field(TUNNEL_UPLOAD_MB, ge=1)
     # Profile (P7.4): how much the host can carry; sets the Whisper model, "lokal" keeps everything in the house
     profile: Literal["leicht", "normal", "stark", "lokal"] = "leicht"
 
