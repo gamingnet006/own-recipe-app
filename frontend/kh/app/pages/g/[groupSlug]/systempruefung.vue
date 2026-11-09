@@ -71,3 +71,10 @@ onMounted(async () => {
   failed.value = !data;
 });
 </script>
+
+<style scoped>
+/* Long check texts (the default account, the AI provider) wrap on a phone instead of ending in "…" */
+.v-list-item :deep(.v-list-item-title) {
+  white-space: normal;
+}
+</style>
