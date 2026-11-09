@@ -1,9 +1,10 @@
 """KH: the allergen routes under /api/kh (D44): a recipe's allergens with corrections, the "Ich vertrage nicht"
 profile, the warnings for the viewer's household, substitution rules and variants."""
 
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
+from mealie.kh.addons.guards import require_addon
 from mealie.kh.allergens.profile import (
     household_members,
     household_warnings,
@@ -112,7 +113,9 @@ class KhAllergensController(BaseUserController):
                 found[recipe.slug] = [w.allergen for w in warnings]
         return found
 
-    @router.get("/substitutions", response_model=list[SubstitutionOut])
+    @router.get(
+        "/substitutions", response_model=list[SubstitutionOut], dependencies=[Depends(require_addon("substitutions"))]
+    )
     def get_rules(self) -> list[SubstitutionOut]:
         """The user's household's own substitution rules."""
         return [
@@ -120,13 +123,22 @@ class KhAllergensController(BaseUserController):
             for row in household_rules(self.session, self.household_id)
         ]
 
-    @router.post("/substitutions", response_model=SubstitutionOut, status_code=status.HTTP_201_CREATED)
+    @router.post(
+        "/substitutions",
+        response_model=SubstitutionOut,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(require_addon("substitutions"))],
+    )
     def post_rule(self, data: SubstitutionIn) -> SubstitutionOut:
         """Adds an own rule to the user's household."""
         row = add_rule(self.session, self.household_id, data.match, data.replacement, data.allergen)
         return SubstitutionOut.model_validate(row, from_attributes=True)
 
-    @router.delete("/substitutions/{rule_id}", response_model=SubstitutionOut)
+    @router.delete(
+        "/substitutions/{rule_id}",
+        response_model=SubstitutionOut,
+        dependencies=[Depends(require_addon("substitutions"))],
+    )
     def remove_rule(self, rule_id: UUID4) -> SubstitutionOut:
         """Removes an own rule of the user's household; 404 for any other."""
         row = delete_rule(self.session, self.household_id, rule_id)
@@ -134,7 +146,12 @@ class KhAllergensController(BaseUserController):
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Rule not found"))
         return SubstitutionOut.model_validate(row, from_attributes=True)
 
-    @router.post("/recipes/{slug}/variant", response_model=VariantOut, status_code=status.HTTP_201_CREATED)
+    @router.post(
+        "/recipes/{slug}/variant",
+        response_model=VariantOut,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(require_addon("substitutions"))],
+    )
     def post_variant(self, slug: str, data: VariantIn) -> VariantOut:
         """Saves a copy of any recipe of the group with the foods of the chosen allergens replaced; 422 when no
         line can be replaced."""

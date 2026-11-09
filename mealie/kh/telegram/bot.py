@@ -34,6 +34,9 @@ MEALIE_ERRORS = {
 }
 UNKNOWN_CHAT = "Diese Chat-ID ist nicht freigeschaltet: {id}"
 BAD_API_TOKEN = "Der API-Token des Bots ist ungültig. Leg in Küchenhelfer unter Profil → API-Tokens einen neuen an."
+BOT_OFF = (
+    "Der Telegram-Bot ist in Küchenhelfer ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen einschalten."
+)
 MEALIE_DOWN = "Küchenhelfer ist gerade nicht erreichbar. Versuch es gleich noch einmal."
 NOTHING_TO_USE = "Schick mir einen Link, einen Text oder ein Foto."
 
@@ -122,7 +125,7 @@ class Bot:
 
     def _mealie(self, path: str, data: bytes | None = None, content_type: str | None = None) -> tuple[int, Any]:
         """Calls Mealie's API with the bot's token; the answer is parsed JSON (empty if it is none)."""
-        headers = {"Authorization": f"Bearer {self.config.api_token}"}
+        headers = {"Authorization": f"Bearer {self.config.api_token}", "X-KH-Via": "telegram"}
         if content_type:
             headers["Content-Type"] = content_type
         request = urllib.request.Request(f"{self.config.mealie_url}{path}", data=data, headers=headers)
@@ -147,6 +150,8 @@ class Bot:
             return f"Entwurf angelegt{self._draft_link(answer['id'])}"
         if status == 401:
             return BAD_API_TOKEN
+        if status == 403:  # the Telegram add-on is off (D46)
+            return BOT_OFF
         detail = answer.get("detail") if isinstance(answer, dict) else None
         code = detail.get("code") if isinstance(detail, dict) else None
         return MEALIE_ERRORS.get(str(code)) or f"Küchenhelfer hat den Entwurf nicht angenommen (Fehler {status})."

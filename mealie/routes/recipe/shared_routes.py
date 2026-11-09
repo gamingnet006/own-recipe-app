@@ -9,6 +9,7 @@ from starlette.responses import FileResponse
 from mealie.core.dependencies import get_temporary_zip_path
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import generate_session
+from mealie.kh.addons.service import addon_enabled
 from mealie.kh.features.settings import require_share_links
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.recipe import Recipe
@@ -38,6 +39,10 @@ def get_shared_recipe(token_id: UUID4, session: Session = Depends(generate_sessi
 
     if token_summary is None:
         raise HTTPException(status_code=404, detail=ErrorResponse.respond("Token Not Found"))
+
+    # KH: the household's add-on switch (D46) closes its links like KH_SHARE_LINKS does
+    if not addon_enabled(session, token_summary.recipe.household_id, "share_links"):
+        raise HTTPException(status_code=404, detail=ErrorResponse.respond("Share links are switched off"))
 
     return token_summary.recipe
 

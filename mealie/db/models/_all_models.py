@@ -5,6 +5,7 @@ from .users import *
 
 # KH: Küchenhelfer's own tables (phase 2), loaded after Mealie's so Alembic and the ORM know them
 # isort: split
+from mealie.kh.addons.models import KhHouseholdAddons  # noqa: F401
 from mealie.kh.ai.models import KhAiProviderState  # noqa: F401
 from mealie.kh.allergens.models import KhRecipeAllergen, KhSubstitution, KhUserAllergies  # noqa: F401
 from mealie.kh.amounts.models import KhIngredientExtra, KhStepAmount  # noqa: F401

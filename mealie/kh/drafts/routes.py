@@ -4,10 +4,11 @@ response."""
 
 from typing import Annotated
 
-from fastapi import BackgroundTasks, File, Form, UploadFile, status
+from fastapi import BackgroundTasks, File, Form, Header, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import UUID4
 
+from mealie.kh.addons.service import ensure_addon
 from mealie.kh.drafts.recognize import recognize
 from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftOut, OriginOut
 from mealie.kh.drafts.service import DraftService
@@ -43,9 +44,15 @@ class KhDraftsController(_DraftsBase):
         text: Annotated[str | None, Form()] = None,
         images: list[UploadFile] = File(default_factory=list),
         media: UploadFile | None = File(default=None),
+        via: Annotated[str | None, Header(alias="X-KH-Via")] = None,
     ) -> DraftOut:
         """New draft from exactly one of a link, a text, up to KH_DRAFT_MAX_IMAGES images or, with a Whisper
         server, one audio or video recording."""
+        # KH: add-ons (D46): the Telegram bot says it is the sender, recordings are the Whisper add-on
+        if via == "telegram":
+            ensure_addon(self.session, self.user.household_id, "telegram")
+        if media:
+            ensure_addon(self.session, self.user.household_id, "whisper")
         draft = self.service.create(url, text, images, media)
         self._recognize_later(tasks, draft)
         return draft

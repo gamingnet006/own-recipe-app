@@ -177,6 +177,16 @@ def test_a_mealie_error_is_answered_readably_and_a_bad_token_too(fake: Fake):
     ]
 
 
+def test_a_switched_off_bot_says_so_and_announces_itself_to_mealie(fake: Fake):
+    fake.on("/api/kh/drafts", mealie_answer(403, {"detail": {"message": "Telegram-Bot ist ausgeschaltet."}}))
+    bot_with(fake).handle_message(message("x"))
+    assert fake.replies() == [
+        "Der Telegram-Bot ist in Küchenhelfer ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen "
+        "einschalten."
+    ]
+    assert fake.to("/api/kh/drafts")[0].get_header("X-kh-via") == "telegram"
+
+
 def test_an_unreachable_mealie_is_answered(fake: Fake):
     def down(request: Request):
         raise URLError("refused")
