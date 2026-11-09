@@ -75,6 +75,17 @@ model_for_profile() {  # profile
   esac
 }
 
+# The model to test: KH_WHISPER_MODEL if set (as the app does), else the profile's; fails for an unknown profile.
+chosen_model() {  # profile
+  model=$(setting KH_WHISPER_MODEL "")
+  if [ -n "$model" ]; then echo "$model"; else model_for_profile "$1"; fi
+}
+
+# The server's full model name for a size like "small" or an already full name; as whisper_model() in whisper.py.
+whisper_model_name() {  # size_or_name
+  case "$1" in */*) echo "$1" ;; *) echo "Systran/faster-whisper-$1" ;; esac
+}
+
 # Length of a recording in whole seconds: the given value, else ffprobe's.
 audio_seconds() {  # file given_seconds
   length=$2
@@ -96,19 +107,20 @@ speed_verdict() {  # audio_seconds transcription_seconds
   }'
 }
 
-# Times one transcription of FILE on the Whisper server at URL; prints the seconds.
+# Times one transcription of FILE on the Whisper server at URL; prints the seconds. Fails on an error answer (-f).
 time_transcription() {  # url model file
-  curl -s -o /dev/null -w '%{time_total}' --max-time "$WHISPER_TIMEOUT" \
-    -F "file=@$3" -F "model=Systran/faster-whisper-$2" -F language=de "$1/v1/audio/transcriptions"
+  curl -sf -o /dev/null -w '%{time_total}' --max-time "$WHISPER_TIMEOUT" \
+    -F "file=@$3" -F "model=$(whisper_model_name "$2")" -F language=de "$1/v1/audio/transcriptions"
 }
 
 # The measurement: reachability, the model's download, the timed run and the verdict.
 measure_audio() {  # file seconds url model
   curl -sf --max-time 5 "$3/health" >/dev/null || { echo "Whisper unter $3 nicht erreichbar: läuft der Dienst (docker compose --profile whisper up -d whisper)?" >&2; return 1; }
   length=$(audio_seconds "$1" "$2") || return 1
-  curl -s -o /dev/null --max-time "$WHISPER_TIMEOUT" -X POST "$3/v1/models/Systran/faster-whisper-$4" || true
+  curl -s -o /dev/null --max-time "$WHISPER_TIMEOUT" -X POST "$3/v1/models/$(whisper_model_name "$4")" || true
   echo "Umwandlung mit dem Modell $4, $length s Aufnahme ..."
-  took=$(time_transcription "$3" "$4" "$1")
+  took=$(time_transcription "$3" "$4" "$1") \
+    || { echo "Die Umwandlung bei $3 ist fehlgeschlagen (Fehlerantwort des Servers): Modell und Dienst prüfen." >&2; return 1; }
   echo "Dauer: $took s. $(speed_verdict "$length" "$took")"
 }
 
@@ -130,7 +142,9 @@ main() {
   echo "Vorschlag: KH_PROFILE=$profile (Whisper-Modell $(model_for_profile "$profile"))"
   if [ -n "$audio" ]; then
     [ -f "$audio" ] || { echo "Datei nicht gefunden: $audio" >&2; exit 1; }
-    model=$(model_for_profile "$(setting KH_PROFILE leicht)")
+    profile_set=$(setting KH_PROFILE leicht)
+    model=$(chosen_model "$profile_set") \
+      || { echo "KH_PROFILE=$profile_set ist ungültig (leicht, normal, stark oder lokal)." >&2; exit 1; }
     measure_audio "$audio" "$seconds" "${url:-http://localhost:$(setting KH_WHISPER_PORT 8000)}" "$model"
   fi
 }

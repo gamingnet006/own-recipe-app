@@ -99,7 +99,7 @@ PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
 check "on twice, one job" "$(grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
 PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" off >/dev/null
 check "off clears the switch" "$(env_value "$onoff/.env" KH_AUTO_UPDATE)" "false"
-check "off leaves the other job" "$(cat "$CRONTAB_FILE")" "5 * * * * /usr/bin/true"
+check "off keeps the job, so the app's checkbox can switch on again" "$(grep -c . "$CRONTAB_FILE") $(grep -c 'kh-auto-update' "$CRONTAB_FILE")" "2 1"
 rm -f "$CRONTAB_FILE"
 check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null 2>&1 && grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
 
@@ -133,8 +133,8 @@ check "mac on: cron untouched" "$(grep -c . "$CRONTAB_FILE")" "0"
 check "mac status: scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: eingetragen')" "1"
 check "mac on twice" "$(on_test_mac on >/dev/null && echo ok)" "ok"
 on_test_mac off >/dev/null
-check "mac off: agent removed" "$(yes_no test -e "$agent")" "no"
-check "mac status: not scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: nicht eingetragen')" "1"
+check "mac off: agent stays" "$(yes_no test -e "$agent")" "yes"
+check "mac status: still scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: eingetragen')" "1"
 check "mac off twice" "$(on_test_mac off >/dev/null && echo ok)" "ok"
 check "mac on: launchctl error" "$( (export STUB_BOOTSTRAP_RC=5; on_test_mac on >/dev/null) && echo 0 || echo $?)" "1"
 

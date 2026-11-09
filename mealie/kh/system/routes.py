@@ -75,7 +75,7 @@ class KhSystemController(BaseAdminController):
             checks.profile_check(settings.profile, providers),
             checks.signup_check(app_settings.ALLOW_SIGNUP),
             checks.default_account_check(self.repos.users.get_one(app_settings._DEFAULT_EMAIL, "email") is not None),
-            checks.auto_update_check(auto_update.read_enabled(folder), auto_update.read_status(folder)),
+            checks.auto_update_check(auto_update.read_enabled(folder), auto_update.read_status(folder), now),
             checks.nutrition_check(len(load_bls())),
             *checks.module_checks(settings),
         ]

@@ -1,8 +1,8 @@
 """KH: the traffic lights of the system check (P8.3). Every check is a pure function of plain values, so each rule
-x"""
+can be tested on its own."""
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from mealie.kh.features.settings import KhSettings
@@ -15,6 +15,8 @@ DISK_WARN_BYTES = 2 * GB
 DISK_BAD_BYTES = 500 * 1024**2
 BACKUP_WARN_DAYS = 2
 BACKUP_BAD_DAYS = 7
+AUTO_UPDATE_SILENT_DAYS = 2  # a nightly job that left no status for this long is not running
+STATUS_DATE_FORMAT = "%Y-%m-%d %H:%M"  # how auto_update.sh writes the date of its status line
 
 
 @dataclass(frozen=True)
@@ -78,11 +80,23 @@ def default_account_check(in_use: bool) -> Check:
     return Check("defaultAccount", "bad" if in_use else "ok", "")
 
 
-def auto_update_check(enabled: bool | None, status_line: str | None) -> Check:
-    """The checkbox (None: only .env knows) with the last run; a failed run is red."""
+def status_is_silent(status_line: str | None, now: datetime) -> bool:
+    """True when there is no status line, its date is unreadable or older than AUTO_UPDATE_SILENT_DAYS."""
+    try:
+        ran = datetime.strptime((status_line or "")[:16], STATUS_DATE_FORMAT).replace(tzinfo=UTC)
+    except ValueError:
+        return True
+    return now - ran > timedelta(days=AUTO_UPDATE_SILENT_DAYS)
+
+
+def auto_update_check(enabled: bool | None, status_line: str | None, now: datetime) -> Check:
+    """The checkbox (None: only .env knows) with the last run; a failed run is red, and a checkbox that says on while
+    no run reported for 2 days is yellow with the value "stale" (the job may be gone)."""
     text, went_well = parse_status(status_line) if status_line else ("", True)
     if not went_well:
         return Check("autoUpdate", "bad", text)
+    if enabled and status_is_silent(status_line, now):
+        return Check("autoUpdate", "warn", "stale")
     state: State = "info" if enabled is None else "ok" if enabled else "warn"
     return Check("autoUpdate", state, text)
 

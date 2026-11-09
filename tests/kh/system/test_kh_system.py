@@ -79,15 +79,25 @@ def test_profile_row_shows_the_profile_and_warns_about_cloud_ai_in_lokal():
 
 
 def test_auto_update_light():
-    assert checks.auto_update_check(None, None).state == "info"
-    assert checks.auto_update_check(False, None).state == "warn"
-    assert checks.auto_update_check(True, None).state == "ok"
+    now = datetime(2026, 11, 9, 12, 0, tzinfo=UTC)
+    assert checks.auto_update_check(None, None, now).state == "info"
+    assert checks.auto_update_check(False, None, now).state == "warn"
     line = "2026-11-08 04:00 | up | Aktuell (v0.4), nichts zu tun | v0.4-amd64"
-    assert checks.auto_update_check(True, line) == checks.Check(
+    assert checks.auto_update_check(True, line, now) == checks.Check(
         key="autoUpdate", state="ok", value="2026-11-08 04:00 Aktuell (v0.4), nichts zu tun (v0.4-amd64)"
     )
     failed = "2026-11-08 04:00 | down | Update auf v0.5 fehlgeschlagen | v0.4-amd64"
-    assert checks.auto_update_check(True, failed).state == "bad"
+    assert checks.auto_update_check(True, failed, now).state == "bad"
+
+
+def test_auto_update_is_yellow_when_on_but_silent():
+    """The job may be gone or broken while the checkbox says on: no status line, or one older than 2 days."""
+    now = datetime(2026, 11, 9, 12, 0, tzinfo=UTC)
+    stale = checks.Check(key="autoUpdate", state="warn", value="stale")
+    assert checks.auto_update_check(True, None, now) == stale
+    assert checks.auto_update_check(True, "2026-11-06 04:00 | up | Aktuell | v0.4", now) == stale
+    assert checks.auto_update_check(True, "not a date | up | Aktuell | v0.4", now) == stale
+    assert checks.auto_update_check(True, "2026-11-07 13:00 | up | Aktuell | v0.4", now).state == "ok"
 
 
 def test_check_list_never_shows_secret_values(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):

@@ -5,7 +5,8 @@ name: KH CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
+    tags-ignore: ["**"] # release tags have their own workflow (kh-release.yml)
   pull_request:
     branches: [main]
   workflow_dispatch:

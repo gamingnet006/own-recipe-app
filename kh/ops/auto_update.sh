@@ -75,12 +75,12 @@ turn_on() {
   echo "Automatische Updates an: jede Nacht um 4 Uhr, nur stabile Versionen."
 }
 
-# Switches automatic updates off: the setting in .env and the nightly job; other cron jobs stay.
+# Switches automatic updates off: only the setting in .env. The nightly job stays and exits at once while the
+# switch says off, so the app's checkbox can switch updates on again later (a removed job would ignore it).
 turn_off() {
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   set_env_value "$ENV_FILE" KH_AUTO_UPDATE false || fail "$ENV_FILE ließ sich nicht schreiben"
   rm -f "$(kh_data_file auto_update.json)"
-  unschedule_job || fail "der nächtliche Job ließ sich nicht austragen"
   echo "Automatische Updates aus. Von Hand geht es weiter mit: kh/ops/auto_update.sh check, dann run."
 }
 

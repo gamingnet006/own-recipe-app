@@ -54,6 +54,7 @@ trap 'rm -rf "$stub"' EXIT
 cat >"$stub/curl" <<'STUB'
 #!/bin/sh
 case "$*" in
+  *time_total*failing.test*) exit 22 ;;  # curl -f: the server answered with an error status
   *time_total*) printf '30.2' ;;
   *unreachable*) exit 7 ;;
 esac
@@ -64,6 +65,15 @@ out=$(PATH="$stub:$PATH" measure_audio "$stub/memo.m4a" 60 http://whisper.test b
 check "measurement reports the time and the verdict" "$out" "Umwandlung mit dem Modell base, 60 s Aufnahme ...
 Dauer: 30.2 s. Faktor 0.50: schneller als die Aufnahme dauert, das Profil passt."
 check "unreachable Whisper stops" "$(PATH="$stub:$PATH" measure_audio "$stub/memo.m4a" 60 http://unreachable.test base >/dev/null 2>&1 && echo ok || echo stop)" "stop"
+
+check "a failing request is an error, not a verdict" "$(PATH="$stub:$PATH" measure_audio "$stub/memo.m4a" 60 http://failing.test base 2>&1 || true)" "Umwandlung mit dem Modell base, 60 s Aufnahme ...
+Die Umwandlung bei http://failing.test ist fehlgeschlagen (Fehlerantwort des Servers): Modell und Dienst prüfen."
+
+# --- KH_WHISPER_MODEL wins over the profile's model; a bad KH_PROFILE is explained ---
+check "profile model" "$(chosen_model stark)" "small"
+check "KH_WHISPER_MODEL wins" "$(KH_WHISPER_MODEL=medium chosen_model stark)" "medium"
+check "full model names stay" "$(whisper_model_name small) $(whisper_model_name org/own)" "Systran/faster-whisper-small org/own"
+check "bad profile is explained" "$(KH_PROFILE=foo sh "$here/hardware_test.sh" --audio "$stub/memo.m4a" 2>&1 >/dev/null | tail -1)" "KH_PROFILE=foo ist ungültig (leicht, normal, stark oder lokal)."
 
 # --- arguments ---
 check "unknown option" "$(sh "$here/hardware_test.sh" --nope >/dev/null 2>&1 && echo ok || echo stop)" "stop"

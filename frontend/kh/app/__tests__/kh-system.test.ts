@@ -54,6 +54,12 @@ describe("row texts", () => {
     expect(rowText(en, { ...row, value: "" })).toBe("Automatic updates are on.");
   });
 
+  test("a silent nightly update says so in both languages", () => {
+    const row: KhCheck = { key: "autoUpdate", state: "warn", value: "stale" };
+    expect(rowText(en, row)).toContain("no nightly run has reported for over 2 days");
+    expect(rowText(translator(khTextsDe), row)).toContain("seit über 2 Tagen");
+  });
+
   test("both languages word every key and state", () => {
     for (const texts of [khTexts, khTextsDe]) {
       const t = translator(texts);

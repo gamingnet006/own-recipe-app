@@ -165,6 +165,11 @@ RUN mkdir -p /run/secrets
 # Copy venv into image. It contains a fully-installed mealie backend and frontend.
 COPY --from=venv-builder $VENV_PATH $VENV_PATH
 
+# KH: fail the build when the frontend is not where the voice model COPY above assumes (python3.14 site-packages, the
+# folder the SPA module serves); otherwise a Python bump would ship a model the app never serves.
+RUN test -f $VENV_PATH/lib/python3.14/site-packages/mealie/frontend/index.html \
+    && test -d $VENV_PATH/lib/python3.14/site-packages/mealie/frontend/kh-models
+
 # install nltk data for the ingredient parser
 ENV NLTK_DATA="/nltk_data/"
 COPY ./docker/setup_nltk_data.sh $MEALIE_HOME/setup_nltk_data.sh

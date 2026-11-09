@@ -11,12 +11,13 @@ export const LIGHTS: Record<KhLight, { color: string; icon: string }> = {
 
 type Translate = (key: string, values?: Record<string, string>) => string;
 
-/** The sentence of a row; on/off values and the backup without any file have their own words. */
+/** The sentence of a row; on/off values, the backup without any file and a silent nightly update have their own words. */
 export function rowText(t: Translate, row: KhCheck): string {
-  const state = row.key === "backup" && !row.value ? "none" : row.state;
+  const stale = row.key === "autoUpdate" && row.value === "stale";
+  const state = row.key === "backup" && !row.value ? "none" : stale ? "stale" : row.state;
   const value = row.value === "on" || row.value === "off" ? t(`kh.system.${row.value}`) : row.value;
   const text = t(`kh.system.rows.${row.key}.${state}`, { value });
-  return row.key === "autoUpdate" && value ? `${text} ${value}` : text;
+  return row.key === "autoUpdate" && value && !stale ? `${text} ${value}` : text;
 }
 
 export interface KhStartStep {

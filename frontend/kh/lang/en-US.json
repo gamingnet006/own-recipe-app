@@ -416,6 +416,7 @@
         "autoUpdate": {
           "ok": "Automatic updates are on.",
           "warn": "Automatic updates are off.",
+          "stale": "Automatic updates are on, but no nightly run has reported for over 2 days. Check with kh/ops/auto_update.sh status.",
           "info": "Automatic updates: .env decides.",
           "bad": "The last automatic update failed:"
         },
