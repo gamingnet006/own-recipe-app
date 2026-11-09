@@ -1,0 +1,19 @@
+# KH: known findings in Mealie upstream history (2020-2025, test data and examples), checked 8 Nov 2026; new findings fail the CI
+beed8576c2d0499f8db443d39a8e89a37590a126:mealie/routes/user_routes.py:generic-api-key:9
+88dfd40b8d31bd3b917d549a9259b82625839654:mealie/tests/data/html-raw/carottes-rapps-with-rice-and-sunflower-seeds.html:generic-api-key:45
+b3573dc07862505b0203668f2be7c767de7f8110:mealie/tests/data/scraper/html-raw/carottes-rapps-with-rice-and-sunflower-seeds.html:generic-api-key:45
+b3573dc07862505b0203668f2be7c767de7f8110:mealie/tests/test_services/test_scraper/data/html-raw/carottes-rapps-with-rice-and-sunflower-seeds.html:generic-api-key:45
+8221c36a890d6dee12d0ce65ba14a13352679e74:mealie/routes/user_routes.py:generic-api-key:9
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/jam-roly-poly-with-custard.html:generic-api-key:146
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/taiwanese-three-cup-chicken-san-bei-gi-recipe.html:generic-api-key:3193
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/taiwanese-three-cup-chicken-san-bei-gi-recipe.html:generic-api-key:3197
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/taiwanese-three-cup-chicken-san-bei-gi-recipe.html:generic-api-key:3204
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/taiwanese-three-cup-chicken-san-bei-gi-recipe.html:generic-api-key:3303
+1e6adb0aadfe8f41450b862f2cbd1e2f6bd9f570:tests/data/html/detroit-style-pepperoni-pizza.html:generic-api-key:924
+c696dee3209a936858fa8124dcd6baa96ba5127f:tests/data/html/nutty-umami-noodles-with-scallion-brown-butter-and-snow-peas-recipe.html:generic-api-key:1
+2a797a210b2dc42e3140df457f8afd5665c77b36:frontend/package.json:generic-api-key:21
+c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache.py:generic-api-key:189
+c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache.py:generic-api-key:190
+c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:52
+c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:121
+c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:122

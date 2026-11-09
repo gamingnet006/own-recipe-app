@@ -77,3 +77,16 @@ jobs:
         working-directory: frontend
       - name: Scan licenses
         run: KH_PYTHON=.venv/bin/python sh kh/ops/license_scan.sh all
+  # No keys, tokens or passwords in the repo (CLAUDE.md, PLAN 9.5): gitleaks scans the whole history on every
+  # run. Findings in Mealie's upstream history are listed by fingerprint in .gitleaksignore; anything new fails.
+  secrets:
+    name: KH secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Scan with gitleaks
+        run: >
+          docker run --rm -v "$PWD":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.21.2
+          git /repo --log-opts="--all" --redact --no-banner --exit-code 1
