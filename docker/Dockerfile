@@ -20,6 +20,20 @@ RUN pnpm clean-install
 RUN pnpm generate
 
 ###############################################
+# KH: Voice model (P7.5)
+# The small German Vosk model (Apache-2.0), pinned by SHA-256 and repacked as the .tar.gz that vosk-browser loads.
+# The app serves it itself, so the browser never fetches it from a third party.
+###############################################
+FROM alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f AS voice-model
+RUN apk add --no-cache curl unzip
+WORKDIR /model
+RUN curl -sSfL -o model.zip https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip \
+    && echo "b7e53c90b1f0a38456f4cd62b366ecd58803cd97cd42b06438e2c131713d5e43  model.zip" | sha256sum -c - \
+    && unzip -q model.zip \
+    && mkdir /out \
+    && tar czf /out/vosk-model-small-de-0.15.tar.gz vosk-model-small-de-0.15
+
+###############################################
 # Base Image - Python
 ###############################################
 FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 \
@@ -140,6 +154,10 @@ RUN apt-get update \
     libldap2 \
     unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# KH: the voice model, served by the SPA module next to the app (P7.5); the Workbox precache only takes js, css, html
+# and images, so it is fetched on first use only.
+COPY --from=voice-model /out/ $VENV_PATH/lib/python3.14/site-packages/mealie/frontend/kh-models/
 
 # create directory used for Docker Secrets
 RUN mkdir -p /run/secrets

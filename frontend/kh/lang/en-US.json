@@ -213,6 +213,16 @@
       "offline": "Offline: saved version",
       "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
     },
+    "voice": {
+      "start": "Voice commands on",
+      "stop": "Voice commands off",
+      "loading": "Loading the speech model …",
+      "listening": "Listening: next (weiter), back (zurück), timer, stop (stopp).",
+      "heard": "Heard: {word}",
+      "error-mic-denied": "The microphone is not allowed. Allow it in the browser settings and tap again.",
+      "error-unsupported": "This browser cannot listen. Voice commands do not work here.",
+      "error-model": "The speech model could not be loaded. Try again later."
+    },
     "book": {
       "toc": "Contents",
       "number": "No. {n}",

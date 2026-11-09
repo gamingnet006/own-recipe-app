@@ -53,6 +53,8 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
 
     <KhTimers class="mt-4" />
 
+    <KhCookVoice class="mt-4" :recipe="recipe" :scale="scale" :cook="cook" @close="emit('close')" />
+
     <div class="kh-cook-buttons d-flex ga-3">
       <v-btn size="x-large" variant="tonal" :disabled="cook.isFirst.value" @click="cook.back()">
         {{ $t("kh.cook.back") }}

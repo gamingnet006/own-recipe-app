@@ -213,6 +213,16 @@
       "offline": "Offline: gespeicherte Fassung",
       "lock-hint": "Dieses Gerät kann die Bildschirmsperre nicht von selbst ausschalten. Stell die automatische Sperre in den Einstellungen länger, damit der Bildschirm beim Kochen an bleibt."
     },
+    "voice": {
+      "start": "Sprachbefehle an",
+      "stop": "Sprachbefehle aus",
+      "loading": "Sprachmodell wird geladen …",
+      "listening": "Ich höre zu: weiter, zurück, Timer, stopp.",
+      "heard": "Gehört: {word}",
+      "error-mic-denied": "Das Mikrofon ist nicht erlaubt. Erlaube es in den Einstellungen des Browsers und tippe noch einmal.",
+      "error-unsupported": "Dieser Browser kann nicht zuhören. Sprachbefehle laufen hier nicht.",
+      "error-model": "Das Sprachmodell konnte nicht geladen werden. Versuche es später noch einmal."
+    },
     "book": {
       "toc": "Inhaltsverzeichnis",
       "number": "Nr. {n}",
