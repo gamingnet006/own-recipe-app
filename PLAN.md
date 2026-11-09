@@ -420,7 +420,7 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 - [ ] **T4 Instagram-Weg:** Beschreibung und Screenshot gegen Download, mit eigenen Beispielen.
 - [x] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären. (8.11.2026: BLS 4.0 vom Max Rubner-Institut ist Open Data unter CC BY 4.0, Download ohne Anmeldung unter blsdb.de, 7.140 Lebensmittel mit deutschen Namen, 138 Nährstoffe je 100 g. Darf mit Namensnennung ins Repo und ins Image; Änderungen an den Daten kennzeichnen. Open Food Facts nur für Markenprodukte, online und mit 10 Suchen pro Minute.)
 - [x] **T6 Entwurfs-Stufe:** beantwortet durch D18 (eigene `kh`-Tabelle, Mealies Datenmodell bleibt unverändert).
-- [ ] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen.
+- [x] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen. (9.11.2026: „Kochheft“; grobe Prüfung von Apps, Webseiten, GitHub und Domains ohne Konflikt, DPMAregister mit nationalen, Unions- und internationalen Marken sowie WIPO Global Brand Database ohne Treffer; D49.)
 - [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren. Wartet auf den Pi (29.10.2026 nicht erreichbar); bis dahin Ersatzwert vom Mac mit 2 CPUs/2 GB: gesund nach ~33 s, ~222 MB RAM.
 
 ---
