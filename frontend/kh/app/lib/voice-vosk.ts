@@ -1,13 +1,13 @@
 // KH: the real listener of the voice commands (P7.5): the microphone into Vosk (WebAssembly, in a worker) with the
 // German model served by the app itself. Everything stays on the device; the logic around it is in voice.ts.
-import { VoiceError, VOICE_GRAMMAR, VOICE_MODEL_URL, type VoiceStarter } from "./voice";
+import { VoiceError, VOICE_GRAMMAR, VOICE_MODEL_BYTES, VOICE_MODEL_URL, type VoiceStarter } from "./voice";
 
 /** Downloads URL as an object address the worker can load, reporting 0 to 100 on the way (the size comes from the
- * Content-Length; without it only the end is reported). */
+ * Content-Length, else VOICE_MODEL_BYTES). */
 export async function fetchWithProgress(url: string, onProgress: (percent: number) => void, fetcher: typeof fetch = fetch): Promise<string> {
   const response = await fetcher(url);
   if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
-  const total = Number(response.headers.get("Content-Length")) || 0;
+  const total = Number(response.headers.get("Content-Length")) || VOICE_MODEL_BYTES;
   const reader = response.body.getReader();
   const parts: BlobPart[] = [];
   let loaded = 0;
@@ -16,7 +16,7 @@ export async function fetchWithProgress(url: string, onProgress: (percent: numbe
     if (done) break;
     parts.push(value as BlobPart);
     loaded += value.length;
-    if (total) onProgress(Math.min(100, Math.round((loaded / total) * 100)));
+    onProgress(Math.min(100, Math.round((loaded / total) * 100)));
   }
   onProgress(100);
   return URL.createObjectURL(new Blob(parts));

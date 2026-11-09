@@ -212,10 +212,11 @@ class Bot:
                     logger.warning("skipped a message: %s", type(error).__name__)
 
     def run(self, stop: Callable[[], bool] = lambda: False) -> None:
-        """Polls until STOP says so; a network error only pauses for RETRY_DELAY_SECONDS."""
+        """Polls until STOP says so; any error of a poll (network, cut-off or unreadable answer) only pauses for
+        RETRY_DELAY_SECONDS. Only the error's type is logged: its text may hold the token in a URL."""
         while not stop():
             try:
                 self.poll_once()
-            except OSError as error:
+            except Exception as error:
                 logger.warning("polling failed (%s), trying again in %s s", type(error).__name__, RETRY_DELAY_SECONDS)
                 self.sleep(RETRY_DELAY_SECONDS)

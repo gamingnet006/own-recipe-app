@@ -4,7 +4,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { reactive } from "vue";
 import KhCookVoice from "../components/KhCookVoice.vue";
-import { commandOf, VoiceError } from "../lib/voice";
+import { commandOf, VOICE_MODEL_BYTES, VoiceError } from "../lib/voice";
 import { fetchWithProgress } from "../lib/voice-vosk";
 import { khAddons } from "../composables/use-kh-addons";
 import { useKhCook } from "../composables/use-kh-cook";
@@ -190,6 +190,12 @@ describe("fetchWithProgress", () => {
     const url = await fetchWithProgress("/m", p => seen.push(p), reply([chunk(25), chunk(75)], "100") as unknown as typeof fetch);
     expect(seen).toEqual([25, 100, 100]);
     expect(url).toBe("blob:model");
+  });
+
+  test("without a Content-Length the known model size drives the percent", async () => {
+    const seen: number[] = [];
+    await fetchWithProgress("/m", p => seen.push(p), reply([chunk(VOICE_MODEL_BYTES / 2)], null) as unknown as typeof fetch);
+    expect(seen).toEqual([50, 100]);
   });
 
   test("an error answer fails", async () => {

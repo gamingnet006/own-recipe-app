@@ -67,7 +67,7 @@ interface Props {
 
 const { open: shoppingListDialog, shoppingLists, addAllLoading, addAllToList, addShoppingList } = useAddToShoppingListDialog();
 const { $globals } = useNuxtApp();
-const khOn = useKhOn();
+const khOn = useKhOn(); // KH: D46
 const i18n = useI18n();
 const api = useUserApi();
 const props = withDefaults(defineProps<Props>(), {

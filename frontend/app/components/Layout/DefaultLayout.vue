@@ -158,7 +158,7 @@ const cookbooks = computed(() => {
 const khWide = computed(() => display.mdAndUp.value);
 const sidebar = useKhSidebar(khWide);
 const khShoppingTo = useKhShoppingTarget();
-useKhAddonsLoader();
+useKhAddonsLoader(); // KH: D46
 
 function cookbookAsLink(cookbook: ReadCookBook): SideBarLink {
   return {

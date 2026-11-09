@@ -16,6 +16,9 @@ const WORDS: Record<string, VoiceCommand> = {
 /** Where the app serves the German model (docker/Dockerfile puts it there; never fetched from a third party). */
 export const VOICE_MODEL_URL = "/kh-models/vosk-model-small-de-0.15.tar.gz";
 
+/** About the size of that archive in bytes: the progress bar's yardstick when the answer has no Content-Length. */
+export const VOICE_MODEL_BYTES = 45_000_000;
+
 /** The words the recognizer may hear, as the JSON list Vosk takes; "[unk]" takes everything else. */
 export const VOICE_GRAMMAR = JSON.stringify([...Object.keys(WORDS), "[unk]"]);
 

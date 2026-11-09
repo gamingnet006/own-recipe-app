@@ -67,6 +67,11 @@ class SPAStaticFiles(StaticFiles):
         elif path == "." or response.media_type == "text/html":
             response.headers["Cache-Control"] = "no-cache"
 
+        # KH: the voice model is an archive that must reach the browser as it is: a content-encoding keeps the gzip
+        # middleware from recompressing it, which would drop its Content-Length (the progress bar needs it).
+        if path.startswith("kh-models/"):
+            response.headers["Content-Encoding"] = "identity"
+
         return response
 
 

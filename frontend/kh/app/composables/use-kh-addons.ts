@@ -28,7 +28,7 @@ export function setKhAddons(answer: KhAddonsAnswer): void {
   if (!answer.enabled.offline) void clearOfflineCaches();
 }
 
-/** Back to the defaults, e.g. for another user. */
+/** Back to the defaults, for another user. */
 export function resetKhAddons(): void {
   setKhAddons({ flags: { ...DEFAULT_ADDONS }, enabled: { ...DEFAULT_ADDONS }, unavailable: [] });
   khAddons.userId = null;
@@ -37,6 +37,7 @@ export function resetKhAddons(): void {
 /** Loads the household's switches once per user; the next user of the same browser gets his own. */
 export async function loadKhAddonsFor(userId: string): Promise<void> {
   if (khAddons.userId === userId) return;
+  if (khAddons.userId) resetKhAddons(); // a failed load for this user must not leave the last household's switches
   const { data } = await new KhAddonsApi(useRequests()).get();
   if (data) {
     setKhAddons(data);

@@ -9,12 +9,15 @@ import sys
 from collections.abc import Callable
 from email.parser import BytesParser
 from email.policy import HTTP
+from http.client import IncompleteRead
 from urllib.error import URLError
 from urllib.request import Request
 
 import pytest
 from fastapi.testclient import TestClient
 
+from mealie.kh.features.settings import KhSettings
+from mealie.kh.telegram.__main__ import config_from
 from mealie.kh.telegram.bot import RETRY_DELAY_SECONDS, Bot, Config
 from tests.utils.fixture_schemas import TestUser
 
@@ -230,6 +233,36 @@ def test_a_network_error_backs_off_and_polling_goes_on(fake: Fake, caplog: pytes
         bot.run(stop=lambda: next(stops))
     assert pauses == [RETRY_DELAY_SECONDS]
     assert TOKEN not in caplog.text and TOKEN not in str(pauses)
+
+
+@pytest.mark.parametrize("error", [IncompleteRead(b"part"), ValueError(f"bad json after {TOKEN}")])
+def test_any_error_of_a_poll_backs_off_and_logs_only_its_type(
+    fake: Fake, caplog: pytest.LogCaptureFixture, error: Exception
+):
+    answers = iter([error, ok([])])
+
+    def getUpdates(request: Request):
+        answer = next(answers)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+    fake.on("/getUpdates", getUpdates)
+    pauses: list[float] = []
+    stops = iter([False, False, True])
+    with caplog.at_level(logging.DEBUG):
+        Bot(make_config(), fake, sleep=pauses.append).run(stop=lambda: next(stops))
+    assert pauses == [RETRY_DELAY_SECONDS]
+    assert type(error).__name__ in caplog.text and TOKEN not in caplog.text
+
+
+def test_a_token_of_the_wrong_shape_is_refused_without_printing_it():
+    for bad in ("123456: SECRET", "123456:SECRET\n", "no-colon", ":abc"):
+        hint = config_from(KhSettings(telegram_token=bad, telegram_allowed_ids="1", telegram_api_token="x"))
+        assert isinstance(hint, str) and "KH_TELEGRAM_TOKEN" in hint and "SECRET" not in hint and bad not in hint
+    assert isinstance(
+        config_from(KhSettings(telegram_token=TOKEN, telegram_allowed_ids="1", telegram_api_token="x")), Config
+    )
 
 
 def run_main(**env: str) -> subprocess.CompletedProcess:

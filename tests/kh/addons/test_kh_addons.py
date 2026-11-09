@@ -50,7 +50,8 @@ def test_defaults(api_client: TestClient, unique_user: TestUser, host, addons):
     assert body["flags"] == body["enabled"]
     assert body["flags"]["shopping"] and body["flags"]["planner"] and body["flags"]["books"]
     assert body["flags"]["substitutions"] and body["flags"]["offline"] and body["flags"]["oven"]
-    assert not any(body["flags"][name] for name in ("clock", "shareLinks", "telegram", "whisper", "voice"))
+    assert body["flags"]["clock"]  # as before v1.0: the button shows wherever the device's own switch is on
+    assert not any(body["flags"][name] for name in ("shareLinks", "telegram", "whisper", "voice"))
     assert body["unavailable"] == ["shareLinks", "telegram", "whisper"]
 
 
@@ -165,3 +166,14 @@ def test_a_shared_recipe_is_hidden_while_the_household_has_links_off(
     assert api_client.get(url).status_code == 200
     addons(share_links=False)
     assert api_client.get(url).status_code == 404
+
+
+def test_telegram_is_unavailable_in_the_local_profile(
+    api_client: TestClient, unique_user: TestUser, host, addons, monkeypatch
+):
+    """Profile "lokal" keeps everything in the house; Telegram's servers are outside it."""
+    monkeypatch.setattr(host, "telegram_token", "t")
+    monkeypatch.setattr(host, "profile", "lokal")
+    body = api_client.get(URL, headers=unique_user.token).json()
+    assert "telegram" in body["unavailable"]
+    assert not body["enabled"]["telegram"]

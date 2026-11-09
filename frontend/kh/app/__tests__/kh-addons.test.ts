@@ -63,7 +63,7 @@ describe("rows", () => {
 
   test("the defaults are those of a fresh install", () => {
     const off = Object.entries(DEFAULT_ADDONS).filter(([, value]) => !value).map(([key]) => key);
-    expect(off).toEqual(["clock", "shareLinks", "telegram", "whisper", "voice"]);
+    expect(off).toEqual(["shareLinks", "telegram", "whisper", "voice"]);
   });
 });
 
@@ -97,6 +97,14 @@ describe("loading", () => {
     expect(khAddons.enabled.books).toBe(false);
     await loadKhAddonsFor("u2");
     expect(getMock).toHaveBeenCalledTimes(2);
+  });
+
+  test("another user whose load fails does not keep the previous household's switches", async () => {
+    getMock.mockResolvedValue(answer(on({ books: false })));
+    await loadKhAddonsFor("u1");
+    getMock.mockResolvedValue({ data: null, error: new Error("offline") });
+    await loadKhAddonsFor("u2");
+    expect(khAddons.enabled).toEqual(DEFAULT_ADDONS);
   });
 
   test("keeps the defaults when the answer fails", async () => {

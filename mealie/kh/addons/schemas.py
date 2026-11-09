@@ -20,7 +20,7 @@ class AddonFlags(MealieModel):
     allergens: bool = True
     substitutions: bool = True  # exchange and variants; only usable with allergens
     offline: bool = True
-    clock: bool = False  # "put on the Clock" timer button
+    clock: bool = True  # "put on the Clock" timer button
     share_links: bool = False
     telegram: bool = False
     whisper: bool = False  # own audio and video recordings

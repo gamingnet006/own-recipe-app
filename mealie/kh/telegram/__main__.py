@@ -3,18 +3,22 @@ with a hint and exit code 0, so compose (restart: on-failure) does not start it 
 
 import logging
 import os
+import re
 import sys
 
 from mealie.kh.features.settings import KhSettings, get_kh_settings
 from mealie.kh.telegram.bot import Bot, Config
 
 MB = 1024 * 1024
+TOKEN_FORMAT = re.compile(r"\d+:[A-Za-z0-9_-]+")  # what @BotFather hands out; anything else is a typo
 
 
 def config_from(settings: KhSettings) -> Config | str:
     """The bot's configuration, or the hint why it must not start."""
     if not settings.telegram_token:
         return "KH_TELEGRAM_TOKEN is not set (token from @BotFather): the Telegram bot stays off."
+    if not TOKEN_FORMAT.fullmatch(settings.telegram_token):  # never echo it: it is a secret
+        return "KH_TELEGRAM_TOKEN does not look like a bot token (digits, a colon, letters; no spaces): check it."
     if os.environ.get("KH_PROFILE") == "lokal":
         return "The profile 'lokal' keeps everything in the house: the Telegram bot does not start."
     try:

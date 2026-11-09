@@ -144,7 +144,7 @@ const router = useRouter();
 const i18n = useI18n();
 const { household, actions: householdActions } = useHouseholdSelf();
 const { shoppingLists, open: shoppingListDialog, addAllToList, addShoppingList } = useAddToShoppingListDialog();
-const khOn = useKhOn();
+const khOn = useKhOn(); // KH: D46
 const calendarDialog = ref(false);
 
 useSeoMeta({

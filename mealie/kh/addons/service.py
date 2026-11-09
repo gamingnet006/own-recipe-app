@@ -31,7 +31,7 @@ def host_unavailable() -> list[str]:
     settings = get_kh_settings()
     missing = {
         "share_links": not settings.share_links,
-        "telegram": not settings.telegram_token,
+        "telegram": not settings.telegram_token or settings.profile == "lokal",  # lokal: nothing leaves the house
         "whisper": not settings.whisper_url,
     }
     return [name for name, gone in missing.items() if gone]
@@ -39,10 +39,11 @@ def host_unavailable() -> list[str]:
 
 def default_flags() -> AddonFlags:
     """The fresh-install defaults, except that what the host already set up starts on: whoever set a Telegram token,
-    Whisper server, share links or Clock shortcut in the environment keeps them after the update (G5)."""
+    Whisper server or share links in the environment keeps them after the update (G5). The Clock button starts on,
+    as it always showed wherever the device's own switch is on."""
     settings = get_kh_settings()
     return AddonFlags(
-        clock=bool(settings.clock_shortcut_url),
+        clock=True,
         share_links=settings.share_links,
         telegram=bool(settings.telegram_token),
         whisper=bool(settings.whisper_url),
