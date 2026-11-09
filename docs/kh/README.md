@@ -6,7 +6,7 @@ A free, self-hosted family recipe app and website, based on a fork of [Mealie](h
 
 **Deutsch:** Eine kostenlose, selbst gehostete Rezept-App und Webseite für die Familie, auf Basis eines Mealie-Forks. Läuft in Docker auf einem Raspberry Pi, einem Mac oder einem Linux-Rechner. Die Kurzanleitung steht direkt unten, die englische Fassung danach.
 
-**Status:** phase 2 (`v0.1`): new recipes come in by link, text or photo and are reviewed before they are saved; runs for the family with backups, automatic updates and access from outside. Every phase ends with a release that can be installed on its own (D15).
+**Status:** `v1.0` (9 Nov 2026): recipes come in by link, text, photo or Telegram and are reviewed before they are saved; amounts scale in the steps; cook mode with timers and voice commands (test); family cookbook PDF; nutrition and allergens; add-ons that can be switched off. Runs for the family with backups, automatic updates and access from outside. Every release can be installed on its own (D15).
 
 - Plan: [PLAN.md](../../PLAN.md) (Deutsch, authoritative) · [PLAN.en.md](../../PLAN.en.md)
 - Rules for development: [CLAUDE.md](../../.claude/CLAUDE.md) · [CLAUDE.en.md](CLAUDE.en.md)
