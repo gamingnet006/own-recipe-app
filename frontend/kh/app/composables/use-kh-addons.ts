@@ -1,5 +1,6 @@
 // KH: the household's add-on switches (D46) as one shared state. Components read khAddons.enabled; it holds the
 // defaults until the answer of the server arrives, and stays on them if it never does.
+import type { Composer } from "vue-i18n";
 import { DEFAULT_ADDONS, type KhAddonFlags, type KhAddonName, type KhAddonsAnswer } from "../lib/addons";
 import { KhAddonsApi } from "../lib/api/addons";
 import { clearOfflineCaches } from "../lib/offline";
@@ -34,11 +35,12 @@ export function resetKhAddons(): void {
   khAddons.userId = null;
 }
 
-/** Loads the household's switches once per user; the next user of the same browser gets his own. */
-export async function loadKhAddonsFor(userId: string): Promise<void> {
+/** Loads the household's switches once per user; the next user of the same browser gets his own. Outside a component
+ * (a route guard) pass the app's i18n, because the request helper would otherwise call useI18n(). */
+export async function loadKhAddonsFor(userId: string, i18n?: Composer): Promise<void> {
   if (khAddons.userId === userId) return;
   if (khAddons.userId) resetKhAddons(); // a failed load for this user must not leave the last household's switches
-  const { data } = await new KhAddonsApi(useRequests()).get();
+  const { data } = await new KhAddonsApi(useRequests(i18n)).get();
   if (data) {
     setKhAddons(data);
     khAddons.userId = userId;
