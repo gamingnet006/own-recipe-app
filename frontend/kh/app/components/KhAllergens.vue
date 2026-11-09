@@ -7,12 +7,12 @@ for the household's intolerances with the replacements, "save as variant", and t
       <p class="font-weight-bold mb-1">
         {{ warningText(warning) }}
       </p>
-      <p v-for="hint in hintsFor(warning.allergen)" :key="hint.line" class="text-body-2 mb-0">
+      <p v-for="hint in khOn.substitutions ? hintsFor(warning.allergen) : []" :key="hint.line" class="text-body-2 mb-0">
         {{ $t("kh.allergens.instead", { line: hint.line, replacement: hint.replacement }) }}
       </p>
     </div>
     <v-btn
-      v-if="data.warnings.length"
+      v-if="data.warnings.length && khOn.substitutions"
       variant="tonal"
       size="small"
       class="mb-2"
@@ -81,6 +81,7 @@ for the household's intolerances with the replacements, "save as variant", and t
 
 <script setup lang="ts">
 import { useRequests } from "~/composables/api/api-client";
+import { useKhOn } from "../composables/use-kh-addons";
 import { refreshKhAllergenWarnings } from "../composables/use-kh-allergens";
 import { KH_ALLERGENS, KhAllergensApi, type KhAllergenKey, type KhAllergenWarning, type KhRecipeAllergens } from "../lib/api/allergens";
 
@@ -88,6 +89,7 @@ const props = defineProps<{ slug: string; groupSlug: string; canEdit: boolean }>
 
 const { t, locale } = useI18n();
 const router = useRouter();
+const khOn = useKhOn();
 const api = new KhAllergensApi(useRequests());
 const data = ref<KhRecipeAllergens | null>(null);
 const open = ref<KhAllergenKey | null>(null);

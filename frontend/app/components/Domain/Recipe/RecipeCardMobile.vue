@@ -89,7 +89,7 @@
               <div v-else class="my-0 px-1 py-0" /> <!-- Empty div to keep the layout consistent -->
               <!-- KH: no stars, Küchenhelfer does not use ratings (D38) -->
               <!-- KH: warning sign for intolerances in the household (D44) -->
-              <KhAllergenMark v-if="isOwnGroup" :slug="slug" />
+              <KhAllergenMark v-if="isOwnGroup && khOn.allergens" :slug="slug" />
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->
@@ -130,6 +130,7 @@
 
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import RecipeCardImage from "./RecipeCardImage.vue";
 import RecipeChips from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
@@ -172,6 +173,7 @@ defineEmits<{
 
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
+const khOn = useKhOn(); // KH: D46
 
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug || auth.user.value?.groupSlug || "");

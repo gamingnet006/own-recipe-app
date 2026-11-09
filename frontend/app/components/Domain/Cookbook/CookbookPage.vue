@@ -45,7 +45,7 @@
           />
           <!-- KH: the family cookbook's editor (D43) -->
           <v-btn
-            v-if="isOwnGroup"
+            v-if="isOwnGroup && khOn.books"
             variant="text"
             :prepend-icon="$globals.icons.printer"
             :to="`/g/${route.params.groupSlug}/kochbuch/${slug}`"
@@ -81,11 +81,13 @@ import { useCookbook } from "~/composables/use-group-cookbooks";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
 import CookbookEditor from "~/components/Domain/Cookbook/CookbookEditor.vue";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
 
 const route = useRoute();
+const khOn = useKhOn(); // KH: D46
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 
 const { recipes, appendRecipes, assignSorted, removeRecipe, replaceRecipes } = useLazyRecipes(isOwnGroup.value ? null : groupSlug.value);

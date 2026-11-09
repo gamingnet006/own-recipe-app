@@ -93,7 +93,7 @@ title with its origin, the times as tiles and the amount with − and +. -->
       <SafeMarkdown v-if="recipe.description" :source="recipe.description" class="mt-2" />
     </section>
     <KhOriginBadge :recipe-id="recipe.id" />
-    <p v-if="!online" class="px-4 pt-2 text-body-medium text-medium-emphasis" role="status">
+    <p v-if="!online && khOn.offline" class="px-4 pt-2 text-body-medium text-medium-emphasis" role="status">
       {{ $t("kh.cook.offline") }}
     </p>
 
@@ -157,6 +157,7 @@ title with its origin, the times as tiles and the amount with − and +. -->
 
 <script setup lang="ts">
 import { useOnline } from "@vueuse/core";
+import { useKhOn } from "../composables/use-kh-addons";
 import { useKhCanEdit } from "../composables/use-kh-can-edit";
 import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import { timeHint } from "../lib/amounts";
@@ -191,6 +192,7 @@ const menuItems = { edit: false, mealplanner: true, print: true, share: true, de
   duplicate: false, shoppingList: false, printPreferences: false, recipeActions: true };
 
 const canEditRecipe = useKhCanEdit(props.recipe);
+const khOn = useKhOn();
 
 const imageFailed = ref(false);
 const imageUrl = computed(() => recipeImage(props.recipe.id, props.recipe.image, imageKey.value));
@@ -221,8 +223,13 @@ function back() {
   else router.push(`/g/${route.params.groupSlug as string}`);
 }
 
-/** The recipe card (D43) with the servings chosen here, instead of printing this page. */
+/** The recipe card (D43) with the servings chosen here, instead of printing this page; the browser's own print while
+ * the family cookbook is switched off (D46). */
 function print() {
+  if (!khOn.value.books) {
+    window.print();
+    return;
+  }
   const servings = Number(((props.recipe.recipeServings || 0) * scale.value).toFixed(3));
   router.push({ path: `/g/${route.params.groupSlug as string}/kochbuch/rezept/${props.recipe.slug}`, query: servings ? { servings } : {} });
 }

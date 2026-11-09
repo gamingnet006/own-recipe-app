@@ -14,6 +14,7 @@ import {
   useKhShoppingTarget,
   useKhSidebar,
 } from "../composables/use-kh-navigation";
+import { DEFAULT_ADDONS } from "../lib/addons";
 import { icons } from "~/lib/icons";
 import mealieTexts from "~/lang/messages/en-US.json";
 import khTexts from "../../lang/en-US.json";
@@ -73,11 +74,27 @@ describe("destinations", () => {
   });
 
   test("the settings follow the user's rights", () => {
-    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "about"]);
+    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons", "about"]);
     expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
-      .toEqual(["profile", "data", "admin", "system", "about"]);
+      .toEqual(["profile", "data", "addons", "admin", "system", "about"]);
     expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
       .toEqual(["/g/familie/systempruefung", "/g/familie/ueber"]);
+  });
+
+  test("switched-off add-ons leave the bar, the side menu and More (D46)", () => {
+    const off = { ...DEFAULT_ADDONS, shopping: false, planner: false, duplicates: false, nutrition: false, allergens: false };
+    expect(barTargets("familie", "/shopping-lists", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
+    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key))
+      .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline"]);
+    const { plan, collection } = moreSections("familie", "u1", off);
+    expect(plan.map(target => target.key)).toEqual(["cookbooks", "finder"]);
+    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline"]);
+  });
+
+  test("the planner stays without the shopping list", () => {
+    const off = { ...DEFAULT_ADDONS, shopping: false };
+    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key)).toContain("mealplan");
+    expect(moreSections("familie", "u1", off).plan.map(target => target.key)).toContain("mealplan");
   });
 
   test("every destination has one of Mealie's icons and a text", () => {

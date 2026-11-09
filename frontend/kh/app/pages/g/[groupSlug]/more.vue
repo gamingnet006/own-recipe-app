@@ -23,7 +23,7 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
-    <section class="mb-4">
+    <section v-if="khOn.oven" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.oven.title") }}
       </h2>
@@ -35,7 +35,7 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
-    <section class="mb-4">
+    <section v-if="khOn.nutrition" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.nutrition.title") }}
       </h2>
@@ -50,7 +50,7 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
-    <section class="mb-4">
+    <section v-if="khOn.clock" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.timer.title") }}
       </h2>
@@ -149,6 +149,7 @@ everything the side menu holds on bigger screens. -->
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useKhOven } from "~~/kh/app/lib/oven";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
@@ -166,6 +167,7 @@ const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
 const oven = useKhOven();
+const khOn = useKhOn();
 const showNutrition = useKhNutritionSetting();
 const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
 

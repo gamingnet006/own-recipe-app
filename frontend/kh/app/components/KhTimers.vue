@@ -34,7 +34,7 @@ the default layout). A timer that has run out rings, wherever the user is, until
         >
           <v-icon>{{ row.timer.pausedLeft === null ? $globals.icons.pause : $globals.icons.play }}</v-icon>
         </v-btn>
-        <v-btn v-if="clockEnabled" size="large" variant="tonal" @click="putOnClock(row.left)">
+        <v-btn v-if="clockEnabled && khOn.clock" size="large" variant="tonal" @click="putOnClock(row.left)">
           {{ $t("kh.timer.clock") }}
         </v-btn>
         <v-btn icon variant="text" :aria-label="$t('kh.timer.stop')" @click="stop(row.timer.id)">
@@ -47,6 +47,7 @@ the default layout). A timer that has run out rings, wherever the user is, until
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useKhOn } from "../composables/use-kh-addons";
 import { clockTimerUrl, formatTimeLeft, timerRecipePath, timersListedInStep, useKhAlarm, useKhClockSetting, useKhTimers, type KhTimer } from "../composables/use-kh-timers";
 
 defineProps<{ compact?: boolean }>();
@@ -62,6 +63,7 @@ const rows = computed(() => {
 });
 
 const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
+const khOn = useKhOn();
 
 const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user.value?.groupSlug || "");
 

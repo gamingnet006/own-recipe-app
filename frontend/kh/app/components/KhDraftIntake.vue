@@ -101,6 +101,7 @@ which is recognized in the background and then waits in the list below for a rev
 import type { KhDraftSource } from "~~/kh/app/lib/api/drafts";
 import { errorText, isVideoLink, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
 import { aiHintKey, useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
+import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
 
@@ -125,7 +126,7 @@ const sources: { source: IntakeSource; icon: string }[] = [
   { source: "link", icon: $globals.icons.link },
   { source: "text", icon: $globals.icons.textBox },
   { source: "image", icon: $globals.icons.fileImage },
-  ...($khFeatures.media ? [{ source: "media" as const, icon: $globals.icons.microphone }] : []),
+  ...($khFeatures.media && khAddons.enabled.whisper ? [{ source: "media" as const, icon: $globals.icons.microphone }] : []),
 ];
 
 const source = ref<IntakeSource | null>(props.sharedLink ? "link" : null);

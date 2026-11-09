@@ -102,7 +102,8 @@
       "nutrition": "Nährwerte",
       "tolerance": "Ich vertrage nicht",
       "about": "Über Küchenhelfer",
-      "system": "Systemprüfung"
+      "system": "Systemprüfung",
+      "addons": "Zusatzfunktionen"
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -400,7 +401,7 @@
         },
         "defaultAccount": {
           "ok": "Das Standard-Konto ist nicht mehr in Gebrauch",
-          "bad": "Das Standard-Konto (changeme@example.com) gibt es noch, bitte ersetzen"
+          "bad": "Das Standard-Konto (changeme{'@'}example.com) gibt es noch, bitte ersetzen"
         },
         "autoUpdate": {
           "ok": "Automatische Updates sind an.",
@@ -436,6 +437,100 @@
         "never": "Noch kein Lauf.",
         "failed": "Das Häkchen ließ sich nicht speichern."
       }
+    },
+    "addons": {
+      "description": "Hier legt ihr fest, welche Funktionen Küchenhelfer in eurem Haushalt zeigt. Ausgeschaltete Funktionen verschwinden aus der Oberfläche, ihre Daten bleiben erhalten.",
+      "off-hint": "{name} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten.",
+      "unavailable": "Nicht eingerichtet, siehe Anleitung.",
+      "needs-allergens": "Braucht die Funktion Allergene.",
+      "presets": {
+        "title": "Wie wollt ihr Küchenhelfer nutzen?",
+        "recipes": "Nur Rezepte",
+        "shopping": "Rezepte und Einkaufsliste",
+        "planner": "Alles mit Essensplaner"
+      },
+      "areas": {
+        "title": "Große Bereiche",
+        "shopping": {
+          "title": "Einkaufsliste",
+          "text": "Zur Einkaufsliste gehören die Listen, der Reiter in der unteren Leiste und die Knöpfe „Auf die Einkaufsliste“ an den Rezepten.",
+          "gone": "Ausgeschaltet verschwinden Reiter, Seiten, Menüpunkte und Knöpfe; die Leiste hat dann drei Plätze. Eure Listen bleiben gespeichert."
+        },
+        "planner": {
+          "title": "Essensplaner",
+          "text": "Zum Essensplaner gehören der Wochenplan, seine Einstellungen und der Menüpunkt „Zum Essensplan“ an den Rezepten.",
+          "gone": "Ausgeschaltet verschwinden Seiten, Menüpunkte und Knöpfe. Euer Plan bleibt gespeichert."
+        }
+      },
+      "items": {
+        "title": "Weitere Funktionen",
+        "books": {
+          "title": "Familienkochbuch",
+          "text": "Der Buch-Editor und der Druck als Kochbuch."
+        },
+        "duplicates": {
+          "title": "Doppelte Rezepte",
+          "text": "Die Seite, die ähnliche Rezepte zum Aufräumen zeigt."
+        },
+        "oven": {
+          "title": "Umluft-Klammer",
+          "text": "Die Umluft-Temperatur in Klammern im Text der Schritte."
+        },
+        "nutrition": {
+          "title": "Nährwerte",
+          "text": "Nährwerte pro Portion, die Seite zur Zuordnung der Zutaten und die Anzeige am Rezept."
+        },
+        "allergens": {
+          "title": "Allergene",
+          "text": "Allergen-Hinweise am Rezept, die Karten-Markierung und die Seite „Ich vertrage nicht“."
+        },
+        "substitutions": {
+          "title": "Austausch und Varianten",
+          "text": "Austauschregeln und Varianten ohne einen Stoff. Nur zusammen mit Allergene."
+        },
+        "offline": {
+          "title": "Offline-Rezepte",
+          "text": "Die zuletzt geöffneten Rezepte bleiben ohne Netz lesbar."
+        },
+        "clock": {
+          "title": "Auf Uhr-Timer legen",
+          "text": "Der Knopf, der einen Timer in der Uhr-App des iPhones startet."
+        },
+        "shareLinks": {
+          "title": "Öffentliche Teilen-Links",
+          "text": "Rezepte per Link teilen, den jeder ohne Konto öffnen kann. Muss auch auf dem Server erlaubt sein."
+        },
+        "telegram": {
+          "title": "Telegram-Bot",
+          "text": "Links, Texte und Fotos per Telegram an den Eingang schicken. Braucht den Bot-Dienst."
+        },
+        "whisper": {
+          "title": "Audio und Video mit Whisper",
+          "text": "Eigene Aufnahmen werden zu Text gemacht und landen im Eingang. Braucht den Whisper-Dienst."
+        },
+        "voice": {
+          "title": "Sprachbefehle (Test)",
+          "text": "Sprachbefehle im Kochmodus. Noch im Test."
+        }
+      },
+      "names": {
+        "shopping": "Die Einkaufsliste",
+        "planner": "Der Essensplaner",
+        "books": "Das Familienkochbuch",
+        "duplicates": "Doppelte Rezepte",
+        "oven": "Die Umluft-Klammer",
+        "nutrition": "Nährwerte",
+        "allergens": "Allergene",
+        "substitutions": "Austausch und Varianten",
+        "offline": "Offline-Rezepte",
+        "clock": "Der Uhr-Timer",
+        "shareLinks": "Teilen-Links",
+        "telegram": "Der Telegram-Bot",
+        "whisper": "Audio und Video",
+        "voice": "Sprachbefehle"
+      },
+      "local-ai": "Lokale KI (z. B. Ollama) geht grundsätzlich auch – siehe Anleitung. Ungetestet.",
+      "local-ai-link": "Anleitung"
     }
   }
 }

@@ -32,13 +32,14 @@
           event: '',
           text: '',
           children: [
-            {
+            // KH: no shopping list buttons while that add-on is off (D46)
+            ...(khOn.shopping ? [{
               text: $t('meal-plan.add-day-to-list'),
               icon: $globals.icons.cartCheck,
               event: 'shopping-list',
               loading: addAllLoading,
               disabled: !props.recipes.length,
-            },
+            }] : []),
             ...commonButtons,
             ...inlineButtons,
           ],
@@ -53,6 +54,7 @@
 import { format } from "date-fns";
 import { useUserApi } from "~/composables/api";
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import type { ScaledRecipe } from "~/composables/use-group-mealplan";
 import type { PlanEntryType, ReadPlanEntry } from "~/lib/api/types/meal-plan";
 
@@ -65,6 +67,7 @@ interface Props {
 
 const { open: shoppingListDialog, shoppingLists, addAllLoading, addAllToList, addShoppingList } = useAddToShoppingListDialog();
 const { $globals } = useNuxtApp();
+const khOn = useKhOn();
 const i18n = useI18n();
 const api = useUserApi();
 const props = withDefaults(defineProps<Props>(), {

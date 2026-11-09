@@ -102,7 +102,8 @@
       "nutrition": "Nutrition",
       "tolerance": "I do not tolerate",
       "about": "About Küchenhelfer",
-      "system": "System check"
+      "system": "System check",
+      "addons": "Add-ons"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -400,7 +401,7 @@
         },
         "defaultAccount": {
           "ok": "The default account is no longer in use",
-          "bad": "The default account (changeme@example.com) still exists, please replace it"
+          "bad": "The default account (changeme{'@'}example.com) still exists, please replace it"
         },
         "autoUpdate": {
           "ok": "Automatic updates are on.",
@@ -436,6 +437,100 @@
         "never": "No run yet.",
         "failed": "The checkbox could not be saved."
       }
+    },
+    "addons": {
+      "description": "Choose which functions Küchenhelfer shows for your household. Switched-off functions disappear from the interface, their data stays.",
+      "off-hint": "{name} is switched off. An admin can switch it on under More → Add-ons.",
+      "unavailable": "Not set up, see the guide.",
+      "needs-allergens": "Needs the Allergens function.",
+      "presets": {
+        "title": "How do you want to use Küchenhelfer?",
+        "recipes": "Recipes only",
+        "shopping": "Recipes and shopping list",
+        "planner": "Everything with the meal planner"
+      },
+      "areas": {
+        "title": "Big areas",
+        "shopping": {
+          "title": "Shopping list",
+          "text": "The shopping list covers the lists, the tab in the bottom bar and the \"Add to shopping list\" buttons on recipes.",
+          "gone": "Switched off, the tab, pages, menu entries and buttons disappear; the bar then has three places. Your lists stay saved."
+        },
+        "planner": {
+          "title": "Meal planner",
+          "text": "The meal planner covers the weekly plan, its settings and the \"Add to meal plan\" menu entry on recipes.",
+          "gone": "Switched off, pages, menu entries and buttons disappear. Your plan stays saved."
+        }
+      },
+      "items": {
+        "title": "More functions",
+        "books": {
+          "title": "Family cookbook",
+          "text": "The book editor and printing as a cookbook."
+        },
+        "duplicates": {
+          "title": "Duplicate recipes",
+          "text": "The page that shows similar recipes to tidy up."
+        },
+        "oven": {
+          "title": "Fan-oven bracket",
+          "text": "The fan-oven temperature in brackets in the text of the steps."
+        },
+        "nutrition": {
+          "title": "Nutrition",
+          "text": "Nutrition per serving, the page that maps ingredients and the display on the recipe."
+        },
+        "allergens": {
+          "title": "Allergens",
+          "text": "Allergen hints on the recipe, the mark on cards and the \"I do not tolerate\" page."
+        },
+        "substitutions": {
+          "title": "Exchange and variants",
+          "text": "Exchange rules and variants without a substance. Only together with Allergens."
+        },
+        "offline": {
+          "title": "Offline recipes",
+          "text": "The recipes you opened last stay readable without a network."
+        },
+        "clock": {
+          "title": "Put on the Clock timer",
+          "text": "The button that starts a timer in the iPhone's Clock app."
+        },
+        "shareLinks": {
+          "title": "Public share links",
+          "text": "Share recipes by a link anyone can open without an account. Must also be allowed on the server."
+        },
+        "telegram": {
+          "title": "Telegram bot",
+          "text": "Send links, texts and photos to the intake by Telegram. Needs the bot service."
+        },
+        "whisper": {
+          "title": "Audio and video with Whisper",
+          "text": "Own recordings are turned into text and land in the intake. Needs the Whisper service."
+        },
+        "voice": {
+          "title": "Voice commands (test)",
+          "text": "Voice commands in cooking mode. Still in testing."
+        }
+      },
+      "names": {
+        "shopping": "The shopping list",
+        "planner": "The meal planner",
+        "books": "The family cookbook",
+        "duplicates": "Duplicate recipes",
+        "oven": "The fan-oven bracket",
+        "nutrition": "Nutrition",
+        "allergens": "Allergens",
+        "substitutions": "Exchange and variants",
+        "offline": "Offline recipes",
+        "clock": "The Clock timer",
+        "shareLinks": "Share links",
+        "telegram": "The Telegram bot",
+        "whisper": "Audio and video",
+        "voice": "Voice commands"
+      },
+      "local-ai": "Local AI (e.g. Ollama) works in principle too – see the guide. Untested.",
+      "local-ai-link": "Guide"
     }
   }
 }

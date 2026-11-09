@@ -9,6 +9,11 @@
     <p class="text-body-medium mb-3">
       {{ $t("kh.ai.order-hint") }}
     </p>
+    <!-- D46: local AI is not built, only pointed at; the guide says "untested" -->
+    <p class="text-body-medium mb-3">
+      {{ $t("kh.addons.local-ai") }}
+      <a :href="`${$khFeatures.sourceUrl}/blob/main/docs/kh/LOKALE-KI.md`" target="_blank" rel="noopener">{{ $t("kh.addons.local-ai-link") }}</a>
+    </p>
     <v-card
       v-for="(provider, index) in providers"
       :key="provider.providerId"

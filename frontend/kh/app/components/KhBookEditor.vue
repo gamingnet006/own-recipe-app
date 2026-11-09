@@ -45,7 +45,7 @@ live preview, which is the printout itself, on the right. In "book" mode the set
       </h2>
       <v-switch v-model="settings.description" color="primary" :label="$t('recipe.description')" hide-details />
       <v-switch v-model="settings.notes" color="primary" :label="$t('recipe.notes')" hide-details />
-      <v-switch v-model="settings.oven" color="primary" :label="$t('kh.book.oven')" hide-details />
+      <v-switch v-if="khOn.oven" v-model="settings.oven" color="primary" :label="$t('kh.book.oven')" hide-details />
 
       <h2 class="text-subtitle-1 font-weight-bold mt-4">
         {{ $t("kh.book.recipes") }}
@@ -100,7 +100,7 @@ live preview, which is the printout itself, on the right. In "book" mode the set
       <v-alert v-if="state.empty" type="info" variant="tonal" class="d-print-none">
         {{ $t("kh.book.empty") }}
       </v-alert>
-      <KhPrintBook v-else :settings="settings" :entries="state.entries" :oven="settings.oven ? oven : null" preview />
+      <KhPrintBook v-else :settings="settings" :entries="state.entries" :oven="settings.oven && khOn.oven ? oven : null" preview />
     </div>
   </div>
 </template>
@@ -111,6 +111,7 @@ import KhPrintBook from "./KhPrintBook.vue";
 import { useBookSaving } from "../composables/use-kh-book";
 import { KhBooksApi, type KhBookRecipeSettings, type KhBookSettings, type KhRecipeFlags } from "../lib/api/books";
 import { editorState, recipeSettings, withRecipe } from "../lib/book";
+import { useKhOn } from "../composables/use-kh-addons";
 import { useKhOven } from "../lib/oven";
 import { useStaticRoutes } from "~/composables/api";
 import { useRequests } from "~/composables/api/api-client";
@@ -135,6 +136,7 @@ const i18n = useI18n();
 const { recipeTinyImage } = useStaticRoutes();
 const books = new KhBooksApi(useRequests());
 const oven = useKhOven();
+const khOn = useKhOn();
 
 const { status, retry } = useBookSaving(props.cookbookId ?? "", settings, props.mode === "book" && props.canSave);
 const forbidden = computed(() => props.mode === "book" && (!props.canSave || status.value === "forbidden"));

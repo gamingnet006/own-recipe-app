@@ -46,7 +46,7 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
       <SafeMarkdown
         v-if="current"
         class="kh-cook-text mt-3"
-        :source="khStepDisplay(cook.step.value, current, recipe, scale, oven).html"
+        :source="khStepDisplay(cook.step.value, current, recipe, scale, khOn.oven ? oven : null).html"
         @click="onStepTextClick($event, cook.step.value, current, recipe, scale)"
       />
     </template>
@@ -70,6 +70,7 @@ import { useEventListener, useLocalStorage, useSwipe, useWakeLock } from "@vueus
 import { cookForward, handleCookKey, showsSegments, type KhCook } from "../composables/use-kh-cook";
 import { useKhTimeTap } from "../composables/use-kh-time-tap";
 import { timersListedInStep } from "../composables/use-kh-timers";
+import { useKhOn } from "../composables/use-kh-addons";
 import { useKhOven } from "../lib/oven";
 import { khStepDisplay, khStepNeeds } from "../lib/step-text";
 import type { Recipe } from "~/lib/api/types/recipe";
@@ -80,6 +81,7 @@ const emit = defineEmits<{ "close": []; "all-steps": [] }>();
 const onStepTextClick = useKhTimeTap();
 // Read while rendering (khStepDisplay needs the render context), never from a click handler.
 const oven = useKhOven();
+const khOn = useKhOn();
 const area = ref<HTMLElement | null>(null);
 
 const steps = computed(() => props.recipe.recipeInstructions ?? []);

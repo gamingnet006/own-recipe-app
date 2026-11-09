@@ -91,10 +91,10 @@
                 class="pr-2"
               />
               <!-- KH: under the ingredients (D38) -->
-              <KhAddToShoppingList v-if="!isEditForm && isOwnGroup" :recipe="recipe" :scale="scale" class="pr-2" />
+              <KhAddToShoppingList v-if="!isEditForm && isOwnGroup && khOn.shopping" :recipe="recipe" :scale="scale" class="pr-2" />
               <!-- KH: nutrition values and allergens under the ingredients (D44) -->
-              <KhNutrition v-if="!isEditForm && isOwnGroup" :slug="recipe.slug" :group-slug="groupSlug" />
-              <KhAllergens v-if="!isEditForm && isOwnGroup" :slug="recipe.slug" :group-slug="groupSlug" :can-edit="canEditRecipe" />
+              <KhNutrition v-if="!isEditForm && isOwnGroup && khOn.nutrition" :slug="recipe.slug" :group-slug="groupSlug" />
+              <KhAllergens v-if="!isEditForm && isOwnGroup && khOn.allergens" :slug="recipe.slug" :group-slug="groupSlug" :can-edit="canEditRecipe" />
               <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
             </v-col>
             <!--
@@ -282,6 +282,7 @@ import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.
 import RecipeNotes from "~/components/Domain/Recipe/RecipeNotes.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useKhCanEdit } from "~~/kh/app/composables/use-kh-can-edit";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useUnitConversion, useUnitSystem } from "~/composables/recipes";
 
@@ -293,6 +294,7 @@ const route = useRoute();
 const { isOwnGroup } = useLoggedInState();
 // KH: edit right for the allergen corrections (D44)
 const canEditRecipe = useKhCanEdit(recipe.value);
+const khOn = useKhOn();
 
 const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user?.value?.groupSlug || "");
 const ingredientStorageKey = computed(() => `recipe-ingredients:${recipe.value.id || recipe.value.slug}:checked`);

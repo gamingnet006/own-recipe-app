@@ -26,6 +26,8 @@ first-start list with links. -->
     <h2 class="text-h6 mb-2">
       {{ $t("kh.system.start.title") }}
     </h2>
+    <!-- D46, G1: the question that only sets the two big switches -->
+    <KhAddonPresets class="mb-4" />
     <v-list rounded="lg" class="py-0">
       <v-list-item
         v-for="step in steps"
