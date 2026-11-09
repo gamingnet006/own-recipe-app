@@ -1,4 +1,4 @@
-"""KH: add kh_drafts, the first migration of Küchenhelfer's own branch "kh" (D24), for drafts (D18).
+"""KH: add kh_drafts, the first migration of Kochheft's own branch "kh" (D24), for drafts (D18).
 
 Revision ID: kh0001
 Revises: 1e69ea7cd45e

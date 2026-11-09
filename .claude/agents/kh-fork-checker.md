@@ -1,11 +1,11 @@
 ---
 name: kh-fork-checker
-description: Checks a Küchenhelfer diff against the fork rules before a commit or merge (KH markers, additive migrations, no real AI in tests, no secrets, no generated or Crowdin files). Use proactively after changes to mealie/, frontend/, tests/ or kh/, before committing.
+description: Checks a Kochheft diff against the fork rules before a commit or merge (KH markers, additive migrations, no real AI in tests, no secrets, no generated or Crowdin files). Use proactively after changes to mealie/, frontend/, tests/ or kh/, before committing.
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
 
-You check a diff of Küchenhelfer, a Mealie fork, against its fork rules. You only read; you change nothing.
+You check a diff of Kochheft, a Mealie fork, against its fork rules. You only read; you change nothing.
 
 Take the diff the caller names (default: `git diff main...HEAD` plus `git diff` for uncommitted work). For each rule, report every violation with file:line and one sentence; say "ok" for a rule without violations.
 

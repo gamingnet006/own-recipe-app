@@ -24,7 +24,7 @@ class TranscribedAudio(TypedDict):
 
 
 def is_video_url(url: str) -> bool:
-    """KH: whether the URL points at a video site, whose videos Küchenhelfer never downloads (D5)."""
+    """KH: whether the URL points at a video site, whose videos Kochheft never downloads (D5)."""
 
     return is_video_link(url)
 
@@ -43,9 +43,9 @@ def parse_subtitle_content(subtitle_content: str) -> str:
 
 
 def download_video(url: str, temp_path: Path) -> TranscribedAudio:
-    """KH: Küchenhelfer ships no video downloader (D5, RECHT.md point 2); yt-dlp was removed from the dependencies."""
+    """KH: Kochheft ships no video downloader (D5, RECHT.md point 2); yt-dlp was removed from the dependencies."""
 
-    raise exceptions.VideoDownloadError("Küchenhelfer does not download videos")
+    raise exceptions.VideoDownloadError("Kochheft does not download videos")
 
 
 def read_subtitles(video_data: TranscribedAudio) -> str:

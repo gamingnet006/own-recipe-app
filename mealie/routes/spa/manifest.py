@@ -19,7 +19,7 @@ def serve_manifest():
         "display": "standalone",
         "background_color": "#1E1E1E",
         "theme_color": settings.theme.light_primary,
-        "description": "Mealie is a recipe management and meal planning app",
+        "description": "Kochheft is a recipe management and meal planning app",  # KH: app name (D49)
         "lang": "en",
         "display_override": ["standalone", "minimal-ui", "browser", "window-controls-overlay"],
         "categories": ["food", "lifestyle"],

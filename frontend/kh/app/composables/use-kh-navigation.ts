@@ -1,4 +1,4 @@
-// KH: the destinations of Küchenhelfer's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
+// KH: the destinations of Kochheft's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
 // side menu from 840 px and the More page all read from here, so a destination is added or renamed in one place.
 import type { KhAddonFlags } from "../lib/addons";
 import { khAddons } from "./use-kh-addons";

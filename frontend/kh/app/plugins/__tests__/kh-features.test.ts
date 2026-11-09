@@ -1,4 +1,4 @@
-// KH: tests the plugin that loads Küchenhelfer's switches: it passes the answer on, and without
+// KH: tests the plugin that loads Kochheft's switches: it passes the answer on, and without
 // an answer every hidden Mealie part stays hidden and the error is reported.
 import { afterEach, describe, expect, test, vi } from "vitest";
 

@@ -1,5 +1,5 @@
-name: "Küchenhelfer: Fehler melden"
-description: "Something does not work in Küchenhelfer / Etwas funktioniert in Küchenhelfer nicht"
+name: "Kochheft: Fehler melden"
+description: "Something does not work in Kochheft / Etwas funktioniert in Kochheft nicht"
 title: "[Fehler] "
 labels: ["bug"]
 body:
@@ -27,7 +27,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Steht unter „Mehr → Über Küchenhelfer“. / Shown under "More → About Küchenhelfer".
+      description: Steht unter „Mehr → Über Kochheft“. / Shown under "More → About Kochheft".
       placeholder: v0.5.0
     validations:
       required: true

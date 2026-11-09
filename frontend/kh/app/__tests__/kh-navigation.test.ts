@@ -111,7 +111,7 @@ test("the hint on waiting drafts has a singular and a plural form in both langua
   }
 });
 
-test("the More page names no Mealie version, which reads \"develop\" in Küchenhelfer's builds", () => {
+test("the More page names no Mealie version, which reads \"develop\" in Kochheft's builds", () => {
   for (const texts of [khTexts, khTextsDe]) {
     expect(texts.kh.nav["based-on-mealie"]).not.toContain("{");
   }

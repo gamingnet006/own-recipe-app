@@ -1,5 +1,5 @@
 """KH: tests for reading German ingredient lines (v0.2 plan 2, task 1, A1): amounts, ranges, units and foods of the
-group, fixed amounts, and the German units Küchenhelfer adds once."""
+group, fixed amounts, and the German units Kochheft adds once."""
 
 import pytest
 

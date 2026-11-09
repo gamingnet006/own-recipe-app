@@ -1,4 +1,4 @@
-"""KH: video links (P7.2, D5): sites whose links are never fetched, because Küchenhelfer does not download videos or
+"""KH: video links (P7.2, D5): sites whose links are never fetched, because Kochheft does not download videos or
 collect from social media (RECHT.md point 2). The frontend keeps the same list in
 kh/app/composables/use-kh-drafts.ts."""
 

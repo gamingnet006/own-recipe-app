@@ -1,4 +1,4 @@
-# KH: how Küchenhelfer runs on the Mac and on the Pi (PLAN.md phase 1).
+# KH: how Kochheft runs on the Mac and on the Pi (PLAN.md phase 1).
 # Mac: builds the image from this repo. Pi: pulls the released image instead
 # (`docker compose pull`), heavy builds never run on the Pi.
 name: kuechenhelfer

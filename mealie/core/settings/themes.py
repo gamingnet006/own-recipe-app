@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Theme(BaseSettings):
-    light_primary: str = "#2F7A55"  # KH: Küchenhelfer's look "Salbei" (D38)
+    light_primary: str = "#2F7A55"  # KH: Kochheft's look "Salbei" (D38)
     light_accent: str = "#007A99"
     light_secondary: str = "#973542"
     light_success: str = "#43A047"

@@ -169,7 +169,7 @@ def test_admin_update_group_ai_provider_settings_clear(
         assert response.status_code == 200
 
         settings = response.json()["aiProviderSettings"]
-        # KH: default and image provider follow Küchenhelfer's priority list: its only provider (D39)
+        # KH: default and image provider follow Kochheft's priority list: its only provider (D39)
         assert settings["defaultProviderId"] == str(provider.id)
         assert settings["audioProviderId"] is None
         assert settings["imageProviderId"] == str(provider.id)

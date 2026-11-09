@@ -1,4 +1,4 @@
-"""KH: tests for the Mealie parts Küchenhelfer hides (PLAN.md phase 1): share links stay off unless
+"""KH: tests for the Mealie parts Kochheft hides (PLAN.md phase 1): share links stay off unless
 KH_SHARE_LINKS=true, and new groups are private and show no Mealie announcements."""
 
 from collections.abc import Generator

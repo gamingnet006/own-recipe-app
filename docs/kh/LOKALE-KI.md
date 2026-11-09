@@ -1,7 +1,7 @@
 # Lokale KI (z. B. Ollama)
 
 > **UNGETESTET, NICHT BESTÄTIGT.** Diese Anleitung beschreibt, wie es nach Mealies Einstellungen grundsätzlich gehen
-> sollte. Niemand hat es mit Küchenhelfer ausprobiert. Küchenhelfer baut dafür nichts Eigenes; es ist nur Mealies
+> sollte. Niemand hat es mit Kochheft ausprobiert. Kochheft baut dafür nichts Eigenes; es ist nur Mealies
 > KI-Anbieter, auf einen anderen Server gezeigt. Wenn es bei dir klappt oder nicht, schreib es bitte in ein Issue.
 
 *English version below.*
@@ -9,7 +9,7 @@
 ## Was geht, was nicht
 
 Mealie spricht mit KI-Anbietern über eine **OpenAI-kompatible Adresse**. Ollama bietet so eine Adresse an. Darum kann
-Mealie (und damit Küchenhelfers Eingang für Fotos und Texte) im Prinzip an eine KI im eigenen Haus angeschlossen
+Mealie (und damit Kochhefts Eingang für Fotos und Texte) im Prinzip an eine KI im eigenen Haus angeschlossen
 werden. Dann verlassen Fotos und Texte das Haus nicht.
 
 Die Qualität kann **niedriger** sein als bei den großen Cloud-Modellen: Zutaten und Mengen werden öfter falsch oder
@@ -23,7 +23,7 @@ gar nicht erkannt, Fotos von Handschrift klappen oft nicht. Prüfe jeden Entwurf
 2. Ollama für andere Geräte im Heimnetz erreichbar machen. Standardmäßig hört es nur auf dem eigenen Rechner:
    `OLLAMA_HOST=0.0.0.0 ollama serve`
    (Nur im Heimnetz! Nie ungeschützt ins Internet stellen: Ollama hat keine Anmeldung.)
-3. In Küchenhelfer unter **Gruppe → KI-Anbieter** (das ist Mealies Seite) einen Anbieter anlegen:
+3. In Kochheft unter **Gruppe → KI-Anbieter** (das ist Mealies Seite) einen Anbieter anlegen:
    - **Basis-URL:** `http://<rechner>:11434/v1` (statt `<rechner>` der Name oder die IP des Rechners mit Ollama)
    - **Modell:** genau der Name aus `ollama list`, z. B. `llama3.2-vision`
    - **API-Schlüssel:** Das Feld darf nicht leer sein, Ollama prüft ihn aber nicht. Trag irgendein Wort ein, z. B. `ollama`.
@@ -31,9 +31,9 @@ gar nicht erkannt, Fotos von Handschrift klappen oft nicht. Prüfe jeden Entwurf
 4. Mit dem Testknopf des Anbieters prüfen. Er zeigt auch, ob Bilder gehen.
 5. In der Prioritätsliste nach oben schieben, wenn er zuerst gefragt werden soll.
 
-### Ollama auf demselben Rechner wie Küchenhelfer
+### Ollama auf demselben Rechner wie Kochheft
 
-Küchenhelfer läuft in einem Container. Dort heißt „dieser Rechner“ nicht `localhost`, sondern
+Kochheft läuft in einem Container. Dort heißt „dieser Rechner“ nicht `localhost`, sondern
 `host.docker.internal`. Basis-URL also: `http://host.docker.internal:11434/v1`.
 Unter **Linux** (auch Raspberry Pi) muss der Mealie-Dienst in `kh/ops/docker-compose.yml` diesen Namen kennen:
 
@@ -54,7 +54,7 @@ Ollama muss dann auch für Container erreichbar sein (`OLLAMA_HOST=0.0.0.0`, sie
 ## Datenschutz
 
 Mit einer lokalen KI bleiben Fotos und Texte im Haus. Setze dafür in `.env` das Profil `lokal`
-(`KH_PROFILE=lokal`): Dann warnt Küchenhelfer, wenn noch ein Cloud-Anbieter mit Schlüssel eingetragen ist, und die
+(`KH_PROFILE=lokal`): Dann warnt Kochheft, wenn noch ein Cloud-Anbieter mit Schlüssel eingetragen ist, und die
 Spracherkennung läuft nur lokal. Die Zugangsdaten gehören nie ins Repository.
 
 ---
@@ -62,7 +62,7 @@ Spracherkennung läuft nur lokal. Die Zugangsdaten gehören nie ins Repository.
 # Local AI (e.g. Ollama)
 
 > **UNTESTED, NOT CONFIRMED.** This guide describes how it should work according to Mealie's settings. Nobody has
-> tried it with Küchenhelfer. Küchenhelfer builds nothing of its own for it; it is only Mealie's AI provider pointed at
+> tried it with Kochheft. Kochheft builds nothing of its own for it; it is only Mealie's AI provider pointed at
 > another server. If it works for you or not, please say so in an issue.
 
 ## What works, what does not
@@ -82,7 +82,7 @@ photos of handwriting often fail. Check every draft in the review as always.
 2. Make Ollama reachable from other devices on your home network. By default it listens on its own machine only:
    `OLLAMA_HOST=0.0.0.0 ollama serve`
    (Home network only! Never expose it to the internet: Ollama has no login.)
-3. In Küchenhelfer under **Group → AI providers** (Mealie's page) add a provider:
+3. In Kochheft under **Group → AI providers** (Mealie's page) add a provider:
    - **Base URL:** `http://<machine>:11434/v1` (name or IP of the machine running Ollama)
    - **Model:** exactly the name from `ollama list`, e.g. `llama3.2-vision`
    - **API key:** the field must not be empty, but Ollama does not check it. Enter any word, e.g. `ollama`.
@@ -90,9 +90,9 @@ photos of handwriting often fail. Check every draft in the review as always.
 4. Use the provider's test button. It also shows whether images work.
 5. Move it to the top of the priority list if it should be asked first.
 
-### Ollama on the same machine as Küchenhelfer
+### Ollama on the same machine as Kochheft
 
-Küchenhelfer runs in a container, where "this machine" is not `localhost` but `host.docker.internal`. So the base URL is
+Kochheft runs in a container, where "this machine" is not `localhost` but `host.docker.internal`. So the base URL is
 `http://host.docker.internal:11434/v1`. On **Linux** (also Raspberry Pi) the Mealie service in
 `kh/ops/docker-compose.yml` must know that name:
 
@@ -112,6 +112,6 @@ Ollama must then also be reachable from containers (`OLLAMA_HOST=0.0.0.0`, see a
 
 ## Privacy
 
-With a local AI, photos and texts stay in the house. Set the profile `lokal` in `.env` (`KH_PROFILE=lokal`): Küchenhelfer
+With a local AI, photos and texts stay in the house. Set the profile `lokal` in `.env` (`KH_PROFILE=lokal`): Kochheft
 then warns while a cloud provider with a key is still set up, and speech recognition runs locally only. Credentials
 never belong in the repository.

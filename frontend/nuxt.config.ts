@@ -4,7 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 const AUTH_TOKEN = "mealie.access_token";
 
 export default defineNuxtConfig({
-  // KH: Küchenhelfer's own Nuxt layer with our plugins, components and pages (D26)
+  // KH: Kochheft's own Nuxt layer with our plugins, components and pages (D26)
   extends: ["./kh"],
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -33,14 +33,14 @@ export default defineNuxtConfig({
     baseURL: process.env.SUB_PATH || "/",
 
     head: {
-      title: "Mealie",
+      title: "Kochheft", // KH: app name (D49)
       meta: [
         { property: "og:type", content: "website" },
-        { property: "og:title", content: "Mealie" },
-        { property: "og:site_name", content: "Mealie" },
+        { property: "og:title", content: "Kochheft" },
+        { property: "og:site_name", content: "Kochheft" },
         {
           property: "og:description",
-          content: "Mealie is a recipe management app for your kitchen.",
+          content: "Kochheft is a recipe management app for your kitchen.",
         },
         {
           property: "og:image",
@@ -51,7 +51,7 @@ export default defineNuxtConfig({
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "Mealie is a recipe management app for your kitchen.",
+          content: "Kochheft is a recipe management app for your kitchen.",
         },
       ],
       script: [

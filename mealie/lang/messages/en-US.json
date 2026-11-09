@@ -29,7 +29,7 @@
             "provider-returned-nothing": "The AI provider did not return a recipe",
             "unknown-error": "Something went wrong while creating the recipe. Please try again",
             "unreadable-source": "Unable to read any content from the provided source",
-            "video-download-failed": "Küchenhelfer does not download videos. Paste the description or upload a screenshot instead"
+            "video-download-failed": "Kochheft does not download videos. Paste the description or upload a screenshot instead"
         },
         "create-progress": {
             "creating-recipe": "Creating recipe...",

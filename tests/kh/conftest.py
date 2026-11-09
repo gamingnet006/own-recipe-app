@@ -1,4 +1,4 @@
-"""KH: fixtures shared by Küchenhelfer's tests: a family member next to unique_user, and a group without AI
+"""KH: fixtures shared by Kochheft's tests: a family member next to unique_user, and a group without AI
 providers or notices."""
 
 from collections.abc import Generator

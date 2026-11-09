@@ -1,11 +1,11 @@
 ---
 name: kh-release
-description: Publishes a Küchenhelfer release and brings the Mac mini to it, step by step with checks. Only on the user's explicit request to release ("veröffentlichen").
+description: Publishes a Kochheft release and brings the Mac mini to it, step by step with checks. Only on the user's explicit request to release ("veröffentlichen").
 disable-model-invocation: true
 argument-hint: <version, e.g. v0.3>
 ---
 
-Publish Küchenhelfer $ARGUMENTS. Releases happen only after the user explicitly said so; stop and ask if that is not clear.
+Publish Kochheft $ARGUMENTS. Releases happen only after the user explicitly said so; stop and ask if that is not clear.
 
 1. **Main is ready.** `git checkout main`, clean tree, in sync with origin. The CHANGELOG (`docs/kh/CHANGELOG.md`) has a `## [$ARGUMENTS] - <today>` section instead of `[Unreleased]`, and `PLAN.md` ticks what the release delivers.
 2. **Formatting like the CI.** `uvx ruff@<version from uv.lock> format . --check` passes; it also reads Python blocks in Markdown. Fix, commit and push before going on.

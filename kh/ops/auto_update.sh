@@ -1,5 +1,5 @@
 #!/bin/sh
-# KH: keeps Küchenhelfer on the newest stable release (PLAN.md D29): a nightly job (cron, on macOS
+# KH: keeps Kochheft on the newest stable release (PLAN.md D29): a nightly job (cron, on macOS
 # launchd) asks the registry, installs the ops files shipped in the new image and switches with update.sh.
 # Usage: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]
 set -eu

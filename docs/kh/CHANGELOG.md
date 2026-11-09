@@ -1,10 +1,13 @@
-# Changelog – Küchenhelfer
+# Changelog – Kochheft (formerly Küchenhelfer)
 
 Notable changes per release. Every release is a git tag with the app image in GHCR as
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
 ## [Unreleased]
+
+Renamed to Kochheft (formerly Küchenhelfer, D49), with a new logo and app icons. Only what users see changed; the `kh` folders, `KH_*` variables,
+container names and image name stay, so running installs and updates keep working.
 
 Nutrition and allergens (Phase 6, D44):
 

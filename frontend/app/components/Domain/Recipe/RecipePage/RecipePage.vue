@@ -23,7 +23,7 @@
     />
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
       <v-card flat class="d-print-none">
-        <!-- KH: Küchenhelfer's calm head in the view with photo, origin, times and amount; Mealie's in the editor (D38) -->
+        <!-- KH: Kochheft's calm head in the view with photo, origin, times and amount; Mealie's in the editor (D38) -->
         <KhRecipeHeader
           v-if="!isEditMode"
           v-model:scale="scale"

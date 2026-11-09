@@ -43,7 +43,7 @@ TRUNCATED_NOTE = "\n[... transcript cut here: it was longer than the limit]"  # 
 
 
 class VideoLinkError(Exception):
-    """A draft's link points at a video site, which Küchenhelfer does not fetch."""
+    """A draft's link points at a video site, which Kochheft does not fetch."""
 
 
 def causes(ex: BaseException) -> list[BaseException]:

@@ -30,7 +30,7 @@ def config_from(settings: KhSettings) -> Config | str:
             "KH_TELEGRAM_ALLOWED_IDS is empty: set the chat IDs that may use the bot (write to it once to see yours)."
         )
     if not settings.telegram_api_token:
-        return "KH_TELEGRAM_API_TOKEN is not set (Küchenhelfer: Profile > API Tokens): the Telegram bot stays off."
+        return "KH_TELEGRAM_API_TOKEN is not set (Kochheft: Profile > API Tokens): the Telegram bot stays off."
     return Config(
         token=settings.telegram_token,
         allowed_ids=allowed,

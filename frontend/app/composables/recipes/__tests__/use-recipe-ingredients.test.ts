@@ -40,14 +40,14 @@ describe("parseIngredientText", () => {
   test("ingredient text with fraction", () => {
     const ingredient = createRecipeIngredient({ quantity: 1.5, unit: { fraction: true, id: "1", name: "cup" } });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient, 1, true)).contain("1½");
   });
 
   test("ingredient text with fraction when unit is null", () => {
     const ingredient = createRecipeIngredient({ quantity: 1.5, unit: undefined });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient, 1, true)).contain("1½");
   });
 
@@ -57,7 +57,7 @@ describe("parseIngredientText", () => {
 
     expect(result).not.contain("<");
     expect(result).not.contain(">");
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(result).contain("1½");
   });
 
@@ -129,7 +129,7 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "diced onion", pluralName: "diced onions" },
     });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient)).toEqual("½ tbsp diced onion");
   });
 
@@ -140,7 +140,7 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "diced onion", pluralName: "diced onions" },
     });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient)).toEqual("½ tablespoon diced onion");
   });
 
@@ -246,7 +246,7 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient)).toEqual("&lt; 0.1 cup salt");
   });
 
@@ -257,7 +257,7 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient)).toEqual("0.1 cup salt");
   });
 
@@ -268,7 +268,7 @@ describe("parseIngredientText", () => {
       food: { id: "1", name: "salt" },
     });
 
-    // KH: Küchenhelfer's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
+    // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
     expect(parseIngredientText(ingredient, 1, false)).toEqual("0.1 cup salt");
   });
 });

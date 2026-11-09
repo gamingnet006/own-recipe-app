@@ -7,7 +7,7 @@ ALLOWED_IMAGE_SUFFIXES = {".svg", ".png", ".ico", ".webp", ".jpg", ".jpeg"}
 
 
 class Branding(BaseSettings):
-    name: str = "Küchenhelfer"  # KH: working name until phase 8 (D38)
+    name: str = "Kochheft"  # KH: app name (D49)
     logo_path: str | None = None
     model_config = SettingsConfigDict(env_prefix="branding_", extra="allow", validate_assignment=True)
 

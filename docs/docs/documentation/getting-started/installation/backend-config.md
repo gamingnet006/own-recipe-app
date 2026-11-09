@@ -159,7 +159,7 @@ Mealie supports various integrations using AI. For more information, check out o
 |-------------------------------------------------------------------------|:-----------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | OPENAI_CUSTOM_PROMPT_DIR <br/> :octicons-tag-24: v3.10.0                |    None.    | Path to custom prompt files. Only existing files in your custom directory will override the defaults; any missing or empty custom files will automatically fall back to the system defaults. See https://github.com/mealie-recipes/mealie/tree/mealie-next/mealie/services/openai/prompts for expected file names.     |
 
-KH: Küchenhelfer does not download videos (yt-dlp and its `YTDLP_COOKIEFILE` setting were removed, D5).
+KH: Kochheft does not download videos (yt-dlp and its `YTDLP_COOKIEFILE` setting were removed, D5).
 
 ### Recipe Scraper
 

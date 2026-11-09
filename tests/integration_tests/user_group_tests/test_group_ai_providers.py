@@ -221,7 +221,7 @@ def test_update_settings_all_provider_types(api_client: TestClient, unique_user:
         assert response.status_code == 200
 
         settings = response.json()
-        # KH: default and image provider follow Küchenhelfer's priority list, which keeps the order the providers were
+        # KH: default and image provider follow Kochheft's priority list, which keeps the order the providers were
         # added in, so its first, untested, does both; audio stays (D39)
         assert settings["defaultProviderId"] == str(default_provider.id)
         assert settings["audioProviderId"] == str(audio_provider.id)

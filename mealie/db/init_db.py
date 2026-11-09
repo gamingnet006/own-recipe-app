@@ -116,7 +116,7 @@ def main():
             logger.debug("Migration not needed.")
         else:
             logger.info("Migration needed. Performing migration...")
-            # KH: "heads", because Küchenhelfer's migrations are a second branch next to Mealie's (D24)
+            # KH: "heads", because Kochheft's migrations are a second branch next to Mealie's (D24)
             command.upgrade(alembic_cfg, "heads")
             run_fixes = True
 

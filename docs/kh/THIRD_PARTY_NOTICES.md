@@ -1,6 +1,6 @@
-# Third-party notices – Küchenhelfer
+# Third-party notices – Kochheft
 
-Küchenhelfer is a fork of [Mealie](https://github.com/mealie-recipes/mealie) and, like Mealie, licensed under the AGPL-3.0 (PLAN.md D2). This file lists the third-party software that Küchenhelfer adds to Mealie or ships with it, with the reason it is needed.
+Kochheft is a fork of [Mealie](https://github.com/mealie-recipes/mealie) and, like Mealie, licensed under the AGPL-3.0 (PLAN.md D2). This file lists the third-party software that Kochheft adds to Mealie or ships with it, with the reason it is needed.
 
 Mealie's own dependencies come with Mealie, each under its own license. They are listed in Mealie's package files:
 
@@ -10,13 +10,13 @@ Mealie's own dependencies come with Mealie, each under its own license. They are
 
 All licenses below were checked at the source on 2026-10-31, from the license data on GitHub and the package data inside the images. Every entry has an OSI-approved license; there is no source-available server part (PLAN.md section 9, item 4).
 
-**Deutsch:** Diese Datei nennt alle fremden Teile, die Küchenhelfer zu Mealie dazunimmt oder mitliefert, mit Lizenz und Grund. Mealies eigene Abhängigkeiten stehen in Mealies Paketlisten.
+**Deutsch:** Diese Datei nennt alle fremden Teile, die Kochheft zu Mealie dazunimmt oder mitliefert, mit Lizenz und Grund. Mealies eigene Abhängigkeiten stehen in Mealies Paketlisten.
 
 ## Shipped with every installation
 
 | Component | Version | License | Source | Why |
 |---|---|---|---|---|
-| Mealie | v3.29.0 | AGPL-3.0 | [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie) | The app itself; Küchenhelfer is a fork of it (D1). |
+| Mealie | v3.29.0 | AGPL-3.0 | [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie) | The app itself; Kochheft is a fork of it (D1). |
 | cloudflared | 2026.10.1 | Apache-2.0 | image `cloudflare/cloudflared`, [cloudflare/cloudflared](https://github.com/cloudflare/cloudflared) | Tunnel for access from outside without an open router port (D14, D27). The `tunnel` service only starts with `kh/ops/tunnel.sh on`. |
 | distroless base image (Debian 13) | as pinned by cloudflared 2026.10.1 | Debian packages under their own licenses | `gcr.io/distroless/base-debian13`, the base of the cloudflared image | Comes with cloudflared. |
 | speaches | 0.8.3 (`-cpu` image) | MIT | image `ghcr.io/speaches-ai/speaches`, [speaches-ai/speaches](https://github.com/speaches-ai/speaches) | OpenAI-compatible Whisper server for own audio and video files (P7.3). The `whisper` service only starts with `docker compose --profile whisper up -d whisper`. The image (amd64 and arm64) brings faster-whisper and CTranslate2 (MIT) and an Ubuntu 24.04 base. |
@@ -70,6 +70,6 @@ docker run --rm --entrypoint apk kuechenhelfer-backup:dev list --installed
 | docker/build-push-action | v7 | Apache-2.0 | `kh-release.yml` | Builds the amd64 image. |
 | docker/login-action | v4 | Apache-2.0 | `kh-release.yml` | Logs in to the GitHub Container Registry to push the image. |
 
-## Not part of Küchenhelfer
+## Not part of Kochheft
 
-Docker, Docker Compose, Colima, Uptime Kuma, the Cloudflare service and Google Gemini (with a key from Google AI Studio, D35) are installed or used by whoever runs Küchenhelfer, under their own terms. Which data goes to which service is listed in the table „Was geht wohin“ in [README.md](README.md).
+Docker, Docker Compose, Colima, Uptime Kuma, the Cloudflare service and Google Gemini (with a key from Google AI Studio, D35) are installed or used by whoever runs Kochheft, under their own terms. Which data goes to which service is listed in the table „Was geht wohin“ in [README.md](README.md).

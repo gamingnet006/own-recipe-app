@@ -1,6 +1,6 @@
 {
   "name": "Testkuchen",
-  "description": "Ein selbst geschriebenes Testrezept für Küchenhelfer.",
+  "description": "Ein selbst geschriebenes Testrezept für Kochheft.",
   "recipeYield": "1 Kuchen",
   "recipeIngredient": [
     { "note": "200 g Mehl" },

@@ -8,7 +8,7 @@ The labels below are the ones of the German interface; the English interface use
 
 ## For you: create an invite link
 
-1. Open Küchenhelfer at its outside address, `https://kochbuch.example.org`, and log in.
+1. Open Kochheft at its outside address, `https://kochbuch.example.org`, and log in.
    - The link uses the address you are logged in at.
    - Created through `localhost` or the home network address, it does not work for the family.
 2. Open your profile: `https://kochbuch.example.org/user/profile`.
@@ -16,7 +16,7 @@ The labels below are the ones of the German interface; the English interface use
    - The link appears right away.
    - Leave group and household as they are; there is only one of each.
 4. Tap **Kopieren** (Copy) and send the link to the person, for example in a message.
-   - The **Einladen** (Invite) button for e-mail does not help, because Küchenhelfer sends no e-mails.
+   - The **Einladen** (Invite) button for e-mail does not help, because Kochheft sends no e-mails.
 
 **One link per person.** Each link creates exactly one account. For the next person, open the dialog again; that creates a new link.
 
@@ -34,7 +34,7 @@ The labels below are the ones of the German interface; the English interface use
 
 ## Add it to the home screen
 
-Küchenhelfer then opens like an app.
+Kochheft then opens like an app.
 
 - **iPhone and iPad (Safari):** share icon, then **Add to Home Screen**.
 - **Android (Chrome):** menu ⋮, then **Add to Home screen**.

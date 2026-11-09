@@ -87,7 +87,7 @@
                 class="ma-0 pa-0"
               />
               <div v-else class="my-0 px-1 py-0" /> <!-- Empty div to keep the layout consistent -->
-              <!-- KH: no stars, Küchenhelfer does not use ratings (D38) -->
+              <!-- KH: no stars, Kochheft does not use ratings (D38) -->
               <!-- KH: warning sign for intolerances in the household (D44) -->
               <KhAllergenMark v-if="isOwnGroup && khOn.allergens" :slug="slug" />
 

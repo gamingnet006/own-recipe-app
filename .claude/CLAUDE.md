@@ -1,4 +1,4 @@
-# CLAUDE.md – Küchenhelfer (Mealie-Fork)
+# CLAUDE.md – Kochheft (vormals Küchenhelfer, Mealie-Fork)
 
 Dieses Repo ist ein Fork von Mealie (AGPL-3.0). Mealies Entwicklungsanleitung gilt weiter und wird hier eingebunden:
 
@@ -72,7 +72,7 @@ Alles läuft in Docker (Colima auf dem Mac, mindestens 4 CPUs und 6 GB RAM: `col
 ```bash
 # Neue Installation einrichten: fragt Backup-Ort und Adresse, schreibt .env, startet, legt den Backup-Schlüssel an (docs/kh/README.md)
 kh/ops/install.sh <image>
-# Küchenhelfer bauen und starten (Mealie und Backup-Dienst aus kh/ops), danach http://localhost:9091
+# Kochheft bauen und starten (Mealie und Backup-Dienst aus kh/ops), danach http://localhost:9091
 docker compose -f kh/ops/docker-compose.yml up -d --build
 # Pi-ähnliche Grenzen für den laufenden Container
 docker update --cpus 2 --memory 2g --memory-swap 2g kuechenhelfer-mealie-1

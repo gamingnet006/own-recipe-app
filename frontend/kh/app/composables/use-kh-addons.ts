@@ -46,7 +46,7 @@ export async function loadKhAddonsFor(userId: string, i18n?: Composer): Promise<
     khAddons.userId = userId;
   }
   else {
-    console.error("Küchenhelfer: add-ons not loaded, the defaults stay");
+    console.error("Kochheft: add-ons not loaded, the defaults stay");
   }
 }
 

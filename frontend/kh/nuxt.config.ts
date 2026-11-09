@@ -1,4 +1,4 @@
-// KH: Küchenhelfer's own Nuxt layer (D26), mounted by one `extends` line in frontend/nuxt.config.ts.
+// KH: Kochheft's own Nuxt layer (D26), mounted by one `extends` line in frontend/nuxt.config.ts.
 // Our plugins, components and pages live in kh/app/, apart from Mealie's app/; our texts in kh/lang/.
 import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";

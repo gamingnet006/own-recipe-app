@@ -1,4 +1,4 @@
-"""KH: tests for the look "Salbei" (D38): Küchenhelfer's colors and name are the defaults, so every
+"""KH: tests for the look "Salbei" (D38): Kochheft's colors and name are the defaults, so every
 installation shows them without any setting."""
 
 from fastapi.testclient import TestClient
@@ -19,4 +19,4 @@ def test_warnings_and_errors_are_readable_on_light_ground(api_client: TestClient
 
 
 def test_the_app_is_called_kuechenhelfer(api_client: TestClient):
-    assert api_client.get(api_routes.app_about).json()["brandingName"] == "Küchenhelfer"
+    assert api_client.get(api_routes.app_about).json()["brandingName"] == "Kochheft"

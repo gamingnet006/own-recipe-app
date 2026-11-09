@@ -1,5 +1,5 @@
 #!/bin/sh
-# KH: updates Küchenhelfer to another image (PLAN.md phase 1, D21): Mealie backup, then a file
+# KH: updates Kochheft to another image (PLAN.md phase 1, D21): Mealie backup, then a file
 # snapshot of the stopped database, switch and checks; on failure the old image and database return.
 # After a successful switch it rebuilds the backup service and recreates a running tunnel.
 # Usage: ./update.sh <image>. Exit codes: 0 updated or already current, 1 the new version failed and
@@ -230,8 +230,8 @@ preflight() {
   TIMEOUT=$(setting KH_UPDATE_TIMEOUT 600)
   case "$TIMEOUT" in ''|*[!0-9]*) abort "KH_UPDATE_TIMEOUT muss eine Zahl (Sekunden) sein" ;; esac
   OLD_REF=$(setting KH_IMAGE kuechenhelfer:dev)
-  old_id=$(running_image_id) || abort "der Küchenhelfer läuft nicht, bitte zuerst starten"
-  [ "$(health_status)" = healthy ] || abort "der Küchenhelfer ist gerade nicht bereit"
+  old_id=$(running_image_id) || abort "das Kochheft läuft nicht, bitte zuerst starten"
+  [ "$(health_status)" = healthy ] || abort "das Kochheft ist gerade nicht bereit"
 }
 
 main() {

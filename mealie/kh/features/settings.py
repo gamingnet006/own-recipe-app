@@ -1,4 +1,4 @@
-"""KH: Küchenhelfer's switches from KH_* environment variables (kh/ops/.env). Mealie's own settings
+"""KH: Kochheft's switches from KH_* environment variables (kh/ops/.env). Mealie's own settings
 stay untouched; the Mealie parts we hide stay off unless they are switched on here."""
 
 import re

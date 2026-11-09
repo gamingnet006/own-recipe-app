@@ -62,7 +62,7 @@ export const startVosk: VoiceStarter = async (onText, onProgress) => {
   }
   catch (error) {
     closeMic();
-    console.error("Küchenhelfer: voice model failed", error);
+    console.error("Kochheft: voice model failed", error);
     throw new VoiceError("model");
   }
   finally {

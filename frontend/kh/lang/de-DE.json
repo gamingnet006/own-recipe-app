@@ -56,7 +56,7 @@
         "ai_not_configured": "Keine KI eingerichtet: Gruppen-Einstellungen → KI-Anbieter",
         "quota_exceeded": "Das KI-Kontingent ist aufgebraucht, bitte später erneut versuchen.",
         "address_blocked": "Diese Adresse ist nicht erlaubt.",
-        "video_link": "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+        "video_link": "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
         "invalid_result": "Die Erkennung lieferte kein gültiges Rezept.",
         "interrupted": "Unterbrochen, bitte neu versuchen.",
         "unknown": "Etwas ist schiefgegangen, bitte neu versuchen.",
@@ -72,7 +72,7 @@
         "already_approved": "Schon als Rezept gespeichert.",
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
         "not_found": "Entwurf nicht gefunden.",
-        "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht.",
+        "offline": "Keine Verbindung zum Kochheft. Prüf das Netz, es wird gleich noch einmal versucht.",
         "ai_unavailable": "Keine KI erreichbar, später erneut versuchen.",
         "whisper_unreachable": "Die Spracherkennung (Whisper) antwortet nicht. Läuft sie?",
         "whisper_timeout": "Die Spracherkennung hat zu lange gebraucht. Versuche eine kürzere Aufnahme.",
@@ -101,7 +101,7 @@
       "duplicates": "Doppelte Rezepte",
       "nutrition": "Nährwerte",
       "tolerance": "Ich vertrage nicht",
-      "about": "Über Küchenhelfer",
+      "about": "Über Kochheft",
       "system": "Systemprüfung",
       "addons": "Zusatzfunktionen"
     },
@@ -139,7 +139,7 @@
       "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
       "no-images": "liest keine Bilder",
       "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
-      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Küchenhelfer erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
+      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
     },
     "notices": {
       "title": "Meldungen",
@@ -364,11 +364,11 @@
       }
     },
     "about": {
-      "title": "Über Küchenhelfer",
+      "title": "Über Kochheft",
       "version": "Version {version}",
-      "built-on": "Küchenhelfer baut auf Mealie auf.",
+      "built-on": "Kochheft baut auf Mealie auf.",
       "copyright": "Mealie: Copyright © Hayden und die Mealie-Mitwirkenden, Lizenz AGPL-3.0.",
-      "license": "Küchenhelfer steht ebenfalls unter der AGPL-3.0.",
+      "license": "Kochheft steht ebenfalls unter der AGPL-3.0.",
       "source": "Quellcode ansehen",
       "notices": "Fremde Bausteine",
       "notices-missing": "Die Liste der Fremd-Bausteine ist in dieser Installation nicht enthalten.",
@@ -450,12 +450,12 @@
       }
     },
     "addons": {
-      "description": "Hier legt ihr fest, welche Funktionen Küchenhelfer in eurem Haushalt zeigt. Ausgeschaltete Funktionen verschwinden aus der Oberfläche, ihre Daten bleiben erhalten.",
+      "description": "Hier legt ihr fest, welche Funktionen Kochheft in eurem Haushalt zeigt. Ausgeschaltete Funktionen verschwinden aus der Oberfläche, ihre Daten bleiben erhalten.",
       "off-hint": "{name} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten.",
       "unavailable": "Nicht eingerichtet, siehe Anleitung.",
       "needs-allergens": "Braucht die Funktion Allergene.",
       "presets": {
-        "title": "Wie wollt ihr Küchenhelfer nutzen?",
+        "title": "Wie wollt ihr Kochheft nutzen?",
         "recipes": "Nur Rezepte",
         "shopping": "Rezepte und Einkaufsliste",
         "planner": "Alles mit Essensplaner"

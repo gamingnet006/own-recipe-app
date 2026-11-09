@@ -1,4 +1,4 @@
-# Code-Rundgang: Mealie v3.29.0 als Basis für den Küchenhelfer
+# Code-Rundgang: Mealie v3.29.0 als Basis für das Kochheft
 
 Ergebnis von Phase 0 (PLAN.md, Abschnitt 5). Stand 29.10.2026, Basis Mealie `v3.29.0` (Commit `89a1420`). Pfade relativ zum Repo-Hauptordner.
 
@@ -48,7 +48,7 @@ Mandanten: Alles gehört zu einer **Gruppe**, Rezepte, Wochenpläne und Einkaufs
 | KI-Import (Text, Foto, Audio) | `services/recipe/ai_recipe_service.py`, Route `routes/recipe/recipe_crud_routes.py:468` (`/recipes/create/ai`) | Nutzt `RecipeImportWorkflow` |
 | Import-Ablauf | `services/recipe/import_workflow/workflow.py` | Schritte `CompileSource → BuildRecipe → TranslateRecipe → ResolveOrganizers`; laut Kommentar „never persists the recipe; it returns a draft for the caller to save“ |
 | Quellen-Aufbereitung | `import_workflow/compilers/` (`image.py`, `web_page.py`, `structured_data.py`, `transcription.py`) | Bild und Transkription sind schon da (Phase 2 und 7) |
-| KI-Anbieter | `services/openai/openai.py` + Admin-Route `routes/admin/admin_management_ai_providers.py` | Anbieter liegen pro Gruppe in der Datenbank (Standard- und Audio-Anbieter), nicht in `.env`; seit D39 fragt Küchenhelfers Prio-Liste sie der Reihe nach |
+| KI-Anbieter | `services/openai/openai.py` + Admin-Route `routes/admin/admin_management_ai_providers.py` | Anbieter liegen pro Gruppe in der Datenbank (Standard- und Audio-Anbieter), nicht in `.env`; seit D39 fragt Kochhefts Prio-Liste sie der Reihe nach |
 | Zutaten-Parser | `services/parser_services/ingredient_parser.py` (`BruteForceParser`, `NLPParser`), `parser_services/openai/` | Grundlage für `parse_ingredient()` (Phase 3) |
 | Skalierung, Brüche, Einheiten | `frontend/app/composables/recipes/use-scaled-amount.ts`, `use-fraction.ts`, `use-unit-conversion.ts`, `use-unit-system.ts` | Grundlage für `format_amount()` (Phase 3) |
 | Schritt-Zutat-Verknüpfung | `frontend/app/composables/recipe-page/use-extract-ingredient-references.ts` | Grundlage für `link_quantities()` (Phase 3) |

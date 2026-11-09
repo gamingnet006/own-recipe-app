@@ -56,7 +56,7 @@
         "ai_not_configured": "No AI set up: Group Settings → AI Providers",
         "quota_exceeded": "The AI quota is used up, please try again later.",
         "address_blocked": "This address is not allowed.",
-        "video_link": "Küchenhelfer does not download videos. Paste the description or upload a screenshot.",
+        "video_link": "Kochheft does not download videos. Paste the description or upload a screenshot.",
         "invalid_result": "The recognition did not return a valid recipe.",
         "interrupted": "Interrupted, please try again.",
         "unknown": "Something went wrong, please try again.",
@@ -72,7 +72,7 @@
         "already_approved": "Already saved as a recipe.",
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
-        "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment.",
+        "offline": "No connection to Kochheft. Check the network; it tries again in a moment.",
         "ai_unavailable": "No AI reachable, try again later.",
         "whisper_unreachable": "The speech recognition (Whisper) does not answer. Is it running?",
         "whisper_timeout": "The speech recognition took too long. Try a shorter recording.",
@@ -101,7 +101,7 @@
       "duplicates": "Duplicate recipes",
       "nutrition": "Nutrition",
       "tolerance": "I do not tolerate",
-      "about": "About Küchenhelfer",
+      "about": "About Kochheft",
       "system": "System check",
       "addons": "Add-ons"
     },
@@ -139,7 +139,7 @@
       "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
       "no-images": "reads no images",
       "order-failed": "The order could not be saved; the list has been reloaded.",
-      "missing-hint": "No AI set up yet: Küchenhelfer reads photos and texts once someone adds an AI provider. Links with recipe data already work."
+      "missing-hint": "No AI set up yet: Kochheft reads photos and texts once someone adds an AI provider. Links with recipe data already work."
     },
     "notices": {
       "title": "Messages",
@@ -364,11 +364,11 @@
       }
     },
     "about": {
-      "title": "About Küchenhelfer",
+      "title": "About Kochheft",
       "version": "Version {version}",
-      "built-on": "Küchenhelfer is built on Mealie.",
+      "built-on": "Kochheft is built on Mealie.",
       "copyright": "Mealie: Copyright © Hayden and the Mealie contributors, licensed under AGPL-3.0.",
-      "license": "Küchenhelfer is licensed under the AGPL-3.0 as well.",
+      "license": "Kochheft is licensed under the AGPL-3.0 as well.",
       "source": "View the source code",
       "notices": "Third-party components",
       "notices-missing": "The list of third-party components is not part of this installation.",
@@ -450,12 +450,12 @@
       }
     },
     "addons": {
-      "description": "Choose which functions Küchenhelfer shows for your household. Switched-off functions disappear from the interface, their data stays.",
+      "description": "Choose which functions Kochheft shows for your household. Switched-off functions disappear from the interface, their data stays.",
       "off-hint": "{name} is switched off. An admin can switch it on under More → Add-ons.",
       "unavailable": "Not set up, see the guide.",
       "needs-allergens": "Needs the Allergens function.",
       "presets": {
-        "title": "How do you want to use Küchenhelfer?",
+        "title": "How do you want to use Kochheft?",
         "recipes": "Recipes only",
         "shopping": "Recipes and shopping list",
         "planner": "Everything with the meal planner"

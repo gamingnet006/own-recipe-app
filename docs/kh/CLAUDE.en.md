@@ -1,4 +1,4 @@
-# CLAUDE.md – Küchenhelfer (Mealie fork) · English version
+# CLAUDE.md – Kochheft (Mealie fork) · English version
 
 > English translation of `.claude/CLAUDE.md`. If the two differ, the German file is authoritative.
 
@@ -74,7 +74,7 @@ Everything runs in Docker (Colima on the Mac, at least 4 CPUs and 6 GB RAM: `col
 ```bash
 # Set up a new install: asks for the backup location and the address, writes .env, starts, creates the backup key (docs/kh/README.md)
 kh/ops/install.sh <image>
-# Build and start Küchenhelfer (Mealie and the backup service from kh/ops), then http://localhost:9091
+# Build and start Kochheft (Mealie and the backup service from kh/ops), then http://localhost:9091
 docker compose -f kh/ops/docker-compose.yml up -d --build
 # Pi-like limits for the running container
 docker update --cpus 2 --memory 2g --memory-swap 2g kuechenhelfer-mealie-1

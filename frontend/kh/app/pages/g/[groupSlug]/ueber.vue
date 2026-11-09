@@ -1,4 +1,4 @@
-<!-- KH: "More > About Küchenhelfer" (P8.1): the version, what it is built on (Mealie, AGPL-3.0), where the source can be
+<!-- KH: "More > About Kochheft" (P8.1): the version, what it is built on (Mealie, AGPL-3.0), where the source can be
 read, and the third-party components from THIRD_PARTY_NOTICES.md. -->
 <template>
   <v-container class="narrow-container">

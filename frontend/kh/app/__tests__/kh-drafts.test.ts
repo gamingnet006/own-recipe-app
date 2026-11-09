@@ -86,7 +86,7 @@ describe("isVideoLink", () => {
 
   test("the video link text is in both languages", () => {
     expect(de.kh.drafts.error.video_link).toBe(
-      "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+      "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
     );
     expect(errorText("video_link", t)).toBe("kh.drafts.error.video_link");
   });

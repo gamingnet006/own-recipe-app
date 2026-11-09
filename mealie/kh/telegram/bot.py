@@ -24,7 +24,7 @@ MAX_RESPONSE_BYTES = 25 * 1024 * 1024  # more than Telegram lets a bot download
 
 # What the user reads for the codes Mealie's drafts API answers with (the app has them in its own language files)
 MEALIE_ERRORS = {
-    "video_link": "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+    "video_link": "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
     "no_source": "Schick mir einen Link, einen Text oder ein Foto.",
     "several_sources": "Nur eins auf einmal: ein Link, ein Text oder ein Foto.",
     "too_many_images": "Zu viele Fotos auf einmal.",
@@ -33,11 +33,11 @@ MEALIE_ERRORS = {
     "text_too_long": "Der Text ist zu lang.",
 }
 UNKNOWN_CHAT = "Diese Chat-ID ist nicht freigeschaltet: {id}"
-BAD_API_TOKEN = "Der API-Token des Bots ist ungültig. Leg in Küchenhelfer unter Profil → API-Tokens einen neuen an."
+BAD_API_TOKEN = "Der API-Token des Bots ist ungültig. Leg in Kochheft unter Profil → API-Tokens einen neuen an."
 BOT_OFF = (
-    "Der Telegram-Bot ist in Küchenhelfer ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen einschalten."
+    "Der Telegram-Bot ist in Kochheft ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen einschalten."
 )
-MEALIE_DOWN = "Küchenhelfer ist gerade nicht erreichbar. Versuch es gleich noch einmal."
+MEALIE_DOWN = "Kochheft ist gerade nicht erreichbar. Versuch es gleich noch einmal."
 NOTHING_TO_USE = "Schick mir einen Link, einen Text oder ein Foto."
 
 URL = re.compile(r"https?://\S+")
@@ -154,7 +154,7 @@ class Bot:
             return BOT_OFF
         detail = answer.get("detail") if isinstance(answer, dict) else None
         code = detail.get("code") if isinstance(detail, dict) else None
-        return MEALIE_ERRORS.get(str(code)) or f"Küchenhelfer hat den Entwurf nicht angenommen (Fehler {status})."
+        return MEALIE_ERRORS.get(str(code)) or f"Kochheft hat den Entwurf nicht angenommen (Fehler {status})."
 
     # --- Messages ---
 

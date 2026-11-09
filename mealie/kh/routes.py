@@ -1,4 +1,4 @@
-"""KH: Küchenhelfer's routes under /api/kh. Mealie mounts this router once in mealie/routes/__init__.py;
+"""KH: Kochheft's routes under /api/kh. Mealie mounts this router once in mealie/routes/__init__.py;
 each of our functions adds its routes here."""
 
 from fastapi import APIRouter, Depends

@@ -6,7 +6,7 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
 
 ## Für dich: Einladungslink erzeugen
 
-1. Öffne Küchenhelfer über die Adresse von unterwegs, also `https://kochbuch.example.org`, und melde dich an.
+1. Öffne Kochheft über die Adresse von unterwegs, also `https://kochbuch.example.org`, und melde dich an.
    - Der Link übernimmt die Adresse, über die du gerade angemeldet bist.
    - Erzeugst du ihn über `localhost` oder die Adresse im Heimnetz, funktioniert er bei der Familie nicht.
 2. Öffne dein Profil: `https://kochbuch.example.org/user/profile`.
@@ -14,7 +14,7 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
    - Der Link erscheint sofort.
    - Gruppe und Haushalt kannst du so lassen, es gibt nur je einen.
 4. Tippe auf **Kopieren** und schick den Link der Person, zum Beispiel per Nachricht.
-   - Den Knopf **Einladen** für E-Mails kannst du nicht nehmen, weil Küchenhelfer keine E-Mails verschickt.
+   - Den Knopf **Einladen** für E-Mails kannst du nicht nehmen, weil Kochheft keine E-Mails verschickt.
 
 **Ein Link für eine Person.** Jeder Link gilt für genau ein Konto. Für die nächste Person öffnest du den Dialog neu, dann entsteht ein neuer Link.
 
@@ -32,7 +32,7 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
 
 ## Auf den Home-Bildschirm legen
 
-Dann öffnet sich Küchenhelfer wie eine App.
+Dann öffnet sich Kochheft wie eine App.
 
 - **iPhone und iPad (Safari):** Teilen-Symbol, dann **Zum Home-Bildschirm**.
 - **Android (Chrome):** Menü ⋮, dann **Zum Startbildschirm hinzufügen**.

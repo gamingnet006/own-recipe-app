@@ -1,12 +1,12 @@
-name: "Küchenhelfer: Idee vorschlagen"
-description: "An idea or wish for Küchenhelfer / Eine Idee oder ein Wunsch für Küchenhelfer"
+name: "Kochheft: Idee vorschlagen"
+description: "An idea or wish for Kochheft / Eine Idee oder ein Wunsch für Kochheft"
 title: "[Idee] "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        **Idee vorschlagen** / *Suggest an idea*. Küchenhelfer bleibt kostenlos und privat; Ideen, die das ändern, passen nicht. / Küchenhelfer stays free and private; ideas that change this do not fit.
+        **Idee vorschlagen** / *Suggest an idea*. Kochheft bleibt kostenlos und privat; Ideen, die das ändern, passen nicht. / Kochheft stays free and private; ideas that change this do not fit.
   - type: textarea
     id: problem
     attributes:
@@ -24,7 +24,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Steht unter „Mehr → Über Küchenhelfer“. / Shown under "More → About Küchenhelfer".
+      description: Steht unter „Mehr → Über Kochheft“. / Shown under "More → About Kochheft".
       placeholder: v0.5.0
   - type: input
     id: device

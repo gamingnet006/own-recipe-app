@@ -1,4 +1,4 @@
-// KH: loads Küchenhelfer's switches once at start (GET /api/kh/features), like Mealie's app-info
+// KH: loads Kochheft's switches once at start (GET /api/kh/features), like Mealie's app-info
 // plugin; components read them as $khFeatures. Without an answer every hidden Mealie part stays hidden.
 import axios from "axios";
 
@@ -28,7 +28,7 @@ export default defineNuxtPlugin({
       khFeatures = { ...ALL_HIDDEN, ...data };
     }
     catch (error) {
-      console.error("Küchenhelfer: switches not loaded, hidden parts stay hidden", error);
+      console.error("Kochheft: switches not loaded, hidden parts stay hidden", error);
     }
 
     return {

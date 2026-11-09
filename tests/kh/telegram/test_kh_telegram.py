@@ -127,7 +127,7 @@ def test_a_video_link_alone_gets_the_readable_answer_of_mealie(fake: Fake):
     fake.on("/api/kh/drafts", mealie_answer(400, {"detail": {"code": "video_link"}}))
     bot_with(fake).handle_message(message(REEL))
     assert fake.replies() == [
-        "Videos lädt Küchenhelfer nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch."
+        "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch."
     ]
 
 
@@ -175,8 +175,8 @@ def test_a_mealie_error_is_answered_readably_and_a_bad_token_too(fake: Fake):
     bot.handle_message(message("x"))
     assert fake.replies() == [
         "Der Text ist zu lang.",
-        "Der API-Token des Bots ist ungültig. Leg in Küchenhelfer unter Profil → API-Tokens einen neuen an.",
-        "Küchenhelfer hat den Entwurf nicht angenommen (Fehler 500).",
+        "Der API-Token des Bots ist ungültig. Leg in Kochheft unter Profil → API-Tokens einen neuen an.",
+        "Kochheft hat den Entwurf nicht angenommen (Fehler 500).",
     ]
 
 
@@ -184,8 +184,7 @@ def test_a_switched_off_bot_says_so_and_announces_itself_to_mealie(fake: Fake):
     fake.on("/api/kh/drafts", mealie_answer(403, {"detail": {"message": "Telegram-Bot ist ausgeschaltet."}}))
     bot_with(fake).handle_message(message("x"))
     assert fake.replies() == [
-        "Der Telegram-Bot ist in Küchenhelfer ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen "
-        "einschalten."
+        "Der Telegram-Bot ist in Kochheft ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen einschalten."
     ]
     assert fake.to("/api/kh/drafts")[0].get_header("X-kh-via") == "telegram"
 
@@ -196,7 +195,7 @@ def test_an_unreachable_mealie_is_answered(fake: Fake):
 
     fake.on("/api/kh/drafts", down)
     bot_with(fake).handle_message(message(LINK))
-    assert fake.replies() == ["Küchenhelfer ist gerade nicht erreichbar. Versuch es gleich noch einmal."]
+    assert fake.replies() == ["Kochheft ist gerade nicht erreichbar. Versuch es gleich noch einmal."]
 
 
 def test_a_message_without_content_is_answered_with_a_hint(fake: Fake):

@@ -1,4 +1,6 @@
-# own-recipe-app (working name: Küchenhelfer)
+# Kochheft
+
+*Formerly called Küchenhelfer (German: vormals Küchenhelfer). Repository, image and folder names such as `kh/` and `own-recipe-app` stay as they are.*
 
 A free, self-hosted family recipe app and website, based on a fork of [Mealie](https://github.com/mealie-recipes/mealie) (AGPL-3.0). Runs in Docker on a Raspberry Pi, a Mac or any Linux machine.
 
@@ -79,7 +81,7 @@ kh/ops/install.sh "$image"
 Das Skript fragt zwei Dinge:
 
 - **Wohin die Backups sollen:** Am sichersten ist ein anderes Laufwerk, ein Netzlaufwerk oder ein Ordner, den ein zweites Gerät abholt.
-- **Unter welcher Adresse ihr Küchenhelfer öffnet.**
+- **Unter welcher Adresse ihr Kochheft öffnet.**
 
 Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die erste Anmeldung an. Das tägliche Backup läuft um 3:30 Uhr.
 
@@ -95,7 +97,7 @@ Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an, siehe [fa
 
 ### 6. Automatische Updates
 
-Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt sie mit Backup und Rückfall ein (D29).
+Jede Nacht um 4 Uhr holt Kochheft die neueste stabile Version und spielt sie mit Backup und Rückfall ein (D29).
 
 1. Trag den Lese-Schlüssel aus Schritt 1 in `kh/ops/.env` ein, zum Beispiel mit `nano kh/ops/.env`: `KH_REGISTRY_USER` (dein GitHub-Name) und `KH_REGISTRY_TOKEN` (der Schlüssel).
 2. Schalte die Updates ein und prüf den Stand:
@@ -107,24 +109,24 @@ Jede Nacht um 4 Uhr holt Küchenhelfer die neueste stabile Version und spielt si
 
 ### 7. KI einrichten (Gemini)
 
-Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Küchenhelfer nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
+Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Kochheft nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
 
-1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Küchenhelfer „Das KI-Kontingent ist aufgebraucht“.
-2. Öffne in Küchenhelfer **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit: Ist das des ersten aufgebraucht, nimmt Küchenhelfer das zweite (Schritt 5).
+1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Kochheft „Das KI-Kontingent ist aufgebraucht“.
+2. Öffne in Kochheft **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit: Ist das des ersten aufgebraucht, nimmt Kochheft das zweite (Schritt 5).
    - **Gemini:** Basis-URL `https://generativelanguage.googleapis.com/v1beta/openai/`, API-Key aus AI Studio, Modell `gemini-3.5-flash-lite`
    - **Gemini Reserve:** dieselbe Basis-URL und derselbe Schlüssel, Modell `gemini-3.1-flash-lite`
 
    Ins Feld **Modell** gehört die Kennung wie `gemini-3.5-flash-lite`, nicht der Anzeigename aus AI Studio („Gemini 3.5 Flash Lite“).
-3. Speichere beide und prüf dann jeden mit **Test Connection**: Erst der Test eines gespeicherten Anbieters zeigt der Liste, ob er Bilder liest. Standard- und Bildanbieter wählt Küchenhelfer selbst aus der Liste (Schritt 5); den **Audio-Anbieter** lässt du leer, Videos kommen in einer späteren Phase.
+3. Speichere beide und prüf dann jeden mit **Test Connection**: Erst der Test eines gespeicherten Anbieters zeigt der Liste, ob er Bilder liest. Standard- und Bildanbieter wählt Kochheft selbst aus der Liste (Schritt 5); den **Audio-Anbieter** lässt du leer, Videos kommen in einer späteren Phase.
 4. Sollen alle Rezepte in einer Sprache ankommen, trag sie in `kh/ops/.env` als englischen Namen ein, zum Beispiel `KH_RECIPE_LANGUAGE=German`, und starte mit `docker compose -f kh/ops/docker-compose.yml up -d` neu (D36). Was die KI liest, wird dann übersetzt; Rezepte, die schon in dieser Sprache sind, kosten nichts extra. Links mit Rezeptdaten bleiben in der Sprache der Seite.
 
 **Was es braucht (Probelauf 1.11.2026):** Ein Link mit Rezeptdaten braucht keine KI-Anfrage und ist nach etwa einer Sekunde da, ein Text braucht eine Anfrage (etwa 5 Sekunden), ein Foto zwei: eine liest das Foto, eine baut das Rezept (4 bis 12 Sekunden). Eine Übersetzung kostet eine Anfrage mehr. Im Gratis-Angebot hatten die beiden Flash-Lite-Modelle je 500 Anfragen am Tag und 15 pro Minute, Flash-Modelle ohne „Lite“ nur 20 am Tag. Den eigenen Stand zeigt AI Studio unter [Ratenbegrenzungen](https://aistudio.google.com/rate-limit).
 
-Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Küchenhelfers Datenbank und damit in jedem Backup.
+Im Gratis-Angebot darf Google eingereichte Texte, Fotos und Screenshots nutzen (siehe „Was geht wohin“). Der Schlüssel liegt in Kochhefts Datenbank und damit in jedem Backup.
 
 5. **Mehrere Anbieter, Prio-Liste (D39):** In den KI-Anbieter-Einstellungen stehen die Anbieter als Liste, die du mit ▲▼ ordnest. Die KI fragt sie von oben nach unten: Ist bei einem das Kontingent leer, der Schlüssel ungültig, das Modell weg oder er nicht erreichbar, nimmt sie den nächsten. Neben jedem Anbieter steht sein Zustand, etwa „Kontingent leer bis 9:00“.
    - Übersprungen wird ein leeres Kontingent bis zu der Zeit, die der Anbieter nennt, sonst eine Stunde; ein ungültiger Schlüssel oder ein fehlendes Modell, bis du den Anbieter speicherst oder sein Test grün ist; ein nicht erreichbarer Anbieter zehn Minuten. Die Zeiten lassen sich in `kh/ops/.env` ändern (`KH_AI_…`).
-   - Fotos gehen zuerst an Anbieter, deren Test „liest Bilder“ ergab, dann an ungetestete. Standard- und Bildanbieter stellt Küchenhelfer dafür selbst auf den ersten passenden der Liste.
+   - Fotos gehen zuerst an Anbieter, deren Test „liest Bilder“ ergab, dann an ungetestete. Standard- und Bildanbieter stellt Kochheft dafür selbst auf den ersten passenden der Liste.
    - **Glocke:** Wer KI-Anbieter verwalten darf, sieht oben neben der Suche eine Glocke mit der Zahl neuer Meldungen, etwa „Gemini: Kontingent aufgebraucht bis 9:00. Ich nehme jetzt Groq.“ Meldungen bleiben 30 Tage. Die übrige Familie sieht nur im Eingang einen Hinweis, wenn gar kein Anbieter frei oder noch keiner eingerichtet ist.
    - **Kostenlose Schlüssel:** Unter der Liste steht ein Infofeld mit diesen Stellen (Stand 4.11.2026). Kostenlose Stufen ändern sich oft; ob ein Modell passt, zeigt **Test Connection**. Jeder weitere Anbieter sieht die Rezepte, die er liest (siehe „Was geht wohin“).
 
@@ -160,7 +162,7 @@ Oben steht das Foto mit **Zurück**, dem Herz für die Favoriten und dem Menü *
 
 Neue Rezepte kommen über den **Eingang**; auch Mealies Import-Seiten führen dorthin. Selbst eintippen geht über **Rezept selbst eintippen** im Eingang oder über **Erstellen** im Seitenmenü.
 
-- **Link:** Adresse einfügen. Hat die Seite Rezeptdaten, liest Küchenhelfer sie ohne KI, sonst liest die KI die Seite.
+- **Link:** Adresse einfügen. Hat die Seite Rezeptdaten, liest Kochheft sie ohne KI, sonst liest die KI die Seite.
 - **Text:** Rezepttext einfügen, zum Beispiel aus einer Nachricht.
 - **Foto oder Screenshot:** Kamera oder Mediathek. Ein Rezept auf mehreren Seiten bekommt alle Fotos zusammen, bis zu fünf.
 
@@ -176,7 +178,7 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
 
 ### Mengen und Umrechnen
 
-- **Beim Einlesen** liest Küchenhelfer deutsche Mengen selbst, ohne KI und ohne Netz: „250 g“, „½ TL“, „1 1/2 EL“, „1,5 kg“, Bereiche wie „2–3 EL“ oder „2 bis 3 EL“, dazu Prise, Msp., Pck., Bund, Stück und mehr. Fehlen der Gruppe Einheiten wie Messerspitze, Stück, Scheibe oder Becher, legt Küchenhelfer sie beim ersten Mal an. Gibt es eine Zutat schon bei den Lebensmitteln, wird sie verknüpft; sonst bleibt ihr Name als Text neben Menge und Einheit.
+- **Beim Einlesen** liest Kochheft deutsche Mengen selbst, ohne KI und ohne Netz: „250 g“, „½ TL“, „1 1/2 EL“, „1,5 kg“, Bereiche wie „2–3 EL“ oder „2 bis 3 EL“, dazu Prise, Msp., Pck., Bund, Stück und mehr. Fehlen der Gruppe Einheiten wie Messerspitze, Stück, Scheibe oder Becher, legt Kochheft sie beim ersten Mal an. Gibt es eine Zutat schon bei den Lebensmitteln, wird sie verknüpft; sonst bleibt ihr Name als Text neben Menge und Einheit.
 - **In der Prüfansicht** sind Mengen im Schritttext farbig hinterlegt, wenn sie zu einer Zutat passen („125 g Mehl“ bei 250 g Mehl). Antippen löst eine Verknüpfung, erneutes Antippen verknüpft wieder. Hinweise zeigen, was auffällt:
   - eine Menge, die nicht erkannt wurde;
   - ungewöhnliche Mengen, also mehr als 5000 g, 5 kg, 20 EL, 3 Prisen oder 30 Stück;
@@ -209,7 +211,7 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
 
 #### Sprachbefehle (Test)
 
-Unter **Mehr** → **Zusatzfunktionen** gibt es den Schalter **Sprachbefehle (Test)**, standardmäßig aus (nur Admins). Ist er an, zeigt der Kochmodus **Sprachbefehle an**. Nach dem Tipp (und der Erlaubnis fürs Mikrofon) lädt das Gerät einmal das Sprachmodell (etwa 45 MB, von deinem eigenen Küchenhelfer) und hört dann auf vier Wörter: **weiter**, **zurück**, **Timer** (startet den ersten Timer des Schritts) und **stopp** (schaltet klingelnde Timer aus). **Sprachbefehle aus** beendet das Mikrofon. Die Erkennung läuft ganz im Browser; Audio verlässt das Gerät nie.
+Unter **Mehr** → **Zusatzfunktionen** gibt es den Schalter **Sprachbefehle (Test)**, standardmäßig aus (nur Admins). Ist er an, zeigt der Kochmodus **Sprachbefehle an**. Nach dem Tipp (und der Erlaubnis fürs Mikrofon) lädt das Gerät einmal das Sprachmodell (etwa 45 MB, von deinem eigenen Kochheft) und hört dann auf vier Wörter: **weiter**, **zurück**, **Timer** (startet den ersten Timer des Schritts) und **stopp** (schaltet klingelnde Timer aus). **Sprachbefehle aus** beendet das Mikrofon. Die Erkennung läuft ganz im Browser; Audio verlässt das Gerät nie.
 
 Das ist ein Test (T2): Auf manchen iPhones und Browsern klappt es nicht, etwa bei wenig Arbeitsspeicher oder in Küchenlärm. Dann steht ein Hinweis da, und der Schalter bleibt besser aus. Die Tasten und das Wischen gehen immer.
 
@@ -234,11 +236,11 @@ Unter den Zutaten steht der Block **Nährwerte pro Portion (ca.)**.
 
 ### Allergene und Unverträglichkeiten
 
-Aus den Zutaten erkennt Küchenhelfer die 14 Allergen-Gruppen der EU. Das ist immer „wahrscheinlich, ohne Gewähr“ und nie eine Garantie. Prüfe im Zweifel die Packung.
+Aus den Zutaten erkennt Kochheft die 14 Allergen-Gruppen der EU. Das ist immer „wahrscheinlich, ohne Gewähr“ und nie eine Garantie. Prüfe im Zweifel die Packung.
 
 - Am Rezept kannst du Fehler korrigieren: **stimmt nicht** nimmt ein Allergen heraus, **Allergen ergänzen** fügt eines hinzu. Beides gilt nur für dieses Rezept.
 - **Mehr** → **Ich vertrage nicht**: Hier hakt jede Person für ihr Konto an, was sie nicht verträgt. Enthält ein Rezept das wahrscheinlich, steht auf der Rezeptseite eine Warnung mit den Namen, und die Rezeptkarte trägt ein Zeichen.
-- Zur Warnung zeigt Küchenhelfer Ersatz-Hinweise („Statt Butter: Margarine“). Dort legt der Haushalt auch eigene Regeln an; sie gehen vor der Standardliste.
+- Zur Warnung zeigt Kochheft Ersatz-Hinweise („Statt Butter: Margarine“). Dort legt der Haushalt auch eigene Regeln an; sie gehen vor der Standardliste.
 - **Als Variante speichern** macht eine Kopie „(ohne …)“ mit den Ersatz-Zutaten. Das Original bleibt unverändert.
 
 ### Familienkochbuch drucken
@@ -263,14 +265,14 @@ Rezepte aus Kitchen Stories und Chefkoch holst du über den Link im **Eingang**,
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
 
-1. **Ein Schlüssel je Gerät:** In Küchenhelfer unter **Profil → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
+1. **Ein Schlüssel je Gerät:** In Kochheft unter **Profil → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
 2. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name zum Beispiel „Ins Kochbuch“:
    - Unter **ⓘ** „Im Share-Sheet anzeigen“ einschalten, mit den Typen URLs, Safari-Webseiten, Bilder und Text.
    - Aktion **Text** mit dem Schlüssel.
    - **Bilder aus Eingabe abrufen** (aus der Kurzbefehleingabe), dann **Wenn** die Bilder einen Wert haben: **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/drafts`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Text, Anfragetext **Formular** mit dem Feld `images` (Datei) = Bilder.
    - **Sonst** **URLs aus Eingabe abrufen**, dann **Wenn** es URLs gibt: dieselbe Abfrage mit dem Feld `url` (Text) = URLs; **sonst** mit dem Feld `text` (Text) = Kurzbefehleingabe.
    - Zum Schluss **Mitteilung anzeigen**, zum Beispiel „Liegt bei den Entwürfen“.
-3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Küchenhelfer-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
+3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Kochheft-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
 
 Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
 
@@ -280,12 +282,12 @@ Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei 
 
 1. **Kurzbefehl einrichten.** Unter **Mehr → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
    - App **Kurzbefehle** öffnen, unten rechts auf **+** tippen.
-   - Oben den Namen auf „KH Timer“ ändern (oder den Namen in Küchenhelfer anpassen).
+   - Oben den Namen auf „KH Timer“ ändern (oder den Namen in Kochheft anpassen).
    - Aktion **Zahlen aus Eingabe abrufen** hinzufügen, Quelle **Kurzbefehleingabe**.
    - Aktion **Timer starten** hinzufügen, Dauer = diese Zahl, Einheit **Minuten**.
-2. **Einschalten:** In Küchenhelfer unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
+2. **Einschalten:** In Kochheft unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
 
-Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Küchenhelfer läuft weiter.
+Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Kochheft läuft weiter.
 
 *Optional für die Admin:* Wer den Kurzbefehl einmal gebaut hat, kann ihn teilen (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` eintragen (nur `https://www.icloud.com/shortcuts/…`; alles andere wird ignoriert). Dann zeigt **Mehr → Timer** die Taste „Kurzbefehl hinzufügen“, die ihn auf dem Gerät anlegt.
 
@@ -294,7 +296,7 @@ Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öf
 Optional und standardmäßig aus: Wer Links, Texte oder Fotos lieber an einen Telegram-Chat schickt, bekommt sie als Entwurf im **Eingang** (P7.1). Der Bot fragt Telegram selbst nach Nachrichten, es wird kein Port geöffnet.
 
 1. In Telegram den Chat mit **@BotFather** öffnen, `/newbot` senden und die Fragen beantworten. Den Token, den er nennt, trägst du in `kh/ops/.env` als `KH_TELEGRAM_TOKEN` ein.
-2. In Küchenhelfer unter **Profil → API-Tokens** einen eigenen Token anlegen, zum Beispiel „Telegram-Bot“, und als `KH_TELEGRAM_API_TOKEN` eintragen.
+2. In Kochheft unter **Profil → API-Tokens** einen eigenen Token anlegen, zum Beispiel „Telegram-Bot“, und als `KH_TELEGRAM_API_TOKEN` eintragen.
 3. Starte den Bot mit `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, schreib ihm eine Nachricht und trag die Chat-ID, die er zurückschickt („Diese Chat-ID ist nicht freigeschaltet: …“), in `KH_TELEGRAM_ALLOWED_IDS` ein (mehrere mit Komma). Dann startest du den Bot mit demselben Befehl neu.
 
 Danach legt jeder Link, Text oder jedes Foto aus einem freigeschalteten Chat einen Entwurf an; der Bot antwortet mit „Entwurf angelegt“ und dem Link zur Prüfansicht. Bei Fotos zählt das größte, höchstens `KH_DRAFT_MAX_IMAGE_MB` groß. Videolinks (Instagram, TikTok, YouTube, Facebook) werden nicht abgerufen: Schick die Beschreibung als Text dazu oder einen Screenshot. Im Profil `lokal` startet der Bot nicht. Ausschalten: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
@@ -305,13 +307,13 @@ Optional und standardmäßig aus (P7.3): Eigene Aufnahmen, zum Beispiel ein Spra
 
 1. In `kh/ops/.env` `KH_WHISPER_URL=http://whisper:8000` eintragen.
 2. Dienst starten: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. Den Speicher begrenzt `KH_WHISPER_MEM_LIMIT` (Standard 2g). Beim ersten Mal lädt der Dienst das Modell aus dem Netz (Hugging Face), danach nicht mehr; nach 5 Minuten ohne Aufnahme gibt er den Speicher wieder frei.
-3. Küchenhelfer neu starten (`docker compose -f kh/ops/docker-compose.yml up -d`). Im Eingang erscheint dann **Audio- oder Videodatei (eigene Aufnahme)**.
+3. Kochheft neu starten (`docker compose -f kh/ops/docker-compose.yml up -d`). Im Eingang erscheint dann **Audio- oder Videodatei (eigene Aufnahme)**.
 
-Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 95, weil Cloudflare Tunnel im Gratis-Tarif bei 100 MB abschneidet). Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Küchenhelfer nie; es geht nur um deine eigenen Dateien.
+Das Modell hängt vom Profil ab (siehe „Profile und Hardware-Test“): `tiny`, `base` oder `small`; mit `KH_WHISPER_MODEL` kannst du es festlegen. Größte Datei: `KH_DRAFT_MAX_MEDIA_MB` (Standard 95, weil Cloudflare Tunnel im Gratis-Tarif bei 100 MB abschneidet). Die Umwandlung läuft im Hintergrund und kann auf einem Pi Minuten dauern; die Aufnahme wird danach gelöscht, der Dateiname bleibt als Hinweis am Entwurf. Ohne `KH_WHISPER_URL` gibt es kein Dateifeld. Videos aus dem Netz (Instagram, TikTok, YouTube) lädt Kochheft nie; es geht nur um deine eigenen Dateien.
 
 ### Profile und Hardware-Test
 
-Das Profil sagt Küchenhelfer, wie viel dein Rechner trägt (P7.4). Es steht in `kh/ops/.env` als `KH_PROFILE` (Standard `leicht`) und setzt das Whisper-Modell: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. Im Profil `lokal` startet der Telegram-Bot nicht; Whisper bleibt erlaubt, weil es bei dir läuft. KI-Anbieter solltest du dann nur lokale eintragen (z. B. Ollama); die App weist bei den KI-Anbietern und in der Systemprüfung darauf hin. Die Systemprüfung zeigt das Profil an.
+Das Profil sagt Kochheft, wie viel dein Rechner trägt (P7.4). Es steht in `kh/ops/.env` als `KH_PROFILE` (Standard `leicht`) und setzt das Whisper-Modell: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. Im Profil `lokal` startet der Telegram-Bot nicht; Whisper bleibt erlaubt, weil es bei dir läuft. KI-Anbieter solltest du dann nur lokale eintragen (z. B. Ollama); die App weist bei den KI-Anbietern und in der Systemprüfung darauf hin. Die Systemprüfung zeigt das Profil an.
 
 Welches Profil passt, misst `sh kh/ops/hardware_test.sh`: Architektur, Prozessorkerne und Arbeitsspeicher, dazu ein Vorschlag (unter 4 GB oder bis 4 Kerne: `leicht`; ab 8 GB und mehr als 4 Kernen: `normal`; Apple Silicon mit 16 GB oder 8 und mehr Kerne: `stark`). Ein Raspberry Pi landet damit bei `leicht`.
 
@@ -336,7 +338,7 @@ Mit einer eigenen Aufnahme von etwa 1 Minute misst es auch die Spracherkennung: 
   - Zurückholen: Mit Passwort fragt `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age` danach und legt das Backup in den Backup-Ordner; am Mac im Terminal am Gerät selbst aufrufen, nicht über SSH. Ohne Passwort die `.zip` vom Stick nach `kh/ops/backups` kopieren. Danach `restore.sh <backup>.zip` wie unter „Alltag“.
   - Anleitung neben den Backups: Auf dem Stick und im Backup-Ordner liegen `LIESMICH.txt` mit allen Schritten, auch zum Neuinstallieren, und `CLAUDE.md` für Claude: Wer Claude Code in diesem Ordner startet, bekommt beim Wiederherstellen Hilfe. Beide erneuern sich, wenn sich die Anleitung ändert.
   - Backup-Ort ändern: genauso wie in Schritt 2, am Mac also per Doppelklick auf `kh/ops/backup-ort-aendern.command`, bequem als Verweis auf dem Schreibtisch (im Finder mit gedrückter ⌥⌘-Taste dorthin ziehen). Passwort-Wahl und Schlüssel bleiben, die erste Kopie kommt samt `LIESMICH.txt` und `CLAUDE.md` sofort an den neuen Ort, und am Mac steht danach das Ergebnis da. Am alten Ort bleiben die Kopien liegen. Das geht absichtlich nur am Gerät selbst oder über SSH, nicht über die Webseite.
-  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Küchenhelfer unter Profil → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an. Auch der KI-Schlüssel steckt im Backup: Leg in Google AI Studio einen neuen an, trag ihn unter Gruppen-Einstellungen → KI-Anbieter ein und lösch den alten in AI Studio.
+  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Kochheft unter Profil → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an. Auch der KI-Schlüssel steckt im Backup: Leg in Google AI Studio einen neuen an, trag ihn unter Gruppen-Einstellungen → KI-Anbieter ein und lösch den alten in AI Studio.
 
 ### Alltag
 
@@ -361,33 +363,33 @@ Auf dem Mac brauchen eigene Hintergrund-Jobs (cron, launchd) `/usr/local/bin` im
 2. Freien Platz prüfen: `df -h` auf dem Laufwerk mit den Daten und mit den Backups. Unter 20 % frei: alte Backups löschen oder ein größeres Laufwerk nehmen.
 3. Updates prüfen: `kh/ops/auto_update.sh status` und das Protokoll darin lesen. Steht dort ein Fehler, ist das alte Image noch aktiv; die Daten sind sicher.
 4. USB-Kopie prüfen: `kh/ops/backup_copy.sh status`.
-5. Auf neue Hinweise zu Sicherheitslücken in Mealie achten und Küchenhelfer dann von Hand aktualisieren.
+5. Auf neue Hinweise zu Sicherheitslücken in Mealie achten und Kochheft dann von Hand aktualisieren.
 
 **Nach jedem Update:**
 
-1. Öffne Küchenhelfer und schau unter **Mehr → Über Küchenhelfer**, ob die neue Version steht.
+1. Öffne Kochheft und schau unter **Mehr → Über Kochheft**, ob die neue Version steht.
 2. Öffne ein Rezept und starte den Kochmodus.
 3. Mach ein Backup sofort: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
 4. Läuft etwas nicht, spiel das Backup vor dem Update wieder ein (siehe „Alltag“).
 
 ### Was geht wohin
 
-Was Küchenhelfer nach draußen schickt. Telemetrie gibt es keine.
+Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 
 | Funktion | Was wird gesendet | An wen | Abschalten |
 |---|---|---|---|
 | Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
 | KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | die eingetragenen KI-Anbieter in der Reihenfolge der Prio-Liste, z. B. Google Gemini; jeder mit eigenen Regeln (D35, D39) | KI-Anbieter in den Gruppen-Einstellungen löschen |
-| Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Küchenhelfer, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
+| Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Kochheft, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
 | Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
 | Backups und Kopie | alle Daten, auch der KI-Schlüssel | dein Backup-Ordner und, falls eingerichtet, der USB-Stick; verschlüsselt, wenn beim Einrichten ein Passwort gewählt wurde (D32, D33) | `kh/ops/backup_copy.sh off` für die Kopie |
 | Meldungen | ob Backup, Kopie und Update geklappt haben | dein Uptime Kuma | Push-Adressen in `kh/ops/.env` leer lassen |
-| Nährwerte | die Zutatennamen, nur zum Abgleich mit der Tabelle in deinem eigenen Küchenhelfer | nirgends: Die BLS-Tabelle (CC BY 4.0) liegt im Image | – |
-| Videolinks (Instagram, TikTok, YouTube, Facebook) | nichts: Küchenhelfer ruft sie nicht ab und lädt keine Videos (D5); du fügst die Beschreibung ein oder lädst einen Screenshot hoch | niemand | – |
+| Nährwerte | die Zutatennamen, nur zum Abgleich mit der Tabelle in deinem eigenen Kochheft | nirgends: Die BLS-Tabelle (CC BY 4.0) liegt im Image | – |
+| Videolinks (Instagram, TikTok, YouTube, Facebook) | nichts: Kochheft ruft sie nicht ab und lädt keine Videos (D5); du fügst die Beschreibung ein oder lädst einen Screenshot hoch | niemand | – |
 | Teilen per Telegram (Zusatzmodul, standardmäßig aus) | Link, Text oder Foto aus deinem Chat | Telegram-Server; im Profil „lokal“ gesperrt | Dienst `telegram` nicht starten |
-| Sprachbefehle (Test, Zusatzfunktion, standardmäßig aus) | das Mikrofon-Audio, nur an die Erkennung im Browser selbst; das Sprachmodell kommt vom eigenen Küchenhelfer | nirgends | Schalter **Sprachbefehle (Test)** aus oder **Sprachbefehle aus** im Kochmodus |
+| Sprachbefehle (Test, Zusatzfunktion, standardmäßig aus) | das Mikrofon-Audio, nur an die Erkennung im Browser selbst; das Sprachmodell kommt vom eigenen Kochheft | nirgends | Schalter **Sprachbefehle (Test)** aus oder **Sprachbefehle aus** im Kochmodus |
 | Audio und Video mit Whisper (Zusatzmodul, standardmäßig aus) | die eigene Datei, nur an das Whisper im eigenen Netz | dein Whisper-Dienst, nicht nach draußen | Dienst `whisper` nicht starten |
 
 **Profile (`KH_PROFILE` in `kh/ops/.env`, Standard `leicht`):**
@@ -448,7 +450,7 @@ kh/ops/install.sh "$image"
 The script asks two things:
 
 - **Where the backups go:** safest on another drive, a network drive or a folder a second device collects.
-- **Under which address you open Küchenhelfer.**
+- **Under which address you open Kochheft.**
 
 It then starts everything, creates the key for the backups and shows the first login. The daily backup runs at 3:30 am.
 
@@ -464,7 +466,7 @@ Each person gets an invite link and creates their own account, see [familienkont
 
 ### 6. Automatic updates
 
-Every night at 4 am Küchenhelfer fetches the newest stable version and installs it with a backup and a rollback (D29).
+Every night at 4 am Kochheft fetches the newest stable version and installs it with a backup and a rollback (D29).
 
 1. Put the read key from step 1 into `kh/ops/.env`, for example with `nano kh/ops/.env`: `KH_REGISTRY_USER` (your GitHub name) and `KH_REGISTRY_TOKEN` (the key).
 2. Switch the updates on and check the state:
@@ -476,24 +478,24 @@ Every night at 4 am Küchenhelfer fetches the newest stable version and installs
 
 ### 7. Set up AI (Gemini)
 
-An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Küchenhelfer uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
+An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Kochheft uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
 
-1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Küchenhelfer says "The AI quota is used up".
-2. In Küchenhelfer open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Küchenhelfer takes the second (step 5).
+1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Kochheft says "The AI quota is used up".
+2. In Kochheft open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Kochheft takes the second (step 5).
    - **Gemini:** Base URL `https://generativelanguage.googleapis.com/v1beta/openai/`, the API key from AI Studio, model `gemini-3.5-flash-lite`
    - **Gemini Reserve:** the same base URL and key, model `gemini-3.1-flash-lite`
 
    The **Model** field takes the ID such as `gemini-3.5-flash-lite`, not the display name from AI Studio ("Gemini 3.5 Flash Lite").
-3. Save both, then check each with **Test Connection**: only the test of a saved provider tells the list whether it reads images. Küchenhelfer picks the default and the image provider from the list itself (step 5); leave the **Audio Provider** empty, videos come in a later phase.
+3. Save both, then check each with **Test Connection**: only the test of a saved provider tells the list whether it reads images. Kochheft picks the default and the image provider from the list itself (step 5); leave the **Audio Provider** empty, videos come in a later phase.
 4. If all recipes should arrive in one language, put it into `kh/ops/.env` as an English name, for example `KH_RECIPE_LANGUAGE=German`, and restart with `docker compose -f kh/ops/docker-compose.yml up -d` (D36). Whatever the AI reads is then translated; recipes already in that language cost nothing extra. Links with recipe data stay in the page's language.
 
 **What it takes (trial run 2026-11-01):** a link with recipe data needs no AI request and is there after about a second, a text needs one request (about 5 seconds), a photo two: one reads the photo, one builds the recipe (4 to 12 seconds). A translation costs one request more. On the free tier the two Flash-Lite models had 500 requests a day and 15 a minute each, Flash models without "Lite" only 20 a day. AI Studio shows your own numbers under [rate limits](https://aistudio.google.com/rate-limit).
 
-On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Küchenhelfer's database and so in every backup.
+On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Kochheft's database and so in every backup.
 
 5. **Several providers, priority list (D39):** the AI provider settings show the providers as a list you order with ▲▼. The AI asks them from top to bottom: when a quota is used up, a key is invalid, a model is gone or a provider cannot be reached, it takes the next. Next to each provider is its state, such as "quota used up until 9:00".
    - A used-up quota is skipped until the time the provider names, else an hour; an invalid key or a missing model until you save the provider or its test is green; an unreachable provider ten minutes. The times can be changed in `kh/ops/.env` (`KH_AI_…`).
-   - Photos go first to providers whose test read an image, then to untested ones. For this Küchenhelfer sets the default and image provider to the first fitting one of the list.
+   - Photos go first to providers whose test read an image, then to untested ones. For this Kochheft sets the default and image provider to the first fitting one of the list.
    - **Bell:** whoever may manage AI providers sees a bell next to the search with the number of new messages, such as "Gemini: quota used up until 9:00. Now using Groq." Messages are kept 30 days. The rest of the family only sees a hint in the intake when no provider is free at all or none is set up yet.
    - **Free keys:** under the list an info box names these places (as of 2026-11-04). Free tiers change often; **Test Connection** shows whether a model fits. Every further provider sees the recipes it reads (see "What goes where").
 
@@ -529,7 +531,7 @@ At the top is the photo with **Back**, the heart for favorites and the **⋯** m
 
 New recipes come in through the **Intake**; Mealie's import pages lead there too. To type a recipe in yourself, use **Type a recipe in yourself** in the intake or **Create** in the side menu.
 
-- **Link:** paste the address. If the page has recipe data, Küchenhelfer reads it without AI, otherwise the AI reads the page.
+- **Link:** paste the address. If the page has recipe data, Kochheft reads it without AI, otherwise the AI reads the page.
 - **Text:** paste the recipe text, for example from a message.
 - **Photo or screenshot:** camera or photo library. A recipe on several pages gets all its photos together, up to five.
 
@@ -545,7 +547,7 @@ A badge on the saved recipe shows where it came from, with **View original**.
 
 ### Amounts and scaling
 
-- **On import** Küchenhelfer reads German amounts itself, without AI and without the network: "250 g", "½ TL", "1 1/2 EL", "1,5 kg", ranges such as "2–3 EL" or "2 bis 3 EL", and Prise, Msp., Pck., Bund, Stück and more. If the group lacks units such as Messerspitze, Stück, Scheibe or Becher, Küchenhelfer adds them the first time. An ingredient that already exists among the foods is linked; otherwise its name stays as text next to amount and unit.
+- **On import** Kochheft reads German amounts itself, without AI and without the network: "250 g", "½ TL", "1 1/2 EL", "1,5 kg", ranges such as "2–3 EL" or "2 bis 3 EL", and Prise, Msp., Pck., Bund, Stück and more. If the group lacks units such as Messerspitze, Stück, Scheibe or Becher, Kochheft adds them the first time. An ingredient that already exists among the foods is linked; otherwise its name stays as text next to amount and unit.
 - **In the review** amounts in the step text are tinted when they fit an ingredient ("125 g Mehl" for 250 g Mehl). Tapping unlinks one, tapping again links it again. Hints point out what stands out:
   - an amount that was not recognized;
   - unusual amounts, that is more than 5000 g, 5 kg, 20 EL, 3 pinches or 30 pieces;
@@ -578,7 +580,7 @@ A badge on the saved recipe shows where it came from, with **View original**.
 
 #### Voice commands (test)
 
-Under **More** → **Add-ons** there is the switch **Voice commands (test)**, off by default (admins only). When it is on, cook mode shows **Voice commands on**. After the tap (and the microphone permission) the device loads the speech model once (about 45 MB, from your own Küchenhelfer) and then listens for four words: **weiter** (next), **zurück** (back), **Timer** (starts the first timer of the step) and **stopp** (silences ringing timers). **Voice commands off** ends the microphone. Recognition runs entirely in the browser; audio never leaves the device.
+Under **More** → **Add-ons** there is the switch **Voice commands (test)**, off by default (admins only). When it is on, cook mode shows **Voice commands on**. After the tap (and the microphone permission) the device loads the speech model once (about 45 MB, from your own Kochheft) and then listens for four words: **weiter** (next), **zurück** (back), **Timer** (starts the first timer of the step) and **stopp** (silences ringing timers). **Voice commands off** ends the microphone. Recognition runs entirely in the browser; audio never leaves the device.
 
 This is a test (T2): on some iPhones and browsers it does not work, for example with little memory or in kitchen noise. A hint then shows, and the switch is better left off. The buttons and swiping always work.
 
@@ -604,11 +606,11 @@ Under the ingredients there is the block **Nutrition per serving (approx.)**.
 
 ### Allergens and intolerances
 
-Küchenhelfer detects the 14 EU allergen groups from the ingredients. This is always "probably, without guarantee" and never a promise. When in doubt, check the packaging.
+Kochheft detects the 14 EU allergen groups from the ingredients. This is always "probably, without guarantee" and never a promise. When in doubt, check the packaging.
 
 - On the recipe you can correct mistakes: **not correct** takes an allergen out, **Add an allergen** adds one. Both apply to this recipe only.
 - **More** → **I do not tolerate**: Each person ticks, for their own account, what they do not tolerate. If a recipe probably contains it, the recipe page shows a warning with the names and the recipe card carries a mark.
-- With the warning, Küchenhelfer shows substitution hints ("Instead of butter: margarine"). The household can also add its own rules there; they come before the standard list.
+- With the warning, Kochheft shows substitution hints ("Instead of butter: margarine"). The household can also add its own rules there; they come before the standard list.
 - **Save as variant** makes a copy "(ohne ...)" with the replacement ingredients. The original stays unchanged.
 
 ### Print the family cookbook
@@ -633,14 +635,14 @@ Recipes from Kitchen Stories and Chefkoch come in by link through the **Inbox**,
 
 With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
 
-1. **One key per device:** in Küchenhelfer under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
+1. **One key per device:** in Kochheft under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
 2. **Build the shortcut** once in the **Shortcuts** app with **+**, named for example "Into the cookbook":
    - Under **ⓘ** turn on "Show in Share Sheet", with the types URLs, Safari web pages, images and text.
    - A **Text** action holding the key.
    - **Get Images from Input** (from the shortcut input), then **If** the images have any value: **Get Contents of URL** with `https://<your-address>/api/kh/drafts`, method **POST**, header `Authorization` with `Bearer ` followed by the text, request body **Form** with the field `images` (File) = images.
    - **Otherwise** **Get URLs from Input**, then **If** there are URLs: the same request with the field `url` (Text) = URLs; **otherwise** with the field `text` (Text) = shortcut input.
    - Finally **Show Notification**, for example "Waiting in the drafts".
-3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Küchenhelfer key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
+3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Kochheft key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
 Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
 
@@ -650,12 +652,12 @@ A timer in the app rings only while the app is open. So that it rings on a locke
 
 1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
    - Open the **Shortcuts** app and tap **+** at the bottom right.
-   - Change the name at the top to "KH Timer" (or adjust the name in Küchenhelfer).
+   - Change the name at the top to "KH Timer" (or adjust the name in Kochheft).
    - Add the action **Get Numbers from Input**, source **Shortcut Input**.
    - Add the action **Start Timer**, duration = that number, unit **minutes**.
-2. **Turn it on:** in Küchenhelfer under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
+2. **Turn it on:** in Kochheft under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
 
-Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Küchenhelfer keeps running.
+Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Kochheft keeps running.
 
 *Optional for the admin:* once the shortcut is built, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else is ignored). **More → Timer** then shows the button "Add shortcut", which adds it on the device.
 
@@ -664,7 +666,7 @@ Then every running timer gets a "Put on the clock" button. A tap briefly opens t
 Optional and off by default: if you prefer to send links, texts or photos to a Telegram chat, they arrive as a draft in the **inbox** (P7.1). The bot asks Telegram for messages itself, no port is opened.
 
 1. In Telegram open the chat with **@BotFather**, send `/newbot` and answer the questions. Put the token it gives you into `kh/ops/.env` as `KH_TELEGRAM_TOKEN`.
-2. In Küchenhelfer create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
+2. In Kochheft create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
 3. Start the bot with `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, write it a message and put the chat ID it sends back ("Diese Chat-ID ist nicht freigeschaltet: …") into `KH_TELEGRAM_ALLOWED_IDS` (several with commas). Then restart the bot with the same command.
 
 From then on every link, text or photo from an allowed chat becomes a draft; the bot answers "Entwurf angelegt" with the link to the review. For photos the largest size counts, at most `KH_DRAFT_MAX_IMAGE_MB`. Video links (Instagram, TikTok, YouTube, Facebook) are not fetched: send the description as text with it, or a screenshot. In the `lokal` profile the bot does not start. Switch it off: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
@@ -675,13 +677,13 @@ Optional and off by default (P7.3): a Whisper service turns your own recordings,
 
 1. Put `KH_WHISPER_URL=http://whisper:8000` into `kh/ops/.env`.
 2. Start the service: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. `KH_WHISPER_MEM_LIMIT` caps its memory (default 2g). The first time, the service downloads the model from the internet (Hugging Face), never again; after 5 minutes without a recording it frees the memory.
-3. Restart Küchenhelfer (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
+3. Restart Kochheft (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
 
-The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 95, because the free Cloudflare tunnel cuts uploads at 100 MB). The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Küchenhelfer never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
+The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 95, because the free Cloudflare tunnel cuts uploads at 100 MB). The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Kochheft never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
 
 ### Profiles and hardware test
 
-The profile tells Küchenhelfer how much your machine can carry (P7.4). It lives in `kh/ops/.env` as `KH_PROFILE` (default `leicht`) and sets the Whisper model: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. In the `lokal` profile the Telegram bot does not start; Whisper stays allowed because it runs at your place. You should then enter only local AI providers (e.g. Ollama); the app reminds you at the AI providers and in the system check. The system check shows the profile.
+The profile tells Kochheft how much your machine can carry (P7.4). It lives in `kh/ops/.env` as `KH_PROFILE` (default `leicht`) and sets the Whisper model: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. In the `lokal` profile the Telegram bot does not start; Whisper stays allowed because it runs at your place. You should then enter only local AI providers (e.g. Ollama); the app reminds you at the AI providers and in the system check. The system check shows the profile.
 
 `sh kh/ops/hardware_test.sh` measures which profile fits: architecture, CPU cores and RAM, plus a proposal (under 4 GB or up to 4 cores: `leicht`; from 8 GB and more than 4 cores: `normal`; Apple Silicon with 16 GB or 8 and more cores: `stark`). A Raspberry Pi ends up at `leicht`.
 
@@ -706,7 +708,7 @@ With your own recording of about 1 minute it also measures speech recognition: `
   - Bring one back: with a password, `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for it and puts the backup into the backup folder; on a Mac run it in the Terminal on the machine itself, not over SSH. Without a password, copy the `.zip` from the stick into `kh/ops/backups`. Then `restore.sh <backup>.zip` as under "Day to day".
   - A guide next to the backups: the stick and the backup folder hold `LIESMICH.txt` with every step, reinstalling included, and `CLAUDE.md` for Claude: whoever starts Claude Code in that folder gets help with the restore. Both are renewed when the guide changes.
   - Change where the copies go: the same as in step 2, so on a Mac a double-click on `kh/ops/backup-ort-aendern.command`, handy as an alias on the desktop (drag it there in the Finder holding ⌥⌘). The password choice and the key stay, the first copy lands at the new place right away with `LIESMICH.txt` and `CLAUDE.md`, and on a Mac the result shows. The old place keeps its copies. On purpose this works only on the machine itself or over SSH, not on the website.
-  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Küchenhelfer under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
+  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Kochheft under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
 
 ### Day to day
 
@@ -731,33 +733,33 @@ On a Mac, your own background jobs (cron, launchd) need `/usr/local/bin` in PATH
 2. Check free space: `df -h` on the drive with the data and on the one with the backups. Below 20 % free: delete old backups or use a bigger drive.
 3. Check updates: `kh/ops/auto_update.sh status` and read the log it shows. On an error the old image stays active; the data is safe.
 4. Check the USB copy: `kh/ops/backup_copy.sh status`.
-5. Watch for security notices about Mealie and then update Küchenhelfer by hand.
+5. Watch for security notices about Mealie and then update Kochheft by hand.
 
 **After every update:**
 
-1. Open Küchenhelfer and check under **More → About Küchenhelfer** that the new version shows.
+1. Open Kochheft and check under **More → About Kochheft** that the new version shows.
 2. Open a recipe and start cooking mode.
 3. Take a backup right now: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
 4. If something fails, restore the backup from before the update (see "Day to day").
 
 ### What goes where
 
-What Küchenhelfer sends out. There is no telemetry.
+What Kochheft sends out. There is no telemetry.
 
 | Feature | What is sent | To whom | Switch off |
 |---|---|---|---|
 | Read a link | fetching the page and its recipe picture | the website in question | – |
 | AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | the AI providers entered, in the order of the priority list, e.g. Google Gemini; each with its own rules (D35, D39) | delete the AI provider in the group settings |
-| Share shortcut | link, text or photo, with the device's key | your Küchenhelfer, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
+| Share shortcut | link, text or photo, with the device's key | your Kochheft, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |
 | Backups and copy | all data, the AI key included | your backup folder and, if set up, the USB stick; encrypted when a password was chosen during setup (D32, D33) | `kh/ops/backup_copy.sh off` for the copy |
 | Reports | whether backup, copy and update worked | your Uptime Kuma | leave the push addresses in `kh/ops/.env` empty |
-| Nutrition | the ingredient names, only to match them with the table inside your own Küchenhelfer | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
-| Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Küchenhelfer does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
+| Nutrition | the ingredient names, only to match them with the table inside your own Kochheft | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
+| Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Kochheft does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
 | Share via Telegram (optional module, off by default) | link, text or photo from your chat | Telegram servers; blocked in the "lokal" profile | do not start the `telegram` service |
-| Voice commands (test, add-on, off by default) | the microphone audio, only to the recognizer in the browser itself; the speech model comes from your own Küchenhelfer | nowhere | switch **Voice commands (test)** off, or **Voice commands off** in cook mode |
+| Voice commands (test, add-on, off by default) | the microphone audio, only to the recognizer in the browser itself; the speech model comes from your own Kochheft | nowhere | switch **Voice commands (test)** off, or **Voice commands off** in cook mode |
 | Audio and video with Whisper (optional module, off by default) | your own file, only to the Whisper in your own network | your Whisper service, not outside | do not start the `whisper` service |
 
 **Profiles (`KH_PROFILE` in `kh/ops/.env`, default `leicht`):**

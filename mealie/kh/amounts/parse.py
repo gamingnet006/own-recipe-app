@@ -27,7 +27,7 @@ FIXED_UNITS = {"prise", "messerspitze"}  # normalized unit names that never scal
 FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack)\b", re.IGNORECASE)
 ENDINGS = ("en", "er", "e", "n", "s")  # up to two are cut off by stem(), the longest first
 
-# Küchenhelfer's additions to Mealie's German units: name, plural, abbreviation
+# Kochheft's additions to Mealie's German units: name, plural, abbreviation
 GERMAN_UNITS = (
     ("Messerspitze", "Messerspitzen", "Msp."),
     ("Stück", "Stück", "Stk."),
