@@ -12,6 +12,7 @@ from mealie.kh.addons.service import ensure_addon
 from mealie.kh.drafts.recognize import recognize
 from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftOut, OriginOut
 from mealie.kh.drafts.service import DraftService
+from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
 
@@ -51,7 +52,7 @@ class KhDraftsController(_DraftsBase):
         # KH: add-ons (D46): the Telegram bot says it is the sender, recordings are the Whisper add-on
         if via == "telegram":
             ensure_addon(self.session, self.user.household_id, "telegram")
-        if media:
+        if media and get_kh_settings().whisper_url:  # without a server the service answers "not configured"
             ensure_addon(self.session, self.user.household_id, "whisper")
         draft = self.service.create(url, text, images, media)
         self._recognize_later(tasks, draft)

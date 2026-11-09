@@ -1,14 +1,16 @@
 """KH: reads, stores and checks the household's add-on switches (D46)."""
 
 import sqlalchemy as sa
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from humps import camelize
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
+from mealie.db.db_setup import generate_session
 from mealie.kh.addons.models import KhHouseholdAddons
 from mealie.kh.addons.schemas import AddonFlags, AddonsOut
 from mealie.kh.features.settings import get_kh_settings
+from mealie.repos.all_repositories import AllRepositories
 from mealie.schema.response import ErrorResponse
 
 # The name shown in the refusal; the page itself is translated in the frontend
@@ -102,3 +104,11 @@ def ensure_addon(session: Session, household_id: UUID4, name: str) -> None:
                 f"{label} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten."
             ),
         )
+
+
+def require_household_share_links(token_id: UUID4, session: Session = Depends(generate_session)) -> None:
+    """Route dependency for the public shared-recipe page: 404 while the household of the token's recipe has share
+    links off. An unknown token passes, the route answers it itself."""
+    token = AllRepositories(session, group_id=None, household_id=None).recipe_share_tokens.get_one(token_id)
+    if token and not addon_enabled(session, token.recipe.household_id, "share_links"):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Share links are switched off"))

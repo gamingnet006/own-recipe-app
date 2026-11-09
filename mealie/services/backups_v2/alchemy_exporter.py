@@ -91,7 +91,8 @@ class AlchemyExporter(BaseService):
         "warnings",
         "settings",
         "allergens",
-    }  # KH: kh_drafts, kh_cookbook_print, kh_user_allergies
+        "flags",
+    }  # KH: kh_drafts, kh_cookbook_print, kh_user_allergies, kh_household_addons
     """KH: JSON columns, restored as they were saved. Mealie's own tables have none, and walking into one
     breaks the restore; `test_every_json_column_is_restored_as_saved` guards against forgetting one."""
     look_for_time = {"scheduled_time"}
