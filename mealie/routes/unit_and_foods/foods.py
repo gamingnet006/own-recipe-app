@@ -3,6 +3,7 @@ from functools import cached_property
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import UUID4
 
+from mealie.kh.nutrition.mapping import delete_food_mappings  # KH: a food's BLS mapping (D44)
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.controller import controller
 from mealie.routes._base.mixins import HttpRepo
@@ -62,6 +63,8 @@ class IngredientFoodsController(BaseUserController):
         self.checks.can_organize()
         try:
             self.repo.merge(data.from_food, data.to_food)
+            # KH: the merged food's BLS mapping goes; SQLite in Mealie skips cascades (D44)
+            delete_food_mappings(self.session, [data.from_food])
             return SuccessResponse.respond("Successfully merged foods")
         except Exception as e:
             self.logger.error(e)
@@ -80,4 +83,7 @@ class IngredientFoodsController(BaseUserController):
     @router.delete("/{item_id}", response_model=IngredientFood)
     def delete_one(self, item_id: UUID4):
         self.checks.can_organize()
-        return self.mixins.delete_one(item_id)
+        deleted = self.mixins.delete_one(item_id)
+        # KH: its BLS mapping goes too; SQLite in Mealie skips cascades (D44)
+        delete_food_mappings(self.session, [item_id])
+        return deleted

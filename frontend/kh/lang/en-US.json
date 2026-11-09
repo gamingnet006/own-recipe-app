@@ -8,11 +8,13 @@
       "source": {
         "link": "Link",
         "text": "Text",
-        "image": "Photo or screenshot"
+        "image": "Photo or screenshot",
+        "media": "Audio or video file (own recording)"
       },
       "link-label": "Link to the recipe",
       "text-label": "Recipe text",
       "add-photos": "Add photos",
+      "choose-media": "Choose a recording",
       "remove-photo": "Remove photo",
       "no-drafts": "No drafts waiting.",
       "status": {
@@ -54,6 +56,7 @@
         "ai_not_configured": "No AI set up: Group Settings → AI Providers",
         "quota_exceeded": "The AI quota is used up, please try again later.",
         "address_blocked": "This address is not allowed.",
+        "video_link": "Kochheft does not download videos. Paste the description or upload a screenshot.",
         "invalid_result": "The recognition did not return a valid recipe.",
         "interrupted": "Interrupted, please try again.",
         "unknown": "Something went wrong, please try again.",
@@ -69,8 +72,14 @@
         "already_approved": "Already saved as a recipe.",
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
-        "offline": "No connection to Küchenhelfer. Check the network; it tries again in a moment.",
-        "ai_unavailable": "No AI reachable, try again later."
+        "offline": "No connection to Kochheft. Check the network; it tries again in a moment.",
+        "ai_unavailable": "No AI reachable, try again later.",
+        "whisper_unreachable": "The speech recognition (Whisper) does not answer. Is it running?",
+        "whisper_timeout": "The speech recognition took too long. Try a shorter recording.",
+        "whisper_failed": "The speech recognition could not read this recording.",
+        "media_too_large": "The recording is too large.",
+        "media_not_configured": "Recordings are not switched on (Whisper).",
+        "not_audio_video": "This file is not an audio or video recording."
       },
       "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
       "type-yourself": "Type a recipe in yourself"
@@ -89,7 +98,12 @@
       "based-on-mealie": "based on Mealie",
       "source": "Source code (AGPL)",
       "drafts-waiting": "1 draft waits for a review | {count} drafts wait for a review",
-      "duplicates": "Duplicate recipes"
+      "duplicates": "Duplicate recipes",
+      "nutrition": "Nutrition",
+      "tolerance": "I do not tolerate",
+      "about": "About Kochheft",
+      "system": "System check",
+      "addons": "Add-ons"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -104,6 +118,7 @@
     },
     "ai": {
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
+      "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",
       "move-down": "Move down",
       "reads-images": "reads images",
@@ -124,7 +139,7 @@
       "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
       "no-images": "reads no images",
       "order-failed": "The order could not be saved; the list has been reloaded.",
-      "missing-hint": "No AI set up yet: Küchenhelfer reads photos and texts once someone adds an AI provider. Links with recipe data already work."
+      "missing-hint": "No AI set up yet: Kochheft reads photos and texts once someone adds an AI provider. Links with recipe data already work."
     },
     "notices": {
       "title": "Messages",
@@ -198,6 +213,16 @@
       "offline": "Offline: saved version",
       "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
     },
+    "voice": {
+      "start": "Voice commands on",
+      "stop": "Voice commands off",
+      "loading": "Loading the speech model …",
+      "listening": "Listening: next (weiter), back (zurück), timer, stop (stopp).",
+      "heard": "Heard: {word}",
+      "error-mic-denied": "The microphone is not allowed. Allow it in the browser settings and tap again.",
+      "error-unsupported": "This browser cannot listen. Voice commands do not work here.",
+      "error-model": "The speech model could not be loaded. Try again later."
+    },
     "book": {
       "toc": "Contents",
       "number": "No. {n}",
@@ -244,6 +269,279 @@
       "duplicate_link": "same link",
       "similar_title": "similar title",
       "similar_ingredients": "similar ingredients"
+    },
+    "nutrition": {
+      "title": "Nutrition",
+      "kcal-serving": "approx. {kcal} kcal per serving",
+      "kcal-recipe": "approx. {kcal} kcal for the whole recipe",
+      "none": "no ingredient could be calculated",
+      "failed": "The nutrition values could not be loaded.",
+      "rows": {
+        "kcal": "Energy",
+        "fat": "Fat",
+        "saturated": "of which saturated fat",
+        "carbs": "Carbohydrates",
+        "sugar": "of which sugars",
+        "protein": "Protein",
+        "fiber": "Fibre",
+        "salt": "Salt"
+      },
+      "counted": "from {counted} of {total} ingredients",
+      "missing": "without: {lines}",
+      "estimated": "estimated: check the matching",
+      "manual": "entered by hand",
+      "source": "Source: BLS 4.0, Max Rubner-Institut, CC BY 4.0",
+      "show": "Show nutrition",
+      "show-hint": "The block under the ingredients, stored on this device.",
+      "page": {
+        "description": "Which entry of the German food composition table (BLS) belongs to which ingredient. The matching applies to all recipes.",
+        "open": "Still open ({count})",
+        "done": "Confirmed",
+        "none-open": "All ingredients are matched.",
+        "empty": "No ingredients in recipes yet.",
+        "in-recipes": "in 1 recipe | in {count} recipes",
+        "suggested": "Suggestion",
+        "confirmed": "confirmed",
+        "no-entry": "No matching entry",
+        "search-label": "Search the BLS",
+        "search-hint": "At least one word of the ingredient",
+        "no-hits": "Nothing found.",
+        "piece-grams": "Weight of one piece in grams",
+        "confirm": "Confirm",
+        "unknown-code": "That BLS entry does not exist.",
+        "forbidden": "You do not have the permission to organize data, so you cannot change this.",
+        "failed": "That did not work.",
+        "pick": "Choose {name}"
+      }
+    },
+    "allergens": {
+      "names": {
+        "gluten": "Gluten",
+        "crustaceans": "Crustaceans",
+        "eggs": "Eggs",
+        "fish": "Fish",
+        "peanuts": "Peanuts",
+        "soy": "Soy",
+        "milk": "Milk",
+        "nuts": "Tree nuts",
+        "celery": "Celery",
+        "mustard": "Mustard",
+        "sesame": "Sesame",
+        "sulphites": "Sulphites",
+        "lupin": "Lupin",
+        "molluscs": "Molluscs"
+      },
+      "contains": "Probably contains",
+      "none-found": "No allergen recognised",
+      "disclaimer": "Recognised from the ingredients, without guarantee",
+      "by-hand": "added by hand",
+      "taken-out": "taken out by hand",
+      "warning": "Probably contains {allergen}. {names} does not tolerate it. | Probably contains {allergen}. {names} do not tolerate it.",
+      "instead": "Instead of {line}: {replacement}",
+      "from-lines": "Recognised from:",
+      "wrong": "not correct",
+      "undo": "Undo",
+      "add": "Add an allergen",
+      "add-label": "Missing an allergen? Add it",
+      "variant": "Save as variant",
+      "variant-nothing": "There is no replacement for these ingredients.",
+      "failed": "That did not work.",
+      "warning-icon": "Probably contains something somebody in the household does not tolerate",
+      "profile": {
+        "title": "I do not tolerate",
+        "description": "Tick what you do not tolerate. Recipes that probably contain it warn everybody in the household, without guarantee.",
+        "saved": "Saved.",
+        "failed": "That did not work.",
+        "rules-title": "The household's own substitution rules",
+        "rules-description": "They come before the standard list. Example: ingredient butter, replacement margarine, allergen milk.",
+        "rules-none": "No own rules yet.",
+        "rule": "{match} becomes {replacement} (without {allergen})",
+        "rule-delete": "Delete the rule {match}",
+        "match": "Ingredient",
+        "replacement": "Replacement",
+        "allergen": "Allergen",
+        "rule-add": "Add rule"
+      }
+    },
+    "about": {
+      "title": "About Kochheft",
+      "version": "Version {version}",
+      "built-on": "Kochheft is built on Mealie.",
+      "copyright": "Mealie: Copyright © Hayden and the Mealie contributors, licensed under AGPL-3.0.",
+      "license": "Kochheft is licensed under the AGPL-3.0 as well.",
+      "source": "View the source code",
+      "notices": "Third-party components",
+      "notices-missing": "The list of third-party components is not part of this installation.",
+      "failed": "The details could not be loaded."
+    },
+    "system": {
+      "description": "One traffic light per item. Nothing is changed here.",
+      "on": "on",
+      "off": "off",
+      "failed": "The system check could not be loaded.",
+      "rows": {
+        "version": {
+          "info": "Version: {value}"
+        },
+        "database": {
+          "info": "Database: {value}"
+        },
+        "disk": {
+          "ok": "Free space: {value}",
+          "warn": "Little free space: {value}",
+          "bad": "Almost no free space left: {value}"
+        },
+        "backup": {
+          "ok": "Last backup: {value}",
+          "warn": "Last backup is older than 2 days: {value}",
+          "bad": "Last backup is older than 7 days: {value}",
+          "none": "There is no backup yet."
+        },
+        "ai": {
+          "ok": "AI provider set up ({value})",
+          "warn": "No AI provider set up yet"
+        },
+        "signup": {
+          "ok": "Self-registration is off",
+          "bad": "Self-registration is on, please switch it off"
+        },
+        "profile": {
+          "info": "Profile: {value}",
+          "warn": "Profile: {value}. Check the AI providers: only local ones (e.g. Ollama) fit, no cloud keys."
+        },
+        "defaultAccount": {
+          "ok": "The default account is no longer in use",
+          "bad": "The default account (changeme{'@'}example.com) still exists, please replace it"
+        },
+        "autoUpdate": {
+          "ok": "Automatic updates are on.",
+          "warn": "Automatic updates are off.",
+          "stale": "Automatic updates are on, but no nightly run has reported for over 2 days. Check with kh/ops/auto_update.sh status.",
+          "info": "Automatic updates: .env decides.",
+          "bad": "The last automatic update failed:"
+        },
+        "nutrition": {
+          "ok": "Nutrition table loaded ({value} foods)",
+          "bad": "Nutrition table is missing"
+        },
+        "telegram": {
+          "info": "Telegram bot: {value}"
+        },
+        "whisper": {
+          "info": "Speech recognition (Whisper): {value}"
+        }
+      },
+      "start": {
+        "title": "First steps",
+        "ai": "Set up an AI provider",
+        "accounts": "Create family accounts",
+        "backup": "Check the backup location",
+        "tunnel": "Access from outside (guide)",
+        "shortcut": "Share shortcut (guide)"
+      },
+      "auto-update": {
+        "title": "Automatic updates",
+        "label": "Update to the newest stable version every night",
+        "hint": "Takes effect at the next nightly run. Without a saved choice, KH_AUTO_UPDATE in .env decides.",
+        "env": "Not set yet: KH_AUTO_UPDATE in .env decides.",
+        "last": "Last run: {status}",
+        "never": "No run yet.",
+        "failed": "The checkbox could not be saved."
+      }
+    },
+    "addons": {
+      "description": "Choose which functions Kochheft shows for your household. Switched-off functions disappear from the interface, their data stays.",
+      "off-hint": "{name} is switched off. An admin can switch it on under More → Add-ons.",
+      "unavailable": "Not set up, see the guide.",
+      "needs-allergens": "Needs the Allergens function.",
+      "presets": {
+        "title": "How do you want to use Kochheft?",
+        "recipes": "Recipes only",
+        "shopping": "Recipes and shopping list",
+        "planner": "Everything with the meal planner"
+      },
+      "areas": {
+        "title": "Big areas",
+        "shopping": {
+          "title": "Shopping list",
+          "text": "The shopping list covers the lists, the tab in the bottom bar and the \"Add to shopping list\" buttons on recipes.",
+          "gone": "Switched off, the tab, pages, menu entries and buttons disappear; the bar then has three places. Your lists stay saved."
+        },
+        "planner": {
+          "title": "Meal planner",
+          "text": "The meal planner covers the weekly plan, its settings and the \"Add to meal plan\" menu entry on recipes.",
+          "gone": "Switched off, pages, menu entries and buttons disappear. Your plan stays saved."
+        }
+      },
+      "items": {
+        "title": "More functions",
+        "books": {
+          "title": "Family cookbook",
+          "text": "The book editor and printing as a cookbook."
+        },
+        "duplicates": {
+          "title": "Duplicate recipes",
+          "text": "The page that shows similar recipes to tidy up."
+        },
+        "oven": {
+          "title": "Fan-oven bracket",
+          "text": "The fan-oven temperature in brackets in the text of the steps."
+        },
+        "nutrition": {
+          "title": "Nutrition",
+          "text": "Nutrition per serving, the page that maps ingredients and the display on the recipe."
+        },
+        "allergens": {
+          "title": "Allergens",
+          "text": "Allergen hints on the recipe, the mark on cards and the \"I do not tolerate\" page."
+        },
+        "substitutions": {
+          "title": "Exchange and variants",
+          "text": "Exchange rules and variants without a substance. Only together with Allergens."
+        },
+        "offline": {
+          "title": "Offline recipes",
+          "text": "The recipes you opened last stay readable without a network."
+        },
+        "clock": {
+          "title": "Put on the Clock timer",
+          "text": "The button that starts a timer in the iPhone's Clock app."
+        },
+        "shareLinks": {
+          "title": "Public share links",
+          "text": "Share recipes by a link anyone can open without an account. Must also be allowed on the server."
+        },
+        "telegram": {
+          "title": "Telegram bot",
+          "text": "Send links, texts and photos to the intake by Telegram. Needs the bot service."
+        },
+        "whisper": {
+          "title": "Audio and video with Whisper",
+          "text": "Own recordings are turned into text and land in the intake. Needs the Whisper service."
+        },
+        "voice": {
+          "title": "Voice commands (test)",
+          "text": "Voice commands in cooking mode. Still in testing."
+        }
+      },
+      "names": {
+        "shopping": "The shopping list",
+        "planner": "The meal planner",
+        "books": "The family cookbook",
+        "duplicates": "Duplicate recipes",
+        "oven": "The fan-oven bracket",
+        "nutrition": "Nutrition",
+        "allergens": "Allergens",
+        "substitutions": "Exchange and variants",
+        "offline": "Offline recipes",
+        "clock": "The Clock timer",
+        "shareLinks": "Share links",
+        "telegram": "The Telegram bot",
+        "whisper": "Audio and video",
+        "voice": "Voice commands"
+      },
+      "local-ai": "Local AI (e.g. Ollama) works in principle too – see the guide. Untested.",
+      "local-ai-link": "Guide"
     }
   }
 }

@@ -95,6 +95,7 @@ import {
   mdiLogout,
   mdiMagnify,
   mdiMenu,
+  mdiMicrophone, // KH: choosing an own recording for the intake (P7.3)
   mdiMinus,
   mdiMinusCircle,
   mdiNewBox,
@@ -239,6 +240,7 @@ export const icons = {
   logout: mdiLogout,
   manageData: mdiTableEdit,
   menu: mdiMenu,
+  microphone: mdiMicrophone, // KH: P7.3
   minusCircle: mdiMinusCircle,
   newBox: mdiNewBox,
   orderAlphabeticalAscending: mdiOrderAlphabeticalAscending,

@@ -1,4 +1,4 @@
-"""KH: a group for the amounts tests (v0.2 plan 2): Mealie's German units, Küchenhelfer's additions and a few foods,
+"""KH: a group for the amounts tests (v0.2 plan 2): Mealie's German units, Kochheft's additions and a few foods,
 written here and not taken from real recipes."""
 
 import pytest
@@ -16,7 +16,7 @@ FOODS = [("Mehl", None), ("Ei", "Eier"), ("Zwiebel", "Zwiebeln"), ("Zucker", Non
 
 @pytest.fixture
 def german(unique_user: TestUser) -> DataMatcher:
-    """unique_user's group with Mealie's German units, Küchenhelfer's German additions and the foods above. The group
+    """unique_user's group with Mealie's German units, Kochheft's German additions and the foods above. The group
     lives for the whole test module, so foods are created only once; Mealie's seeder skips units that exist."""
     repos = unique_user.repos
     SeederService(repos).seed_units("de-DE")

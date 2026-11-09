@@ -1,8 +1,10 @@
-"""KH: Küchenhelfer's switches from KH_* environment variables (kh/ops/.env). Mealie's own settings
+"""KH: Kochheft's switches from KH_* environment variables (kh/ops/.env). Mealie's own settings
 stay untouched; the Mealie parts we hide stay off unless they are switched on here."""
 
 import re
 from functools import lru_cache
+from pathlib import Path
+from typing import Literal
 
 from fastapi import HTTPException, status
 from pydantic import Field, field_validator
@@ -15,6 +17,9 @@ logger = get_logger()
 
 # The only address the "add shortcut" button may open: a shared iOS Shortcut on iCloud
 CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]+/?")
+
+# Cloudflare's free plan cuts uploads at 100 MB, so a bigger recording could never reach the app through the tunnel
+TUNNEL_UPLOAD_MB = 95
 
 
 class KhSettings(BaseSettings):
@@ -50,6 +55,25 @@ class KhSettings(BaseSettings):
     # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
     notice_days: int = Field(30, ge=1)
     notice_poll_minutes: int = Field(5, ge=1)
+    # About and system check (P8): the running image (its tag is the version), where the source can be read (AGPL),
+    # the third-party notices shipped in the image, and the optional modules (only whether they are set is ever shown)
+    image: str | None = None
+    source_url: str = "https://github.com/gamingnet006/own-recipe-app"
+    notices_file: Path = Path("/app/kh-docs/THIRD_PARTY_NOTICES.md")
+    telegram_token: str | None = None
+    # Telegram bot (P7.1): chats it listens to (comma list of chat IDs), the Mealie API token it hands drafts in
+    # with, where Mealie is for it, and the address the family opens the app at (for the review link)
+    telegram_allowed_ids: str = ""
+    telegram_api_token: str | None = None
+    telegram_mealie_url: str = "http://mealie:9000"
+    base_url: str = "http://localhost:9091"
+    # Whisper (P7.3): the server for own recordings (none: no file field), its model (none: the profile's), and the
+    # largest recording
+    whisper_url: str | None = None
+    whisper_model: str | None = None
+    draft_max_media_mb: int = Field(TUNNEL_UPLOAD_MB, ge=1)
+    # Profile (P7.4): how much the host can carry; sets the Whisper model, "lokal" keeps everything in the house
+    profile: Literal["leicht", "normal", "stark", "lokal"] = "leicht"
 
     @field_validator("clock_shortcut_url")
     @classmethod

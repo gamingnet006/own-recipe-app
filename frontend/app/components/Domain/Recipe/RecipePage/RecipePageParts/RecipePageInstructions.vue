@@ -496,7 +496,7 @@
                         <!-- KH: linked amounts follow the factor, amounts and timers in the step text; the editor keeps the text as saved (D39, D41, D42) -->
                         <SafeMarkdown
                           class="markdown"
-                          :source="khStepDisplay(index, step, recipe, scale, oven).html"
+                          :source="khStepDisplay(index, step, recipe, scale, khOn.oven ? oven : null).html"
                         />
                       </v-col>
                     </v-row>
@@ -531,6 +531,7 @@ import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtm
 import { khStepDisplay } from "~~/kh/app/lib/step-text"; // KH: amounts and timers in the steps (D39, D41, D42)
 import { useKhTimeTap } from "~~/kh/app/composables/use-kh-time-tap"; // KH: tap a time to start a timer (D42)
 import { useKhOven } from "~~/kh/app/lib/oven"; // KH: fan-oven bracket in the steps (D43)
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 
 interface MergerHistory {
   target: number;
@@ -564,6 +565,7 @@ const { isCookMode, toggleCookMode, isEditForm } = usePageState(props.recipe.slu
 const { extractIngredientReferences } = useExtractIngredientReferences();
 const onStepTextClick = useKhTimeTap(); // KH: D42
 const oven = useKhOven(); // KH: D43
+const khOn = useKhOn(); // KH: D46
 
 const dialog = ref(false);
 const disabledSteps = ref<number[]>([]);

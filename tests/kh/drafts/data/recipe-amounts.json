@@ -1,6 +1,6 @@
 {
   "name": "Mengenkuchen",
-  "description": "Ein selbst geschriebenes Testrezept für die Mengen in Küchenhelfer.",
+  "description": "Ein selbst geschriebenes Testrezept für die Mengen in Kochheft.",
   "recipeYield": "Springform Ø 26 cm",
   "recipeIngredient": [
     { "title": "Für den Teig", "note": "250 g Mehl" },

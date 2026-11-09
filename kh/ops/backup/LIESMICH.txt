@@ -1,7 +1,7 @@
 KÜCHENHELFER: SO BEKOMMST DU DEINE REZEPTE ZURÜCK
 ==================================================
 
-In diesem Ordner liegen Backups von Küchenhelfer, eurem Familien-Kochbuch (eine Erweiterung von
+In diesem Ordner liegen Backups von Kochheft, eurem Familien-Kochbuch (eine Erweiterung von
 Mealie). Jedes Backup enthält alles: Rezepte und Fotos, Einkaufslisten, Essenspläne, Entwürfe
 und die Konten mit ihren Passwörtern. Jede Nacht kommt eines dazu, die ältesten werden gelöscht.
 
@@ -23,7 +23,7 @@ Im Dateinamen stehen Datum und Uhrzeit, zum Beispiel ..._2026.11.02.02.30.00.zip
 WAS DU BRAUCHST
 
   1. Einen Rechner mit Docker: einen Mac, einen Linux-Rechner oder einen Raspberry Pi.
-  2. Das Programm Küchenhelfer. Es liegt bei GitHub im privaten Repo gamingnet006/own-recipe-app,
+  2. Das Programm Kochheft. Es liegt bei GitHub im privaten Repo gamingnet006/own-recipe-app,
      dafür brauchst du Zugang zu diesem GitHub-Konto. Wie man es installiert, steht dort in
      docs/kh/README.md im Abschnitt „Installieren“.
   3. Nur für verschlüsselte Backups (.zip.age): das Passwort, das beim Einrichten der Kopie
@@ -33,7 +33,7 @@ WAS DU BRAUCHST
 
 SCHRITT FÜR SCHRITT
 
-  1. Küchenhelfer neu installieren, wie in docs/kh/README.md beschrieben, am besten die neueste
+  1. Kochheft neu installieren, wie in docs/kh/README.md beschrieben, am besten die neueste
      Version: Sie liest auch ältere Backups, eine ältere Version dagegen keine neueren.
      Alle Befehle unten laufen im Installationsordner, also dort, wo der Ordner kh liegt.
 
@@ -49,7 +49,7 @@ SCHRITT FÜR SCHRITT
        docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh <Name>.zip
      Achtung: Das ersetzt alles, was in der neuen Installation steht.
 
-  4. Küchenhelfer neu starten, damit die Datenbank zur installierten Version passt:
+  4. Kochheft neu starten, damit die Datenbank zur installierten Version passt:
        docker compose -f kh/ops/docker-compose.yml restart mealie
 
   5. Prüfen: mit dem alten Konto anmelden (E-Mail und Passwort wie vorher) und ein paar Rezepte
@@ -70,17 +70,17 @@ GUT ZU WISSEN
   - Auf diesem Laufwerk nichts von Hand löschen oder umbenennen, vor allem nicht
     kuechenhelfer-schluessel.age: Ohne ihn lassen sich die verschlüsselten Backups nicht öffnen.
   - Mit Claude: im Terminal in diesen Ordner wechseln, Claude Code starten (Befehl: claude) und
-    sagen: „Hilf mir, Küchenhelfer aus diesem Backup wiederherzustellen.“ Claude liest dann
+    sagen: „Hilf mir, Kochheft aus diesem Backup wiederherzustellen.“ Claude liest dann
     CLAUDE.md. Das Passwort tippst du selbst ein, wenn age danach fragt, nie in den Chat.
 
 
 KÜCHENHELFER: HOW TO GET YOUR RECIPES BACK
 
-  This folder holds backups of Küchenhelfer, a family cookbook based on Mealie. Each backup holds
+  This folder holds backups of Kochheft, a family cookbook based on Mealie. Each backup holds
   everything: recipes and photos, shopping lists, meal plans, drafts and the accounts. *.zip.age
   are encrypted (key: kuechenhelfer-schluessel.age, locked with the password chosen at setup),
   *.zip are normal Mealie backups. The date is in the file name; take the newest.
-  1. Install Küchenhelfer, preferably the newest version (private GitHub repo
+  1. Install Kochheft, preferably the newest version (private GitHub repo
      gamingnet006/own-recipe-app, docs/kh/README.md, "Install (English)").
   2. Encrypted: kh/ops/backup_copy.sh decrypt "/path/to/<name>.zip.age" (asks for the password).
      Plain: copy the .zip into the install's backup folder (kh/ops/backups).

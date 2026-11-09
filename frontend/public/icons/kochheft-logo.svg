@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76" role="img" aria-label="Kochheft">
+  <title>Kochheft</title>
+  <rect x="14" y="10" width="44" height="56" rx="6" fill="#E6F2EC" stroke="#2F7A55" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M22 10v56M30 26h16M30 34h16M30 42h10" fill="none" stroke="#2F7A55" stroke-width="3.2" stroke-linecap="round"/>
+  <ellipse cx="52" cy="10" rx="5" ry="6.5" fill="#2F7A55"/>
+  <path d="M52 16v18" fill="none" stroke="#2F7A55" stroke-width="3.2" stroke-linecap="round"/>
+</svg>

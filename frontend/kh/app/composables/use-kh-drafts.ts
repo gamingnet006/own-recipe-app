@@ -24,6 +24,9 @@ const SIDE_BY_SIDE_FROM = 768;
 const POLL_INTERVAL_MS = 3000;
 // A draft without recipe and link is named by the start of its text, cut to this many characters
 const TITLE_LENGTH = 60;
+// Links to these sites (and their subdomains) are never fetched (D5); the backend keeps the same list in
+// mealie/kh/drafts/video.py
+const VIDEO_HOSTS = ["instagram.com", "tiktok.com", "youtube.com", "youtu.be", "facebook.com", "fb.watch"];
 const ERROR_CODES = new Set(Object.keys(en.kh.drafts.error));
 
 // One counter for the menu and the drafts pages; the app runs without server rendering, so a module ref is shared state
@@ -76,6 +79,17 @@ export function reviewLayout(width: number): "stacked" | "side" {
   return width >= SIDE_BY_SIDE_FROM ? "side" : "stacked";
 }
 
+/** Whether a link points at a video site, so the intake asks for the description or a screenshot instead. */
+export function isVideoLink(url: string): boolean {
+  try {
+    const host = new URL(url.includes("//") ? url : `//${url}`, "https://x.invalid").hostname.toLowerCase();
+    return VIDEO_HOSTS.some(video => host === video || host.endsWith(`.${video}`));
+  }
+  catch {
+    return false;
+  }
+}
+
 /** The sentence for an error code from the API; codes this version does not know get the general one. */
 export function errorText(code: string, t: Translate): string {
   return t(`kh.drafts.error.${ERROR_CODES.has(code) ? code : "unknown"}`);
@@ -85,6 +99,7 @@ export function errorText(code: string, t: Translate): string {
 export function draftTitle(draft: KhDraft): string {
   if (draft.recipe?.name) return draft.recipe.name;
   if (draft.sourceUrl) return draft.sourceUrl.replace(/^https?:\/\/(?:www\.)?/, "");
+  if (draft.sourceNote) return draft.sourceNote;
   const firstLine = (draft.sourceText ?? "").trim().split("\n")[0] ?? "";
   return firstLine.length > TITLE_LENGTH ? `${firstLine.slice(0, TITLE_LENGTH)}…` : firstLine;
 }
@@ -124,10 +139,12 @@ export function warningTarget(warning: KhDraftWarning, groupSlug: string): strin
 }
 
 /** The detail of a failed drafts request, e.g. 409 with code "duplicates"; "offline" when the request never
- * reached the server, "unknown" when the answer has no code. */
+ * reached the server, "media_too_large" for a 413 (a proxy such as Cloudflare cuts big uploads before the app
+ * answers), "unknown" when the answer has no code. */
 export function requestError(error: unknown): KhRequestError {
-  const failed = error as { isAxiosError?: boolean; response?: { data?: { detail?: unknown } } } | null;
+  const failed = error as { isAxiosError?: boolean; response?: { status?: number; data?: { detail?: unknown } } } | null;
   if (failed?.isAxiosError && !failed.response) return { code: "offline" };
+  if (failed?.response?.status === 413) return { code: "media_too_large" };
   const detail = failed?.response?.data?.detail;
   const known = typeof detail === "object" && detail !== null && typeof (detail as KhRequestError).code === "string";
   return known ? detail as KhRequestError : { code: "unknown" };

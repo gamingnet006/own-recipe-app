@@ -88,6 +88,7 @@ import { useGroupSelf } from "~/composables/use-groups";
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { alert } from "~/composables/use-toast";
+import { khAddons } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import type { GroupRecipeActionOut, HouseholdSummary } from "~/lib/api/types/household";
 import type { Recipe } from "~/lib/api/types/recipe";
 import { isRecipeFullyPublic } from "~/lib/recipe/recipe-visibility";
@@ -173,7 +174,7 @@ const menuItems = ref<ContextMenuItem[]>([]);
 const i18n = useI18n();
 const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
-const { $khFeatures } = useNuxtApp(); // KH: Küchenhelfer's switches (kh-features plugin)
+const { $khFeatures } = useNuxtApp(); // KH: Kochheft's switches (kh-features plugin)
 const { group, actions: groupActions } = useGroupSelf();
 const { household } = useHouseholdSelf();
 const { isOwnGroup } = useLoggedInState();
@@ -330,7 +331,10 @@ for (const [key, value] of Object.entries(props.useItems)) {
   // Skip delete if not allowed
   if (key === "delete" && !canDelete.value) continue;
   // KH: "Share" only offers share links, which stay off unless KH_SHARE_LINKS=true
-  if (key === "share" && !$khFeatures?.shareLinks) continue;
+  if (key === "share" && !($khFeatures?.shareLinks && khAddons.enabled.shareLinks)) continue;
+  // KH: add-ons (D46): the planner and the shopping list can be switched off
+  if (key === "mealplanner" && !khAddons.enabled.planner) continue;
+  if (key === "shoppingList" && !khAddons.enabled.shopping) continue;
 
   const item = defaultItems[key];
   if (item && (item.isPublic || isOwnGroup.value)) {

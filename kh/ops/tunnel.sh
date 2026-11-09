@@ -62,7 +62,7 @@ check_safe() {
     || fail "KH_TUNNEL_TOKEN enthält Leerzeichen: nur die lange Zeichenkette nach --token eintragen, nicht den ganzen Befehl"
   token=$(setting KH_BACKUP_API_TOKEN '')
   [ -n "$token" ] || fail "KH_BACKUP_API_TOKEN fehlt in .env (wird für die Prüfung der Konten gebraucht)"
-  [ "$(health_status)" = healthy ] || fail "der Küchenhelfer läuft nicht oder ist nicht bereit"
+  [ "$(health_status)" = healthy ] || fail "das Kochheft läuft nicht oder ist nicht bereit"
   url="http://localhost:$(setting KH_PORT 9091)"
   about=$(curl -fsS -m 10 "$url/api/app/about") || fail "Mealie antwortet nicht"
   ! signup_open "$about" || fail "die Selbstregistrierung ist an"
@@ -95,13 +95,13 @@ turn_on() {
     waited=$((waited + POLL))
   done
   base=$(setting KH_BASE_URL '')
-  echo "Tunnel läuft: Der Küchenhelfer ist jetzt von unterwegs erreichbar${base:+ unter $base}."
+  echo "Tunnel läuft: Das Kochheft ist jetzt von unterwegs erreichbar${base:+ unter $base}."
   case "$base" in https://*) ;; *) echo "Hinweis: KH_BASE_URL in .env auf die Tunnel-Adresse setzen (https://...)." ;; esac
 }
 
 turn_off() {
   docker compose --profile tunnel rm -sf tunnel >/dev/null 2>&1 || true
-  echo "Tunnel aus: Der Küchenhelfer ist nur noch im Heimnetz erreichbar."
+  echo "Tunnel aus: Das Kochheft ist nur noch im Heimnetz erreichbar."
 }
 
 show_status() {

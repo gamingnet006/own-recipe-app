@@ -93,7 +93,7 @@ title with its origin, the times as tiles and the amount with − and +. -->
       <SafeMarkdown v-if="recipe.description" :source="recipe.description" class="mt-2" />
     </section>
     <KhOriginBadge :recipe-id="recipe.id" />
-    <p v-if="!online" class="px-4 pt-2 text-body-medium text-medium-emphasis" role="status">
+    <p v-if="!online && khOn.offline" class="px-4 pt-2 text-body-medium text-medium-emphasis" role="status">
       {{ $t("kh.cook.offline") }}
     </p>
 
@@ -157,6 +157,8 @@ title with its origin, the times as tiles and the amount with − and +. -->
 
 <script setup lang="ts">
 import { useOnline } from "@vueuse/core";
+import { useKhOn } from "../composables/use-kh-addons";
+import { useKhCanEdit } from "../composables/use-kh-can-edit";
 import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import { timeHint } from "../lib/amounts";
 import KhOriginBadge from "./KhOriginBadge.vue";
@@ -164,12 +166,10 @@ import KhScaleSheet from "./KhScaleSheet.vue";
 import RecipeContextMenuContent from "~/components/Domain/Recipe/RecipeContextMenu/RecipeContextMenuContent.vue";
 import RecipeFavoriteBadge from "~/components/Domain/Recipe/RecipeFavoriteBadge.vue";
 import RecipeLastMade from "~/components/Domain/Recipe/RecipeLastMade.vue";
-import { useStaticRoutes, useUserApi } from "~/composables/api";
-import { usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
-import { useRecipePermissions } from "~/composables/recipes";
+import { useStaticRoutes } from "~/composables/api";
+import { usePageState } from "~/composables/recipe-page/shared-state";
 import { useScaledAmount } from "~/composables/recipes/use-scaled-amount";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
-import type { HouseholdSummary } from "~/lib/api/types/household";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
 
@@ -184,7 +184,6 @@ const router = useRouter();
 const { isOwnGroup } = useLoggedInState();
 const { recipeImage } = useStaticRoutes();
 const { imageKey } = usePageState(props.recipe.slug);
-const { user } = usePageUser();
 
 // The menu holds Mealie's dialogs, so once opened it stays mounted, as in Mealie's RecipeContextMenu
 const menuLoaded = ref(false);
@@ -192,14 +191,8 @@ const madeThis = ref(false);
 const menuItems = { edit: false, mealplanner: true, print: true, share: true, delete: true, download: false,
   duplicate: false, shoppingList: false, printPreferences: false, recipeActions: true };
 
-// Who may edit, as in Mealie's RecipePageHeader: the recipe's household decides for other households' recipes
-const recipeHousehold = ref<HouseholdSummary>();
-if (user) {
-  useUserApi().households.getOne(props.recipe.householdId).then(({ data }) => {
-    recipeHousehold.value = data || undefined;
-  });
-}
-const { canEditRecipe } = useRecipePermissions(props.recipe, recipeHousehold, user);
+const canEditRecipe = useKhCanEdit(props.recipe);
+const khOn = useKhOn();
 
 const imageFailed = ref(false);
 const imageUrl = computed(() => recipeImage(props.recipe.id, props.recipe.image, imageKey.value));
@@ -230,8 +223,13 @@ function back() {
   else router.push(`/g/${route.params.groupSlug as string}`);
 }
 
-/** The recipe card (D43) with the servings chosen here, instead of printing this page. */
+/** The recipe card (D43) with the servings chosen here, instead of printing this page; the browser's own print while
+ * the family cookbook is switched off (D46). */
 function print() {
+  if (!khOn.value.books) {
+    window.print();
+    return;
+  }
   const servings = Number(((props.recipe.recipeServings || 0) * scale.value).toFixed(3));
   router.push({ path: `/g/${route.params.groupSlug as string}/kochbuch/rezept/${props.recipe.slug}`, query: servings ? { servings } : {} });
 }

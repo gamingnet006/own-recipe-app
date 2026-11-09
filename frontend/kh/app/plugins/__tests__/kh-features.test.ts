@@ -1,4 +1,4 @@
-// KH: tests the plugin that loads Küchenhelfer's switches: it passes the answer on, and without
+// KH: tests the plugin that loads Kochheft's switches: it passes the answer on, and without
 // an answer every hidden Mealie part stays hidden and the error is reported.
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -24,7 +24,14 @@ describe("kh-features plugin", () => {
   test("passes the switches on", async () => {
     getMock.mockResolvedValue({ data: { shareLinks: true } });
 
-    expect(await loadFeatures()).toEqual({ shareLinks: true, noticePollMinutes: 5, clockShortcutUrl: null });
+    expect(await loadFeatures()).toEqual({
+      shareLinks: true,
+      noticePollMinutes: 5,
+      sourceUrl: "https://github.com/gamingnet006/own-recipe-app",
+      clockShortcutUrl: null,
+      media: false,
+      profile: "leicht",
+    });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features");
   });
 
@@ -32,7 +39,14 @@ describe("kh-features plugin", () => {
     getMock.mockRejectedValue(new Error("offline"));
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(await loadFeatures()).toEqual({ shareLinks: false, noticePollMinutes: 5, clockShortcutUrl: null });
+    expect(await loadFeatures()).toEqual({
+      shareLinks: false,
+      noticePollMinutes: 5,
+      sourceUrl: "https://github.com/gamingnet006/own-recipe-app",
+      clockShortcutUrl: null,
+      media: false,
+      profile: "leicht",
+    });
     expect(errorSpy).toHaveBeenCalled();
   });
 });

@@ -16,6 +16,7 @@ from text_unidecode import os
 from mealie.core.config import get_app_settings
 from mealie.core.dependencies.dependencies import try_get_current_user
 from mealie.db.db_setup import generate_session
+from mealie.kh.addons.service import addon_enabled
 from mealie.kh.features.settings import require_share_links
 from mealie.repos.repository_factory import AllRepositories
 from mealie.routes.spa.manifest import serve_manifest
@@ -65,6 +66,11 @@ class SPAStaticFiles(StaticFiles):
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         elif path == "." or response.media_type == "text/html":
             response.headers["Cache-Control"] = "no-cache"
+
+        # KH: the voice model is an archive that must reach the browser as it is: a content-encoding keeps the gzip
+        # middleware from recompressing it, which would drop its Content-Length (the progress bar needs it).
+        if path.startswith("kh-models/"):
+            response.headers["Content-Encoding"] = "identity"
 
         return response
 
@@ -269,6 +275,9 @@ async def serve_shared_recipe_with_meta(group_slug: str, token_id: str, session:
         token_summary = public_repos.recipe_share_tokens.get_one(token_id)
         if token_summary is None:
             raise Exception("Token Not Found")
+        # KH: the household's add-on switch (D46)
+        if not addon_enabled(session, token_summary.recipe.household_id, "share_links"):
+            raise Exception("Share links are switched off")
 
         return Response(content_with_meta(group_slug, token_summary.recipe), media_type="text/html")
 

@@ -29,7 +29,7 @@ draft run; nothing else from a draft is put into the page as HTML. -->
       {{ $t("recipe.ingredients") }}
     </h4>
     <ul class="mb-4 ml-5">
-      <!-- Mealie's display with Küchenhelfer's amounts, so a range reads "2–3 EL" as recognized (D39) -->
+      <!-- Mealie's display with Kochheft's amounts, so a range reads "2–3 EL" as recognized (D39) -->
       <li v-for="(ingredient, index) in recipe.recipeIngredient" :key="index">
         <RecipeIngredientHtml :ingredient="ingredient" />
       </li>

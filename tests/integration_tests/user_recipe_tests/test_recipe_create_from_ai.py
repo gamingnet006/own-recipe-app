@@ -1,13 +1,11 @@
 import json
 from collections.abc import Generator
-from pathlib import Path
 
 import httpx
 import pytest
 from fastapi.testclient import TestClient
 from slugify import slugify
 
-import mealie.services.openai.transcription as transcription_module
 import mealie.services.recipe.import_workflow.steps.compile_source as compile_source_module
 from mealie.core import exceptions
 from mealie.lang import get_locale_provider
@@ -275,84 +273,22 @@ def test_create_from_url(
     assert recipe["orgURL"] == url
 
 
-def test_create_from_video_url(
+def test_create_from_video_url_is_refused(
     api_client: TestClient,
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
-    openai_recipe: OpenAIRecipe,
-    recipe_name: str,
 ):
-    ai = AIResponses(recipe=openai_recipe).install(monkeypatch)
-
-    def mock_download_video(url: str, temp_path: Path):
-        return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
-            "title": random_string(),
-            "description": random_string(),
-            "thumbnail_url": "https://example.com/thumbnail.jpg",
-            "transcription": random_string(),
-        }
+    """KH: video links are neither downloaded nor fetched (D5, RECHT.md point 2); the answer says so."""
 
     async def fail_if_fetched(_: str):
-        raise AssertionError("a video URL should be downloaded, not fetched as a webpage")
+        raise AssertionError("a video link must not be fetched")
 
-    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
     monkeypatch.setattr(compile_source_module, "resilient_fetch", fail_if_fetched)
 
-    r = post_ai(api_client, unique_user, {"url": VIDEO_URL})
-    assert r.status_code == 201
-
-    # the transcript is already a faithful record, so only the build step hits the provider
-    assert "OpenAICompiledSource" not in ai.requested_schemas
-
-    slug = json.loads(r.text)
-    recipe = api_client.get(api_routes.recipes_slug(slug), headers=unique_user.token).json()
-    assert recipe["name"] == recipe_name
-    assert recipe["orgURL"] == VIDEO_URL
-
-
-def test_create_from_facebook_share_url_follows_redirect_to_video(
-    api_client: TestClient,
-    unique_user: TestUser,
-    monkeypatch: pytest.MonkeyPatch,
-    openai_recipe: OpenAIRecipe,
-    recipe_name: str,
-):
-    """
-    Facebook reel share links aren't recognized by yt-dlp's Facebook extractor until after
-    the redirect to /reel/. Fetch the page, then download the landing URL as a video.
-    """
-
-    AIResponses(recipe=openai_recipe).install(monkeypatch)
-    downloaded: list[str] = []
-
-    def mock_download_video(url: str, temp_path: Path):
-        downloaded.append(url)
-        return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
-            "title": random_string(),
-            "description": random_string(),
-            "thumbnail_url": "https://example.com/thumbnail.jpg",
-            "transcription": random_string(),
-        }
-
-    async def mock_resilient_fetch(url: str):
-        assert url == FACEBOOK_SHARE_URL
-        return html_fetch_result("<html>facebook reel</html>", FACEBOOK_REEL_URL)
-
-    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
-    monkeypatch.setattr(compile_source_module, "resilient_fetch", mock_resilient_fetch)
-
-    r = post_ai(api_client, unique_user, {"url": FACEBOOK_SHARE_URL})
-    assert r.status_code == 201
-    assert downloaded == [FACEBOOK_REEL_URL]
-
-    slug = json.loads(r.text)
-    recipe = api_client.get(api_routes.recipes_slug(slug), headers=unique_user.token).json()
-    assert recipe["name"] == recipe_name
-    assert recipe["orgURL"] == FACEBOOK_SHARE_URL
+    for url in (VIDEO_URL, FACEBOOK_SHARE_URL):
+        r = post_ai(api_client, unique_user, {"url": url})
+        assert r.status_code == 400
+        assert r.json()["detail"]["message"] == translator.t("recipe.import-errors.video-download-failed")
 
 
 def test_create_from_video_url_keeps_accompanying_text(
@@ -361,9 +297,8 @@ def test_create_from_video_url_keeps_accompanying_text(
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
 ):
-    """Text pasted alongside a video link is often the ingredient list, so it must survive."""
+    """KH: text pasted alongside a video link is the source; the link itself is not fetched (D5)."""
 
-    transcript = random_string()
     pasted_text = random_string()
     messages: list[str] = []
 
@@ -371,25 +306,15 @@ def test_create_from_video_url_keeps_accompanying_text(
         messages.append(message)
         return openai_recipe if response_schema is OpenAIRecipe else None
 
-    def mock_download_video(url: str, temp_path: Path):
-        return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
-            "title": random_string(),
-            "description": random_string(),
-            "thumbnail_url": None,
-            "transcription": transcript,
-        }
+    async def fail_if_fetched(_: str):
+        raise AssertionError("a video link must not be fetched")
 
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
-    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(compile_source_module, "resilient_fetch", fail_if_fetched)
 
     r = post_ai(api_client, unique_user, {"url": VIDEO_URL, "content": pasted_text})
     assert r.status_code == 201
-
-    build_message = messages[0]
-    assert transcript in build_message
-    assert pasted_text in build_message
+    assert pasted_text in messages[0]
 
 
 def test_create_from_url_combines_the_page_with_pasted_content(
@@ -429,38 +354,6 @@ def test_create_from_url_combines_the_page_with_pasted_content(
     slug = json.loads(r.text)
     recipe = api_client.get(api_routes.recipes_slug(slug), headers=unique_user.token).json()
     assert recipe["orgURL"] == url
-
-
-def test_create_from_video_url_without_audio_provider_falls_back_to_fetching(
-    api_client: TestClient,
-    unique_user: TestUser,
-    monkeypatch: pytest.MonkeyPatch,
-    openai_recipe: OpenAIRecipe,
-):
-    settings = unique_user.repos.group_ai_provider_settings.get_one(unique_user.repos.group_id)
-    assert settings
-    unique_user.repos.group_ai_provider_settings.update(
-        unique_user.repos.group_id,
-        AIProviderSettingsUpdate(
-            default_provider_id=settings.default_provider_id,
-            audio_provider_id=None,
-            image_provider_id=settings.image_provider_id,
-        ),
-    )
-
-    AIResponses(recipe=openai_recipe).install(monkeypatch)
-
-    fetched: list[str] = []
-
-    async def mock_resilient_fetch(url: str):
-        fetched.append(url)
-        return html_fetch_result(f"<html><body>{random_string()}</body></html>", url)
-
-    monkeypatch.setattr(compile_source_module, "resilient_fetch", mock_resilient_fetch)
-
-    r = post_ai(api_client, unique_user, {"url": VIDEO_URL})
-    assert r.status_code == 201
-    assert fetched == [VIDEO_URL]
 
 
 def test_organizers_are_skipped_when_there_is_nothing_to_do(

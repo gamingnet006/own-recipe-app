@@ -22,7 +22,7 @@ def import_file(module_name: str, file_path: pathlib.Path):
 
 
 # KH: asks Alembic for the heads instead of taking the newest file in Mealie's versions folder,
-# so Küchenhelfer's own migrations (mealie/kh/alembic/versions, on the same chain) count too.
+# so Kochheft's own migrations (mealie/kh/alembic/versions, on the same chain) count too.
 @lru_cache(1)
 def alembic_versions():
     script = ScriptDirectory.from_config(Config(str(ALEMBIC_DIR / "alembic.ini")))

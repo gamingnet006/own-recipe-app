@@ -9,6 +9,7 @@ from starlette.responses import FileResponse
 from mealie.core.dependencies import get_temporary_zip_path
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import generate_session
+from mealie.kh.addons.service import require_household_share_links
 from mealie.kh.features.settings import require_share_links
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.recipe import Recipe
@@ -20,9 +21,13 @@ router = APIRouter()
 logger = get_logger()
 
 
-# KH: public recipe by token only with KH_SHARE_LINKS=true; the zip route below calls the function
-# directly, so Mealie's recipe download keeps working
-@router.get("/shared/{token_id}", response_model=Recipe, dependencies=[Depends(require_share_links)])
+# KH: public recipe by token only with KH_SHARE_LINKS=true and the household's add-on switch (D46); the zip route
+# below calls the function directly, so Mealie's recipe download keeps working
+@router.get(
+    "/shared/{token_id}",
+    response_model=Recipe,
+    dependencies=[Depends(require_share_links), Depends(require_household_share_links)],
+)
 def get_shared_recipe(token_id: UUID4, session: Session = Depends(generate_session)) -> Recipe:
     db = get_repositories(session, group_id=None, household_id=None)
 

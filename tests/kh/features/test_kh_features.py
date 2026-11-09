@@ -1,4 +1,4 @@
-"""KH: tests for the Mealie parts Küchenhelfer hides (PLAN.md phase 1): share links stay off unless
+"""KH: tests for the Mealie parts Kochheft hides (PLAN.md phase 1): share links stay off unless
 KH_SHARE_LINKS=true, and new groups are private and show no Mealie announcements."""
 
 from collections.abc import Generator
@@ -48,7 +48,14 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
         share_links(on)
         response = api_client.get("/api/kh/features")
         assert response.status_code == 200
-        assert response.json() == {"shareLinks": on, "noticePollMinutes": 5, "clockShortcutUrl": None}
+        assert response.json() == {
+            "shareLinks": on,
+            "noticePollMinutes": 5,
+            "sourceUrl": get_kh_settings().source_url,
+            "clockShortcutUrl": None,
+            "media": False,
+            "profile": "leicht",
+        }
 
 
 def test_shared_recipe_is_hidden_when_off(api_client: TestClient, share_token: str, share_links):

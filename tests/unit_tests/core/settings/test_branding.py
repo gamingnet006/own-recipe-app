@@ -8,7 +8,7 @@ from mealie.core.settings.branding import Branding
 def test_branding_defaults():
     branding = Branding()
 
-    assert branding.name == "Küchenhelfer"  # KH: Küchenhelfer's working name is the default (D38)
+    assert branding.name == "Kochheft"  # KH: Kochheft is the default name (D49)
     assert branding.logo_file is None
 
 

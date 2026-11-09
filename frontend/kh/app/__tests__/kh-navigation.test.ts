@@ -14,6 +14,7 @@ import {
   useKhShoppingTarget,
   useKhSidebar,
 } from "../composables/use-kh-navigation";
+import { DEFAULT_ADDONS } from "../lib/addons";
 import { icons } from "~/lib/icons";
 import mealieTexts from "~/lang/messages/en-US.json";
 import khTexts from "../../lang/en-US.json";
@@ -41,7 +42,7 @@ function everyTarget(): KhNavTarget[] {
   const { plan, collection } = moreSections("familie", "u1");
   const all = [...barTargets("familie", "/shopping-lists"), ...sidebarTargets("familie", "/shopping-lists"), ...plan,
     ...collection];
-  all.push(...settingsTargets({ canOrganize: true, admin: true }));
+  all.push(...settingsTargets({ canOrganize: true, admin: true }, "familie"));
   return all.flatMap(target => [target, ...(target.children ?? [])]);
 }
 
@@ -68,14 +69,32 @@ describe("destinations", () => {
   test("More holds what the bar does not have", () => {
     const { plan, collection } = moreSections("familie", "u1");
     expect(plan.map(target => target.key)).toEqual(["mealplan", "cookbooks", "finder"]);
-    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline", "duplicates"]);
+    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline", "duplicates", "nutrition", "tolerance"]);
     expect(collection[0]!.to).toBe("/user/u1/favorites");
   });
 
   test("the settings follow the user's rights", () => {
-    expect(settingsTargets({}).map(target => target.key)).toEqual(["profile"]);
-    expect(settingsTargets({ canOrganize: true, admin: true }).map(target => target.key))
-      .toEqual(["profile", "data", "admin"]);
+    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons", "about"]);
+    expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
+      .toEqual(["profile", "data", "addons", "admin", "system", "about"]);
+    expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
+      .toEqual(["/g/familie/systempruefung", "/g/familie/ueber"]);
+  });
+
+  test("switched-off add-ons leave the bar, the side menu and More (D46)", () => {
+    const off = { ...DEFAULT_ADDONS, shopping: false, planner: false, duplicates: false, nutrition: false, allergens: false };
+    expect(barTargets("familie", "/shopping-lists", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
+    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key))
+      .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline"]);
+    const { plan, collection } = moreSections("familie", "u1", off);
+    expect(plan.map(target => target.key)).toEqual(["cookbooks", "finder"]);
+    expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline"]);
+  });
+
+  test("the planner stays without the shopping list", () => {
+    const off = { ...DEFAULT_ADDONS, shopping: false };
+    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key)).toContain("mealplan");
+    expect(moreSections("familie", "u1", off).plan.map(target => target.key)).toContain("mealplan");
   });
 
   test("every destination has one of Mealie's icons and a text", () => {
@@ -92,7 +111,7 @@ test("the hint on waiting drafts has a singular and a plural form in both langua
   }
 });
 
-test("the More page names no Mealie version, which reads \"develop\" in Küchenhelfer's builds", () => {
+test("the More page names no Mealie version, which reads \"develop\" in Kochheft's builds", () => {
   for (const texts of [khTexts, khTextsDe]) {
     expect(texts.kh.nav["based-on-mealie"]).not.toContain("{");
   }

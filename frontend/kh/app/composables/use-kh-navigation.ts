@@ -1,12 +1,14 @@
-// KH: the destinations of Küchenhelfer's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
+// KH: the destinations of Kochheft's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
 // side menu from 840 px and the More page all read from here, so a destination is added or renamed in one place.
+import type { KhAddonFlags } from "../lib/addons";
+import { khAddons } from "./use-kh-addons";
 import { useUserApi } from "~/composables/api";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 
 const SHOPPING_LISTS = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "profile" | "data" | "admin";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons";
 
 export type KhTab = "recipes" | "intake" | "shopping" | "more";
 
@@ -40,20 +42,28 @@ function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LIS
     tools: target("tools", `${group}/recipes/tools`, "potSteam", "tool.tools"),
     timeline: target("timeline", `${group}/recipes/timeline`, "timelineText", "recipe.timeline"),
     duplicates: target("duplicates", `${group}/doppelte`, "duplicate", "kh.nav.duplicates"),
+    nutrition: target("nutrition", `${group}/naehrwerte`, "foods", "kh.nav.nutrition"),
+    tolerance: target("tolerance", `${group}/vertraeglichkeit`, "alertOutline", "kh.nav.tolerance"),
     profile: target("profile", "/user/profile", "cog", "profile.user-settings"),
     data: target("data", "/group/data", "manageData", "data-pages.data-management"),
     admin: target("admin", "/admin/site-settings", "wrench", "settings.admin-settings"),
+    about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
+    system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
+    addons: target("addons", `${group}/zusatzfunktionen`, "tools", "kh.nav.addons"),
   };
 }
 
-/** The four tabs of the bar at the bottom; SHOPPING_TO from useKhShoppingTarget. */
-export function barTargets(groupSlug: string, shoppingTo: string): KhNavTarget[] {
+/**
+ * The tabs of the bar at the bottom (without the shopping list, while that is switched off, three); SHOPPING_TO from
+ * useKhShoppingTarget. ON is the household's add-on switches (D46), by default the shared state; the next functions use it alike.
+ */
+export function barTargets(groupSlug: string, shoppingTo: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
   const all = allTargets(groupSlug, "", shoppingTo);
-  return [all.recipes, all.intake, all.shopping, all.more];
+  return [all.recipes, all.intake, ...(on.shopping ? [all.shopping] : []), all.more];
 }
 
 /** Mealie's side menu from 840 px: the bar's destinations and More's, with the organizers grouped as in Mealie. */
-export function sidebarTargets(groupSlug: string, shoppingTo: string): KhNavTarget[] {
+export function sidebarTargets(groupSlug: string, shoppingTo: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
   const all = allTargets(groupSlug, "", shoppingTo);
   const organizers: KhNavTarget = {
     key: "organizers",
@@ -62,22 +72,46 @@ export function sidebarTargets(groupSlug: string, shoppingTo: string): KhNavTarg
     title: "general.organizers",
     children: [all.categories, all.tags, all.tools],
   };
-  return [all.recipes, all.intake, all.shopping, all.mealplan, all.cookbooks, all.finder, organizers, all.timeline];
+  return [
+    all.recipes,
+    all.intake,
+    ...(on.shopping ? [all.shopping] : []),
+    ...(on.planner ? [all.mealplan] : []),
+    all.cookbooks,
+    all.finder,
+    organizers,
+    all.timeline,
+  ];
 }
 
 /** What the More page lists besides the settings: planning, and the user's collection. */
-export function moreSections(groupSlug: string, userId: string): { plan: KhNavTarget[]; collection: KhNavTarget[] } {
+export function moreSections(
+  groupSlug: string,
+  userId: string,
+  on: KhAddonFlags = khAddons.enabled,
+): { plan: KhNavTarget[]; collection: KhNavTarget[] } {
   const all = allTargets(groupSlug, userId);
   return {
-    plan: [all.mealplan, all.cookbooks, all.finder],
-    collection: [all.favorites, all.categories, all.tags, all.tools, all.timeline, all.duplicates],
+    plan: [...(on.planner ? [all.mealplan] : []), all.cookbooks, all.finder],
+    collection: [
+      all.favorites, all.categories, all.tags, all.tools, all.timeline,
+      ...(on.duplicates ? [all.duplicates] : []),
+      ...(on.nutrition ? [all.nutrition] : []),
+      ...(on.allergens ? [all.tolerance] : []),
+    ],
   };
 }
 
-/** The settings pages this user may open, as in Mealie's side menu. */
-export function settingsTargets(user: { canOrganize?: boolean; admin?: boolean }): KhNavTarget[] {
-  const all = allTargets("", "");
-  return [all.profile, ...(user.canOrganize ? [all.data] : []), ...(user.admin ? [all.admin] : [])];
+/** The settings pages this user may open, as in Mealie's side menu, plus our add-ons, system check (admins) and About. */
+export function settingsTargets(user: { canOrganize?: boolean; admin?: boolean }, groupSlug: string): KhNavTarget[] {
+  const all = allTargets(groupSlug, "");
+  return [
+    all.profile,
+    ...(user.canOrganize ? [all.data] : []),
+    all.addons,
+    ...(user.admin ? [all.admin, all.system] : []),
+    all.about,
+  ];
 }
 
 /** The tab of the bar a page belongs to; whatever is not recipes, intake or shopping list sits under More. */

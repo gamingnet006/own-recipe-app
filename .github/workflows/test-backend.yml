@@ -44,12 +44,6 @@ jobs:
 
     # Steps
     steps:
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check out repository
         uses: actions/checkout@v6
         with:
@@ -62,6 +56,11 @@ jobs:
 
       - name: Install uv
         run: pip install uv
+
+      # KH: Task from PyPI (go-task-bin, MIT, same release) instead of arduino/setup-task, whose download from
+      # GitHub's release storage failed with HTTP 504 on the runners on 9 Nov 2026; the version is pinned.
+      - name: Install Task
+        run: pip install go-task-bin==3.54.0 && task --version
 
       # Catches a lockfile resolved by an out-of-date uv, which silently ignores
       # the `exclude-newer` cooling window instead of erroring. UV_FROZEN must be

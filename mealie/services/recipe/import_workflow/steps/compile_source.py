@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from mealie.core import exceptions
 from mealie.core.root_logger import get_logger
 from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError  # KH: the AI priority list (D39)
+from mealie.kh.drafts.video import is_video_link  # KH: video links are never fetched (D5)
 from mealie.pkgs.safehttp import resilient_fetch
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
 from mealie.services.openai.content import truncate_source_parts
@@ -93,6 +95,12 @@ class CompileSourceStep(WorkflowStep):
         return await self._compile(ctx, SourceType.CONTENT, content)
 
     async def _compile_page(self, ctx: WorkflowContext) -> OpenAICompiledSource | None:
+        # KH: a video link is neither downloaded nor fetched (D5); text or images that come along are the source
+        if ctx.input.url and not ctx.input.page_content and is_video_link(ctx.input.url):
+            if not (ctx.input.content or ctx.input.images):
+                raise exceptions.VideoDownloadError(ctx.input.url)
+            return None
+
         # compilers that read the URL themselves go first, so that a video is downloaded rather
         # than fetched and read as a webpage
         if ctx.input.url and (compiled := await self._compile(ctx, SourceType.URL)):

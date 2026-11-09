@@ -23,7 +23,7 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
-    <section class="mb-4">
+    <section v-if="khOn.oven" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.oven.title") }}
       </h2>
@@ -35,7 +35,22 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
-    <section class="mb-4">
+    <section v-if="khOn.nutrition" class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.nutrition.title") }}
+      </h2>
+      <v-list rounded="lg" class="py-2 px-4">
+        <v-switch
+          v-model="showNutrition"
+          color="primary"
+          :label="$t('kh.nutrition.show')"
+          :hint="$t('kh.nutrition.show-hint')"
+          persistent-hint
+        />
+      </v-list>
+    </section>
+
+    <section v-if="khOn.clock" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.timer.title") }}
       </h2>
@@ -122,7 +137,7 @@ everything the side menu holds on bigger screens. -->
     <p class="text-center text-body-2 text-medium-emphasis">
       {{ $appInfo.brandingName }} ·
       <a :href="MEALIE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.based-on-mealie") }}</a> ·
-      <a :href="SOURCE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
+      <a :href="$khFeatures.sourceUrl" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
 
     <UserInviteDialog v-model="inviteDialog" />
@@ -133,6 +148,8 @@ everything the side menu holds on bigger screens. -->
 <script setup lang="ts">
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useKhOven } from "~~/kh/app/lib/oven";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
@@ -141,8 +158,7 @@ definePageMeta({
   middleware: ["auth", "group-only"],
 });
 
-// Where the source of this fork and of Mealie can be read (AGPL)
-const SOURCE_URL = "https://github.com/gamingnet006/own-recipe-app";
+// Where the source of Mealie can be read (AGPL); this fork's comes from KH_SOURCE_URL
 const MEALIE_URL = "https://github.com/mealie-recipes/mealie";
 
 const i18n = useI18n();
@@ -151,6 +167,8 @@ const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
 const oven = useKhOven();
+const khOn = useKhOn();
+const showNutrition = useKhNutritionSetting();
 const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
 
 /** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */
@@ -171,7 +189,9 @@ const sections = computed(() => {
     { title: "kh.nav.collection", targets: collection },
   ];
 });
-const settings = computed(() => settingsTargets({ canOrganize: user.value?.canOrganize, admin: user.value?.admin }));
+const settings = computed(() =>
+  settingsTargets({ canOrganize: user.value?.canOrganize, admin: user.value?.admin }, route.params.groupSlug as string),
+);
 
 /** One of Mealie's icons by its name in the list of destinations. */
 function icon(name: string): string {

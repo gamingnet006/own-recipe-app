@@ -1,4 +1,4 @@
-# KH: how Küchenhelfer runs on the Mac and on the Pi (PLAN.md phase 1).
+# KH: how Kochheft runs on the Mac and on the Pi (PLAN.md phase 1).
 # Mac: builds the image from this repo. Pi: pulls the released image instead
 # (`docker compose pull`), heavy builds never run on the Pi.
 name: kuechenhelfer
@@ -46,6 +46,56 @@ services:
       KH_AI_DOWN_PAUSE_MINUTES: ${KH_AI_DOWN_PAUSE_MINUTES:-}
       KH_NOTICE_DAYS: ${KH_NOTICE_DAYS:-}
       KH_NOTICE_POLL_MINUTES: ${KH_NOTICE_POLL_MINUTES:-}
+      # About page and system check (P8): the image tag names the version; the source link (AGPL); optional
+      # modules, of which the app only learns whether they are set (empty means off).
+      KH_IMAGE: ${KH_IMAGE:-}
+      KH_SOURCE_URL: ${KH_SOURCE_URL:-}
+      KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
+      KH_WHISPER_URL: ${KH_WHISPER_URL:-}
+      KH_WHISPER_MODEL: ${KH_WHISPER_MODEL:-}
+      KH_DRAFT_MAX_MEDIA_MB: ${KH_DRAFT_MAX_MEDIA_MB:-}
+      KH_PROFILE: ${KH_PROFILE:-}
+
+  # Optional Telegram bot (P7.1, off by default): hands links, texts and photos from allowed chats in as drafts.
+  # Start: docker compose --profile telegram up -d telegram (needs the three KH_TELEGRAM_* values in .env).
+  # Same image, no open port: it asks Telegram for messages itself. Stops by itself (exit 0) when not set up.
+  telegram:
+    image: ${KH_IMAGE:-kuechenhelfer:dev}
+    profiles: ["telegram"]
+    restart: on-failure
+    entrypoint: ["python", "-m", "mealie.kh.telegram"]
+    working_dir: /app
+    user: "${KH_PUID:-1000}:${KH_PGID:-1000}"
+    mem_limit: 256m
+    depends_on:
+      - mealie
+    environment:
+      TZ: ${KH_TZ:-Europe/Berlin}
+      KH_TELEGRAM_TOKEN: ${KH_TELEGRAM_TOKEN:-}
+      KH_TELEGRAM_ALLOWED_IDS: ${KH_TELEGRAM_ALLOWED_IDS:-}
+      KH_TELEGRAM_API_TOKEN: ${KH_TELEGRAM_API_TOKEN:-}
+      KH_BASE_URL: ${KH_BASE_URL:-http://localhost:9091}
+      KH_DRAFT_MAX_IMAGE_MB: ${KH_DRAFT_MAX_IMAGE_MB:-}
+      # The profile "lokal" keeps everything in the house: the bot then refuses to start.
+      KH_PROFILE: ${KH_PROFILE:-}
+
+  # Optional speech recognition for own audio and video files (P7.3, off by default): an OpenAI-compatible Whisper
+  # server (speaches, MIT) that runs on the CPU. Start: docker compose --profile whisper up -d whisper, and set
+  # KH_WHISPER_URL=http://whisper:8000 in .env. It loads the model of the profile (KH_PROFILE) on first use and
+  # frees the memory again after 5 idle minutes. Reachable from this machine only.
+  whisper:
+    image: ghcr.io/speaches-ai/speaches:0.8.3-cpu
+    profiles: ["whisper"]
+    restart: unless-stopped
+    mem_limit: ${KH_WHISPER_MEM_LIMIT:-2g}
+    # Only this machine, for kh/ops/hardware_test.sh --audio; the app reaches it as http://whisper:8000
+    ports:
+      - "127.0.0.1:${KH_WHISPER_PORT:-8000}:8000"
+    environment:
+      TZ: ${KH_TZ:-Europe/Berlin}
+      WHISPER__COMPUTE_TYPE: int8
+    volumes:
+      - whisper-models:/home/ubuntu/.cache/huggingface/hub
 
   # Access from outside through a Cloudflare Tunnel (D27): outbound only, no open router port.
   # Only kh/ops/tunnel.sh starts it, after checking that the install is safe to go online.
@@ -85,3 +135,7 @@ services:
       KH_BACKUP_KEEP_LOCAL: ${KH_BACKUP_KEEP_LOCAL:-3}
       KH_BACKUP_TIMEOUT: ${KH_BACKUP_TIMEOUT:-300}
       KH_BACKUP_PUSH_URL: ${KH_BACKUP_PUSH_URL:-}
+
+# Models of the optional whisper service (downloaded once, can be deleted any time)
+volumes:
+  whisper-models:

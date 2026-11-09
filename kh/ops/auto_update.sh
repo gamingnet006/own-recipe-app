@@ -1,5 +1,5 @@
 #!/bin/sh
-# KH: keeps Küchenhelfer on the newest stable release (PLAN.md D29): a nightly job (cron, on macOS
+# KH: keeps Kochheft on the newest stable release (PLAN.md D29): a nightly job (cron, on macOS
 # launchd) asks the registry, installs the ops files shipped in the new image and switches with update.sh.
 # Usage: kh/ops/auto_update.sh on|off|status|check|run [--scheduled]
 set -eu
@@ -37,27 +37,50 @@ fail() {
   exit 1
 }
 
-# True unless KH_AUTO_UPDATE says off (false, 0, no, off; any case). Missing means on (D29).
+# Prints the path of FILE in the app's data folder (kh/ there), the one place the container and this script share.
+kh_data_file() {  # name
+  echo "$(setting KH_DATA_DIR ./data)/kh/$1"
+}
+
+# Prints the switch: the app's checkbox (data/kh/auto_update.json, {"enabled": true|false}) if the file says one,
+# else KH_AUTO_UPDATE from .env, else true. No jq on the servers, so a tiny sed.
+auto_update_switch() {
+  box=$(sed -nE 's/.*"enabled"[[:space:]]*:[[:space:]]*(true|false).*/\1/p' "$(kh_data_file auto_update.json)" 2>/dev/null || true)
+  echo "${box:-$(setting KH_AUTO_UPDATE true)}"
+}
+
+# True unless the switch says off (false, 0, no, off; any case). Missing means on (D29).
 auto_update_enabled() {
-  case "$(setting KH_AUTO_UPDATE true | tr '[:upper:]' '[:lower:]')" in
+  case "$(auto_update_switch | tr '[:upper:]' '[:lower:]')" in
     false|0|no|off) return 1 ;;
   esac
   return 0
+}
+
+# Leaves one line for the app's admin page: date | up or down | what happened | running version.
+write_status() {
+  file=$(kh_data_file auto_update_status.txt)
+  ref=$(setting KH_IMAGE kuechenhelfer:dev)
+  { mkdir -p "$(dirname "$file")" \
+    && printf '%s | %s | %s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "${LAST_RESULT:-up}" "${LAST_NOTE:-}" "${ref##*:}" > "$file"; } \
+    || echo "Automatische Updates: der Stand ließ sich nicht nach $file schreiben" >&2
 }
 
 # Switches automatic updates on: the setting in .env plus the nightly job.
 turn_on() {
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   set_env_value "$ENV_FILE" KH_AUTO_UPDATE true || fail "$ENV_FILE ließ sich nicht schreiben"
+  rm -f "$(kh_data_file auto_update.json)"  # the command line is the last word, the app's checkbox must not contradict it
   schedule_job "$(pwd)" || fail "der nächtliche Job ließ sich nicht eintragen"
   echo "Automatische Updates an: jede Nacht um 4 Uhr, nur stabile Versionen."
 }
 
-# Switches automatic updates off: the setting in .env and the nightly job; other cron jobs stay.
+# Switches automatic updates off: only the setting in .env. The nightly job stays and exits at once while the
+# switch says off, so the app's checkbox can switch updates on again later (a removed job would ignore it).
 turn_off() {
   [ -f "$ENV_FILE" ] || fail "$(pwd)/$ENV_FILE fehlt (Vorlage: .env.example)"
   set_env_value "$ENV_FILE" KH_AUTO_UPDATE false || fail "$ENV_FILE ließ sich nicht schreiben"
-  unschedule_job || fail "der nächtliche Job ließ sich nicht austragen"
+  rm -f "$(kh_data_file auto_update.json)"
   echo "Automatische Updates aus. Von Hand geht es weiter mit: kh/ops/auto_update.sh check, dann run."
 }
 
@@ -191,7 +214,7 @@ run_cmd() {  # [--scheduled]
   case "${1:-}" in "") ;; --scheduled) SCHEDULED=1 ;; *) usage ;; esac
   take_lock "$LOCK" || { note "Ein anderer Lauf ist noch aktiv, dieser endet."; return 0; }
   WORK=""
-  trap 'release_lock "$LOCK"; [ -z "$WORK" ] || rm -rf "$WORK"' EXIT
+  trap 'write_status; release_lock "$LOCK"; [ -z "$WORK" ] || rm -rf "$WORK"' EXIT
   auto_update_enabled || { note "Automatische Updates sind aus (KH_AUTO_UPDATE), nichts zu tun."; return 0; }
   ref=$(setting KH_IMAGE kuechenhelfer:dev)
   parts=$(parse_image "$ref") || { note "Entwicklungs-Image $ref, keine automatischen Updates."; return 0; }

@@ -1,8 +1,26 @@
-# Changelog – Küchenhelfer
+# Changelog – Kochheft (formerly Küchenhelfer)
 
 Notable changes per release. Every release is a git tag with the app image in GHCR as
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
+
+## [Unreleased]
+
+Renamed to Kochheft (formerly Küchenhelfer, D49), with a new logo and app icons. Only what users see changed; the `kh` folders, `KH_*` variables,
+container names and image name stay, so running installs and updates keep working.
+
+Nutrition and allergens (Phase 6, D44):
+
+- Recipe page: block "Nährwerte pro Portion (ca.)" from the BLS 4.0 table (Max Rubner-Institut, CC BY 4.0, shipped in the
+  image). It counts lines with an amount and a matched food, shows "from n of m ingredients" and "without: ...", and says
+  "estimated" until the matching is confirmed. Values entered by hand in Mealie win. More -> "Show nutrition" hides it.
+- More -> Nutrition: confirm the matching once per ingredient and set a piece weight; it applies to all recipes.
+- Allergens: the 14 EU groups are detected from the ingredients by fixed rules, always "probably, without guarantee".
+  They can be corrected per recipe ("not correct", "Add an allergen").
+- More -> "I do not tolerate" per account: the recipe page warns with the names, recipe cards show a mark.
+- Substitution hints from a standard list plus the household's own rules; "Save as variant" makes a copy "(ohne ...)"
+  and leaves the original unchanged.
+- New additive migration `kh0005`. The table can be rebuilt with `uv run python -m mealie.kh.nutrition.build_bls`.
 
 ## [v0.4] - 2026-11-08
 

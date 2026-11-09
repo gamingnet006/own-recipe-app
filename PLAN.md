@@ -77,6 +77,8 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D45 | Großes Update `v0.5` (8.11.2026, `docs/kh/specs/2026-11-08-v0.5-paket-design.md`): Phase 6 plus aus Phase 8 „Über Küchenhelfer“ mit Lizenz und Quellcode-Link, Häkchen „Automatische Updates“ (Brücke über `data/kh/auto_update.json`), Systemprüfung mit Erststart-Liste, „Was geht wohin“, Installations- und Wartungsanleitung, Rechts-Checkliste und Lizenz-Scan, Issue-Vorlagen; aus Phase 7 Telegram-Bot und Whisper als abschaltbare Zusatzmodule ohne Schlüssel im Repo, Video-Links nach D5 ohne Abruf, Profile mit Hardware-Test, Sprachbefehle als Test-Schalter (T2). Nicht dabei: Name und Logo (T7), Entfernen von Mealie-Tabellen, gemeinsamer Image-Tag, Ollama | beschlossen |
 | D46 | Zusatzfunktionen (8.11.2026): Admin-Seite „Mehr → Zusatzfunktionen“ für den ganzen Haushalt; ausgeschaltet verschwindet die Funktion aus der Oberfläche, die Daten bleiben. Oben „Große Bereiche“ Einkaufsliste und Essensplaner (Vorschlag G1–G5 wie empfohlen: zwei große Karten plus Frage in der Erststart-Liste, nur ausblenden, Leiste dann mit drei Plätzen, gilt für den Haushalt, Standard beide an). Darunter an: Familienkochbuch, Doppelte Rezepte, Umluft-Klammer, Nährwerte, Allergene, Austausch und Varianten, Offline-Rezepte; aus: Uhr-Timer, öffentliche Teilen-Links, Telegram, Whisper, Sprachbefehle. Grundfunktionen (Eingang, Prüfansicht, Mengen, Kochmodus, Timer, Backups, Updates) bleiben immer an. Lokale KI (Ollama) wird nicht gebaut: nur ein Hinweis bei der KI-Einrichtung und eine als ungetestet markierte Anleitung `docs/kh/LOKALE-KI.md` | beschlossen |
 | D47 | Das große Update aus D45 und D46 erscheint als `v1.0` statt `v0.5` (8.11.2026, Wunsch des Nutzers). Dazu kommen Name und Logo: 5 bis 10 Vorschläge mit grober Konfliktprüfung (T7) vor dem Release, nach der Wahl überall eingebaut. Schlüssel-Scan bis zur Veröffentlichung des Repos mit gitleaks in der CI. Der Pi-Test aus „Fertig wenn“ von Phase 8 bleibt offen, bis der Pi bereitsteht; ersatzweise eine frische Installation mit Pi-ähnlichen Grenzen | beschlossen |
+| D48 | Zusatzfunktionen, Umsetzung (9.11.2026): gespeichert pro Haushalt (Tabelle `kh_household_addons`, `kh0007`; ohne Zeile gelten die Standardwerte, bei Altinstallationen ändert sich nichts), nur Admins ändern. Was der Host schon eingerichtet hat (Telegram-Token, Whisper-URL, Teilen-Links per Umgebung, Uhr-Kurzbefehl) startet an, die Umgebung bleibt die harte Obergrenze. Ausgeschaltet: eigene `/api/kh`-Endpunkte antworten 403, Mealies Einkaufslisten- und Essensplan-API bleibt unberührt (nur die Oberfläche blendet aus). Telegram-Bot meldet sich per Kopfzeile `X-KH-Via`, Aufnahmen gelten als Whisper-Funktion; Teilen-Links zusätzlich pro Haushalt geschlossen | beschlossen |
+| D49 | Name `Kochheft` mit dem Logo aus Vorschlag 1 (Heft mit Löffel als Lesezeichen), Wahl des Nutzers am 9.11.2026. Umbenannt wird alles, was Nutzer sehen (App-Titel, Logo, Symbole, Texte, Anleitungen, Bot-Antworten); technische Namen bleiben, damit laufende Installationen und Updates weiter funktionieren (`kh`-Ordner, `KH_*`-Variablen, Compose-Projekt und Container `kuechenhelfer-*`, Image `own-recipe-app`, Repo-Name). Markenprüfung bei DPMA und TMview vor dem Release (T7) | beschlossen |
 
 ---
 
@@ -221,7 +223,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - [x] Mengen neben Zutaten im Schritttext: Nennt ein Schritt eine Zutat ohne Menge („die Butter schmelzen“), steht ihre Menge passend zum gewählten Faktor dabei, etwa „die Butter (200 g) schmelzen“. Der Text bleibt unverändert; die Darstellung wird vor dem Bau abgestimmt (D41).
 - [x] Timer bei gesperrtem Handy nach dem Ergebnis von T1: Kurzbefehl mit echtem Uhr-Timer, Server-Timer mit Push, Bildschirm anlassen.
 - [x] Große Tasten und Wischen für Weiter und Zurück (D42).
-- [ ] Sprachbefehle mit Vosk im Browser, als `v0.3.1` nach T2 (D42).
+- [x] Sprachbefehle mit Vosk im Browser als Test-Schalter „Sprachbefehle (Test)“ (Zusatzfunktion `voice`, standardmäßig aus; Modell im Image; Code: `KhCookVoice.vue`, `use-kh-voice.ts`, `lib/voice.ts`); ob es am iPhone klappt, zeigt T2 (D42, D45).
 - [x] Offline-Rezepte: die letzten 30 geöffneten (Web-App, dafür ist HTTPS nötig; steht seit Phase 1; D42).
 - **Fertig wenn:** Auf dem iPhone klingelt ein Timer bei gesperrtem Handy, und die Tasten führen durch die Schritte; „weiter“ per Sprache folgt mit `v0.3.1`.
 
@@ -235,17 +237,17 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 6 · Nährwerte und Allergene (v0.5)
 
-- [ ] Nährwerte: BLS lokal (nach T5), Open Food Facts optional; Zuordnung bestätigen und merken; Standardgewichte; Anzeige „ca.“.
-- [ ] Allergen-Tags: feste Regeln für die 14 EU-Hauptallergene, KI nur als Vorschlag, Familienprofil als Warnung, Hinweis „ohne Gewähr“.
-- [ ] Austausch-Regeln: Standardliste plus eigene Regeln; danach Allergen-Check neu; als Variante speichern, nie das Original überschreiben.
+- [x] Nährwerte: BLS lokal (nach T5), Open Food Facts optional und später; Zuordnung bestätigen und merken; Standardgewichte; Anzeige „ca.“.
+- [x] Allergen-Tags: feste Regeln für die 14 EU-Hauptallergene, KI nur als Vorschlag, Familienprofil als Warnung, Hinweis „ohne Gewähr“.
+- [x] Austausch-Regeln: Standardliste plus eigene Regeln; danach Allergen-Check neu; als Variante speichern, nie das Original überschreiben.
 - **Fertig wenn:** Jeder Allergen-Tag und Nährwert ist auf eine Zutat rückführbar und die Allergen-Testfälle (Abschnitt 7) bestehen.
 
 ### Phase 7 · Video, Bots und schwere KI (v0.6)
 
-- [ ] Whisper-Dienst (OpenAI-kompatibel, lokal) nach T3.
-- [ ] Eingang Video: vorhandener KI-Import mit Transkript, Ergebnis als Entwurf; Weg nach T4 (Beschreibung und Screenshot als Standard, Download nur als optionales Plug-in, D5).
-- [ ] Telegram-Bot (holt Nachrichten selbst ab, nur erlaubte IDs).
-- [ ] Profile `leicht`, `normal`, `stark`, `lokal` und Hardware-Test (1 Minute Audio messen, Profil vorschlagen).
+- [x] Whisper-Dienst (OpenAI-kompatibel, lokal) nach T3. (8.11.2026: P7.3 im Paket v0.5; Dienst `whisper` im Profil `whisper`, Image `ghcr.io/speaches-ai/speaches:0.8.3-cpu` (MIT, amd64 und arm64); eigene Audio- und Videodateien werden im Hintergrund transkribiert, Tests mit Fake-Transport; Pi-Probelauf steht noch aus.)
+- [ ] Eingang Video (Teil erledigt, 8.11.2026, P7.2; Rest ist P7.3 Whisper für eigene Dateien): Weg nach T4/D5 ohne Download: Videolinks werden nicht abgerufen, Beschreibung oder Screenshot machen den Entwurf, der Link bleibt Quelle; Mealies yt-dlp ist entfernt (8.11.2026, P7.2; ein Whisper-Weg für eigene Dateien ist P7.3).
+- [x] Telegram-Bot (holt Nachrichten selbst ab, nur erlaubte IDs). (8.11.2026: P7.1 im Paket v0.5; Dienst `telegram` im Profil `telegram`, Tests mit aufgezeichnetem HTTP; Pi-Probelauf und Telegram-Probe von Hand stehen noch aus.)
+- [x] Profile `leicht`, `normal`, `stark`, `lokal` und Hardware-Test (1 Minute Audio messen, Profil vorschlagen). (8.11.2026: P7.4 im Paket v0.5; `KH_PROFILE` setzt das Whisper-Modell, `kh/ops/hardware_test.sh` misst und schlägt vor; Messung auf dem echten Pi steht noch aus.)
 - **Fertig wenn:** Ein Reel-Link über das Teilen-Menü oder Telegram landet als Entwurf in der Prüfansicht und das Profil `leicht` läuft auf dem Pi.
 
 ### Phase 8 · Betrieb und Veröffentlichung (v1.0)
@@ -418,7 +420,7 @@ Stand 28.10.2026; Preise und Limits ändern sich, vor der Veröffentlichung neu 
 - [ ] **T4 Instagram-Weg:** Beschreibung und Screenshot gegen Download, mit eigenen Beispielen.
 - [x] **T5 BLS:** Nutzungsbedingungen lesen und die Einbindung in ein offenes Projekt klären. (8.11.2026: BLS 4.0 vom Max Rubner-Institut ist Open Data unter CC BY 4.0, Download ohne Anmeldung unter blsdb.de, 7.140 Lebensmittel mit deutschen Namen, 138 Nährstoffe je 100 g. Darf mit Namensnennung ins Repo und ins Image; Änderungen an den Daten kennzeichnen. Open Food Facts nur für Markenprodukte, online und mit 10 Suchen pro Minute.)
 - [x] **T6 Entwurfs-Stufe:** beantwortet durch D18 (eigene `kh`-Tabelle, Mealies Datenmodell bleibt unverändert).
-- [ ] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen.
+- [x] **T7 Name:** Projektname auf Marken- und Namenskonflikte prüfen. (9.11.2026: „Kochheft“; grobe Prüfung von Apps, Webseiten, GitHub und Domains ohne Konflikt, DPMAregister mit nationalen, Unions- und internationalen Marken sowie WIPO Global Brand Database ohne Treffer; D49.)
 - [ ] **T8 Pi-Probe:** Offizielles Mealie-Image auf dem Raspberry Pi starten und Tempo sowie RAM notieren. Wartet auf den Pi (29.10.2026 nicht erreichbar); bis dahin Ersatzwert vom Mac mit 2 CPUs/2 GB: gesund nach ~33 s, ~222 MB RAM.
 
 ---

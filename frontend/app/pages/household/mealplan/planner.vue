@@ -82,12 +82,13 @@
             text: '',
             event: 'three-dot',
             children: [
-              {
+              // KH: no shopping list buttons while that add-on is off (D46)
+              ...(khOn.shopping ? [{
                 icon: $globals.icons.cartCheck,
                 text: $t('meal-plan.add-all-to-list'),
                 event: 'add-to-list',
                 disabled: !hasRecipes,
-              },
+              }] : []),
               {
                 icon: $globals.icons.calendar,
                 text: $t('meal-plan.calendar-feed'),
@@ -126,6 +127,7 @@ import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDial
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import { getScaledRecipes, useMealplans } from "~/composables/use-group-mealplan";
 import { useHouseholdSelf } from "~/composables/use-households";
+import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import { useUserMealPlanPreferences } from "~/composables/use-users/preferences";
 
 definePageMeta({
@@ -142,6 +144,7 @@ const router = useRouter();
 const i18n = useI18n();
 const { household, actions: householdActions } = useHouseholdSelf();
 const { shoppingLists, open: shoppingListDialog, addAllToList, addShoppingList } = useAddToShoppingListDialog();
+const khOn = useKhOn(); // KH: D46
 const calendarDialog = ref(false);
 
 useSeoMeta({

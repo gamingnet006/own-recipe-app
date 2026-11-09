@@ -21,6 +21,8 @@ from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
+from mealie.kh.drafts.video import is_video_link
+from mealie.kh.drafts.whisper import WhisperError, media_path, transcribe
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
@@ -37,6 +39,11 @@ from mealie.services.scraper.scraper import create_from_html
 logger = get_logger()
 
 NO_AI = (OpenAINotEnabledException, AIProviderNotEnabledError)
+TRUNCATED_NOTE = "\n[... transcript cut here: it was longer than the limit]"  # visible in the review
+
+
+class VideoLinkError(Exception):
+    """A draft's link points at a video site, which Kochheft does not fetch."""
 
 
 def causes(ex: BaseException) -> list[BaseException]:
@@ -59,6 +66,10 @@ def error_code(ex: Exception) -> DraftError:
         return DraftError.ai_not_configured
     if isinstance(ex, NoRecipeDataError) or (isinstance(ex, HTTPException) and ex.status_code == 400):
         return DraftError.no_recipe_data
+    if isinstance(ex, WhisperError):
+        return ex.code
+    if isinstance(ex, VideoLinkError):
+        return DraftError.video_link
     if isinstance(ex, InvalidDomainError):
         return DraftError.address_blocked
     if isinstance(ex, ValidationError):
@@ -69,6 +80,15 @@ def error_code(ex: Exception) -> DraftError:
 def set_fields(session: Session, draft_id: UUID4, **values: Any) -> None:
     """Changes a draft's columns directly; values must already be JSON-safe for the JSON columns."""
     session.execute(sa.update(KhDraft).where(KhDraft.id == draft_id).values(**values))
+    session.commit()
+
+
+def finish(session: Session, draft_id: UUID4, **values: Any) -> None:
+    """Writes the end of a recognition only while the draft is still working, so a stale duplicate job
+    cannot overwrite what another job or the interruption check already decided."""
+    session.execute(
+        sa.update(KhDraft).where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.working).values(**values)
+    )
     session.commit()
 
 
@@ -87,6 +107,8 @@ async def build(
     language = get_kh_settings().recipe_language or None
     if draft.source_type == DraftSource.link:
         url = draft.source_url or ""  # always set for links: create() refuses a link draft without one
+        if is_video_link(url):  # drafts from before D5 may still hold one; they are never fetched
+            raise VideoLinkError(url)
         try:
             recipe, _ = await create_from_html(url, repos, translator)
             return recipe, False
@@ -103,6 +125,21 @@ async def build(
     return await ai.build_recipe(images=images, translate_language=language), True
 
 
+async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:
+    """A draft that waits for the transcript of its recording gets it as its text, and the recording is deleted.
+    An empty transcript counts as no recipe found; one over the text limit is cut with a note."""
+    set_fields(session, draft.id, status=DraftStatus.working)  # restarts the interruption clock for a long wait
+    settings = get_kh_settings()
+    text = (await transcribe(draft.id, draft.source_note or "recording", settings)).strip()
+    if not text:
+        raise NoRecipeDataError()
+    if len(text) > settings.draft_max_text:
+        text = text[: settings.draft_max_text - len(TRUNCATED_NOTE)] + TRUNCATED_NOTE
+    set_fields(session, draft.id, source_text=text)
+    media_path(draft.id).unlink(missing_ok=True)  # a duplicate job may have removed it already
+    return draft.model_copy(update={"source_text": text})
+
+
 async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdInDB, translator: Translator) -> None:
     """Runs after the response: recognizes a working draft and stores the result as ready, with hints on
     possible duplicates, or the reason as failed."""
@@ -114,6 +151,8 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
         ai = AIRecipeService(repos, user, household, translator=translator)
         used_providers.set([])  # the priority list notes each provider that answers (D39)
         try:
+            if draft.source_type == DraftSource.text and not draft.source_text and media_path(draft_id).exists():
+                draft = await transcribe_recording(draft, session)
             recipe, used_ai = await build(draft, ai, repos, translator)
             amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)
@@ -129,13 +168,13 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdI
                 logger.exception(f"KH: recognizing draft {draft_id} failed")
             else:
                 logger.info(f"KH: recognizing draft {draft_id} failed: {code}")
-            set_fields(session, draft_id, status=DraftStatus.failed, error=code, recipe=None, ai_model=None)
+            finish(session, draft_id, status=DraftStatus.failed, error=code, recipe=None, ai_model=None)
             return
         # the providers of the priority list that answered, in order (D39), else the one Mealie's settings name
         images = draft.source_type == DraftSource.image
         answered = ", ".join(used_providers.get() or [])
         ai_model = (answered or ai_model_used(repos, images=images)) if used_ai else None
-        set_fields(
+        finish(
             session,
             draft_id,
             status=DraftStatus.ready,

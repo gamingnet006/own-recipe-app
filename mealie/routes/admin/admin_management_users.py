@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4
 
 from mealie.core import security
+from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
 from mealie.schema.response.pagination import PaginationQuery
@@ -71,7 +72,10 @@ class AdminUserManagementRoutes(BaseAdminController):
 
     @router.delete("/{item_id}", response_model=UserOut)
     def delete_one(self, item_id: UUID4):
-        return self.mixins.delete_one(item_id)
+        deleted = self.mixins.delete_one(item_id)
+        # KH: the user's allergy list goes too; SQLite in Mealie skips cascades (D44)
+        delete_user_allergies(self.session, item_id)
+        return deleted
 
     @router.post("/password-reset-token", response_model=PasswordResetToken, status_code=201)
     def generate_token(self, email: ForgotPassword):

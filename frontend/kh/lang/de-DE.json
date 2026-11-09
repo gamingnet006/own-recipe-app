@@ -8,11 +8,13 @@
       "source": {
         "link": "Link",
         "text": "Text",
-        "image": "Foto oder Screenshot"
+        "image": "Foto oder Screenshot",
+        "media": "Audio- oder Videodatei (eigene Aufnahme)"
       },
       "link-label": "Link zum Rezept",
       "text-label": "Rezepttext",
       "add-photos": "Fotos hinzufügen",
+      "choose-media": "Aufnahme wählen",
       "remove-photo": "Foto entfernen",
       "no-drafts": "Keine offenen Entwürfe.",
       "status": {
@@ -54,6 +56,7 @@
         "ai_not_configured": "Keine KI eingerichtet: Gruppen-Einstellungen → KI-Anbieter",
         "quota_exceeded": "Das KI-Kontingent ist aufgebraucht, bitte später erneut versuchen.",
         "address_blocked": "Diese Adresse ist nicht erlaubt.",
+        "video_link": "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
         "invalid_result": "Die Erkennung lieferte kein gültiges Rezept.",
         "interrupted": "Unterbrochen, bitte neu versuchen.",
         "unknown": "Etwas ist schiefgegangen, bitte neu versuchen.",
@@ -69,8 +72,14 @@
         "already_approved": "Schon als Rezept gespeichert.",
         "duplicates": "Dieses Rezept gibt es vielleicht schon.",
         "not_found": "Entwurf nicht gefunden.",
-        "offline": "Keine Verbindung zum Küchenhelfer. Prüf das Netz, es wird gleich noch einmal versucht.",
-        "ai_unavailable": "Keine KI erreichbar, später erneut versuchen."
+        "offline": "Keine Verbindung zum Kochheft. Prüf das Netz, es wird gleich noch einmal versucht.",
+        "ai_unavailable": "Keine KI erreichbar, später erneut versuchen.",
+        "whisper_unreachable": "Die Spracherkennung (Whisper) antwortet nicht. Läuft sie?",
+        "whisper_timeout": "Die Spracherkennung hat zu lange gebraucht. Versuche eine kürzere Aufnahme.",
+        "whisper_failed": "Die Spracherkennung konnte diese Aufnahme nicht lesen.",
+        "media_too_large": "Die Aufnahme ist zu groß.",
+        "media_not_configured": "Aufnahmen sind nicht eingeschaltet (Whisper).",
+        "not_audio_video": "Diese Datei ist keine Audio- oder Videoaufnahme."
       },
       "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
       "type-yourself": "Rezept selbst eintippen"
@@ -89,7 +98,12 @@
       "based-on-mealie": "basiert auf Mealie",
       "source": "Quellcode (AGPL)",
       "drafts-waiting": "1 Entwurf wartet auf Prüfung | {count} Entwürfe warten auf Prüfung",
-      "duplicates": "Doppelte Rezepte"
+      "duplicates": "Doppelte Rezepte",
+      "nutrition": "Nährwerte",
+      "tolerance": "Ich vertrage nicht",
+      "about": "Über Kochheft",
+      "system": "Systemprüfung",
+      "addons": "Zusatzfunktionen"
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -104,6 +118,7 @@
     },
     "ai": {
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
+      "profile-lokal": "Profil \"lokal\": alles bleibt im Haus. Nur lokale KI-Anbieter nutzen (z. B. Ollama), keine Cloud-Schlüssel.",
       "move-up": "Nach oben",
       "move-down": "Nach unten",
       "reads-images": "liest Bilder",
@@ -124,7 +139,7 @@
       "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
       "no-images": "liest keine Bilder",
       "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
-      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Küchenhelfer erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
+      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
     },
     "notices": {
       "title": "Meldungen",
@@ -198,6 +213,16 @@
       "offline": "Offline: gespeicherte Fassung",
       "lock-hint": "Dieses Gerät kann die Bildschirmsperre nicht von selbst ausschalten. Stell die automatische Sperre in den Einstellungen länger, damit der Bildschirm beim Kochen an bleibt."
     },
+    "voice": {
+      "start": "Sprachbefehle an",
+      "stop": "Sprachbefehle aus",
+      "loading": "Sprachmodell wird geladen …",
+      "listening": "Ich höre zu: weiter, zurück, Timer, stopp.",
+      "heard": "Gehört: {word}",
+      "error-mic-denied": "Das Mikrofon ist nicht erlaubt. Erlaube es in den Einstellungen des Browsers und tippe noch einmal.",
+      "error-unsupported": "Dieser Browser kann nicht zuhören. Sprachbefehle laufen hier nicht.",
+      "error-model": "Das Sprachmodell konnte nicht geladen werden. Versuche es später noch einmal."
+    },
     "book": {
       "toc": "Inhaltsverzeichnis",
       "number": "Nr. {n}",
@@ -244,6 +269,279 @@
       "duplicate_link": "gleicher Link",
       "similar_title": "ähnlicher Titel",
       "similar_ingredients": "ähnliche Zutaten"
+    },
+    "nutrition": {
+      "title": "Nährwerte",
+      "kcal-serving": "ca. {kcal} kcal pro Portion",
+      "kcal-recipe": "ca. {kcal} kcal für das ganze Rezept",
+      "none": "keine Zutat konnte gerechnet werden",
+      "failed": "Die Nährwerte konnten nicht geladen werden.",
+      "rows": {
+        "kcal": "Energie",
+        "fat": "Fett",
+        "saturated": "davon gesättigte Fettsäuren",
+        "carbs": "Kohlenhydrate",
+        "sugar": "davon Zucker",
+        "protein": "Eiweiß",
+        "fiber": "Ballaststoffe",
+        "salt": "Salz"
+      },
+      "counted": "aus {counted} von {total} Zutaten",
+      "missing": "ohne: {lines}",
+      "estimated": "geschätzt: Zuordnung prüfen",
+      "manual": "von Hand eingetragen",
+      "source": "Quelle: BLS 4.0, Max Rubner-Institut, CC BY 4.0",
+      "show": "Nährwerte zeigen",
+      "show-hint": "Der Block unter den Zutaten, auf diesem Gerät gespeichert.",
+      "page": {
+        "description": "Welcher Eintrag der Bundeslebensmittelschlüssel-Tabelle (BLS) zu welcher Zutat gehört. Die Zuordnung gilt für alle Rezepte.",
+        "open": "Noch offen ({count})",
+        "done": "Bestätigt",
+        "none-open": "Alle Zutaten sind zugeordnet.",
+        "empty": "Noch keine Zutaten in Rezepten.",
+        "in-recipes": "in 1 Rezept | in {count} Rezepten",
+        "suggested": "Vorschlag",
+        "confirmed": "bestätigt",
+        "no-entry": "Kein passender Eintrag",
+        "search-label": "BLS durchsuchen",
+        "search-hint": "Mindestens ein Wort der Zutat",
+        "no-hits": "Nichts gefunden.",
+        "piece-grams": "Stückgewicht in Gramm",
+        "confirm": "Bestätigen",
+        "unknown-code": "Diesen BLS-Eintrag gibt es nicht.",
+        "forbidden": "Dafür fehlt dir die Berechtigung (Daten organisieren).",
+        "failed": "Das hat nicht geklappt.",
+        "pick": "{name} wählen"
+      }
+    },
+    "allergens": {
+      "names": {
+        "gluten": "Gluten",
+        "crustaceans": "Krebstiere",
+        "eggs": "Ei",
+        "fish": "Fisch",
+        "peanuts": "Erdnüsse",
+        "soy": "Soja",
+        "milk": "Milch",
+        "nuts": "Schalenfrüchte",
+        "celery": "Sellerie",
+        "mustard": "Senf",
+        "sesame": "Sesam",
+        "sulphites": "Sulfite",
+        "lupin": "Lupinen",
+        "molluscs": "Weichtiere"
+      },
+      "contains": "Enthält wahrscheinlich",
+      "none-found": "Kein Allergen erkannt",
+      "disclaimer": "Erkannt aus den Zutaten, ohne Gewähr",
+      "by-hand": "von Hand ergänzt",
+      "taken-out": "von Hand herausgenommen",
+      "warning": "Enthält wahrscheinlich {allergen}. {names} verträgt das nicht. | Enthält wahrscheinlich {allergen}. {names} vertragen das nicht.",
+      "instead": "Statt {line}: {replacement}",
+      "from-lines": "Erkannt aus:",
+      "wrong": "stimmt nicht",
+      "undo": "Rückgängig",
+      "add": "Allergen ergänzen",
+      "add-label": "Fehlt ein Allergen? Ergänzen",
+      "variant": "Als Variante speichern",
+      "variant-nothing": "Dafür gibt es keinen Ersatz in den Zutaten.",
+      "failed": "Das hat nicht geklappt.",
+      "warning-icon": "Enthält wahrscheinlich etwas, das jemand im Haushalt nicht verträgt",
+      "profile": {
+        "title": "Ich vertrage nicht",
+        "description": "Hake an, was du nicht verträgst. Rezepte, die das wahrscheinlich enthalten, warnen alle im Haushalt, ohne Gewähr.",
+        "saved": "Gespeichert.",
+        "failed": "Das hat nicht geklappt.",
+        "rules-title": "Eigene Ersatz-Regeln des Haushalts",
+        "rules-description": "Gehen vor der Standardliste. Beispiel: Zutat Butter, Ersatz Margarine, Allergen Milch.",
+        "rules-none": "Noch keine eigenen Regeln.",
+        "rule": "{match} wird zu {replacement} (ohne {allergen})",
+        "rule-delete": "Regel {match} löschen",
+        "match": "Zutat",
+        "replacement": "Ersatz",
+        "allergen": "Allergen",
+        "rule-add": "Regel hinzufügen"
+      }
+    },
+    "about": {
+      "title": "Über Kochheft",
+      "version": "Version {version}",
+      "built-on": "Kochheft baut auf Mealie auf.",
+      "copyright": "Mealie: Copyright © Hayden und die Mealie-Mitwirkenden, Lizenz AGPL-3.0.",
+      "license": "Kochheft steht ebenfalls unter der AGPL-3.0.",
+      "source": "Quellcode ansehen",
+      "notices": "Fremde Bausteine",
+      "notices-missing": "Die Liste der Fremd-Bausteine ist in dieser Installation nicht enthalten.",
+      "failed": "Die Angaben konnten nicht geladen werden."
+    },
+    "system": {
+      "description": "Eine Ampel pro Punkt. Hier wird nichts verändert.",
+      "on": "an",
+      "off": "aus",
+      "failed": "Die Systemprüfung konnte nicht geladen werden.",
+      "rows": {
+        "version": {
+          "info": "Version: {value}"
+        },
+        "database": {
+          "info": "Datenbank: {value}"
+        },
+        "disk": {
+          "ok": "Freier Speicher: {value}",
+          "warn": "Wenig freier Speicher: {value}",
+          "bad": "Fast kein Speicher mehr frei: {value}"
+        },
+        "backup": {
+          "ok": "Letztes Backup: {value}",
+          "warn": "Letztes Backup ist älter als 2 Tage: {value}",
+          "bad": "Letztes Backup ist älter als 7 Tage: {value}",
+          "none": "Es gibt noch kein Backup."
+        },
+        "ai": {
+          "ok": "KI-Anbieter eingerichtet ({value})",
+          "warn": "Noch kein KI-Anbieter eingerichtet"
+        },
+        "signup": {
+          "ok": "Selbstregistrierung ist aus",
+          "bad": "Selbstregistrierung ist an, bitte ausschalten"
+        },
+        "profile": {
+          "info": "Profil: {value}",
+          "warn": "Profil: {value}. KI-Anbieter prüfen: Nur lokale (z. B. Ollama) passen, keine Cloud-Schlüssel."
+        },
+        "defaultAccount": {
+          "ok": "Das Standard-Konto ist nicht mehr in Gebrauch",
+          "bad": "Das Standard-Konto (changeme{'@'}example.com) gibt es noch, bitte ersetzen"
+        },
+        "autoUpdate": {
+          "ok": "Automatische Updates sind an.",
+          "warn": "Automatische Updates sind aus.",
+          "stale": "Automatische Updates sind an, aber seit über 2 Tagen hat kein nächtlicher Lauf etwas gemeldet. Prüfen mit kh/ops/auto_update.sh status.",
+          "info": "Automatische Updates: .env entscheidet.",
+          "bad": "Das letzte automatische Update ist fehlgeschlagen:"
+        },
+        "nutrition": {
+          "ok": "Nährwert-Tabelle geladen ({value} Lebensmittel)",
+          "bad": "Nährwert-Tabelle fehlt"
+        },
+        "telegram": {
+          "info": "Telegram-Bot: {value}"
+        },
+        "whisper": {
+          "info": "Spracherkennung (Whisper): {value}"
+        }
+      },
+      "start": {
+        "title": "Erste Schritte",
+        "ai": "KI-Anbieter einrichten",
+        "accounts": "Familienkonten anlegen",
+        "backup": "Backup-Ort prüfen",
+        "tunnel": "Zugang von unterwegs (Anleitung)",
+        "shortcut": "Kurzbefehl zum Teilen (Anleitung)"
+      },
+      "auto-update": {
+        "title": "Automatische Updates",
+        "label": "Jede Nacht auf die neueste stabile Version aktualisieren",
+        "hint": "Wirkt ab dem nächsten nächtlichen Lauf. Ohne Häkchen-Einstellung entscheidet KH_AUTO_UPDATE in der .env.",
+        "env": "Noch nicht gesetzt: KH_AUTO_UPDATE in der .env entscheidet.",
+        "last": "Letzter Lauf: {status}",
+        "never": "Noch kein Lauf.",
+        "failed": "Das Häkchen ließ sich nicht speichern."
+      }
+    },
+    "addons": {
+      "description": "Hier legt ihr fest, welche Funktionen Kochheft in eurem Haushalt zeigt. Ausgeschaltete Funktionen verschwinden aus der Oberfläche, ihre Daten bleiben erhalten.",
+      "off-hint": "{name} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten.",
+      "unavailable": "Nicht eingerichtet, siehe Anleitung.",
+      "needs-allergens": "Braucht die Funktion Allergene.",
+      "presets": {
+        "title": "Wie wollt ihr Kochheft nutzen?",
+        "recipes": "Nur Rezepte",
+        "shopping": "Rezepte und Einkaufsliste",
+        "planner": "Alles mit Essensplaner"
+      },
+      "areas": {
+        "title": "Große Bereiche",
+        "shopping": {
+          "title": "Einkaufsliste",
+          "text": "Zur Einkaufsliste gehören die Listen, der Reiter in der unteren Leiste und die Knöpfe „Auf die Einkaufsliste“ an den Rezepten.",
+          "gone": "Ausgeschaltet verschwinden Reiter, Seiten, Menüpunkte und Knöpfe; die Leiste hat dann drei Plätze. Eure Listen bleiben gespeichert."
+        },
+        "planner": {
+          "title": "Essensplaner",
+          "text": "Zum Essensplaner gehören der Wochenplan, seine Einstellungen und der Menüpunkt „Zum Essensplan“ an den Rezepten.",
+          "gone": "Ausgeschaltet verschwinden Seiten, Menüpunkte und Knöpfe. Euer Plan bleibt gespeichert."
+        }
+      },
+      "items": {
+        "title": "Weitere Funktionen",
+        "books": {
+          "title": "Familienkochbuch",
+          "text": "Der Buch-Editor und der Druck als Kochbuch."
+        },
+        "duplicates": {
+          "title": "Doppelte Rezepte",
+          "text": "Die Seite, die ähnliche Rezepte zum Aufräumen zeigt."
+        },
+        "oven": {
+          "title": "Umluft-Klammer",
+          "text": "Die Umluft-Temperatur in Klammern im Text der Schritte."
+        },
+        "nutrition": {
+          "title": "Nährwerte",
+          "text": "Nährwerte pro Portion, die Seite zur Zuordnung der Zutaten und die Anzeige am Rezept."
+        },
+        "allergens": {
+          "title": "Allergene",
+          "text": "Allergen-Hinweise am Rezept, die Karten-Markierung und die Seite „Ich vertrage nicht“."
+        },
+        "substitutions": {
+          "title": "Austausch und Varianten",
+          "text": "Austauschregeln und Varianten ohne einen Stoff. Nur zusammen mit Allergene."
+        },
+        "offline": {
+          "title": "Offline-Rezepte",
+          "text": "Die zuletzt geöffneten Rezepte bleiben ohne Netz lesbar."
+        },
+        "clock": {
+          "title": "Auf Uhr-Timer legen",
+          "text": "Der Knopf, der einen Timer in der Uhr-App des iPhones startet."
+        },
+        "shareLinks": {
+          "title": "Öffentliche Teilen-Links",
+          "text": "Rezepte per Link teilen, den jeder ohne Konto öffnen kann. Muss auch auf dem Server erlaubt sein."
+        },
+        "telegram": {
+          "title": "Telegram-Bot",
+          "text": "Links, Texte und Fotos per Telegram an den Eingang schicken. Braucht den Bot-Dienst."
+        },
+        "whisper": {
+          "title": "Audio und Video mit Whisper",
+          "text": "Eigene Aufnahmen werden zu Text gemacht und landen im Eingang. Braucht den Whisper-Dienst."
+        },
+        "voice": {
+          "title": "Sprachbefehle (Test)",
+          "text": "Sprachbefehle im Kochmodus. Noch im Test."
+        }
+      },
+      "names": {
+        "shopping": "Die Einkaufsliste",
+        "planner": "Der Essensplaner",
+        "books": "Das Familienkochbuch",
+        "duplicates": "Doppelte Rezepte",
+        "oven": "Die Umluft-Klammer",
+        "nutrition": "Nährwerte",
+        "allergens": "Allergene",
+        "substitutions": "Austausch und Varianten",
+        "offline": "Offline-Rezepte",
+        "clock": "Der Uhr-Timer",
+        "shareLinks": "Teilen-Links",
+        "telegram": "Der Telegram-Bot",
+        "whisper": "Audio und Video",
+        "voice": "Sprachbefehle"
+      },
+      "local-ai": "Lokale KI (z. B. Ollama) geht grundsätzlich auch – siehe Anleitung. Ungetestet.",
+      "local-ai-link": "Anleitung"
     }
   }
 }

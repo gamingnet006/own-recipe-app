@@ -99,7 +99,7 @@ PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
 check "on twice, one job" "$(grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
 PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" off >/dev/null
 check "off clears the switch" "$(env_value "$onoff/.env" KH_AUTO_UPDATE)" "false"
-check "off leaves the other job" "$(cat "$CRONTAB_FILE")" "5 * * * * /usr/bin/true"
+check "off keeps the job, so the app's checkbox can switch on again" "$(grep -c . "$CRONTAB_FILE") $(grep -c 'kh-auto-update' "$CRONTAB_FILE")" "2 1"
 rm -f "$CRONTAB_FILE"
 check "on without any crontab" "$(PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null 2>&1 && grep -c 'kh-auto-update' "$CRONTAB_FILE")" "1"
 
@@ -133,10 +133,39 @@ check "mac on: cron untouched" "$(grep -c . "$CRONTAB_FILE")" "0"
 check "mac status: scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: eingetragen')" "1"
 check "mac on twice" "$(on_test_mac on >/dev/null && echo ok)" "ok"
 on_test_mac off >/dev/null
-check "mac off: agent removed" "$(yes_no test -e "$agent")" "no"
-check "mac status: not scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: nicht eingetragen')" "1"
+check "mac off: agent stays" "$(yes_no test -e "$agent")" "yes"
+check "mac status: still scheduled" "$(on_test_mac status | grep -c 'Nächtlicher Job: eingetragen')" "1"
 check "mac off twice" "$(on_test_mac off >/dev/null && echo ok)" "ok"
 check "mac on: launchctl error" "$( (export STUB_BOOTSTRAP_RC=5; on_test_mac on >/dev/null) && echo 0 || echo $?)" "1"
+
+# --- the checkbox in the app (data/kh/auto_update.json) beats .env; without the file .env decides ---
+export KH_DATA_DIR="$tmp/appdata"; mkdir -p "$KH_DATA_DIR/kh"
+ENV_FILE="$tmp/.env"
+printf 'KH_AUTO_UPDATE=true\n' > "$ENV_FILE"
+printf '{"enabled": false}\n' > "$KH_DATA_DIR/kh/auto_update.json"
+check "file off beats .env on" "$(yes_no auto_update_enabled)" "no"
+printf 'KH_AUTO_UPDATE=false\n' > "$ENV_FILE"
+printf '{"enabled": true}\n' > "$KH_DATA_DIR/kh/auto_update.json"
+check "file on beats .env off" "$(yes_no auto_update_enabled)" "yes"
+printf '{"enabled":false}' > "$KH_DATA_DIR/kh/auto_update.json"
+printf 'KH_AUTO_UPDATE=true\n' > "$ENV_FILE"
+check "compact json" "$(yes_no auto_update_enabled)" "no"
+printf 'garbage' > "$KH_DATA_DIR/kh/auto_update.json"
+check "unreadable file falls back to .env" "$(yes_no auto_update_enabled)" "yes"
+rm -f "$KH_DATA_DIR/kh/auto_update.json"
+check "missing file: .env on" "$(yes_no auto_update_enabled)" "yes"
+printf 'KH_AUTO_UPDATE=false\n' > "$ENV_FILE"
+check "missing file: .env off" "$(yes_no auto_update_enabled)" "no"
+unset KH_DATA_DIR
+check "default folder is ./data" "$(kh_data_file auto_update.json)" "./data/kh/auto_update.json"
+
+# on and off from the command line are the last word: they drop the app's checkbox so it cannot contradict them
+mkdir -p "$onoff/data/kh"; printf '{"enabled": false}\n' > "$onoff/data/kh/auto_update.json"
+PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" on >/dev/null
+check "on drops the checkbox file" "$(yes_no test -e "$onoff/data/kh/auto_update.json")" "no"
+printf '{"enabled": true}\n' > "$onoff/data/kh/auto_update.json"
+PATH="$tmp/bin:$PATH" sh "$onoff/auto_update.sh" off >/dev/null
+check "off drops the checkbox file" "$(yes_no test -e "$onoff/data/kh/auto_update.json")" "no"
 
 # --- ops files inside the image (check_bundle.sh) ---
 . "$here/check_bundle.sh"
@@ -257,6 +286,16 @@ check "run, update fails: version marked" "$(cat "$tmp/run1/kh/ops/.auto_update.
 res=$(run_stubbed 3)
 check "run, rollback fails: exit 3" "$(printf '%s\n' "$res" | tail -1)" "exit 3"
 check "run, rollback fails: emergency reported" "$(printf '%s\n' "$res" | grep -c 'NOTFALL')" "1"
+
+# --- every run leaves one line for the app: date | up/down | result | version ---
+status_of() { cat "$tmp/run$1/kh/ops/data/kh/auto_update_status.txt" 2>/dev/null; }
+check "status after update" "$(status_of 0 | sed -E 's/^[0-9-]+ [0-9:]+ //')" "| up | Aktualisiert auf v0.1-amd64 | v0.0-amd64"
+check "status has a date" "$(status_of 0 | grep -cE '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} \| ')" "1"
+check "status after failure" "$(status_of 1 | sed -E 's/^[0-9-]+ [0-9:]+ //')" "| down | Update auf v0.1-amd64 fehlgeschlagen, die bisherige Version läuft weiter | v0.0-amd64"
+check "status is one line" "$(status_of 3 | grep -c .)" "1"
+printf 'KH_AUTO_UPDATE=false\nKH_IMAGE=ghcr.io/x/y:v0.0-amd64\n' > "$inst/.env"
+run_au run --scheduled >/dev/null
+check "status when switched off" "$(sed -E 's/^[0-9-]+ [0-9:]+ //' "$inst/data/kh/auto_update_status.txt")" "| up | Automatische Updates sind aus (KH_AUTO_UPDATE), nichts zu tun. | v0.0-amd64"
 
 # --- argument checks ---
 check "usage without command" "$(sh "$here/auto_update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"

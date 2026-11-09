@@ -5,7 +5,9 @@ from uuid import uuid4
 
 from fastapi import HTTPException, status
 
+from mealie.core import exceptions
 from mealie.core.root_logger import get_logger
+from mealie.kh.drafts.video import is_video_link  # KH: video links are never fetched (D5)
 from mealie.lang.providers import Translator
 from mealie.pkgs import cache
 from mealie.repos.repository_factory import AllRepositories
@@ -51,6 +53,8 @@ async def create_from_html(
         if not extracted_url:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, {"details": ParserErrors.BAD_RECIPE_DATA.value})
         url = extracted_url.group(0)
+        if is_video_link(url):  # KH: neither downloaded nor fetched (D5)
+            raise exceptions.VideoDownloadError(url)
 
     new_recipe, extras = await scraper.scrape(
         url,

@@ -100,7 +100,7 @@ export function useFoodPlurality() {
 
 export function useIngredientTextParser() {
   const { shouldPluralizeFood } = useFoodPlurality();
-  const { locale } = useLocales(); // KH: for Küchenhelfer's amount display (D39)
+  const { locale } = useLocales(); // KH: for Kochheft's amount display (D39)
 
   function useParsedIngredientText(ingredient: RecipeIngredient, scale = 1, includeFormating = true, groupSlug?: string): ParsedIngredientText {
     const { quantity, food, unit, note, referencedRecipe } = ingredient;
@@ -143,7 +143,7 @@ export function useIngredientTextParser() {
     let unitName = useUnitName(unit || undefined, usePluralUnit);
     const ingName = referencedRecipe ? referencedRecipe.name || "" : useFoodName(food || undefined, usePluralFood);
 
-    // KH: Küchenhelfer's display for every view: fractions, rounding, kg and l, 3 TL as 1 EL, ranges, fixed amounts (D39)
+    // KH: Kochheft's display for every view: fractions, rounding, kg and l, 3 TL as 1 EL, ranges, fixed amounts (D39)
     let shownNote = note;
     if (quantity && Number(quantity) !== 0) {
       const amount = { quantity: Number(quantity), ...khExtra(ingredient.referenceId), unit, food: food?.name ?? note };

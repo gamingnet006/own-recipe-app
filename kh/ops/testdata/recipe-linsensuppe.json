@@ -2,7 +2,7 @@
   "@context": "https://schema.org",
   "@type": "Recipe",
   "name": "KH Test Linsensuppe",
-  "description": "Selbst geschriebenes Testrezept für den Upgrade-Test des Küchenhelfers.",
+  "description": "Selbst geschriebenes Testrezept für den Upgrade-Test des Kochhefts.",
   "recipeYield": "4 Portionen",
   "recipeIngredient": [
     "250 g braune Linsen",

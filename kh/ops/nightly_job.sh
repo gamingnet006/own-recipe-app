@@ -92,6 +92,7 @@ job_scheduled() {
 
 # Prints a timestamped line; a manual run also appends it to the log.
 note() {  # message
+  LAST_NOTE=$1  # auto_update.sh's status line for the app
   line="$(date '+%Y-%m-%d %H:%M') $1"
   echo "$line"
   [ "$SCHEDULED" = 1 ] || echo "$line" >> "$LOG"
@@ -101,6 +102,7 @@ note() {  # message
 # (backup.sh's push). A URL written for the backup container names host.docker.internal; seen from
 # this machine that is localhost.
 report() {  # up|down message
+  LAST_RESULT=$1
   note "$2"
   (KH_BACKUP_PUSH_URL=$(setting "$JOB_PUSH_SETTING" "" | sed 's/host\.docker\.internal/localhost/'); push "$1" "$2")
 }

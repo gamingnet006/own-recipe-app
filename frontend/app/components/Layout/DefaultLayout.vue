@@ -107,6 +107,7 @@ import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
+import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 // KH: shared destinations (D38)
 import {
   type KhNavTarget,
@@ -157,6 +158,7 @@ const cookbooks = computed(() => {
 const khWide = computed(() => display.mdAndUp.value);
 const sidebar = useKhSidebar(khWide);
 const khShoppingTo = useKhShoppingTarget();
+useKhAddonsLoader(); // KH: D46
 
 function cookbookAsLink(cookbook: ReadCookBook): SideBarLink {
   return {

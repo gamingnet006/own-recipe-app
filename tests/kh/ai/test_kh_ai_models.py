@@ -1,5 +1,5 @@
 """KH: tests for the AI list's foundation (v0.2 plan 1, task 1): the settings' defaults and the tables for the
-providers' state and the notices on Küchenhelfer's migration branch (D39)."""
+providers' state and the notices on Kochheft's migration branch (D39)."""
 
 import pytest
 import sqlalchemy as sa

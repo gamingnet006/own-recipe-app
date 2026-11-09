@@ -10,6 +10,7 @@ import {
   draftTitle,
   errorText,
   importRedirectTarget,
+  isVideoLink,
   originLabel,
   pollingNeeded,
   recipeChanges,
@@ -68,10 +69,40 @@ describe("importRedirectTarget", () => {
   });
 });
 
+describe("isVideoLink", () => {
+  test("links to video sites and their subdomains are video links", () => {
+    for (const url of ["https://www.instagram.com/reel/x", "https://vm.tiktok.com/a", "https://youtu.be/1",
+      "https://m.youtube.com/watch?v=1", "https://fb.watch/x", "https://facebook.com/reel/1", "youtube.com/watch?v=1"]) {
+      expect(isVideoLink(url)).toBe(true);
+    }
+  });
+
+  test("other links and look-alikes are not", () => {
+    for (const url of ["https://example.org/testkuchen", "https://example.org/instagram.com",
+      "https://notyoutube.com/x", "", "not a link"]) {
+      expect(isVideoLink(url)).toBe(false);
+    }
+  });
+
+  test("the video link text is in both languages", () => {
+    expect(de.kh.drafts.error.video_link).toBe(
+      "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+    );
+    expect(errorText("video_link", t)).toBe("kh.drafts.error.video_link");
+  });
+});
+
 describe("texts", () => {
   test("an unknown error code gets the general error text", () => {
     expect(errorText("quota_exceeded", t)).toBe(t("kh.drafts.error.quota_exceeded"));
     expect(errorText("something_new", t)).toBe(t("kh.drafts.error.unknown"));
+  });
+
+  test("the recording errors have their own texts, a recording is titled by its file name", () => {
+    for (const code of ["whisper_unreachable", "whisper_timeout", "whisper_failed", "media_too_large", "media_not_configured", "not_audio_video"]) {
+      expect(errorText(code, t)).toBe(`kh.drafts.error.${code}`);
+    }
+    expect(draftTitle({ recipe: null, sourceUrl: null, sourceNote: "oma.m4a", sourceText: null } as KhDraft)).toBe("oma.m4a");
   });
 
   test("the origin names the source, the day and who added it", () => {
@@ -158,6 +189,10 @@ describe("drafts list and review", () => {
     expect(requestError(conflict)).toEqual({ code: "duplicates", warnings: [] });
     expect(requestError({ response: { data: { detail: "Not Found" } } }).code).toBe("unknown");
     expect(requestError(new Error("offline")).code).toBe("unknown");
+  });
+
+  test("a 413 from a proxy in front of the app counts as a too big recording", () => {
+    expect(requestError({ response: { status: 413, data: "<html>Payload Too Large</html>" } }).code).toBe("media_too_large");
   });
 
   test("a request that never reached the server counts as offline", () => {

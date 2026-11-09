@@ -15,18 +15,12 @@
         icon
         color="primary"
       >
+        <!-- KH: Kochheft's logo replaces Mealie's icon when no custom logo is set (D49) -->
         <v-img
-          v-if="$appInfo.brandingLogoUrl"
-          :src="$appInfo.brandingLogoUrl"
+          :src="$appInfo.brandingLogoUrl || '/icons/kochheft-logo.svg'"
           width="40"
           height="40"
         />
-        <v-icon
-          v-else
-          size="40"
-        >
-          {{ $globals.icons.primary }}
-        </v-icon>
       </v-btn>
     </RouterLink>
 

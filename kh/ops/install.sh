@@ -1,5 +1,5 @@
 #!/bin/sh
-# KH: sets up a new Küchenhelfer install (PLAN.md phase 1, D32). Asks where the backups go and under
+# KH: sets up a new Kochheft install (PLAN.md phase 1, D32). Asks where the backups go and under
 # which address the family opens the app, writes .env, starts everything and creates the backup key.
 # Usage: kh/ops/install.sh <image>   e.g. ghcr.io/gamingnet006/own-recipe-app:v0.0-arm64
 set -eu
@@ -62,10 +62,10 @@ colima_hint() {  # folder (absolute)
 # Starts Mealie, creates the backup key with Mealie's default login (a new install has no other
 # account yet) and starts the backup service.
 start_install() {
-  echo "Küchenhelfer startet; beim ersten Mal lädt Docker das Image, das dauert ein paar Minuten."
-  docker compose up -d --no-build mealie || fail "Küchenhelfer startet nicht (ist die Anmeldung bei ghcr.io eingerichtet?)"
+  echo "Kochheft startet; beim ersten Mal lädt Docker das Image, das dauert ein paar Minuten."
+  docker compose up -d --no-build mealie || fail "Kochheft startet nicht (ist die Anmeldung bei ghcr.io eingerichtet?)"
   TIMEOUT=$(setting KH_UPDATE_TIMEOUT 600)
-  wait_healthy || fail "Küchenhelfer wird nicht bereit; Meldungen zeigt: docker compose logs mealie"
+  wait_healthy || fail "Kochheft wird nicht bereit; Meldungen zeigt: docker compose logs mealie"
   token=$(create_token "http://localhost:$(setting KH_PORT 9091)" "$SETTINGS" kh-backup) \
     || fail "der Backup-Schlüssel ließ sich nicht anlegen"
   set_env_value .env KH_BACKUP_API_TOKEN "$token" || fail "der Backup-Schlüssel ließ sich nicht eintragen"
@@ -80,10 +80,10 @@ main() {
   [ ! -e .env ] || fail "kh/ops/.env gibt es schon, diese Installation ist eingerichtet. Neue Versionen spielt update.sh ein."
   docker compose version >/dev/null 2>&1 || fail "Docker mit Compose fehlt oder läuft nicht"
 
-  echo "Küchenhelfer einrichten. Enter übernimmt den Vorschlag in Klammern."
+  echo "Kochheft einrichten. Enter übernimmt den Vorschlag in Klammern."
   echo "Backups liegen am sichersten auf einem anderen Laufwerk, einem Netzlaufwerk oder in einem Ordner, den ein zweites Gerät abholt. ./backups liegt auf derselben Platte wie die Rezepte."
   backups=$(ask "Ordner für die Backups" ./backups)
-  echo "Die Adresse ist die, unter der ihr Küchenhelfer öffnet, mit Zugang von unterwegs z. B. https://kochbuch.example.org."
+  echo "Die Adresse ist die, unter der ihr Kochheft öffnet, mit Zugang von unterwegs z. B. https://kochbuch.example.org."
   port=${KH_PORT:-9091}
   url=$(ask "Adresse" "http://localhost:$port")
   storable "$backups" && storable "$url" || fail "bitte ohne | und & antworten"
@@ -93,7 +93,7 @@ main() {
   write_env "$1" "$backups" "$url" || fail "kh/ops/.env ließ sich nicht schreiben"
   start_install
 
-  echo "Fertig: Küchenhelfer läuft, die Backups landen in $backups."
+  echo "Fertig: Kochheft läuft, die Backups landen in $backups."
   echo "Jetzt sofort:"
   echo "  1. http://localhost:$(setting KH_PORT 9091) öffnen (von anderen Geräten im Heimnetz: IP-Adresse dieses Rechners mit :$(setting KH_PORT 9091))"
   echo "     und mit $(default_login _DEFAULT_EMAIL "$SETTINGS") und dem Passwort $(default_login _DEFAULT_PASSWORD "$SETTINGS") anmelden."

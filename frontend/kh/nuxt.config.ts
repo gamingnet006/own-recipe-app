@@ -1,4 +1,4 @@
-// KH: Küchenhelfer's own Nuxt layer (D26), mounted by one `extends` line in frontend/nuxt.config.ts.
+// KH: Kochheft's own Nuxt layer (D26), mounted by one `extends` line in frontend/nuxt.config.ts.
 // Our plugins, components and pages live in kh/app/, apart from Mealie's app/; our texts in kh/lang/.
 import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";
@@ -11,6 +11,18 @@ export default defineNuxtConfig({
     fileURLToPath(new URL("./app/assets/kh-theme.css", import.meta.url)),
     fileURLToPath(new URL("./app/assets/kh-print.css", import.meta.url)),
   ],
+  // KH: the voice recognizer is 5.8 MB (WebAssembly inside); its chunk gets a name the precache can skip, so it is
+  // only fetched when somebody switches voice commands on (P7.5).
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          chunkFileNames: (chunk: { moduleIds: string[] }) =>
+            chunk.moduleIds.some(id => id.includes("/vosk-browser/")) ? "_nuxt/vosk-[hash].js" : "_nuxt/[hash].js",
+        },
+      },
+    },
+  },
   i18n: {
     // Merged into Mealie's languages; the others fall back to English. Like in Mealie's config the
     // path starts in kh/i18n, so it goes one folder up.
@@ -21,5 +33,5 @@ export default defineNuxtConfig({
     ],
   },
   // The last recipes and their photos stay available offline (D42); merged into Mealie's workbox settings
-  pwa: { workbox: { runtimeCaching: offlineCaching() } },
+  pwa: { workbox: { runtimeCaching: offlineCaching(), globIgnores: ["**/vosk-*.js"] } },
 });

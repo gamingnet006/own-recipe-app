@@ -1,6 +1,6 @@
-# Küchenhelfer backups: helping someone get their recipes back
+# Kochheft backups: helping someone get their recipes back
 
-This folder holds backups of Küchenhelfer, a family cookbook (a fork of Mealie). Whoever started
+This folder holds backups of Kochheft, a family cookbook (a fork of Mealie). Whoever started
 you here most likely lost the machine that ran it and wants the recipes back. The person may not
 be technical: go step by step, say what each command does before running it, and check the
 result after each step. `LIESMICH.txt` (German) has the same steps for people.
@@ -15,7 +15,7 @@ result after each step. `LIESMICH.txt` (German) has the same steps for people.
 
 ## Restore
 
-1. Install Küchenhelfer from the private GitHub repo `gamingnet006/own-recipe-app`
+1. Install Kochheft from the private GitHub repo `gamingnet006/own-recipe-app`
    (`docs/kh/README.md`, section "Install (English)"). It needs Docker with Compose, and while
    the images are private a `docker login ghcr.io` with a token that may read packages. Prefer
    the newest release: Mealie's restore builds the schema up to the backup's migration, so a
@@ -40,5 +40,5 @@ result after each step. `LIESMICH.txt` (German) has the same steps for people.
   `kuechenhelfer-schluessel.age`.
 - A backup holds every account and the backup service's API key in plain text: keep decrypted
   copies out of shared or public places, and delete them once the restore worked.
-- If Küchenhelfer cannot be installed, `age -d -i kuechenhelfer-schluessel.age -o backup.zip
+- If Kochheft cannot be installed, `age -d -i kuechenhelfer-schluessel.age -o backup.zip
   <name>.zip.age` opens an encrypted backup, and `database.json` can be read directly.
