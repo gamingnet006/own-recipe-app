@@ -4,7 +4,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
-## [Unreleased]
+## [v1.0] - 2026-11-09
+
+The big update (D45 to D49): phase 6 plus everything of phases 7 and 8 that needs no decision, under the new name.
 
 Renamed to Kochheft (formerly Küchenhelfer, D49), with a new logo and app icons. Only what users see changed; the `kh` folders, `KH_*` variables,
 container names and image name stay, so running installs and updates keep working.
@@ -21,6 +23,35 @@ Nutrition and allergens (Phase 6, D44):
 - Substitution hints from a standard list plus the household's own rules; "Save as variant" makes a copy "(ohne ...)"
   and leaves the original unchanged.
 - New additive migration `kh0005`. The table can be rebuilt with `uv run python -m mealie.kh.nutrition.build_bls`.
+
+Add-ons (D46, D48):
+
+- More -> Add-ons (admins change, per household): the big areas shopping list and meal planner can be switched off,
+  with the presets "Only recipes", "Recipes and shopping list" and "Everything with meal planner"; without the shopping
+  list the bottom bar has three places. Family cookbook, duplicates, fan-oven brackets, nutrition, allergens,
+  substitutions, offline recipes, clock timer, share links, Telegram, Whisper and voice commands can be switched too.
+  Switched-off features leave the interface; their data stays. Migration `kh0007`.
+
+Sharing, video and voice (Phase 7, D45):
+
+- Telegram bot (optional, off): links, texts and photos from allowed chats become drafts; polls by itself, no open port.
+- Video links (Instagram, TikTok, YouTube, Facebook) are never fetched (D5): the description or a screenshot makes the
+  draft, the link stays its source. Mealie's video downloader yt-dlp is removed.
+- Own audio and video files become drafts through an optional local Whisper service (speaches); migration `kh0006`.
+- Profiles leicht, normal, stark, lokal and `kh/ops/hardware_test.sh`, which proposes one.
+- Voice commands in cook mode as a test switch ("weiter", "zurück", "Timer", "stopp"); recognition runs in the browser
+  with Vosk, the German model is served by the app itself.
+- Local AI (for example Ollama) only as an untested guide, `docs/kh/LOKALE-KI.md`.
+
+Operation and publishing (Phase 8, D45):
+
+- More -> About: version, Mealie notice, AGPL-3.0, source link and the third-party list.
+- Checkbox "Automatic updates" in the admin settings, read by `auto_update.sh` (which now keeps its nightly job when
+  switched off) and a status line in the app.
+- More -> System check for admins: a traffic light per point and a first-start list.
+- README: what you need (measured), what goes where, maintenance checklist; legal checklist `docs/kh/RECHT.md`;
+  issue templates.
+- CI: licence scan of all Python and npm packages, secret scan of the whole history with gitleaks, CI on every push.
 
 ## [v0.4] - 2026-11-08
 
