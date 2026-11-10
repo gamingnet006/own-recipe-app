@@ -4,6 +4,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+- AI settings: Mealie's audio provider select is gone (it only served Mealie's video import, which Kochheft refuses);
+  instead a short note explains that the top provider of the list does text and the top one that reads images does
+  photos and screenshots.
+
 ## [v1.0] - 2026-11-09
 
 The big update (D45 to D49): phase 6 plus everything of phases 7 and 8 that needs no decision, under the new name.

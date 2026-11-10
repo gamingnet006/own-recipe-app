@@ -117,6 +117,7 @@
       "time-hint": "With this much more or less, baking and cooking times often change."
     },
     "ai": {
+      "choice-hint": "Text and recipes: Kochheft uses the top provider of the list below. Photos and screenshots are read by the top provider that reads images. Change the order with the arrows. There is no separate audio provider any more, because Kochheft does not download videos.",
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
       "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",

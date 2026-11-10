@@ -16,26 +16,12 @@
       {{ $t("group.ai-provider-settings.ai-provider-settings-description") }}
     </v-card-text>
 
-    <v-row class="mb-4">
-      <!-- KH: the priority list picks the default and the image provider in every group, also when an admin opens
-           another group here; Mealie's two selects for them are gone (D39) -->
-      <v-col cols="12">
-        <v-autocomplete
-          v-model="local.audioProviderId"
-          :label="$t('group.ai-provider-settings.audio-provider')"
-          :items="local.providers"
-          item-title="name"
-          item-value="id"
-          clearable
-          hide-details
-          density="compact"
-          variant="outlined"
-        />
-        <v-card-subtitle class="mt-1">
-          {{ $t("group.ai-provider-settings.audio-provider-description") }}
-        </v-card-subtitle>
-      </v-col>
-    </v-row>
+    <!-- KH: the priority list below picks the default and the image provider in every group, also when an admin opens
+         another group here; Mealie's two selects for them are gone (D39). Mealie's audio select is gone too: it only
+         served Mealie's video import, which Kochheft refuses (D5); the stored value stays untouched. -->
+    <v-alert type="info" variant="tonal" density="compact" class="mb-4">
+      {{ $t("kh.ai.choice-hint") }}
+    </v-alert>
 
     <GroupAIProviderDialog
       v-model="dialogOpen"
