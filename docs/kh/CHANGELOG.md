@@ -7,8 +7,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 ## [Unreleased]
 
 - AI settings: Mealie's audio provider select is gone (it only served Mealie's video import, which Kochheft refuses);
-  instead a short note explains that the top provider of the list does text and the top one that reads images does
-  photos and screenshots.
+  instead a short note explains how to add a provider with a key, that the top provider of the list does text and the
+  top one that reads images does photos and screenshots, and that recordings go to the local Whisper add-on.
 
 ## [v1.0] - 2026-11-09
 

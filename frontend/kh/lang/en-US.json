@@ -117,7 +117,7 @@
       "time-hint": "With this much more or less, baking and cooking times often change."
     },
     "ai": {
-      "choice-hint": "Text and recipes: Kochheft uses the top provider of the list below. Photos and screenshots are read by the top provider that reads images. Change the order with the arrows. There is no separate audio provider any more, because Kochheft does not download videos.",
+      "choice-hint": "How it works: below, use “Create provider” to add a provider with your key, for example Google Gemini (free, see “Set up AI” in the README). For text and recipes Kochheft uses the top provider of the list; photos and screenshots are read by the top one that reads images; change the order with the arrows. Audio and video: Mealie's audio provider only worked with providers that offer OpenAI's speech-to-text interface (in practice only OpenAI/ChatGPT) and only served the video download Kochheft does not do. Your own recordings are transcribed by the Whisper add-on instead; it runs locally and needs no key.",
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
       "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",

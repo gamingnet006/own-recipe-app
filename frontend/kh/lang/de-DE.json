@@ -117,7 +117,7 @@
       "time-hint": "Bei so viel mehr oder weniger ändern sich Back- und Garzeiten oft."
     },
     "ai": {
-      "choice-hint": "Text und Rezepte: Kochheft nimmt den obersten Anbieter der Liste unten. Fotos und Screenshots liest der oberste Anbieter, der Bilder kann. Die Reihenfolge änderst du mit den Pfeilen. Einen eigenen Anbieter für Audio gibt es nicht mehr, weil Kochheft keine Videos herunterlädt.",
+      "choice-hint": "So geht's: Unten mit „Anbieter anlegen“ einen Anbieter mit deinem Schlüssel eintragen, zum Beispiel Google Gemini (kostenlos, Anleitung in der README unter „KI einrichten“). Für Text und Rezepte nimmt Kochheft den obersten Anbieter der Liste, Fotos und Screenshots liest der oberste, der Bilder kann; die Reihenfolge änderst du mit den Pfeilen. Audio und Video: Mealies Audio-Anbieter ging nur mit Anbietern, die OpenAIs Schnittstelle zum Umwandeln von Sprache haben (praktisch nur OpenAI/ChatGPT), und diente nur dem Video-Download, den Kochheft nicht macht. Eigene Aufnahmen wandelt stattdessen das Zusatzmodul Whisper um; es läuft lokal und braucht keinen Schlüssel.",
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
       "profile-lokal": "Profil \"lokal\": alles bleibt im Haus. Nur lokale KI-Anbieter nutzen (z. B. Ollama), keine Cloud-Schlüssel.",
       "move-up": "Nach oben",
