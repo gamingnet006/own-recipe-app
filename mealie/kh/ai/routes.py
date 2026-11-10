@@ -25,7 +25,7 @@ class KhAiController(BaseUserController):
         providers = self.repos.group_ai_providers.get_all()
         states = load_states(self.session, [p.id for p in providers])
         return [
-            ProviderStateOut(provider_id=p.id, name=p.name, model=p.model, **asdict(states[p.id]))
+            ProviderStateOut(provider_id=p.id, name=p.name, model=p.model, base_url=p.base_url, **asdict(states[p.id]))
             for p in in_order(providers, states)
         ]
 

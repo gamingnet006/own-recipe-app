@@ -3,7 +3,7 @@
 import { expect, test, vi } from "vitest";
 import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel } from "../composables/use-kh-ai";
 import type { KhProviderState } from "../lib/api/ai";
-import { FREE_AI_KEYS, FREE_AI_KEYS_DATE } from "../lib/free-ai-keys";
+import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, setUpPlaces } from "../lib/free-ai-keys";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -104,4 +104,15 @@ test("ten free places with https addresses and a date", () => {
 
 test("kh.ai has the same keys in German and English", () => {
   expect(keys(de.kh.ai)).toEqual(keys(en.kh.ai));
+});
+
+test("a free key place counts as set up when a provider uses its address, with or without the last slash", () => {
+  const done = setUpPlaces([
+    "https://generativelanguage.googleapis.com/v1beta/openai", // typed without the slash
+    "HTTPS://API.GROQ.COM/openai/v1/",
+    null, // a provider without an address (OpenAI's default)
+    "not a url",
+  ]);
+  expect([...done].sort()).toEqual(["Google AI Studio (Gemini)", "Groq"]);
+  expect(setUpPlaces([]).size).toBe(0);
 });

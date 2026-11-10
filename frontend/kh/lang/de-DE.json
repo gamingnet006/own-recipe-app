@@ -133,7 +133,9 @@
       "free-keys": {
         "title": "Kostenlose Schlüssel",
         "date": "Stand {date}",
-        "hint": "Kostenlose Stufen ändern sich oft. Ob ein Modell passt, zeigt der Test-Knopf. Die Schlüssel trägst du selbst ein.",
+        "hint": "Ein Anbieter reicht, am besten einer, der Fotos liest. Weitere sind Reserve: Ist bei einem das Kontingent leer, nimmt Kochheft den nächsten. Kostenlose Stufen ändern sich oft; ob ein Modell passt, zeigt der Test-Knopf. Die Schlüssel trägst du selbst ein.",
+        "set-up": "eingerichtet",
+        "not-set-up": "noch nicht eingerichtet (optional)",
         "get-key": "Schlüssel holen",
         "address": "Adresse"
       },

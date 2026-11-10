@@ -89,8 +89,8 @@
       </v-row>
     </v-card>
 
-    <!-- KH: where free AI keys come from (D39) -->
-    <KhFreeAiKeys />
+    <!-- KH: where free AI keys come from, ticked off where the own group already has a provider (D39) -->
+    <KhFreeAiKeys :base-urls="khList ? khProviders.map(p => p.baseUrl) : undefined" />
   </div>
 </template>
 

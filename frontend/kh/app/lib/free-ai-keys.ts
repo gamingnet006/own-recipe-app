@@ -103,3 +103,11 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
     },
   },
 ];
+
+/** The places whose address one of the group's providers uses, by name; compared by address without case and last
+ * slash, so a provider counts however the address was typed. Lets the list tick off what is already set up. */
+export function setUpPlaces(baseUrls: (string | null)[]): Set<string> {
+  const plain = (url: string) => url.trim().toLowerCase().replace(/\/+$/, "");
+  const used = new Set(baseUrls.filter((url): url is string => !!url).map(plain));
+  return new Set(FREE_AI_KEYS.filter(place => used.has(plain(place.baseUrl))).map(place => place.name));
+}

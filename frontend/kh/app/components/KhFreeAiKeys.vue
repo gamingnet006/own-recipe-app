@@ -13,9 +13,18 @@
         {{ $t("kh.ai.free-keys.hint") }}
       </p>
       <div v-for="place in FREE_AI_KEYS" :key="place.name" class="mb-4">
-        <a :href="place.keyUrl" target="_blank" rel="noopener noreferrer" class="text-title-small">
-          {{ place.name }}: {{ $t("kh.ai.free-keys.get-key") }}
-        </a>
+        <div class="d-flex flex-wrap align-center ga-2">
+          <a :href="place.keyUrl" target="_blank" rel="noopener noreferrer" class="text-title-small">
+            {{ place.name }}: {{ $t("kh.ai.free-keys.get-key") }}
+          </a>
+          <!-- ticks itself off when a provider of the group uses this address -->
+          <v-chip v-if="done.has(place.name)" size="small" color="success" :prepend-icon="$globals.icons.check">
+            {{ $t("kh.ai.free-keys.set-up") }}
+          </v-chip>
+          <span v-else-if="baseUrls" class="text-body-small text-medium-emphasis">
+            {{ $t("kh.ai.free-keys.not-set-up") }}
+          </span>
+        </div>
         <div class="text-body-small">
           {{ note(place) }}
         </div>
@@ -30,7 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, type FreeAiKey } from "../lib/free-ai-keys";
+import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, setUpPlaces, type FreeAiKey } from "../lib/free-ai-keys";
+
+/** The addresses of the group's providers; without them (another group's page) nothing is ticked off. */
+const props = defineProps<{ baseUrls?: (string | null)[] }>();
+const done = computed(() => setUpPlaces(props.baseUrls ?? []));
 
 const i18n = useI18n();
 

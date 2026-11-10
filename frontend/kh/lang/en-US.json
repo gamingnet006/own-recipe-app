@@ -133,7 +133,9 @@
       "free-keys": {
         "title": "Free keys",
         "date": "as of {date}",
-        "hint": "Free tiers change often. The test button shows whether a model fits. You enter the keys yourself.",
+        "hint": "One provider is enough, ideally one that reads photos. More are a reserve: when one runs out of quota, Kochheft takes the next. Free tiers change often; the test button shows whether a model fits. You enter the keys yourself.",
+        "set-up": "set up",
+        "not-set-up": "not set up yet (optional)",
         "get-key": "Get a key",
         "address": "Address"
       },

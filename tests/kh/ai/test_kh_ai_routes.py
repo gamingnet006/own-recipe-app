@@ -61,3 +61,14 @@ def test_status_follows_pauses(api_client: TestClient, unique_user: TestUser, pr
             unique_user.repos.session, provider.id, status="quota", paused_until=get_utc_now() + timedelta(hours=1)
         )
     assert api_client.get(STATUS, headers=unique_user.token).json() == {"available": False, "configured": True}
+
+
+def test_list_names_the_address_but_never_the_key(api_client: TestClient, unique_user: TestUser, providers):
+    """The settings tick off the free key places by the provider's address; the key itself never leaves the server."""
+    unique_user.repos.group_ai_providers.update(
+        providers["A"].id, {**providers["A"].model_dump(), "base_url": "https://api.groq.com/openai/v1"}
+    )
+    listed = {p["name"]: p for p in api_client.get(PROVIDERS, headers=unique_user.token).json()}
+    assert listed["A"]["baseUrl"] == "https://api.groq.com/openai/v1"
+    assert listed["B"]["baseUrl"] is None
+    assert all("apiKey" not in p and "test-key" not in str(p) for p in listed.values())

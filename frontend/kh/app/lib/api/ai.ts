@@ -13,6 +13,7 @@ export interface KhProviderState {
   status: string;
   pausedUntil: string | null;
   supportsImages: boolean | null;
+  baseUrl: string | null; // the address only, never the key
 }
 
 export interface KhAiStatus {

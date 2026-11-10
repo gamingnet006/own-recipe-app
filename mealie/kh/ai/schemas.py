@@ -17,6 +17,7 @@ class ProviderStateOut(MealieModel):
     status: str
     paused_until: datetime | None = None
     supports_images: bool | None = None
+    base_url: str | None = None  # lets the settings tick off the free key places; the key itself is never sent
 
 
 class OrderIn(MealieModel):

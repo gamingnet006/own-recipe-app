@@ -4,11 +4,14 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
-## [Unreleased]
+## [v1.0.1] - 2026-11-10
 
 - AI settings: Mealie's audio provider select is gone (it only served Mealie's video import, which Kochheft refuses);
   instead a short note explains how to add a provider with a key, that the top provider of the list does text and the
   top one that reads images does photos and screenshots, and that recordings go to the local Whisper add-on.
+- The list of free key places ticks itself off: a place shows "set up" when one of your providers uses its address,
+  and says that one provider is enough, more are a reserve. The provider list now also carries the address (never
+  the key).
 
 ## [v1.0] - 2026-11-09
 
