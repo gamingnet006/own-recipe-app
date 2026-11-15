@@ -20,6 +20,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
   reachable on iPad landscape and computers (D51). "I don't tolerate" never shows empty boxes after a failed load.
   Saved recipes answer after 4 s on weak Wi-Fi; the alarm sound unlocks on the end of a tap; Enter cannot send a
   draft twice.
+- Second audit round: approving a draft whose follow-up step fails no longer leaves a duplicate recipe, and a double
+  tap on "retry" starts one recognition; an update interrupted after the switch (closed terminal, signal) rolls back,
+  and a nightly update stopped by a signal is tried again instead of being skipped; a full USB stick makes room
+  first and says "Laufwerk voll"; voice commands stop when the app goes to the background; allergen marks retry
+  after a failed load; a failed add-on load no longer slows every page change; larger buttons and labels for
+  touch and screen readers; manual nutrition values read "1.200" as 1200.
 - Operations: a failed or damaged backup copy never keeps a backup's name; a keep count of 0 or a typo deletes
   nothing; .env values may contain & and |; relative recordings in the hardware test; the release gate fails when no
   older image can be loaded instead of skipping the upgrade test.
