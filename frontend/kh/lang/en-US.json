@@ -299,7 +299,6 @@
       "page": {
         "description": "Which entry of the German food composition table (BLS) belongs to which ingredient. The matching applies to all recipes.",
         "open": "Still open ({count})",
-        "done": "Confirmed",
         "none-open": "All ingredients are matched.",
         "empty": "No ingredients in recipes yet.",
         "in-recipes": "in 1 recipe | in {count} recipes",
@@ -307,14 +306,12 @@
         "confirmed": "confirmed",
         "no-entry": "No matching entry",
         "search-label": "Search the BLS",
-        "search-hint": "At least one word of the ingredient",
         "no-hits": "Nothing found.",
         "piece-grams": "Weight of one piece in grams",
         "confirm": "Confirm",
         "unknown-code": "That BLS entry does not exist.",
         "forbidden": "You do not have the permission to organize data, so you cannot change this.",
-        "failed": "That did not work.",
-        "pick": "Choose {name}"
+        "failed": "That did not work."
       }
     },
     "allergens": {

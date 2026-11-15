@@ -299,7 +299,6 @@
       "page": {
         "description": "Welcher Eintrag der Bundeslebensmittelschlüssel-Tabelle (BLS) zu welcher Zutat gehört. Die Zuordnung gilt für alle Rezepte.",
         "open": "Noch offen ({count})",
-        "done": "Bestätigt",
         "none-open": "Alle Zutaten sind zugeordnet.",
         "empty": "Noch keine Zutaten in Rezepten.",
         "in-recipes": "in 1 Rezept | in {count} Rezepten",
@@ -307,14 +306,12 @@
         "confirmed": "bestätigt",
         "no-entry": "Kein passender Eintrag",
         "search-label": "BLS durchsuchen",
-        "search-hint": "Mindestens ein Wort der Zutat",
         "no-hits": "Nichts gefunden.",
         "piece-grams": "Stückgewicht in Gramm",
         "confirm": "Bestätigen",
         "unknown-code": "Diesen BLS-Eintrag gibt es nicht.",
         "forbidden": "Dafür fehlt dir die Berechtigung (Daten organisieren).",
-        "failed": "Das hat nicht geklappt.",
-        "pick": "{name} wählen"
+        "failed": "Das hat nicht geklappt."
       }
     },
     "allergens": {
