@@ -219,6 +219,17 @@ roll_back() {  # old_id recipes_before
   exit 1
 }
 
+# From the switch of .env on, a signal (closed terminal, kill) must not leave the new version half
+# started: it runs the same rollback as a failed check. Values are expanded now, the trap runs later.
+arm_rollback_trap() {  # old_id recipes_before
+  trap "roll_back '$1' '$2'" INT TERM HUP
+}
+
+# Called before the success exit, so the rollback cannot fire on a working update.
+disarm_rollback_trap() {
+  trap - INT TERM HUP
+}
+
 # Reads all settings and checks the running installation before anything changes.
 preflight() {
   docker compose version >/dev/null 2>&1 || abort "docker compose ist nicht installiert"
@@ -249,13 +260,14 @@ main() {
   fi
   new_id=$(image_id "$new_ref")
   [ "$new_id" != "$old_id" ] || { echo "Läuft bereits mit dieser Version, nichts zu tun."; exit 0; }
-  before=$(count_recipes) || abort "die Rezepte sind nicht abrufbar (stimmt KH_BACKUP_API_TOKEN?)"
 
   echo "2/4 Backup über Mealie"
   # --no-deps: otherwise compose recreates mealie whenever .env names another image than the running one.
   docker compose run --rm --no-deps backup backup.sh || abort "das Backup ist fehlgeschlagen"
 
   echo "3/4 Datenbank-Schnappschuss bei gestopptem Mealie"
+  # Counted after the backup, right before the stop, so recipes added meanwhile do not look like a loss.
+  before=$(count_recipes) || abort "die Rezepte sind nicht abrufbar (stimmt KH_BACKUP_API_TOKEN?)"
   docker tag "$old_id" "$ROLLBACK_TAG" || abort "das alte Image ließ sich nicht sichern"
   docker compose stop mealie >/dev/null || abort "Mealie ließ sich nicht stoppen"
   rm -f "$ENV_FILE.pre-update"
@@ -266,10 +278,12 @@ main() {
     abort "Schnappschuss oder Einstellungen ließen sich nicht schreiben"
   fi
 
+  arm_rollback_trap "$old_id" "$before"
   echo "4/4 Neue Version starten und prüfen (höchstens $TIMEOUT Sekunden)"
   if start_mealie "$new_ref" && wait_healthy && verify_switch "$new_id" "$before"; then
     echo "Update fertig: $new_ref läuft, alle $before Rezepte sind da."
     echo "Für den Notfall bleiben bis zum nächsten Update: $SNAP und das Image $ROLLBACK_TAG"
+    disarm_rollback_trap
     refresh_companions
     exit 0
   fi

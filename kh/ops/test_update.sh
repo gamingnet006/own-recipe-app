@@ -93,6 +93,10 @@ check "rollback tag follows COMPOSE_PROJECT_NAME" "$(COMPOSE_PROJECT_NAME=kh-upg
 mkdir "$tmp/install" && cp "$here/update.sh" "$tmp/install/"
 check "an abort before any change exits 4" "$(sh "$tmp/install/update.sh" example/image:v1 >/dev/null 2>&1 && echo 0 || echo $?)" "4"
 
+# --- a signal after the switch rolls back (the old version must not stay down), a clean finish disarms it ---
+check "a TERM after arming runs the rollback with both values" "$(sh -c 'set -- --lib; . "$0"; roll_back() { echo "rollback $1 $2"; exit 1; }; arm_rollback_trap sha256:old 7; kill -TERM $$; sleep 1' "$here/update.sh")" "rollback sha256:old 7"
+check "disarming removes the traps" "$(sh -c 'set -- --lib; . "$0"; arm_rollback_trap a 1; disarm_rollback_trap; trap' "$here/update.sh")" ""
+
 # --- argument checks (stop before touching Docker) ---
 check "no image is a usage error" "$(sh "$here/update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "an invalid image name is a usage error" "$(sh "$here/update.sh" 'bad|image' >/dev/null 2>&1 && echo 0 || echo $?)" "2"
