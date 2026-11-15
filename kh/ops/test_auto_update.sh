@@ -239,8 +239,9 @@ check "update ok" "$(finish_update 0 v0.1-amd64 && echo 0 || echo $?)$(failed_ta
 check "update failed" "$(finish_update 1 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1v0.1-amd64"
 check "ok clears marker" "$(finish_update 0 v0.1-amd64 >/dev/null; failed_tag)" ""
 check "stopped before any change: not marked" "$(finish_update 4 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1"
+check "killed by a signal (rc 143): not marked" "$(finish_update 143 v0.1-amd64 && echo 0 || echo $?)$(failed_tag)" "1"
 check "rollback failed" "$(finish_update 3 v0.1-amd64 && echo 0 || echo $?)" "3"
-check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down down "
+check "reports" "$(tr '\n' ' ' < "$tmp/reports")" "up down up down down down "
 
 # --- run end to end with stand-ins for curl and docker (spec steps 7 to 11) ---
 # The bundle's auto_update.sh is longer than the running one: after cp has replaced the file in
