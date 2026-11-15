@@ -116,7 +116,11 @@ def test_german_thousands_separators_in_hand_entered_values(small_bls) -> None:
 
     values = calc(recipe).values
 
-    assert (values.kcal, values.fat, values.sugar) == (1200, 1250.5, 1.5)  # 1.5 stays a decimal, 1.200 is twelve hundred
+    assert (values.kcal, values.fat, values.sugar) == (
+        1200,
+        1250.5,
+        1.5,
+    )  # 1.5 stays a decimal, 1.200 is twelve hundred
 
 
 def test_hand_entered_text_without_any_number_falls_back_to_the_calculation(small_bls) -> None:
