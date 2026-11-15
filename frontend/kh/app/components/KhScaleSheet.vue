@@ -22,11 +22,30 @@
               type="number"
               inputmode="decimal"
               :label="$t('kh.amounts.scale.servings')"
-              :prepend-inner-icon="$globals.icons.minus"
-              :append-inner-icon="$globals.icons.createAlt"
-              @click:prepend-inner="servings = Math.max(1, Math.ceil(servings) - 1)"
-              @click:append-inner="servings = Math.floor(servings) + 1"
-            />
+            >
+              <template #prepend-inner>
+                <v-btn
+                  icon
+                  variant="text"
+                  size="small"
+                  :aria-label="$t('kh.amounts.scale.fewer')"
+                  @click="servings = Math.max(1, Math.ceil(servings) - 1)"
+                >
+                  <v-icon :icon="$globals.icons.minus" />
+                </v-btn>
+              </template>
+              <template #append-inner>
+                <v-btn
+                  icon
+                  variant="text"
+                  size="small"
+                  :aria-label="$t('kh.amounts.scale.more')"
+                  @click="servings = Math.floor(servings) + 1"
+                >
+                  <v-icon :icon="$globals.icons.createAlt" />
+                </v-btn>
+              </template>
+            </v-text-field>
           </v-window-item>
           <v-window-item value="have">
             <v-select

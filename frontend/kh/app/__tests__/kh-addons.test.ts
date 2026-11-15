@@ -107,6 +107,20 @@ describe("loading", () => {
     expect(khAddons.enabled).toEqual(DEFAULT_ADDONS);
   });
 
+  test("after a failed load the next navigations do not ask again for 60 seconds", async () => {
+    vi.useFakeTimers();
+    getMock.mockResolvedValue({ data: null, error: new Error("offline") });
+    await loadKhAddonsFor("u1");
+    await loadKhAddonsFor("u1");
+    expect(getMock).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(61_000);
+    getMock.mockResolvedValue(answer(on({ books: false })));
+    await loadKhAddonsFor("u1");
+    expect(getMock).toHaveBeenCalledTimes(2);
+    expect(khAddons.enabled.books).toBe(false);
+    vi.useRealTimers();
+  });
+
   test("keeps the defaults when the answer fails", async () => {
     getMock.mockResolvedValue({ data: null, error: new Error("offline") });
     await loadKhAddonsFor("u1");

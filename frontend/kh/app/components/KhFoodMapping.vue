@@ -77,10 +77,12 @@ const entryName = computed(() => chosen.value?.name ?? props.mapping.blsName ?? 
 const startRequest = latestRequest();
 const search = useDebounceFn(async (text: string) => {
   const isCurrent = startRequest();
-  const found = text.trim() ? (await api.searchBls(text.trim())).data ?? [] : [];
+  const answer = text.trim() ? await api.searchBls(text.trim()) : null;
   if (!isCurrent()) return;
-  hits.value = found;
-  searched.value = !!text.trim();
+  // a failed search must not look like "nothing found"
+  error.value = answer?.error ? t("kh.nutrition.page.failed") : "";
+  hits.value = answer?.data ?? [];
+  searched.value = !!answer?.data;
 }, SEARCH_DELAY_MS);
 watch(query, text => search(text));
 
@@ -103,7 +105,10 @@ async function save(blsCode: string | null) {
   saving.value = true;
   const { data, error: failure } = await api.putFood(props.mapping.foodId, { blsCode, confirmed: true, pieceGrams });
   saving.value = false;
-  if (data) emit("saved", data);
+  if (data) {
+    chosen.value = null; // the saved mapping comes back as the prop; a stale choice must not outlive it
+    emit("saved", data);
+  }
   else error.value = t(SAVE_ERRORS[failure?.response?.status ?? 0] ?? "kh.nutrition.page.failed");
 }
 </script>

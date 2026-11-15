@@ -220,5 +220,7 @@ async function submit() {
   position: absolute;
   top: 4px;
   right: 4px;
+  width: 44px;
+  height: 44px;
 }
 </style>

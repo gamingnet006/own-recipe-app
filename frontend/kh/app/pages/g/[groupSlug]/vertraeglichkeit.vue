@@ -49,7 +49,8 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
             <v-btn
               icon
               variant="text"
-              size="small"
+              size="default"
+              style="min-width: 44px; min-height: 44px"
               :aria-label="$t('kh.allergens.profile.rule-delete', { match: rule.match })"
               @click="removeRule(rule.id)"
             >
@@ -84,6 +85,7 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
 <script setup lang="ts">
 import { refreshKhAllergenWarnings } from "~~/kh/app/composables/use-kh-allergens";
 import { KH_ALLERGENS, KhAllergensApi, type KhAllergenKey, type KhSubstitutionRule } from "~~/kh/app/lib/api/allergens";
+import { latestRequest } from "~~/kh/app/lib/duplicates";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useRequests } from "~/composables/api/api-client";
 
@@ -127,11 +129,16 @@ function report(ok: boolean, key: string) {
   message.value = t(key);
 }
 
-/** Stores the profile with KEY ticked or unticked; the marks on the recipe cards follow. A failure puts the box back. */
+const startSave = latestRequest();
+
+/** Stores the profile with KEY ticked or unticked; the marks on the recipe cards follow. A failure puts the box back.
+ * Only the newest save's answer counts: two quick ticks must not let the older answer undo the newer one. */
 async function toggle(key: KhAllergenKey, on: boolean) {
   const before = selected.value;
   selected.value = KH_ALLERGENS.filter(k => (k === key ? on : before.includes(k)));
+  const isCurrent = startSave();
   const { data } = await api.putAllergies(selected.value);
+  if (!isCurrent()) return;
   if (data) {
     selected.value = data.allergens;
     report(true, "kh.allergens.profile.saved");

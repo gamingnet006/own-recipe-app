@@ -16,6 +16,7 @@
       "add-photos": "Add photos",
       "choose-media": "Choose a recording",
       "remove-photo": "Remove photo",
+      "original-photo": "Photo {n}",
       "no-drafts": "No drafts waiting.",
       "status": {
         "working": "Being recognized …",
@@ -161,6 +162,8 @@
       "scale": {
         "title": "Scale",
         "servings": "Servings",
+        "fewer": "Fewer servings",
+        "more": "More servings",
         "have-only": "I only have …",
         "pan": "Baking pan",
         "round": "round",

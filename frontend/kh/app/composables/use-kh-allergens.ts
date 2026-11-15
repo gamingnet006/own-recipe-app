@@ -11,11 +11,16 @@ let api: KhAllergensApi | null = null;
 /** Asks the server again and updates every card; does nothing while no card has asked yet (the next one asks). */
 export async function refreshKhAllergenWarnings(): Promise<void> {
   if (!api) return;
-  warnings.value = (await api.getWarnings()).data ?? {};
+  const answer = await api.getWarnings();
+  if (answer.error) {
+    api = null; // the next card asks again instead of every card showing no marks until a reload
+    return;
+  }
+  warnings.value = answer.data ?? {};
 }
 
 /** The recipe slugs with an allergen somebody in the household does not tolerate, to the allergens. The first caller
- * starts the one request; a failed one leaves no marks. */
+ * starts the one request; a failed one leaves no marks and is retried by the next card. */
 export function useKhAllergenWarnings() {
   if (!api) {
     api = new KhAllergensApi(useRequests());

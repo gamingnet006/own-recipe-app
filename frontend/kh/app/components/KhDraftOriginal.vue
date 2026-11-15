@@ -9,7 +9,7 @@ text, and only an http(s) link becomes clickable, so nothing handed in can run i
       target="_blank"
       rel="noopener"
     >
-      <v-img :src="api.originalUrl(draft.id, n)" rounded />
+      <v-img :src="api.originalUrl(draft.id, n)" :alt="$t('kh.drafts.original-photo', { n })" rounded />
     </a>
   </div>
   <div v-else-if="draft.sourceType === 'text'" class="kh-source-text">

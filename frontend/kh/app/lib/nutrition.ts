@@ -49,11 +49,11 @@ export function openFirst(foods: KhFoodMapping[]): KhFoodMapping[] {
   return [...foods.filter(food => !food.confirmed), ...foods.filter(food => food.confirmed)];
 }
 
-/** The piece weight typed into the field: null when empty, the grams (comma or point), "invalid" for zero, a negative
- * number or text. */
+/** The piece weight typed into the field: null when empty, the grams (comma or point), "invalid" for zero, a negative or
+ * infinite number or text. */
 export function parsePieceGrams(text: string): number | null | "invalid" {
   const trimmed = text.trim();
   if (!trimmed) return null;
   const grams = Number(trimmed.replace(",", "."));
-  return grams > 0 ? grams : "invalid";
+  return Number.isFinite(grams) && grams > 0 ? grams : "invalid";
 }

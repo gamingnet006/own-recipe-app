@@ -16,6 +16,7 @@
       "add-photos": "Fotos hinzufügen",
       "choose-media": "Aufnahme wählen",
       "remove-photo": "Foto entfernen",
+      "original-photo": "Foto {n}",
       "no-drafts": "Keine offenen Entwürfe.",
       "status": {
         "working": "Wird erkannt …",
@@ -161,6 +162,8 @@
       "scale": {
         "title": "Umrechnen",
         "servings": "Portionen",
+        "fewer": "Eine Portion weniger",
+        "more": "Eine Portion mehr",
         "have-only": "Ich habe nur …",
         "pan": "Backform",
         "round": "rund",

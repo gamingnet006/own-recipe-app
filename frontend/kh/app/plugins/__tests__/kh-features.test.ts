@@ -32,7 +32,7 @@ describe("kh-features plugin", () => {
       media: false,
       profile: "leicht",
     });
-    expect(getMock).toHaveBeenCalledWith("/api/kh/features");
+    expect(getMock).toHaveBeenCalledWith("/api/kh/features", { timeout: 5000 });
   });
 
   test("keeps everything hidden without an answer", async () => {

@@ -1,5 +1,5 @@
 // KH: the household's add-on switches (D46) as one shared state. Components read khAddons.enabled; it holds the
-// defaults until the answer of the server arrives, and stays on them if it never does.
+// defaults until the answer of the server arrives, and stays on them if it never does (retried after 60 seconds).
 import type { Composer } from "vue-i18n";
 import { DEFAULT_ADDONS, type KhAddonFlags, type KhAddonName, type KhAddonsAnswer } from "../lib/addons";
 import { KhAddonsApi } from "../lib/api/addons";
@@ -14,6 +14,11 @@ export const khAddons = reactive({
   unavailable: [] as KhAddonName[],
   userId: null as string | null,
 });
+
+// When the last load failed, and for whom: every navigation runs the route guard, and a down server should not be
+// asked on each of them.
+let failedLoad: { userId: string; at: number } | null = null;
+const RETRY_AFTER_FAILURE_MS = 60_000;
 
 /** The switches in force, for templates: khOn.shopping. */
 export function useKhOn() {
@@ -33,12 +38,14 @@ export function setKhAddons(answer: KhAddonsAnswer): void {
 export function resetKhAddons(): void {
   setKhAddons({ flags: { ...DEFAULT_ADDONS }, enabled: { ...DEFAULT_ADDONS }, unavailable: [] });
   khAddons.userId = null;
+  failedLoad = null;
 }
 
 /** Loads the household's switches once per user; the next user of the same browser gets his own. Outside a component
  * (a route guard) pass the app's i18n, because the request helper would otherwise call useI18n(). */
 export async function loadKhAddonsFor(userId: string, i18n?: Composer): Promise<void> {
   if (khAddons.userId === userId) return;
+  if (failedLoad?.userId === userId && Date.now() - failedLoad.at < RETRY_AFTER_FAILURE_MS) return;
   if (khAddons.userId) resetKhAddons(); // a failed load for this user must not leave the last household's switches
   const { data } = await new KhAddonsApi(useRequests(i18n)).get();
   if (data) {
@@ -46,6 +53,7 @@ export async function loadKhAddonsFor(userId: string, i18n?: Composer): Promise<
     khAddons.userId = userId;
   }
   else {
+    failedLoad = { userId, at: Date.now() };
     console.error("Kochheft: add-ons not loaded, the defaults stay");
   }
 }

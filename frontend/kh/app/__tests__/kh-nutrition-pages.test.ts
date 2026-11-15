@@ -42,8 +42,8 @@ describe("parsePieceGrams", () => {
     expect(parsePieceGrams(" 55,5 ")).toBe(55.5);
     expect(parsePieceGrams("80")).toBe(80);
   });
-  test("zero, negative or text is invalid", () => {
-    for (const bad of ["0", "-3", "abc"]) expect(parsePieceGrams(bad)).toBe("invalid");
+  test("zero, negative, infinite or text is invalid", () => {
+    for (const bad of ["0", "-3", "abc", "Infinity", "1e999"]) expect(parsePieceGrams(bad)).toBe("invalid");
   });
 });
 
@@ -83,6 +83,32 @@ describe("KhFoodMapping", () => {
     await flushPromises();
     expect(putMock).toHaveBeenCalledWith("/api/kh/nutrition/foods/Mehl", { blsCode: "M1", confirmed: true, pieceGrams: 55.5 });
     expect(wrapper.emitted("saved")![0]![0]).toMatchObject({ confirmed: true, blsCode: "M1" });
+  });
+
+  test("after a save the chosen hit is forgotten, the row stands for the stored entry again", async () => {
+    vi.useFakeTimers();
+    getMock.mockResolvedValue({ data: [{ code: "M1", name: "Weizen Mehl, Type 405", kcal: 340 }] });
+    putMock.mockResolvedValue({ data: food("Mehl", true, { blsCode: "M1" }) });
+    const wrapper = render(food("Mehl", false));
+    await wrapper.find("input[type=search]").setValue("mehl");
+    await vi.advanceTimersByTimeAsync(300);
+    await flushPromises();
+    await button(wrapper, "Weizen Mehl").trigger("click");
+    await button(wrapper, "Bestätigen").trigger("click");
+    await flushPromises();
+    await button(wrapper, "Bestätigen").trigger("click");
+    expect(putMock.mock.calls[1]![1]).toMatchObject({ blsCode: "B1" });
+  });
+
+  test("a failed search says so instead of 'nothing found'", async () => {
+    vi.useFakeTimers();
+    getMock.mockResolvedValue({ data: null, error: new Error("down") });
+    const wrapper = render(food("Mehl", false));
+    await wrapper.find("input[type=search]").setValue("mehl");
+    await vi.advanceTimersByTimeAsync(300);
+    await flushPromises();
+    expect(wrapper.text()).toContain("Das hat nicht geklappt");
+    expect(wrapper.text()).not.toContain("Nichts gefunden");
   });
 
   test("'Bestätigen' without a choice confirms the suggestion", async () => {
@@ -149,5 +175,19 @@ describe("useKhAllergenWarnings", () => {
     const { warnings } = useKhAllergenWarnings();
     await flushPromises();
     expect(warnings.value).toEqual({});
+  });
+
+  test("the next card asks again after a failed request", async () => {
+    vi.resetModules();
+    getMock.mockReset();
+    getMock.mockResolvedValue({ data: null, error: new Error("down") });
+    const { useKhAllergenWarnings } = await import("../composables/use-kh-allergens");
+    useKhAllergenWarnings();
+    await flushPromises();
+    getMock.mockResolvedValue({ data: { kuchen: ["milk"] } });
+    const { warnings } = useKhAllergenWarnings();
+    await flushPromises();
+    expect(getMock).toHaveBeenCalledTimes(2);
+    expect(warnings.value).toEqual({ kuchen: ["milk"] });
   });
 });

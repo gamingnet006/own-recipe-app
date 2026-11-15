@@ -11,6 +11,9 @@ export interface KhFeatures {
   profile: string; // leicht, normal, stark or lokal (P7.4)
 }
 
+// A slow server must not hold the whole app start: without an answer the hidden parts stay hidden.
+const FEATURES_TIMEOUT_MS = 5000;
+
 const ALL_HIDDEN: KhFeatures = {
   shareLinks: false,
   noticePollMinutes: 5,
@@ -24,7 +27,7 @@ export default defineNuxtPlugin({
   async setup() {
     let khFeatures = ALL_HIDDEN;
     try {
-      const { data } = await axios.get<KhFeatures>("/api/kh/features");
+      const { data } = await axios.get<KhFeatures>("/api/kh/features", { timeout: FEATURES_TIMEOUT_MS });
       khFeatures = { ...ALL_HIDDEN, ...data };
     }
     catch (error) {

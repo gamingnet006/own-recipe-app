@@ -45,16 +45,24 @@ delete one after a confirmation. -->
           v-for="recipe in [pair.a, pair.b]"
           :key="recipe.slug"
           variant="tonal"
+          class="text-wrap h-auto py-2"
           :href="`/g/${route.params.groupSlug as string}/r/${recipe.slug}`"
           target="_blank"
           rel="noopener"
         >
           {{ $t("kh.duplicates.view", { title: recipe.name }) }}
         </v-btn>
-        <v-btn variant="tonal" @click="keepBoth(pair)">
+        <v-btn variant="tonal" class="text-wrap h-auto py-2" @click="keepBoth(pair)">
           {{ $t("kh.duplicates.keep-both") }}
         </v-btn>
-        <v-btn v-for="recipe in [pair.a, pair.b]" :key="recipe.slug" variant="tonal" color="error" @click="toDelete = recipe">
+        <v-btn
+          v-for="recipe in [pair.a, pair.b]"
+          :key="recipe.slug"
+          variant="tonal"
+          color="error"
+          class="text-wrap h-auto py-2"
+          @click="toDelete = recipe"
+        >
           {{ $t("kh.duplicates.delete", { title: recipe.name }) }}
         </v-btn>
       </div>

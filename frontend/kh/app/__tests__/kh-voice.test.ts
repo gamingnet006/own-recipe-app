@@ -158,7 +158,7 @@ describe("KhCookVoice", () => {
     await flushPromises();
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
     document.dispatchEvent(new Event("visibilitychange"));
-    expect(stopMock).toHaveBeenCalled();  // earlier wrappers of this file listen too
+    expect(stopMock).toHaveBeenCalled(); // earlier wrappers of this file listen too
     await flushPromises();
     expect(wrapper.text()).toContain(en.kh.voice.start);
 
