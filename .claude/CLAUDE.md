@@ -102,7 +102,7 @@ kh/ops/restore_test.sh [backup.zip]
 # Tests der Betriebs-Skripte (laufen auch in der CI)
 sh kh/ops/backup/test_backup.sh && sh kh/ops/test_update.sh && sh kh/ops/test_release.sh && sh kh/ops/test_upgrade.sh && sh kh/ops/test_restore.sh && sh kh/ops/test_install.sh && sh kh/ops/test_tunnel.sh && sh kh/ops/test_auto_update.sh && sh kh/ops/test_backup_copy.sh && sh kh/ops/test_hardware_test.sh
 
-# Backend-Tests (entspricht `task py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
+# Backend-Tests (entspricht `mise run py:test`); LDAP-, Postgres- und Langläufer-Tests werden übersprungen
 docker run --rm -v "$PWD":/app -w /app -e UV_PROJECT_ENVIRONMENT=/venv -e UV_LINK_MODE=copy \
   ghcr.io/astral-sh/uv:python3.14-bookworm-slim sh -c "apt-get update -qq && \
   apt-get install -qq -y --no-install-recommends build-essential libsasl2-dev libldap2-dev libssl-dev >/dev/null && \
@@ -114,4 +114,4 @@ docker run --rm -v "$PWD":/src:ro node:24 sh -c "mkdir -p /work/mealie/repos && 
   npm install -g pnpm@11 && CI=true pnpm install --frozen-lockfile && pnpm nuxt prepare && pnpm test:ci"
 ```
 
-Laut Mealies `AGENTS.md`, in unserer Docker-Variante noch nicht erprobt: Lint `task py:lint` und `task ui:lint`, Typen erzeugen `task dev:generate`, Migration anlegen `task py:migrate -- "Beschreibung"`.
+Laut Mealies `AGENTS.md`, in unserer Docker-Variante noch nicht erprobt: Lint `mise run py:lint` und `mise run ui:lint`, Typen erzeugen `mise run dev:generate`, Migration anlegen `mise run py:migrate -- "Beschreibung"`.

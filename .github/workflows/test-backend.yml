@@ -54,11 +54,6 @@ jobs:
         with:
           tools: python uv pipx:semgrep
 
-      # KH: Task from PyPI (go-task-bin, MIT, same release) instead of arduino/setup-task, whose download from
-      # GitHub's release storage failed with HTTP 504 on the runners on 9 Nov 2026; the version is pinned.
-      - name: Install Task
-        run: pip install go-task-bin==3.54.0 && task --version
-
       # Catches a lockfile resolved by an out-of-date uv, which silently ignores
       # the `exclude-newer` cooling window instead of erroring. UV_FROZEN must be
       # cleared here: for `uv lock` it means --check-exists, which conflicts with --check.

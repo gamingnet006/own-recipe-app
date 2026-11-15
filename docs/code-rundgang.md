@@ -11,7 +11,7 @@ mealie/                 Backend (FastAPI, Python 3.14)
   routes/<bereich>/     Controller (HTTP), delegieren an services/
   services/             Fachlogik (Import, KI, Parser, Backups, Migrationen, Zeitplaner)
   repos/                Datenzugriff (AllRepositories, nach Gruppe/Haushalt gefiltert)
-  schema/               Pydantic-Schemas; __init__.py werden von `task dev:generate` erzeugt
+  schema/               Pydantic-Schemas; __init__.py werden von `mise run dev:generate` erzeugt
   db/models/            SQLAlchemy-Modelle; _all_models.py lädt alle Modelle
   alembic/              Migrationen (eine lineare Kette, 59 Dateien), alembic.ini
   pkgs/safehttp/        abgesicherte HTTP-Abrufe (private Adressen, Zeitlimit)
