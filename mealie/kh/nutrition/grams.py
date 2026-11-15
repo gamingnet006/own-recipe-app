@@ -30,9 +30,20 @@ def name_stems(food_name: str) -> list[str]:
 
 
 def food_entry(food_name: str) -> dict[str, float]:
-    """The table's entry (density, piece) for a food name, found by name_stems; empty if the table does not know it."""
+    """The table's entry (density, piece) for a food name, found by name_stems or as the last part of a
+    compound; empty if the table does not know it."""
     foods = _weights()[1]
-    return next((foods[key] for key in name_stems(food_name) if key in foods), {})
+    stems = name_stems(food_name)
+    exact = next((foods[key] for key in stems if key in foods), None)
+    if exact is not None:
+        return exact
+    # a compound weighs like its last part: Weizenmehl like Mehl, Rapsöl like Öl; at least three letters must come
+    # before that part, so Brei is no Ei
+    for word in stems[1:]:
+        tail = max((key for key in foods if word.endswith(key) and len(word) - len(key) >= 3), key=len, default=None)
+        if tail:
+            return foods[tail]
+    return {}
 
 
 def _unit_entry(ingredient: RecipeIngredient) -> dict[str, Any] | None:

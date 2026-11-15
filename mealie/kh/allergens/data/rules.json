@@ -1,17 +1,17 @@
 {
   "gluten": {
-    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße", "bröt", "penne", "fusilli", "tagliatelle", "lasagne", "makkaroni", "gnocchi", "tortellini", "ravioli", "blätterteig", "toast", "baguette", "zwieback", "keks", "graupen", "bier", "malz", "panko"],
+    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße", "bröt", "penne", "fusilli", "tagliatelle", "lasagne", "makkaroni", "gnocchi", "tortellini", "ravioli", "blätterteig", "toast", "baguette", "zwieback", "keks", "graupen", "bier", "malz", "panko", "teig", "semmel"],
     "except": ["buchweizenmehl", "buchweizen", "lupinenmehl", "kokosmehl", "mandelmehl", "reismehl", "reisgrieß", "reisnudel", "glasnudel", "maismehl", "maisgrieß", "hirsemehl", "kartoffelmehl", "kichererbsenmehl", "quinoamehl", "amaranthmehl", "sojamehl", "schmalz"],
     "cancel": ["glutenfrei"]
   },
   "crustaceans": {
-    "match": ["garnele", "shrimp", "scampi", "krabbe", "hummer", "krebs", "langustine", "crevette"],
+    "match": ["garnele", "shrimp", "scampi", "krabbe", "hummer", "krebs", "crevette", "langust"],
     "except": [],
     "cancel": []
   },
   "eggs": {
-    "match": ["=ei", "eier", "eigelb", "eiweiß", "eiklar", "mayonnaise", "mayo", "aioli"],
-    "except": ["eierschwamm", "eierfrucht"],
+    "match": ["=ei", "eier", "eigelb", "eiweiß", "eiklar", "mayonnaise", "mayo", "aioli", "rührei", "spiegelei", "hühnerei", "wachtelei"],
+    "except": ["eierschwamm", "eierfrucht", "milcheiweiß", "molkeneiweiß", "sojaeiweiß", "erbseneiweiß"],
     "cancel": []
   },
   "fish": {
@@ -25,12 +25,12 @@
     "cancel": []
   },
   "soy": {
-    "match": ["soja", "tofu", "edamame", "miso", "tempeh", "tamari", "shoyu"],
+    "match": ["soja", "tofu", "edamame", "miso", "tempeh", "=tamari", "shoyu"],
     "except": [],
     "cancel": []
   },
   "milk": {
-    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto", "fraiche", "fraîche"],
+    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto", "fraiche", "fraîche", "cheddar", "halloumi", "gorgonzola", "ghee", "raclette", "burrata"],
     "except": ["kokosmilch", "kokossahne", "kokosjoghurt", "kokosrahm", "kokosbutter", "sojamilch", "sojasahne", "sojajoghurt", "hafermilch", "hafersahne", "haferjoghurt", "mandelmilch", "mandeljoghurt", "reismilch", "erdnussbutter", "mandelbutter", "cashewbutter", "kakaobutter", "sheabutter", "butternut", "butterbohne"],
     "cancel": ["vegan", "pflanzlich", "pflanzen"]
   },
@@ -56,7 +56,7 @@
   },
   "sulphites": {
     "match": ["wein", "sekt", "rosine", "sultanine", "balsamico", "trockenfrüchte", "trockenobst", "sulfit"],
-    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere", "schwein"],
+    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere", "schwein", "insekt", "weinberg"],
     "cancel": []
   },
   "lupin": {

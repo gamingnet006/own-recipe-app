@@ -3,7 +3,7 @@
 import pytest
 
 from mealie.kh.amounts.parse import stem
-from mealie.kh.nutrition.grams import grams_of, name_stems
+from mealie.kh.nutrition.grams import food_entry, grams_of, name_stems
 from mealie.schema.recipe.recipe_ingredient import CreateIngredientFood, CreateIngredientUnit, RecipeIngredient
 
 
@@ -64,6 +64,18 @@ def test_a_unit_found_by_its_abbreviation_or_plural() -> None:
 
 def test_name_stems_try_the_noun_before_the_adjective() -> None:
     assert name_stems("Grüne Bohnen")[1:] == [stem("Bohnen"), stem("Grüne")]
+
+
+@pytest.mark.parametrize(
+    ("food", "like"),
+    [("Weizenmehl", "Mehl"), ("Dinkelmehl Type 630", "Mehl"), ("Rohrzucker", "Zucker"), ("Sonnenblumenöl", "Öl")],
+)
+def test_a_compound_weighs_like_its_last_part(food: str, like: str) -> None:
+    assert food_entry(food) == food_entry(like) != {}
+
+
+def test_a_short_word_is_no_compound() -> None:
+    assert food_entry("Brei") == {}  # ends in "ei", but is no egg
 
 
 @pytest.mark.parametrize(

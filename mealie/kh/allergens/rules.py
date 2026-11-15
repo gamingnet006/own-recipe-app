@@ -22,13 +22,16 @@ def _rules() -> dict[str, dict[str, list[str]]]:
     short "ei"); every other is a lowercase substring, which is how German compounds (Dinkelvollkornmehl) are found."""
     rules = json.loads(RULES_JSON.read_text(encoding="utf-8"))
     for rule in rules.values():
+        for kind in ("match", "except", "cancel"):
+            rule[kind] = [_normalized(word) for word in rule[kind]]  # "eiweiß" meets "Eiweiss"
         rule["except"].sort(key=len, reverse=True)  # Buchweizenmehl is cut before Buchweizen
     return rules
 
 
 def _normalized(text: str) -> str:
-    """Lowercase with composed umlauts, so "Gemu" + combining diaeresis equals "Gemü"."""
-    return unicodedata.normalize("NFC", text).lower()
+    """Lowercase with composed umlauts and "ss" for "ß", so "Gemu" + combining diaeresis equals "Gemü" and "Eiweiss"
+    equals "Eiweiß"."""
+    return unicodedata.normalize("NFC", text).lower().replace("ß", "ss")
 
 
 def text_has(text: str, key: str) -> bool:

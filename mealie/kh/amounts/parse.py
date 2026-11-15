@@ -25,6 +25,8 @@ WORD = re.compile(r"\S+")
 
 FIXED_UNITS = {"prise", "messerspitze"}  # normalized unit names that never scale
 FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack)\b", re.IGNORECASE)
+ABOUT = re.compile(r"^(?:ca\.?|circa|etwa|ungefähr|rund)\s+(?=\d)", re.IGNORECASE)  # "ca. 200 g": the amount follows
+THOUSANDS = re.compile(r"(?<![\d.])([1-9]\d{0,2})((?:\.\d{3})+)(?![\d.])")  # "1.000" and "1.250,5", never "1.5"
 ENDINGS = ("en", "er", "e", "n", "s")  # up to two are cut off by stem(), the longest first
 
 # Kochheft's additions to Mealie's German units: name, plural, abbreviation
@@ -54,7 +56,7 @@ class ParsedLine:
 
 def clean(text: str) -> str:
     """The line in a form QUANTITY reads: plain spaces, fractions as 1/2 ("1½" → "1 1/2"), a decimal point instead of
-    a comma, and a space between a number and a unit written onto it ("250g" → "250 g")."""
+    a comma (thousands points dropped), and a space between a number and a unit written onto it ("250g" → "250 g")."""
     chars = []
     for index, char in enumerate(text):
         value = unicodedata.numeric(char, 0) if unicodedata.category(char) == "No" else 0
@@ -64,7 +66,8 @@ def clean(text: str) -> str:
             chars.append(f"{space}{fraction.numerator}/{fraction.denominator}")
         else:
             chars.append(" " if char.isspace() else char)
-    text = re.sub(r"(?<=\d),(?=\d)", ".", "".join(chars))
+    text = THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(".", ""), "".join(chars))  # German: point groups
+    text = re.sub(r"(?<=\d),(?=\d)", ".", text)
     text = re.sub(r"(?<=\d)(?=[^\W\d_])", " ", text)
     return re.sub(r" {2,}", " ", text).strip()
 
@@ -121,7 +124,7 @@ def food_and_note(rest: str, foods: dict[str, IngredientFood]) -> tuple[Ingredie
 def parse_ingredient(line: str, units: dict[str, IngredientUnit], foods: dict[str, IngredientFood]) -> ParsedLine:
     """Reads one ingredient line; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher. A line without an
     amount stays as it was, as note."""
-    text = clean(line)
+    text = ABOUT.sub("", clean(line))
     match = QUANTITY.match(text)
     if match is None:  # "etwas Öl": only a line without an amount is fixed by its words
         return ParsedLine(None, None, None, None, line, bool(FIXED_WORDS.search(line)))

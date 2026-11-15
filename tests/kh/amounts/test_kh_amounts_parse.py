@@ -37,6 +37,14 @@ CASES = [  # line, quantity, upper, unit name, food name, note, fixed
     ("eine Handvoll Nüsse", None, None, None, None, "eine Handvoll Nüsse", False),
     # "etwas" only marks a line without an amount; a real amount still scales
     ("250 g Mehl, etwas mehr zum Ausrollen", 250, None, "Gramm", "Mehl", "etwas mehr zum Ausrollen", False),
+    # a German thousands point is not a decimal point (v1.1)
+    ("1.000 g Mehl", 1000, None, "Gramm", "Mehl", "", False),
+    ("1.250,5 g Mehl", 1250.5, None, "Gramm", "Mehl", "", False),
+    ("1.5 l Milch", 1.5, None, "Liter", None, "Milch", False),
+    # "about" before the amount still leaves an amount to scale (v1.1)
+    ("ca. 200 g Mehl", 200, None, "Gramm", "Mehl", "", False),
+    ("etwa 2 EL Zucker", 2, None, "Esslöffel", "Zucker", "", False),
+    ("circa 2-3 EL Zucker", 2, 3, "Esslöffel", "Zucker", "", False),
 ]
 
 

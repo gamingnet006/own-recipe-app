@@ -55,6 +55,23 @@ def test_the_fourteen_keys_in_spec_order():
         ("Weintrauben", set()),
         ("Erdnussbutter", {"peanuts"}),
         ("Haferdrink", {"gluten"}),
+        # gaps and false alarms found in the audit (v1.1)
+        ("Cheddar", {"milk"}),
+        ("Halloumi", {"milk"}),
+        ("Rührei", {"eggs"}),
+        ("Hühnerei", {"eggs"}),
+        ("Spiegelei", {"eggs"}),
+        ("Eiweiss", {"eggs"}),
+        ("Pizzateig", {"gluten"}),
+        ("Semmelknödel", {"gluten"}),
+        ("Langusten", {"crustaceans"}),
+        ("Langustinen", {"crustaceans"}),
+        ("Tamarinde", set()),
+        ("Tamari", {"soy"}),
+        ("Insekten", set()),
+        ("Milcheiweiß", {"milk"}),
+        ("Weinbergpfirsich", set()),
+        ("Brei", set()),
     ],
 )
 def test_allergens_of_line(text: str, expected: set[str]):
