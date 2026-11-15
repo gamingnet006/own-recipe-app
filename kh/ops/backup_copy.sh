@@ -102,14 +102,21 @@ drives() {  # source
   done
 }
 
+# True if the drive of PATH has no free space left.
+drive_full() {  # path
+  [ "$(df -Pk "$1" 2>/dev/null | awk 'NR == 2 { print $4 }')" = 0 ]
+}
+
 # Prints the free space on the drive of PATH as df shows it, e.g. 57Gi.
 free_space() {  # path
   df -Ph "$1" 2>/dev/null | awk 'NR == 2 { print $4 }'
 }
 
-# Explains a failed write to the drive; on macOS that is usually the missing Full Disk Access.
+# Explains a failed write to the drive: a full drive, else (on macOS usually) the missing Full Disk Access.
 no_access() {  # path
-  if on_mac; then
+  if drive_full "$1"; then
+    echo "Laufwerk voll ($1): Platz schaffen oder KH_BACKUP_KEEP senken"
+  elif on_mac; then
     echo "kein Zugriff auf $1. macOS: /bin/dash braucht Festplattenvollzugriff (docs/kh/README.md)"
   else
     echo "kein Zugriff auf $1"
@@ -180,6 +187,9 @@ run_cmd() {  # [--scheduled]
   WORK=$(mktemp -d ./.backup_copy.XXXXXX) || stop_run "Arbeitsordner fehlt"
   trap 'rm -rf "$WORK"' EXIT
   pending "$src" "$dir" "$keep" "$suffix" > "$WORK/list"
+  # One slot ahead of the copying: on a full stick the new copy would otherwise never fit, as the
+  # final prune below only runs after it. Skipped without news, and for KEEP below 2 (prune refuses 0).
+  case "$keep" in "" | *[!0-9]* | 0* | 1) ;; *) ! [ -s "$WORK/list" ] || prune "$dir" "$((keep - 1))" "zip$suffix" ;; esac
   new=0
   while read -r zip; do
     copy="$zip"

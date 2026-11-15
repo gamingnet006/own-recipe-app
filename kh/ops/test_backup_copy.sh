@@ -57,7 +57,7 @@ mkdir -p "$tmp/bin" "$tmp/stick" "$tmp/samedisk"
 # df stand-in, named like macOS: everything below STUB_DRIVE lies on the stick "/dev/disk4s1",
 # below STUB_VOLUME on another volume of the internal disk (like macOS's Recovery), the rest on it
 printf '%s\n' '#!/bin/sh' 'echo "Filesystem 512-blocks Used Available Capacity Mounted on"' \
-  'case "$2" in "$STUB_DRIVE"*) echo "/dev/disk4s1 100 1 99 1% /drive" ;;' \
+  'case "$2" in "$STUB_DRIVE"*) echo "/dev/disk4s1 100 1 ${STUB_FREE:-99} 1% /drive" ;;' \
   '  "${STUB_VOLUME:-/none}"*) echo "/dev/disk3s5 100 1 99 1% /volume" ;; *) echo "/dev/disk3s1 100 1 99 1% /" ;; esac' > "$tmp/bin/df"
 chmod +x "$tmp/bin/df"
 export STUB_DRIVE="$tmp/stick"
@@ -140,9 +140,17 @@ check "run again: nothing new" "$(copy run | grep -c 'OK: 0 neu, 2 auf dem Laufw
 echo "backup 04" > "$ops/backups/mealie_2026.01.04.zip"
 check "run: encryption fails" "$(STUB_DOCKER_RC=1 copy run | tail -1)" "exit 1"
 check "run: no half copy" "$(ls -A "$stick" | grep -c '04')" "0"
+check "run: room is made before copying (a full drive recovers)" "$(ls "$stick" | grep -c 'zip.age$')" "1"
 echo other-key > "$stick/$KEY_FILE"
 check "run: other key on the drive" "$(copy run | grep -c 'anderer Schlüssel')" "1"
 echo locked-key > "$stick/$KEY_FILE"
+# a drive that refuses the write: "full" when nothing is free, else "no access" (not as root: it ignores modes)
+if [ "$(id -u)" -ne 0 ]; then
+  chmod 555 "$stick"
+  check "run: full drive says so" "$(STUB_FREE=0 copy run | grep -c 'Laufwerk voll')" "1"
+  check "run: refused write with space left says no access" "$(copy run | grep -c 'kein Zugriff')" "1"
+  chmod 755 "$stick"
+fi
 mv "$tmp/stick" "$tmp/stick-away"
 check "run: drive missing" "$(copy run | grep -c 'Laufwerk fehlt')" "1"
 check "run: drive missing, nothing created" "$(yes_no test -e "$stick")" "no"
