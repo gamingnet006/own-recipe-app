@@ -136,14 +136,20 @@ run_test() {  # old_image new_image
 # CI: tests the upgrade from the newest older release that has an image for this machine.
 from_previous_release() {  # tag image_name new_image
   arch=$(docker version -f '{{.Server.Arch}}' 2>/dev/null) || fail "Docker läuft nicht"
-  for older in $(older_releases "$1" "$(git -C "$REPO" tag --list 'v*' --sort=-creatordate)"); do
+  olders=$(older_releases "$1" "$(git -C "$REPO" tag --list 'v*' --sort=-creatordate)")
+  if [ -z "$olders" ]; then
+    echo "Erstes Release, es gibt nichts zum Vergleichen: der Upgrade-Test entfällt."
+    return
+  fi
+  for older in $olders; do
     if docker pull "$2:$older-$arch" >/dev/null 2>&1; then
       run_test "$2:$older-$arch" "$3"
       return
     fi
     echo "Kein Image $older-$arch, versuche das nächstältere Release."
   done
-  echo "Kein früheres Release mit Image gefunden, der Upgrade-Test entfällt."
+  # an unreachable registry must not let a release through untested
+  fail "kein Image eines früheren Releases ladbar ($olders): Registry oder Anmeldung prüfen"
 }
 
 main() {

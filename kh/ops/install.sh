@@ -37,10 +37,6 @@ ask() {  # question suggestion
   echo "${answer:-$2}"
 }
 
-# True if .env can hold the value: set_env_value writes with sed, which cannot take | and &.
-storable() {  # value
-  case "$1" in *'|'*|*'&'*) return 1 ;; esac
-}
 
 # Writes .env from .env.example with this install's values, readable only by the owner, because it
 # will hold the backup key.
@@ -86,7 +82,6 @@ main() {
   echo "Die Adresse ist die, unter der ihr Kochheft öffnet, mit Zugang von unterwegs z. B. https://kochbuch.example.org."
   port=${KH_PORT:-9091}
   url=$(ask "Adresse" "http://localhost:$port")
-  storable "$backups" && storable "$url" || fail "bitte ohne | und & antworten"
   mkdir -p data "$backups" || fail "der Ordner $backups ließ sich nicht anlegen"
   colima_hint "$(cd "$backups" && pwd)"
   CREATED_ENV=1

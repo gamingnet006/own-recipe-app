@@ -73,6 +73,7 @@ Die Umwandlung bei http://failing.test ist fehlgeschlagen (Fehlerantwort des Ser
 check "profile model" "$(chosen_model stark)" "small"
 check "KH_WHISPER_MODEL wins" "$(KH_WHISPER_MODEL=medium chosen_model stark)" "medium"
 check "full model names stay" "$(whisper_model_name small) $(whisper_model_name org/own)" "Systran/faster-whisper-small org/own"
+check "a relative recording path works from anywhere (v1.1)" "$(cd "$stub" && KH_PROFILE=foo sh "$here/hardware_test.sh" --audio memo.m4a 2>&1 >/dev/null | tail -1)" "KH_PROFILE=foo ist ungültig (leicht, normal, stark oder lokal)."
 check "bad profile is explained" "$(KH_PROFILE=foo sh "$here/hardware_test.sh" --audio "$stub/memo.m4a" 2>&1 >/dev/null | tail -1)" "KH_PROFILE=foo ist ungültig (leicht, normal, stark oder lokal)."
 
 # --- arguments ---

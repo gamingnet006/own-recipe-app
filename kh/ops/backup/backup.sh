@@ -32,8 +32,12 @@ newest_zip() {
   ls -1t "$1"/*.zip 2>/dev/null | head -n 1
 }
 
-# Keeps the newest N files ending in EXT (default zip) in a folder and deletes the older ones.
+# Keeps the newest N files ending in EXT (default zip) in a folder and deletes the older ones. A count that is not a
+# number of at least 1 (a typo in .env, KH_BACKUP_KEEP=0) deletes nothing and only warns.
 prune() {  # folder n [ext]
+  case "$2" in
+    "" | *[!0-9]* | 0 | 00*) echo "Warnung: Anzahl zu behaltender Backups '$2' ungültig, nichts gelöscht" >&2; return 0 ;;
+  esac
   ls -1t "$1"/*."${3:-zip}" 2>/dev/null | tail -n +"$(($2 + 1))" | while read -r old; do
     rm -f "$old"
   done
@@ -46,6 +50,15 @@ put_guide() {  # folder guide_dir
     from="$2/${pair%%:*}" to="$1/${pair#*:}"
     cmp -s "$from" "$to" || cp "$from" "$to" || return 1
   done
+}
+
+# Copies ZIP into FOLDER under a temporary name, checks it and only then gives it the backup's name; a failed or damaged
+# copy (full or pulled drive) leaves nothing behind that a later copy or restore would take for a backup.
+store_copy() {  # zip folder
+  part="$2/.$(basename "$1").part"
+  if cp "$1" "$part" && unzip -tq "$part" >/dev/null 2>&1 && mv "$part" "$2/$(basename "$1")"; then return 0; fi
+  rm -f "$part"
+  return 1
 }
 
 # Asks Mealie to write a new backup zip into its data folder.
@@ -62,8 +75,7 @@ main() {
   [ -n "$created" ] && [ "$created" != "$before" ] || fail "Kein neues Backup in $SRC gefunden"
   unzip -tq "$created" >/dev/null || fail "Backup ist beschädigt: $(basename "$created")"
   copy="$DEST/$(basename "$created")"
-  cp "$created" "$copy" || fail "Kopie an den zweiten Ort fehlgeschlagen"
-  unzip -tq "$copy" >/dev/null || fail "Kopie am zweiten Ort ist beschädigt"
+  store_copy "$created" "$DEST" || fail "Kopie an den zweiten Ort fehlgeschlagen oder beschädigt (Platz, Laufwerk?)"
   chown "${KH_PUID:-1000}:${KH_PGID:-1000}" "$copy" 2>/dev/null || true  # readable for the host user
   # a missing guide never costs the backup, it only warns
   put_guide "$DEST" "$GUIDE_DIR" || echo "Warnung: Anleitung zum Wiederherstellen nicht abgelegt" >&2

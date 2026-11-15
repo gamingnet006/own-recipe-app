@@ -32,6 +32,7 @@ check "set_env_value leaves one line per key" "$(grep -c '^KH_IMAGE=' "$ENV_FILE
 check "set_env_value keeps other lines" "$(env_value "$ENV_FILE" KH_BACKUP_CRON)" "30 3 * * *"
 check "set_env_value appends a missing key" "$(set_env_value "$ENV_FILE" KH_PORT 9092 && env_value "$ENV_FILE" KH_PORT)" "9092"
 check "set_env_value keeps the file private" "$(ls -l "$ENV_FILE" | cut -c1-10)" "-rw-------"
+check "set_env_value keeps & | and backslash (v1.1)" "$(set_env_value "$ENV_FILE" KH_BACKUP_COPY_DIR /alt && set_env_value "$ENV_FILE" KH_BACKUP_COPY_DIR '/Volumes/R&D | Stick\a' && env_value "$ENV_FILE" KH_BACKUP_COPY_DIR)" '/Volumes/R&D | Stick\a'
 check "set_env_value fails on a missing .env" "$(set_env_value "$tmp/missing.env" KH_IMAGE x:1 2>/dev/null && echo ok || echo failed)" "failed"
 # Some editors save without a final newline; appending must not glue the new key to the last line.
 printf 'KH_A=1\nKH_LAST=placeholder' > "$tmp/nonl.env"

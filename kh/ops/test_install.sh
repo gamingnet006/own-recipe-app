@@ -26,10 +26,6 @@ check "empty answer keeps the suggestion" "$(printf '\n' | ask "Ordner" ./backup
 check "answer replaces the suggestion" "$(printf '/mnt/usb/backups\n' | ask "Ordner" ./backups 2>/dev/null)" "/mnt/usb/backups"
 check "no input at all keeps the suggestion" "$(ask "Ordner" ./backups </dev/null 2>/dev/null)" "./backups"
 
-# --- storable: .env values are written with sed, which cannot take | and & ---
-check "plain path is storable" "$(yes_no storable /mnt/usb/backups)" "yes"
-check "| is not storable" "$(yes_no storable 'a|b')" "no"
-check "& is not storable" "$(yes_no storable 'Tom & Jerry')" "no"
 
 # --- write_env: this install's values on top of .env.example, readable only by the owner ---
 mkdir "$tmp/ops" && cp "$here/.env.example" "$tmp/ops/"

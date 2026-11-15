@@ -75,17 +75,18 @@ env_value() {
   sed -n "s/^$2=//p" "$1" | tail -n 1 | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
 }
 
-# Sets KEY=VALUE in an env file in place, so the file keeps its permissions (it holds the token).
+# Sets KEY=VALUE in an env file in place, so the file keeps its permissions (it holds the token); the
+# working copy is private too. VALUE goes through awk's ENVIRON, so any character is kept as it is (a
+# folder "R&D | Stick"). awk ends every line with a newline: some editors save the last one without.
 # Every step reports failure: callers run it in `||` lists, where `set -e` does not apply.
-# VALUE must not contain '|' or '&'; image names never do.
 set_env_value() {
   tmp="$1.tmp"
-  if grep -q "^$2=" "$1" 2>/dev/null; then
-    sed "s|^$2=.*|$2=$3|" "$1" > "$tmp" || { rm -f "$tmp"; return 1; }
-  else
-    # awk 1 ends every line with a newline: some editors save the last line without one.
-    { awk 1 "$1" && printf '%s=%s\n' "$2" "$3"; } > "$tmp" || { rm -f "$tmp"; return 1; }
-  fi
+  [ -f "$1" ] || return 1
+  (umask 077 && KH_KEY="$2" KH_VALUE="$3" awk '
+    BEGIN { line = ENVIRON["KH_KEY"] "=" ENVIRON["KH_VALUE"]; prefix = ENVIRON["KH_KEY"] "=" }
+    index($0, prefix) == 1 { if (!done) print line; done = 1; next }
+    { print }
+    END { if (!done) print line }' "$1" > "$tmp") || { rm -f "$tmp"; return 1; }
   cat "$tmp" > "$1" && rm -f "$tmp"
 }
 

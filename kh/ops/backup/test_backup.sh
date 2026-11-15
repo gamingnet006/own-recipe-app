@@ -33,6 +33,22 @@ check "prune leaves other files" "$(ls "$tmp"/notes.txt >/dev/null && echo yes)"
 prune "$tmp" 5
 check "prune with fewer files than limit" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
 
+# a missing, zero or misspelled count never deletes backups (v1.1)
+for n in 0 "" zwei; do
+  prune "$tmp" "$n" 2>/dev/null
+  check "prune with count '$n' keeps all" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
+done
+
+# a copy that fails or is damaged leaves no file under a backup's name (v1.1)
+mkdir "$tmp/second"
+printf 'kein zip\n' > "$tmp/broken.zip"
+check "damaged copy is refused" "$(store_copy "$tmp/broken.zip" "$tmp/second" 2>/dev/null && echo yes || echo no)" "no"
+check "damaged copy leaves nothing" "$(ls -A "$tmp/second" | wc -l | tr -d ' ')" "0"
+(cd "$tmp" && printf 'x' > inner.txt && zip -q good.zip inner.txt)
+store_copy "$tmp/good.zip" "$tmp/second"
+check "good copy lands under its name" "$(ls -A "$tmp/second")" "good.zip"
+rm -rf "$tmp/second" "$tmp/broken.zip" "$tmp/good.zip" "$tmp/inner.txt"
+
 # the encrypted copies on a removable drive (backup_copy.sh) end in .zip.age
 for day in 01 02 03; do touch -t "202601${day}0000" "$tmp/mealie_v3_2026.01.$day.zip.age"; done
 prune "$tmp" 1 zip.age

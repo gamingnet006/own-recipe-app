@@ -125,11 +125,12 @@ measure_audio() {  # file seconds url model
 }
 
 main() {
+  from=$(pwd)  # a relative --audio path means the folder the script was started in
   cd "$(dirname "$0")"
   audio="" seconds="" url=""
   while [ $# -gt 0 ]; do
     case "$1" in
-      --audio) [ $# -ge 2 ] || usage; audio=$2; shift 2 ;;
+      --audio) [ $# -ge 2 ] || usage; case "$2" in /*) audio=$2 ;; *) audio="$from/$2" ;; esac; shift 2 ;;
       --seconds) [ $# -ge 2 ] || usage; seconds=$2; shift 2 ;;
       --url) [ $# -ge 2 ] || usage; url=$2; shift 2 ;;
       *) usage ;;

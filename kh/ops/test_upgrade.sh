@@ -53,4 +53,12 @@ check "one image is a usage error" "$(sh "$here/upgrade_test.sh" a:1 >/dev/null 
 check "incomplete --previous-release is a usage error" "$(sh "$here/upgrade_test.sh" --previous-release v0.1 a >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "invalid image name is a usage error" "$(sh "$here/upgrade_test.sh" 'a:1' 'b|c' >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 
+# --- no image of an older release: the gate fails instead of letting the release through (v1.1) ---
+mkdir "$tmp/bin"
+printf '%s\n' '#!/bin/sh' 'case "$1" in version) echo arm64 ;; *) exit 1 ;; esac' > "$tmp/bin/docker"
+printf '%s\n' '#!/bin/sh' 'printf "%s\n" v1.1 v1.0 v0.4' > "$tmp/bin/git"
+chmod +x "$tmp/bin/docker" "$tmp/bin/git"
+check "missing older images stop the release" "$( (PATH="$tmp/bin:$PATH" REPO=. from_previous_release v1.1 img img:new) >/dev/null 2>&1 && echo passed || echo stopped)" "stopped"
+check "the first release has nothing to compare" "$( (PATH="$tmp/bin:$PATH" REPO=. from_previous_release v0.4 img img:new) >/dev/null 2>&1 && echo passed || echo stopped)" "passed"
+
 [ "$failures" -eq 0 ] && echo "all upgrade tests passed" || { echo "$failures check(s) failed"; exit 1; }
