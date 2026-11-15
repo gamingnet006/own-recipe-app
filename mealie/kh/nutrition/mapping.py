@@ -56,7 +56,8 @@ def suggest_code(food_name: str, foods: dict[str, BlsFood], aliases: dict[str, s
         if aliases.get(key) in foods:
             return aliases[key]
     for key in (k for k in stems if len(k) >= MIN_PREFIX_STEM):
-        hits = [food for food in foods.values() if _normalized(food.name).startswith(compact(key))]
+        prefix = compact(key)
+        hits = [food for food in foods.values() if _normalized(food.name).startswith(prefix)]
         if hits:
             return min(hits, key=lambda food: len(food.name)).code
     return None

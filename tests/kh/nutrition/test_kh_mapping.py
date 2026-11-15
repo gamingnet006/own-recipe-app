@@ -151,3 +151,9 @@ def test_bls_search_caps_at_twenty(api_client: TestClient, unique_user: TestUser
     hits = api_client.get(f"{NUTRITION}/bls", params={"q": "e"}, headers=unique_user.token).json()  # the real table
 
     assert BLS_SEARCH_LIMIT == 20 and len(hits) == 20
+
+
+def test_bls_search_refuses_an_overlong_query(api_client: TestClient, unique_user: TestUser) -> None:
+    response = api_client.get(f"{NUTRITION}/bls", params={"q": "e" * 81}, headers=unique_user.token)
+
+    assert response.status_code == 422

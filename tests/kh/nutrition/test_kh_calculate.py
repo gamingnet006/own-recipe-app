@@ -110,6 +110,24 @@ def test_values_entered_by_hand_are_shown_and_nothing_is_calculated(small_bls) -
     assert (result.counted, result.total, result.missing) == (0, 0, [])
 
 
+def test_german_thousands_separators_in_hand_entered_values(small_bls) -> None:
+    recipe = cake()
+    recipe.nutrition = Nutrition(calories="1.200 kcal", fat_content="1.250,5 g", sugar_content="1.5 g")
+
+    values = calc(recipe).values
+
+    assert (values.kcal, values.fat, values.sugar) == (1200, 1250.5, 1.5)  # 1.5 stays a decimal, 1.200 is twelve hundred
+
+
+def test_hand_entered_text_without_any_number_falls_back_to_the_calculation(small_bls) -> None:
+    recipe = cake()
+    recipe.nutrition = Nutrition(calories="viel", fat_content="k.A.")
+
+    result = calc(recipe)
+
+    assert result.manual is False and result.values.kcal == 790
+
+
 def test_values_are_rounded_like_the_spec_says(session: Session) -> None:
     odd = BlsFood("X", "Test", 123.4, 12.6, 3.46, 0.04, None, 9.94, 10.4, 1.26)
     recipe = RecipeDraft(name="Rund", recipe_ingredient=[line(100, "Mehl")], recipe_servings=1)

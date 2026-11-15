@@ -42,7 +42,7 @@ class KhNutritionController(BaseUserController):
         return food_mapping(self.session, food)
 
     @router.get("/nutrition/bls", response_model=list[BlsHitOut])
-    def get_bls(self, q: str = Query("", description="Words the BLS name must contain")) -> list[BlsHitOut]:
+    def get_bls(self, q: str = Query("", max_length=80, description="Words the BLS name must contain")) -> list[BlsHitOut]:
         """At most BLS_SEARCH_LIMIT BLS foods whose names contain every word of the query."""
         return [BlsHitOut(code=f.code, name=f.name, kcal=f.kcal) for f in search_bls(q, load_bls(), BLS_SEARCH_LIMIT)]
 

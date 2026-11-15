@@ -25,7 +25,9 @@ MEALIE_FIELDS = {
     "protein": "protein_content",
     "fiber": "fiber_content",
 }
-NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
+# German thousands first ("1.200" is twelve hundred, "1.250,5"), then plain numbers with a comma or point decimal
+THOUSANDS = r"\d{1,3}(?:\.\d{3})+(?:,\d+)?"
+NUMBER = re.compile(rf"{THOUSANDS}|\d+(?:[.,]\d+)?")
 KCAL_STEP = 10
 
 
@@ -52,18 +54,24 @@ def _is_title(ingredient: RecipeIngredient) -> bool:
 def _number(text: str | None) -> float | None:
     """The first number in TEXT ("12,5 g" gives 12.5), or None."""
     match = NUMBER.search(text or "")
-    return float(match.group().replace(",", ".")) if match else None
+    if not match:
+        return None
+    digits = match.group()
+    if re.fullmatch(THOUSANDS, digits):
+        digits = digits.replace(".", "")
+    return float(digits.replace(",", "."))
 
 
 def _manual(nutrition: Nutrition | None) -> dict[str, float | None] | None:
-    """The values a person entered in Mealie's nutrition fields, or None if the fields are all empty. Text without a
-    number gives None for that value; sodium (mg) becomes salt."""
+    """The values a person entered in Mealie's nutrition fields, or None if the fields are all empty or none holds a
+    number (then the calculation is better than a card of dashes). Text without a number gives None for that value;
+    sodium (mg) becomes salt."""
     if nutrition is None or not any(value and value.strip() for value in nutrition.model_dump().values()):
         return None
     values = {name: _number(getattr(nutrition, field)) for name, field in MEALIE_FIELDS.items()}
     sodium = _number(nutrition.sodium_content)
     values["salt"] = None if sodium is None else sodium * SALT_PER_SODIUM / 1000
-    return values
+    return values if any(value is not None for value in values.values()) else None
 
 
 def calculate(

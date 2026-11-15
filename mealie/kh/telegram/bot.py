@@ -40,7 +40,8 @@ BOT_OFF = (
 MEALIE_DOWN = "Kochheft ist gerade nicht erreichbar. Versuch es gleich noch einmal."
 NOTHING_TO_USE = "Schick mir einen Link, einen Text oder ein Foto."
 
-URL = re.compile(r"https?://\S+")
+# the last character is not sentence punctuation or a closing bracket: "(link)." must give the link alone
+URL = re.compile(r"https?://\S*[^\s.,;:!?)»]")
 
 Transport = Callable[[urllib.request.Request, float], tuple[int, bytes]]
 

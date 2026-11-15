@@ -108,6 +108,12 @@ def test_a_link_becomes_a_draft_and_the_chat_gets_the_review_link(fake: Fake):
     assert fake.replies() == ["Entwurf angelegt: https://kochbuch.example.org/g/home/drafts/d1"]
 
 
+@pytest.mark.parametrize("text", [f"Schau: {LINK}.", f"({LINK})", f"Lecker {LINK}!", f"«{LINK}», oder?", f"{LINK};"])
+def test_punctuation_after_a_link_is_not_part_of_it(fake: Fake, text: str):
+    bot_with(fake).handle_message(message(text))
+    assert parts(fake.to("/api/kh/drafts")[0]) == {"url": [LINK.encode()]}
+
+
 def test_a_text_becomes_a_draft(fake: Fake):
     bot_with(fake).handle_message(message("Testkuchen: 200 g Mehl, 3 Eier."))
     assert parts(fake.to("/api/kh/drafts")[0]) == {"text": [b"Testkuchen: 200 g Mehl, 3 Eier."]}
