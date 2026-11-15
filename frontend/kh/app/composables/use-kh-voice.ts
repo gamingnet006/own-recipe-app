@@ -1,6 +1,6 @@
 // KH: the state of the voice commands in cook mode (P7.5): off, loading the model, listening; the last word heard and
 // a readable error. START is replaceable for tests.
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { commandOf, VoiceError, type VoiceCommand, type VoiceStarter } from "../lib/voice";
 import { startVosk } from "../lib/voice-vosk";
 
@@ -45,7 +45,15 @@ export function useKhVoice(onCommand: (command: VoiceCommand) => void, start: Vo
     }
   }
 
-  onBeforeUnmount(stop);
+  // A page that goes to the background (tab switch, locked phone) must not keep the microphone open.
+  function stopWhenHidden(): void {
+    if (document.visibilityState === "hidden") stop();
+  }
+  onMounted(() => document.addEventListener("visibilitychange", stopWhenHidden));
+  onBeforeUnmount(() => {
+    document.removeEventListener("visibilitychange", stopWhenHidden);
+    stop();
+  });
 
   return { status, progress, heard, error, toggle: () => (status.value === "off" ? startListening() : stop()) };
 }

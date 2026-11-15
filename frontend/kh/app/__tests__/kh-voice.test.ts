@@ -152,6 +152,22 @@ describe("KhCookVoice", () => {
     expect(wrapper.text()).toContain("weiter");
   });
 
+  test("a hidden page stops the microphone, and unmounting removes the listener", async () => {
+    const { wrapper } = render();
+    await toggle(wrapper).trigger("click");
+    await flushPromises();
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(stopMock).toHaveBeenCalled();  // earlier wrappers of this file listen too
+    await flushPromises();
+    expect(wrapper.text()).toContain(en.kh.voice.start);
+
+    const removed = vi.spyOn(document, "removeEventListener");
+    wrapper.unmount();
+    expect(removed).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+    vi.restoreAllMocks();
+  });
+
   test("the second tap stops the microphone", async () => {
     const { wrapper } = render();
     await toggle(wrapper).trigger("click");
