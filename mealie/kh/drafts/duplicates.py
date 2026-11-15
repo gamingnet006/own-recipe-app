@@ -38,7 +38,7 @@ def normalize_url(url: str) -> str:
     """The link without what does not change the page: https, host in lower case without "www.", no
     fragment, no tracking parameters, the other parameters sorted, no trailing slash."""
     try:
-        parts = urlsplit(url.strip())
+        parts = urlsplit(url.strip() if "//" in url else f"//{url.strip()}")  # "www.example.org/…" is a host too
         host = (parts.hostname or "").removeprefix("www.")
         port = f":{parts.port}" if parts.port and parts.port not in (80, 443) else ""
     except ValueError:  # e.g. a broken IPv6 address; such a link only equals itself

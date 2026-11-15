@@ -96,6 +96,18 @@ def test_variants_need_allergens(api_client: TestClient, unique_user: TestUser, 
     assert body["enabled"]["substitutions"] is False
 
 
+def test_a_stored_switch_this_version_does_not_know_is_ignored(api_client: TestClient, unique_user: TestUser, addons):
+    addons(books=False)  # stores the row; then a newer version's switch appears in it, as after restoring its backup
+    row = unique_user.repos.session.execute(
+        sa.select(KhHouseholdAddons).where(KhHouseholdAddons.household_id == unique_user.household_id)
+    ).scalar_one()
+    row.flags = {**row.flags, "future_addon": True}
+    unique_user.repos.session.commit()
+    response = api_client.get(URL, headers=unique_user.token)
+    assert response.status_code == 200
+    assert response.json()["flags"]["books"] is False
+
+
 def test_unknown_switches_are_refused(api_client: TestClient, unique_admin: TestUser):
     assert api_client.put(URL, json={"nonsense": True}, headers=unique_admin.token).status_code == 422
 

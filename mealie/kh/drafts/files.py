@@ -23,6 +23,7 @@ register_heif_opener()  # iPhone photos arrive as HEIC
 # The photo formats the spec allows (HEIF covers the iPhone's HEIC); Pillow would open many more
 IMAGE_FORMATS = ("JPEG", "PNG", "WEBP", "HEIF")
 MAX_SIDE = 2048  # longest side of a stored original, as Mealie stores recipe images (pkgs/img/minify.py)
+MAX_PIXELS = 64_000_000  # above every phone camera (48 MP); a bigger picture is refused before it is decoded
 WEBP_QUALITY = 80  # Mealie's quality for recipe images
 
 
@@ -48,11 +49,14 @@ def prepare_original(data: bytes, max_mb: int) -> Image.Image:
         raise ValueError("too_large")
     try:
         with Image.open(io.BytesIO(data), formats=IMAGE_FORMATS) as image:
-            image.load()
+            if image.width * image.height > MAX_PIXELS:
+                raise ValueError("too_large")
+            # shrink while decoding (a JPEG then never exists at full size), then turn: a 48 MP photo needed
+            # several hundred MB the other way round and could stop a small server
+            image.thumbnail((MAX_SIDE, MAX_SIDE))
             upright = ImageOps.exif_transpose(image)  # phone photos store "rotated" only as EXIF
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
         raise ValueError("not_an_image") from error
-    upright.thumbnail((MAX_SIDE, MAX_SIDE))
     return upright if upright.mode in ("RGB", "RGBA") else upright.convert("RGB")
 
 

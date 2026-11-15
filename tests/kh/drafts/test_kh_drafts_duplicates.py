@@ -45,6 +45,10 @@ def test_normalize_url():
     assert normalize_url("https://example.org/a?fbclid=1&gclid=2&si=3&ref=4") == "https://example.org/a"
 
 
+def test_a_link_without_scheme_equals_the_full_one():
+    assert normalize_url("www.example.org/rezept/1/") == normalize_url("https://www.example.org/rezept/1")
+
+
 def test_title_similarity():
     assert title_similarity("Omas Apfelkuchen", "Apfelkuchen nach Oma") >= 0.85
     assert title_similarity("Apfel-Kuchen!", "apfel kuchen") >= 0.85

@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from mealie.core.exceptions import RateLimitError
 from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.drafts import recognize
-from mealie.kh.drafts.files import draft_dir
+from mealie.kh.drafts.files import draft_dir, prepare_original
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.features.settings import get_kh_settings
@@ -109,6 +109,22 @@ def test_rejected_input_creates_no_draft(api_client: TestClient, unique_user: Te
     assert response.status_code == 400
     assert response.json()["detail"]["code"] == code
     assert open_ids(api_client, unique_user) == before
+
+
+def test_a_photo_with_too_many_pixels_is_refused_before_decoding():
+    image = Image.new("L", (9000, 8000))  # 72 megapixels, a few kilobytes as PNG
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    with pytest.raises(ValueError, match="too_large"):
+        prepare_original(buffer.getvalue(), 20)
+
+
+def test_a_big_phone_photo_is_shrunk_and_turned_upright():
+    exif = Image.Exif()
+    exif[0x0112] = 6  # stored lying, shown upright
+    buffer = io.BytesIO()
+    Image.new("RGB", (8064, 6048), (200, 120, 40)).save(buffer, format="JPEG", exif=exif)
+    assert prepare_original(buffer.getvalue(), 20).size == (1536, 2048)
 
 
 def test_too_large_image_creates_no_draft(

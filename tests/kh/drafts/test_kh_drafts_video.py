@@ -30,6 +30,8 @@ TEXT = "Testkuchen: 200 g Mehl, 3 Eier."
         ("https://example.org/instagram.com", False),
         ("https://notyoutube.com/x", False),
         ("https://example.org/testkuchen", False),
+        ("Schau mal https://www.youtube.com/watch?v=1", True),  # pasted with words around it (v1.1)
+        ("http://[abc", False),  # a broken address is no video and no crash (v1.1)
     ],
 )
 def test_video_hosts_are_recognized_with_their_subdomains(url: str, expected: bool):

@@ -56,7 +56,9 @@ def load_flags(session: Session, household_id: UUID4) -> AddonFlags:
         sa.select(KhHouseholdAddons).where(KhHouseholdAddons.household_id == household_id)
     ).scalar_one_or_none()
     defaults = default_flags().model_dump()
-    return AddonFlags.model_validate({**defaults, **(row.flags if row else {})})
+    # a switch this version does not know (a newer version's backup) is left out instead of failing every request
+    stored = {name: on for name, on in (row.flags if row else {}).items() if name in AddonFlags.model_fields}
+    return AddonFlags.model_validate({**defaults, **stored})
 
 
 def save_flags(session: Session, household_id: UUID4, flags: AddonFlags) -> None:
