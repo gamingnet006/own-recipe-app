@@ -34,7 +34,7 @@ prune "$tmp" 5
 check "prune with fewer files than limit" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
 
 # a missing, zero or misspelled count never deletes backups (v1.1)
-for n in 0 "" zwei; do
+for n in 0 "" zwei 08; do
   prune "$tmp" "$n" 2>/dev/null
   check "prune with count '$n' keeps all" "$(ls "$tmp"/*.zip | wc -l | tr -d ' ')" "2"
 done

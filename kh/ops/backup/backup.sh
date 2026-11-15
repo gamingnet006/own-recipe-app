@@ -36,7 +36,7 @@ newest_zip() {
 # number of at least 1 (a typo in .env, KH_BACKUP_KEEP=0) deletes nothing and only warns.
 prune() {  # folder n [ext]
   case "$2" in
-    "" | *[!0-9]* | 0 | 00*) echo "Warnung: Anzahl zu behaltender Backups '$2' ungültig, nichts gelöscht" >&2; return 0 ;;
+    "" | *[!0-9]* | 0*) echo "Warnung: Anzahl zu behaltender Backups '$2' ungültig, nichts gelöscht" >&2; return 0 ;;
   esac
   ls -1t "$1"/*."${3:-zip}" 2>/dev/null | tail -n +"$(($2 + 1))" | while read -r old; do
     rm -f "$old"
