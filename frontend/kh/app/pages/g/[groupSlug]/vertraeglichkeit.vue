@@ -10,6 +10,15 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
     </BasePageTitle>
 
     <v-progress-linear v-if="loading" indeterminate />
+    <!-- without the stored choices no box is shown: one tick on empty boxes would overwrite them -->
+    <v-alert v-else-if="loadFailed" type="error" variant="tonal" class="mb-6">
+      {{ $t("kh.allergens.profile.load-failed") }}
+      <template #append>
+        <v-btn variant="text" @click="load">
+          {{ $t("kh.allergens.profile.retry") }}
+        </v-btn>
+      </template>
+    </v-alert>
     <div v-else class="mb-6">
       <v-checkbox
         v-for="key in KH_ALLERGENS"
@@ -23,7 +32,7 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
       />
     </div>
 
-    <template v-if="khOn.substitutions">
+    <template v-if="khOn.substitutions && !loadFailed">
       <h2 class="text-subtitle-1 font-weight-bold mb-1">
         {{ $t("kh.allergens.profile.rules-title") }}
       </h2>
@@ -88,6 +97,7 @@ const api = new KhAllergensApi(useRequests());
 const selected = ref<KhAllergenKey[]>([]);
 const rules = ref<KhSubstitutionRule[]>([]);
 const loading = ref(true);
+const loadFailed = ref(false);
 const message = ref("");
 const failed = ref(false);
 const match = ref("");
@@ -96,16 +106,20 @@ const allergen = ref<KhAllergenKey | null>(null);
 
 const allergenItems = computed(() => KH_ALLERGENS.map(key => ({ title: t(`kh.allergens.names.${key}`), value: key })));
 
-onMounted(async () => {
+/** Loads the account's choices and the household's rules; on failure the page offers to try again. */
+async function load() {
+  loading.value = true;
   const [mine, own] = await Promise.all([
     api.getAllergies(),
     khOn.value.substitutions ? api.getRules() : Promise.resolve({ data: [] as KhSubstitutionRule[] }), // KH: D46
   ]);
+  loadFailed.value = !mine.data || !own.data;
   selected.value = mine.data?.allergens ?? [];
   rules.value = own.data ?? [];
-  if (!mine.data || !own.data) report(false, "kh.allergens.profile.failed");
   loading.value = false;
-});
+}
+
+onMounted(load);
 
 /** Shows the result of the last change under the form. */
 function report(ok: boolean, key: string) {

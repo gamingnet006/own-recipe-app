@@ -26,7 +26,12 @@ describe("offlineCaching", () => {
   test("uses the strategies, caches and limits, status 200 only", () => {
     expect(recipeRule).toMatchObject({
       handler: "NetworkFirst",
-      options: { cacheName: "kh-recipes", expiration: { maxEntries: 30 }, cacheableResponse: { statuses: [200] } },
+      options: {
+        cacheName: "kh-recipes",
+        networkTimeoutSeconds: 4, // weak kitchen Wi-Fi: the saved copy answers after 4 s (v1.1)
+        expiration: { maxEntries: 30 },
+        cacheableResponse: { statuses: [200] },
+      },
     });
     expect(imageRule).toMatchObject({
       handler: "CacheFirst",

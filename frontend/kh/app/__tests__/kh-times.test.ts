@@ -56,3 +56,14 @@ describe("parseTimes", () => {
 test("a reversed range keeps only the lower end", () => {
   expect(parseTimes("30–20 Min.")[0]).toMatchObject({ seconds: 1800, upperSeconds: null });
 });
+
+test("written fractions and mixed numbers (v1.1)", () => {
+  const minutes = (s: string) => parseTimes(s).map(t => t.seconds / 60);
+  expect(minutes("1/2 Stunde backen")).toEqual([30]);
+  expect(minutes("3/4 Std. ziehen lassen")).toEqual([45]);
+  expect(minutes("1 1/2 Stunden schmoren")).toEqual([90]);
+  expect(minutes("1 ½ Std. schmoren")).toEqual([90]);
+  expect(minutes("1½ Stunden")).toEqual([90]);
+  expect(parseTimes("1 1/2 Stunden schmoren")[0]!.text).toBe("1 1/2 Stunden");
+  expect(minutes("20 Minuten")).toEqual([20]);
+});

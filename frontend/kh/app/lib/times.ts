@@ -22,9 +22,9 @@ const MINUTE_UNIT = "Minuten?|Min\\.?|minutes?|mins?";
 const HOUR_UNIT = "Stunden?|Std\\.?|hours?|hrs?";
 const NOT_WORD = "(?![\\p{L}\\d])";
 const unit = (alternatives: string) => `(?:${alternatives})${NOT_WORD}`;
-const AMOUNT = `(?:\\d+(?:[.,]\\d+)?[½¼¾]?|[½¼¾]|(?:${Object.keys(NUMBER_WORDS).join("|")})${NOT_WORD})`;
+const AMOUNT = `(?:\\d+\\s+\\d+/[1-9]\\d*|\\d+/[1-9]\\d*|\\d+(?:[.,]\\d+)?(?:\\s?[½¼¾])?|[½¼¾]|(?:${Object.keys(NUMBER_WORDS).join("|")})${NOT_WORD})`;
 const RANGE_SEPARATOR = "(?:\\s*[-–]\\s*|\\s+bis\\s+)";
-const START = "(?<![\\p{L}\\d])";
+const START = "(?<![\\p{L}\\d/])"; // not inside "1/2", which would read as 2
 const flags = "giu";
 
 // "1 Std. 20 Min." as one timer; hours group first, minutes second.
@@ -33,11 +33,13 @@ const COMBINATION = new RegExp(`${START}(${AMOUNT})\\s*${unit(HOUR_UNIT)}\\s+(?:
 const SINGLE = new RegExp(`${START}(${AMOUNT})(?:${RANGE_SEPARATOR}(${AMOUNT}))?\\s*(${unit(`${SECOND_UNIT}|${MINUTE_UNIT}|${HOUR_UNIT}`)})`, flags);
 const PHRASE = new RegExp(`${START}(?:eine?\\s+)?(${Object.keys(PHRASES).join("|").replace(/ /g, "\\s+")})${NOT_WORD}`, flags);
 
-/** The number a matched amount stands for ("1,5", "1½", "zwölf"). */
+/** The number a matched amount stands for ("1,5", "1½", "1 ½", "1/2", "1 1/2", "zwölf"). */
 function amountValue(amount: string): number {
   const word = NUMBER_WORDS[amount.toLowerCase()];
   if (word !== undefined) return word;
-  const [, digits = "0", fraction] = amount.match(/^(\d+(?:[.,]\d+)?)?([½¼¾])?$/) ?? [];
+  const written = amount.match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);
+  if (written) return Number(written[1] ?? 0) + Number(written[2]) / Number(written[3]);
+  const [, digits = "0", fraction] = amount.match(/^(\d+(?:[.,]\d+)?)?\s?([½¼¾])?$/) ?? [];
   return Number(digits.replace(",", ".")) + (fraction ? FRACTIONS[fraction]! : 0);
 }
 

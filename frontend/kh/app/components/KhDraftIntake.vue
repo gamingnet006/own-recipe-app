@@ -192,6 +192,7 @@ onBeforeUnmount(() => photos.value.forEach(photo => URL.revokeObjectURL(photo.ur
 
 /** Hands in the chosen source only; the list below then shows the new draft while it is recognized. */
 async function submit() {
+  if (sending.value) return; // Enter in the link field while sending would make a second draft
   const form = new FormData();
   if (source.value === "link") form.append("url", link.value.trim());
   if (source.value === "text" || (videoLink.value && text.value.trim())) form.append("text", text.value.trim());

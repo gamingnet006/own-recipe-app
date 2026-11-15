@@ -184,8 +184,10 @@ export function useKhAlarm(): void {
   // Own scope, so the alarm outlives the component that happened to start it.
   alarmScope = effectScope(true);
   alarmScope.run(() => {
-    // After a reload no tap has unlocked sound yet; the first tap anywhere does.
-    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    // After a reload no tap has unlocked sound yet; the first tap anywhere does. Safari counts only the end of a tap
+    // (touchend, click) as the user's permission for sound, not pointerdown.
+    document.addEventListener("touchend", unlockAudio, { once: true });
+    document.addEventListener("click", unlockAudio, { once: true });
     // A timer that runs out while another is still ringing restarts the alarm, which may have timed out meanwhile.
     watch(() => ringing.value.map(timer => timer.id), (ids, oldIds = []) => {
       if (!ids.length) {

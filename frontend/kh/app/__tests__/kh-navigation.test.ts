@@ -56,11 +56,11 @@ describe("destinations", () => {
     ]);
   });
 
-  test("the side menu shows the same destinations, without More", () => {
+  test("the side menu shows the same destinations, and More last for the rest (D51)", () => {
     const targets = sidebarTargets("familie", "/shopping-lists/abc");
     expect(targets.find(target => target.key === "shopping")?.to).toBe("/shopping-lists/abc");
     expect(targets.map(target => target.key)).toEqual(
-      ["recipes", "intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline"],
+      ["recipes", "intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline", "more"],
     );
     expect(targets.find(target => target.key === "organizers")?.children?.map(child => child.key))
       .toEqual(["categories", "tags", "tools"]);
@@ -85,7 +85,7 @@ describe("destinations", () => {
     const off = { ...DEFAULT_ADDONS, shopping: false, planner: false, duplicates: false, nutrition: false, allergens: false };
     expect(barTargets("familie", "/shopping-lists", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
     expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key))
-      .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline"]);
+      .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline", "more"]);
     const { plan, collection } = moreSections("familie", "u1", off);
     expect(plan.map(target => target.key)).toEqual(["cookbooks", "finder"]);
     expect(collection.map(target => target.key)).toEqual(["favorites", "categories", "tags", "tools", "timeline"]);

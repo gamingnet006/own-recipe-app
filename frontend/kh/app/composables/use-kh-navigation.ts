@@ -62,7 +62,8 @@ export function barTargets(groupSlug: string, shoppingTo: string, on: KhAddonFla
   return [all.recipes, all.intake, ...(on.shopping ? [all.shopping] : []), all.more];
 }
 
-/** Mealie's side menu from 840 px: the bar's destinations and More's, with the organizers grouped as in Mealie. */
+/** Mealie's side menu from 840 px: the bar's destinations and More's, with the organizers grouped as in Mealie; More
+ * itself comes last, because only there are the add-on pages and the oven, nutrition and clock settings (D51). */
 export function sidebarTargets(groupSlug: string, shoppingTo: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
   const all = allTargets(groupSlug, "", shoppingTo);
   const organizers: KhNavTarget = {
@@ -81,6 +82,7 @@ export function sidebarTargets(groupSlug: string, shoppingTo: string, on: KhAddo
     all.finder,
     organizers,
     all.timeline,
+    all.more,
   ];
 }
 

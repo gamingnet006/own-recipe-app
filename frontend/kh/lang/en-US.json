@@ -363,7 +363,9 @@
         "match": "Ingredient",
         "replacement": "Replacement",
         "allergen": "Allergen",
-        "rule-add": "Add rule"
+        "rule-add": "Add rule",
+        "load-failed": "Your choices could not be loaded. Nothing was changed.",
+        "retry": "Try again"
       }
     },
     "about": {

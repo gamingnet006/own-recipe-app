@@ -363,7 +363,9 @@
         "match": "Zutat",
         "replacement": "Ersatz",
         "allergen": "Allergen",
-        "rule-add": "Regel hinzufügen"
+        "rule-add": "Regel hinzufügen",
+        "load-failed": "Deine Angaben konnten nicht geladen werden. Es bleibt alles, wie es war.",
+        "retry": "Erneut versuchen"
       }
     },
     "about": {

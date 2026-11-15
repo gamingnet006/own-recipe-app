@@ -6,9 +6,10 @@ type RuntimeCaching = NonNullable<NonNullable<ModuleOptions["workbox"]>["runtime
 
 const DAY_SECONDS = 24 * 3600;
 
-/** The caches and their limits: the last 30 recipes, 150 photos for 30 days. */
+/** The caches and their limits: the last 30 recipes, 150 photos for 30 days; a recipe waits 4 s for the network
+ * before the saved copy answers, so weak Wi-Fi does not leave the page empty. */
 export const OFFLINE = {
-  recipes: { name: "kh-recipes", maxEntries: 30 },
+  recipes: { name: "kh-recipes", maxEntries: 30, networkTimeoutSeconds: 4 },
   images: { name: "kh-recipe-images", maxEntries: 150, maxAgeSeconds: 30 * DAY_SECONDS },
 };
 
@@ -23,6 +24,7 @@ export function offlineCaching(): RuntimeCaching[] {
       handler: "NetworkFirst",
       options: {
         cacheName: OFFLINE.recipes.name,
+        networkTimeoutSeconds: OFFLINE.recipes.networkTimeoutSeconds,
         expiration: { maxEntries: OFFLINE.recipes.maxEntries },
         cacheableResponse: { statuses: [200] },
       },
