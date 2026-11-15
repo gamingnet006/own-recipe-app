@@ -222,6 +222,28 @@ def test_an_approval_in_between_wins_cleanly(
     assert api_client.get("/api/recipes", headers=unique_user.token).json()["total"] == recipes_before
 
 
+def test_failed_follow_up_step_leaves_no_recipe_and_approve_works_again(
+    api_client: TestClient, unique_user: TestUser, fake_ai, monkeypatch: pytest.MonkeyPatch
+):
+    """create_one commits before the amounts are saved; a failure there must not leave a recipe behind."""
+    draft = ready_draft(api_client, unique_user, fake_ai)
+    total = lambda: api_client.get("/api/recipes", headers=unique_user.token).json()["total"]  # noqa: E731
+    before = total()
+
+    def boom(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError("amounts failed")
+
+    with monkeypatch.context() as patch:
+        patch.setattr("mealie.kh.drafts.service.save_amounts", boom)
+        with pytest.raises(RuntimeError):
+            approve(api_client, unique_user, draft["id"])
+    assert total() == before
+    assert get_draft(api_client, unique_user, draft["id"]).json()["status"] == "ready"
+
+    assert approve(api_client, unique_user, draft["id"]).status_code == 200
+    assert total() == before + 1
+
+
 @pytest.mark.parametrize("other", ["h2_user", "g2_user"])
 def test_another_household_cannot_act_on_a_draft(
     api_client: TestClient, unique_user: TestUser, fake_ai, request: pytest.FixtureRequest, other: str

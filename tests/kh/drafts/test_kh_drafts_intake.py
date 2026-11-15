@@ -18,6 +18,8 @@ from mealie.kh.drafts import recognize
 from mealie.kh.drafts.files import draft_dir, prepare_original
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
+from mealie.kh.drafts.schemas import DraftStatus
+from mealie.kh.drafts.service import DraftService
 from mealie.kh.features.settings import get_kh_settings
 from mealie.pkgs.safehttp.transport import InvalidDomainError
 from mealie.schema.group.ai_providers import AIProviderCreate
@@ -188,6 +190,29 @@ def test_retry_turns_failed_into_ready(api_client: TestClient, unique_user: Test
 def test_retry_needs_failed(api_client: TestClient, unique_user: TestUser, fake_ai):
     fake_ai("recipe.json")
     draft_id = post_draft(api_client, unique_user, data={"text": TEXT}).json()["id"]
+    response = api_client.post(f"{DRAFTS}/{draft_id}/retry", headers=unique_user.token)
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "not_failed"
+
+
+def test_a_stale_view_cannot_start_a_second_retry(
+    api_client: TestClient, unique_user: TestUser, fake_ai, monkeypatch: pytest.MonkeyPatch
+):
+    """Two retries at once both read 'failed'; only the one that wins the conditional update may start."""
+    fake_ai(RuntimeError("first try fails"))
+    draft_id = post_draft(api_client, unique_user, data={"text": TEXT}).json()["id"]
+    fake_ai("recipe.json")
+    assert api_client.post(f"{DRAFTS}/{draft_id}/retry", headers=unique_user.token).status_code == 200
+
+    real_get = DraftService.get
+    reads: list[int] = []
+
+    def stale_get(self: DraftService, wanted):
+        reads.append(1)
+        draft = real_get(self, wanted)
+        return draft.model_copy(update={"status": DraftStatus.failed}) if len(reads) == 1 else draft
+
+    monkeypatch.setattr(DraftService, "get", stale_get)
     response = api_client.post(f"{DRAFTS}/{draft_id}/retry", headers=unique_user.token)
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "not_failed"

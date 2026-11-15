@@ -194,13 +194,19 @@ class DraftService:
         return draft
 
     def retry(self, draft_id: UUID4) -> DraftOut:
-        """Sets a failed draft back to working; the route starts the recognition again."""
+        """Sets a failed draft back to working; the route starts the recognition again. The switch is one
+        conditional UPDATE, so of two retries at once exactly one wins and starts the recognition."""
         draft = self.get(draft_id)
         if draft.status != DraftStatus.failed:
             raise conflict("not_failed")
-        set_fields(
-            self.session, draft_id, status=DraftStatus.working, error=None, recipe=None, ai_model=None, warnings=[]
+        claim = self.session.execute(
+            sa.update(KhDraft)
+            .where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.failed)
+            .values(status=DraftStatus.working, error=None, recipe=None, ai_model=None, warnings=[])
         )
+        self.session.commit()
+        if claim.rowcount == 0:  # type: ignore[attr-defined]
+            raise conflict("not_failed")
         return self.get(draft_id)
 
     def _not_found(self) -> HTTPException:
@@ -233,10 +239,16 @@ class DraftService:
         draft's first original becomes the cover, like in Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
         recipe = recipes.create_one(RecipeDraft.model_validate({**(draft.recipe or {}), **changes}))
-        save_amounts(self.session, draft.recipe or {}, recipe, linked)  # range ends, fixed lines, step links (D39)
-        if draft.source_type == DraftSource.image and draft.original_files:
-            cover = original_path(draft.id, draft.original_files[0]).read_bytes()
-            recipes.update_recipe_image(recipe.slug, cover, "webp")
+        try:
+            save_amounts(self.session, draft.recipe or {}, recipe, linked)  # range ends, fixed lines, step links (D39)
+            if draft.source_type == DraftSource.image and draft.original_files:
+                cover = original_path(draft.id, draft.original_files[0]).read_bytes()
+                recipes.update_recipe_image(recipe.slug, cover, "webp")
+        except Exception:
+            # create_one has committed already; without this a retried approval would save the recipe twice
+            self.session.rollback()
+            recipes.delete_one(recipe.slug)
+            raise
         return recipe
 
     def approve(self, draft_id: UUID4, data: ApproveIn) -> ApproveOut:
