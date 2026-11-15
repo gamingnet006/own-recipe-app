@@ -5,6 +5,8 @@ from contextvars import ContextVar
 from dataclasses import replace
 from datetime import datetime
 
+from pydantic import UUID4
+
 from mealie.core.root_logger import get_logger
 from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError, classify, pause_until
@@ -72,7 +74,7 @@ async def ask_ai[T: OpenAIBase](
     retries, as Mealie's single provider had them. Commits the caller's session, so states and notices stay even if
     the request fails. PROVIDERS are the group's, as Mealie's AI service loaded them."""
     repos = service.repos
-    if repos.group_id is None:  # Mealie's repositories without a group see every group's providers and keys
+    if repos.scoped_group_id is None:  # Mealie's repositories without a group see every group's providers and keys
         raise ValueError("The AI priority list needs the repositories of one group")
     if not providers:
         raise OpenAINotEnabledException("No default provider set")
@@ -98,14 +100,14 @@ async def ask_ai[T: OpenAIBase](
             states[provider.id] = record_failure(repos, provider, states[provider.id], error, next_name, settings)
             continue
         record_answer(repos, provider, states[provider.id])
-        if newest_of(repos.session, repos.group_id, OUTAGE_MARKS) == "ai_none":
-            notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)  # the outage is over
+        if newest_of(repos.session, _group_id(repos), OUTAGE_MARKS) == "ai_none":
+            notify(repos.session, _group_id(repos), "ai_ready", provider=provider.name)  # the outage is over
         note_answer(provider)
         return answer
     if request_error is not None and not outage:
         raise request_error
-    if newest_of(repos.session, repos.group_id, OUTAGE_MARKS) != "ai_none":
-        notify(repos.session, repos.group_id, "ai_none")
+    if newest_of(repos.session, _group_id(repos), OUTAGE_MARKS) != "ai_none":
+        notify(repos.session, _group_id(repos), "ai_none")
     if any(states[p.id].status == "quota" for p in providers if fits(states[p.id], images=images)):
         raise QuotaUsedUpError("No AI provider answered, and one has used up its quota")
     raise AIUnavailableError() from last_error
@@ -131,11 +133,19 @@ def record_failure(
     until = pause_until(failure, get_utc_now(), settings)
     before = save_state(repos.session, provider.id, status=status, paused_until=until)
     if status != before and status == "ready":
-        notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)
+        notify(repos.session, _group_id(repos), "ai_ready", provider=provider.name)
     elif status != before:
         kind = NOTICE_FOR[status]
-        notify(repos.session, repos.group_id, kind, provider=provider.name, next_provider=next_name, until=until)
+        notify(repos.session, _group_id(repos), kind, provider=provider.name, next_provider=next_name, until=until)
     return replace(state, status=status, paused_until=until)
+
+
+def _group_id(repos: AllRepositories) -> UUID4:
+    """The group the repositories are scoped to; the AI chain only runs for a signed-in user, so it is always set."""
+    group_id = repos.scoped_group_id
+    if group_id is None:
+        raise ValueError("The AI chain needs repositories scoped to a group")
+    return group_id
 
 
 def record_answer(repos: AllRepositories, provider: AIProviderOut, state: ProviderState) -> None:
@@ -143,7 +153,7 @@ def record_answer(repos: AllRepositories, provider: AIProviderOut, state: Provid
     if state.status != "ready" or state.paused_until is not None:
         before = save_state(repos.session, provider.id, status="ready", paused_until=None)
         if before != "ready":
-            notify(repos.session, repos.group_id, "ai_ready", provider=provider.name)
+            notify(repos.session, _group_id(repos), "ai_ready", provider=provider.name)
 
 
 def note_answer(provider: AIProviderOut) -> None:

@@ -28,8 +28,8 @@ from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
 from mealie.repos.all_repositories import get_repositories
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.household.household import HouseholdInDB
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.household.household import HouseholdOut
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.schema.user.user import PrivateUser
 from mealie.services.openai.openai import OpenAINotEnabledException, OpenAIService
 from mealie.services.recipe.ai_recipe_service import AIProviderNotEnabledError, AIRecipeService
@@ -101,7 +101,7 @@ def ai_model_used(repos: AllRepositories, *, images: bool) -> str | None:
 
 async def build(
     draft: DraftOut, ai: AIRecipeService, repos: AllRepositories, translator: Translator
-) -> tuple[Recipe, bool]:
+) -> tuple[RecipeDraft, bool]:
     """Recognizes the draft's source without saving a recipe; returns the recipe and whether the AI was used.
     What the AI reads comes out in the recipe language; a page's own recipe data stays as the page wrote it."""
     language = get_kh_settings().recipe_language or None
@@ -140,7 +140,7 @@ async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:
     return draft.model_copy(update={"source_text": text})
 
 
-async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdInDB, translator: Translator) -> None:
+async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdOut, translator: Translator) -> None:
     """Runs after the response: recognizes a working draft and stores the result as ready, with hints on
     possible duplicates, or the reason as failed."""
     with session_context() as session:

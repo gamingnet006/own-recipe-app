@@ -9,8 +9,8 @@ from mealie.kh.books.service import load_settings, own_photo_slugs, save_setting
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
-from mealie.schema.cookbook import ReadCookBook
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.cookbook import CookBookOut
+from mealie.schema.recipe.recipe import RecipeOut
 from mealie.schema.response import ErrorResponse
 from mealie.services.recipe.recipe_service import RecipeService
 
@@ -21,7 +21,7 @@ router = UserAPIRouter()
 class KhBooksController(BaseUserController):
     """Book settings and flags of the user's group."""
 
-    def _cookbook(self, cookbook_id: UUID4) -> ReadCookBook:
+    def _cookbook(self, cookbook_id: UUID4) -> CookBookOut:
         """The group's cookbook, from any household (Mealie lets everyone read them); 404 for others."""
         cookbook = get_repositories(self.session, group_id=self.group_id, household_id=None).cookbooks.get_one(
             cookbook_id
@@ -30,7 +30,7 @@ class KhBooksController(BaseUserController):
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Cookbook not found"))
         return cookbook
 
-    def _recipe(self, slug: str) -> Recipe:
+    def _recipe(self, slug: str) -> RecipeOut:
         """The group's recipe, from any household; 404 for others."""
         recipe = get_repositories(self.session, group_id=self.group_id, household_id=None).recipes.get_one(slug, "slug")
         if recipe is None:

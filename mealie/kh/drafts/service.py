@@ -40,8 +40,8 @@ from mealie.kh.drafts.whisper import RECORDING_STALE_AFTER, media_path, store_me
 from mealie.kh.features.settings import get_kh_settings
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
-from mealie.schema.household.household import HouseholdInDB
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.household.household import HouseholdOut
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.user.user import PrivateUser
 from mealie.services.recipe.recipe_service import RecipeService
 
@@ -61,7 +61,7 @@ def conflict(code: str, **extra: Any) -> HTTPException:
 class DraftService:
     """The drafts of the user's household, with the checks the routes need."""
 
-    def __init__(self, session: Session, user: PrivateUser, household: HouseholdInDB, translator: Translator):
+    def __init__(self, session: Session, user: PrivateUser, household: HouseholdOut, translator: Translator):
         self.session = session
         self.user = user
         self.household = household
@@ -228,11 +228,11 @@ class DraftService:
         )
         return [warning for warning in found if (warning.recipe_slug, warning.draft_id) not in known]
 
-    def _save_recipe(self, draft: DraftOut, changes: dict[str, Any], linked: list[int] | None) -> Recipe:
+    def _save_recipe(self, draft: DraftOut, changes: dict[str, Any], linked: list[int] | None) -> RecipeOut:
         """Saves the recognized recipe with the review's changes the way Mealie's import does; an image
         draft's first original becomes the cover, like in Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
-        recipe = recipes.create_one(Recipe.model_validate({**(draft.recipe or {}), **changes}))
+        recipe = recipes.create_one(RecipeDraft.model_validate({**(draft.recipe or {}), **changes}))
         save_amounts(self.session, draft.recipe or {}, recipe, linked)  # range ends, fixed lines, step links (D39)
         if draft.source_type == DraftSource.image and draft.original_files:
             cover = original_path(draft.id, draft.original_files[0]).read_bytes()

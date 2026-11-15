@@ -105,7 +105,7 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { SideBarLink } from "~/types/application-types";
 import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
-import type { ReadCookBook } from "~/lib/api/types/cookbook";
+import type { CookBookOut } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
 import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 // KH: shared destinations (D38)
@@ -160,7 +160,7 @@ const sidebar = useKhSidebar(khWide);
 const khShoppingTo = useKhShoppingTarget();
 useKhAddonsLoader(); // KH: D46
 
-function cookbookAsLink(cookbook: ReadCookBook): SideBarLink {
+function cookbookAsLink(cookbook: CookBookOut): SideBarLink {
   return {
     key: cookbook.slug || "",
     icon: $globals.icons.pages,
@@ -184,7 +184,7 @@ const cookbookLinks = computed<SideBarLink[]>(() => {
     const householdName = cookbook.household?.name || "";
     (acc[householdName] ||= []).push(cookbook);
     return acc;
-  }, {} as Record<string, ReadCookBook[]>);
+  }, {} as Record<string, CookBookOut[]>);
 
   Object.entries(cookbooksByHousehold).forEach(([householdName, cookbooks]) => {
     if (!cookbooks.length) {

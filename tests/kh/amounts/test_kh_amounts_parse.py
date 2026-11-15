@@ -5,7 +5,7 @@ import pytest
 
 from mealie.kh.amounts.parse import ensure_german_units, parse_ingredient, stem
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe_ingredient import IngredientUnit
+from mealie.schema.recipe.recipe_ingredient import IngredientUnitOut
 from mealie.schema.response.pagination import PaginationQuery
 from mealie.services.parser_services._base import DataMatcher
 from mealie.services.seeder.seeder_service import SeederService
@@ -48,7 +48,7 @@ CASES = [  # line, quantity, upper, unit name, food name, note, fixed
 ]
 
 
-def all_units(repos: AllRepositories) -> list[IngredientUnit]:
+def all_units(repos: AllRepositories) -> list[IngredientUnitOut]:
     """Every unit of the repositories' group."""
     return repos.ingredient_units.page_all(PaginationQuery(page=1, per_page=-1)).items
 

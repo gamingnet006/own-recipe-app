@@ -10,10 +10,10 @@ from fractions import Fraction
 from mealie.db.models.recipe.ingredient import IngredientFoodModel, IngredientUnitModel
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe.recipe_ingredient import (
-    CreateIngredientUnitAlias,
-    IngredientFood,
-    IngredientUnit,
-    SaveIngredientUnit,
+    IngredientFoodOut,
+    IngredientUnitAliasCreate,
+    IngredientUnitOut,
+    IngredientUnitSave,
 )
 from mealie.services.parser_services._base import DataMatcher
 
@@ -48,8 +48,8 @@ class ParsedLine:
 
     quantity: float | None  # None: no amount recognized
     upper: float | None  # upper end of a range ("2–3" → 3)
-    unit: IngredientUnit | None
-    food: IngredientFood | None  # only an exact match with the group's foods
+    unit: IngredientUnitOut | None
+    food: IngredientFoodOut | None  # only an exact match with the group's foods
     note: str  # the rest of the line; holds the name when no food matched
     fixed: bool  # never scaled: Prise, Messerspitze, "etwas", "nach Geschmack"
 
@@ -85,7 +85,7 @@ def amount_of(match: re.Match[str]) -> tuple[float, float | None]:
     return number(match.group("value")), number(upper) if upper else None
 
 
-def unit_at(text: str, units: dict[str, IngredientUnit]) -> tuple[IngredientUnit, int] | None:
+def unit_at(text: str, units: dict[str, IngredientUnitOut]) -> tuple[IngredientUnitOut, int] | None:
     """The unit at the start of TEXT and where it ends: the next two words if they name one, else the next word."""
     words = list(WORD.finditer(text))[:2]
     for count in (2, 1):
@@ -110,7 +110,7 @@ def stem(word: str) -> str:
     return cut_ending(cut_ending(IngredientFoodModel.normalize(word)))
 
 
-def food_and_note(rest: str, foods: dict[str, IngredientFood]) -> tuple[IngredientFood | None, str]:
+def food_and_note(rest: str, foods: dict[str, IngredientFoodOut]) -> tuple[IngredientFoodOut | None, str]:
     """The food the rest names before a comma or parenthesis, if the group has it, and what remains as note; without
     such a food the whole rest is the note."""
     split = re.search(r"[,(]", rest)
@@ -121,7 +121,7 @@ def food_and_note(rest: str, foods: dict[str, IngredientFood]) -> tuple[Ingredie
     return food, rest[split.start() :].lstrip(",").strip() if split else ""
 
 
-def parse_ingredient(line: str, units: dict[str, IngredientUnit], foods: dict[str, IngredientFood]) -> ParsedLine:
+def parse_ingredient(line: str, units: dict[str, IngredientUnitOut], foods: dict[str, IngredientFoodOut]) -> ParsedLine:
     """Reads one ingredient line; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher. A line without an
     amount stays as it was, as note."""
     text = ABOUT.sub("", clean(line))
@@ -150,12 +150,12 @@ def ensure_german_units(repos: AllRepositories) -> None:
     for name, plural, abbreviation in GERMAN_UNITS:
         if IngredientUnitModel.normalize(name) not in units:
             repos.ingredient_units.create(
-                SaveIngredientUnit(name=name, plural_name=plural, abbreviation=abbreviation, group_id=repos.group_id)
+                IngredientUnitSave(name=name, plural_name=plural, abbreviation=abbreviation, group_id=repos.group_id)
             )
     pack = units.get("packung")
     if pack is None:
         return
     known = {alias.name for alias in pack.aliases}
-    aliases = [*pack.aliases, *(CreateIngredientUnitAlias(name=a) for a in PACK_ALIASES if a not in known)]
+    aliases = [*pack.aliases, *(IngredientUnitAliasCreate(name=a) for a in PACK_ALIASES if a not in known)]
     data = pack.model_dump() | {"aliases": [alias.model_dump() for alias in aliases], "group_id": repos.group_id}
-    repos.ingredient_units.update(pack.id, SaveIngredientUnit.model_validate(data))
+    repos.ingredient_units.update(pack.id, IngredientUnitSave.model_validate(data))

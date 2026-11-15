@@ -1,17 +1,30 @@
+from uuid import UUID
+
 import sqlalchemy as sa
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from mealie.db.models.group.ai_providers import AIProvider, AIProviderSettings
+from mealie.db.models.group.ai_providers import AIPromptOverride, AIProvider, AIProviderSettings
 from mealie.kh.ai.models import KhAiProviderState  # KH: the AI priority list (D39)
 from mealie.kh.ai.state import place_last, same_setup, save_state, sync_mealie_roles
-from mealie.schema.group.ai_providers import AIProviderCreate, AIProviderOut
+from mealie.schema.group.ai_providers import (
+    AIPromptOverrideCreate,
+    AIPromptOverrideOut,
+    AIProviderCreate,
+    AIProviderOut,
+)
 
 from .repository_generic import GroupRepositoryGeneric
 
 
+def _get_settings_id(repo: GroupRepositoryGeneric) -> UUID4:
+    return repo.session.execute(
+        sa.select(AIProviderSettings.id).where(AIProviderSettings.group_id == repo.group_id)
+    ).scalar_one()
+
+
 class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider]):
-    def create(self, data: AIProviderCreate | dict):
+    def create(self, data: AIProviderCreate | dict):  # type: ignore[override]
         if isinstance(data, AIProviderCreate):
             api_key = data.api_key
             data = data.model_dump()
@@ -21,31 +34,22 @@ class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="API key cannot be empty")
 
         if not data.get("settings_id"):
-            data["settings_id"] = self.session.execute(
-                sa.select(AIProviderSettings.id).where(AIProviderSettings.group_id == self.group_id)
-            ).scalar_one()
+            data["settings_id"] = _get_settings_id(self)
 
         created = super().create(data)
         # KH: a new provider joins the priority list at the end; the roles follow the list (D39)
         place_last(self.session, created.id, [p.id for p in self.get_all() if p.id != created.id])
+        assert isinstance(self.group_id, UUID)  # KH: scoped repositories always carry their group
         sync_mealie_roles(self.session, self.group_id)
         return created
 
-    def update(self, match_value: str | int | UUID4, new_data: AIProviderCreate | dict):
-        if isinstance(new_data, AIProviderCreate):
-            # api_key is excluded from the schema's dump, so carry it over by hand, the same
-            # way create does. Without this every update looks like it omitted the key.
-            api_key = new_data.api_key
-            new_data = new_data.model_dump()
-            new_data["api_key"] = api_key
+    def update(self, match_value: str | int | UUID4, new_data: AIProviderCreate | dict):  # type: ignore[override]
+        if not isinstance(new_data, AIProviderCreate):
+            raise TypeError("AI provider updates must be an AIProviderCreate so resolve_update() checks the base URL")
 
-        before = self.get_one(match_value)  # KH: to tell a new address, model or key from a new name (D39)
-
-        # Merge existing API key into new data
-        if not new_data.get("api_key"):
-            existing = self.get_one(match_value)
-            if existing:
-                new_data["api_key"] = existing.api_key
+        before = self.get_one(match_value)  # KH: also tells a new address, model or key from a new name (D39)
+        if before:
+            new_data = before.resolve_update(new_data)
 
         updated = super().update(match_value, new_data)
         # KH: a saved provider gets another chance in the priority list, e.g. with a new key; with another address,
@@ -77,8 +81,20 @@ class GroupRepositoryAIProvider(GroupRepositoryGeneric[AIProviderOut, AIProvider
 
         # Delete
         deleted = super().delete(value, match_key)
+        assert isinstance(self.group_id, UUID)  # KH: scoped repositories always carry their group
         sync_mealie_roles(self.session, self.group_id)  # KH: the roles follow the priority list (D39)
         return deleted
 
     def update_many(self, data):
         raise NotImplementedError
+
+
+class GroupRepositoryAIPromptOverride(GroupRepositoryGeneric[AIPromptOverrideOut, AIPromptOverride]):
+    def create(self, data: AIPromptOverrideCreate | dict):  # type: ignore[override]
+        if isinstance(data, AIPromptOverrideCreate):
+            data = data.model_dump()
+
+        if not data.get("settings_id"):
+            data["settings_id"] = _get_settings_id(self)
+
+        return super().create(data)

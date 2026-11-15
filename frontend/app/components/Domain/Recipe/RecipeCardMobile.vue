@@ -65,7 +65,7 @@
             </v-list-item-subtitle>
             <div
               class="d-flex flex-nowrap justify-start ma-0 pt-2 pb-0"
-              style="overflow-x: hidden; overflow-y: hidden; white-space: nowrap;"
+              style="overflow-x: hidden; overflow-y: hidden; white-space: nowrap; min-height: 38px;"
             >
               <RecipeChips
                 :truncate="true"
@@ -74,7 +74,7 @@
                 :limit="2"
                 small
                 url-prefix="tags"
-                v-bind="$attrs"
+                @item-selected="(item, urlPrefix) => $emit('itemSelected', item, urlPrefix)"
               />
             </div>
           </div>
@@ -106,6 +106,7 @@
                     delete: false,
                     edit: false,
                     download: true,
+                    downloadPdf: true,
                     mealplanner: true,
                     shoppingList: true,
                     print: false,
@@ -132,10 +133,11 @@
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import RecipeCardImage from "./RecipeCardImage.vue";
-import RecipeChips from "./RecipeChips.vue";
+import RecipeChips, { type UrlPrefixParam } from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import type { ContextMenuItem } from "./RecipeContextMenu/RecipeContextMenu.vue";
+import type { TagOut } from "~/lib/api/types/recipe";
 
 interface Props {
   name: string;
@@ -169,6 +171,7 @@ defineEmits<{
   mealplanEdit: [];
   selected: [];
   delete: [slug: string];
+  itemSelected: [item: TagOut, urlPrefix: UrlPrefixParam];
 }>();
 
 const auth = useMealieAuth();

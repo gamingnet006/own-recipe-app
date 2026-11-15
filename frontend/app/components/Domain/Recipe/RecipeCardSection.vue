@@ -83,6 +83,14 @@
               <v-list-item-title>{{ $t("general.last-made") }}</v-list-item-title>
             </div>
           </v-list-item>
+          <v-list-item @click="sortRecipes(EVENTS.totalTime)">
+            <div class="d-flex align-center flex-nowrap">
+              <v-icon class="mr-2" inline>
+                {{ $globals.icons.clockOutline }}
+              </v-icon>
+              <v-list-item-title>{{ $t("recipe.total-time") }}</v-list-item-title>
+            </div>
+          </v-list-item>
           <v-list-item @click="sortRecipes(EVENTS.shuffle)">
             <div class="d-flex align-center flex-nowrap">
               <v-icon class="mr-2" inline>
@@ -110,20 +118,21 @@
         <v-row v-if="!useMobileCards">
           <v-col
             v-for="recipe in recipes"
-            :key="recipe.id!"
+            :key="recipe.id"
             :sm="6"
             :md="6"
             :lg="4"
             :xl="3"
           >
             <RecipeCard
-              :name="recipe.name!"
+              :name="recipe.name"
               :description="recipe.description!"
-              :slug="recipe.slug!"
+              :slug="recipe.slug"
               :rating="recipe.rating!"
               :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
+              :tags="recipe.tags"
+              :recipe-id="recipe.id"
+              @item-selected="(item, urlPrefix) => emit('itemSelected', item, urlPrefix)"
             />
           </v-col>
         </v-row>
@@ -133,7 +142,7 @@
         >
           <v-col
             v-for="recipe in recipes"
-            :key="recipe.id!"
+            :key="recipe.id"
             cols="12"
             :sm="singleColumn ? '12' : '12'"
             :md="singleColumn ? '12' : '6'"
@@ -141,13 +150,14 @@
             :xl="singleColumn ? '12' : '3'"
           >
             <RecipeCardMobile
-              :name="recipe.name!"
+              :name="recipe.name"
               :description="recipe.description!"
-              :slug="recipe.slug!"
+              :slug="recipe.slug"
               :rating="recipe.rating!"
               :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
+              :tags="recipe.tags"
+              :recipe-id="recipe.id"
+              @item-selected="(item, urlPrefix) => emit('itemSelected', item, urlPrefix)"
             />
           </v-col>
         </v-row>
@@ -169,9 +179,10 @@
 import { useThrottleFn } from "@vueuse/core";
 import RecipeCard from "./RecipeCard.vue";
 import RecipeCardMobile from "./RecipeCardMobile.vue";
+import type { UrlPrefixParam } from "./RecipeChips.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useLazyRecipes } from "~/composables/recipes";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeSummary, TagOut } from "~/lib/api/types/recipe";
 import { useUserSortPreferences } from "~/composables/use-users/preferences";
 import type { RecipeSearchQuery } from "~/lib/api/user/recipes/recipe";
 
@@ -184,7 +195,7 @@ interface Props {
   icon?: string | null;
   title?: string | null;
   singleColumn?: boolean;
-  recipes?: Recipe[];
+  recipes?: RecipeSummary[];
   query?: RecipeSearchQuery | null;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -198,8 +209,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  replaceRecipes: [recipes: Recipe[]];
-  appendRecipes: [recipes: Recipe[]];
+  replaceRecipes: [recipes: RecipeSummary[]];
+  appendRecipes: [recipes: RecipeSummary[]];
+  itemSelected: [item: TagOut, urlPrefix: UrlPrefixParam];
 }>();
 
 const display = useDisplay();
@@ -211,8 +223,12 @@ const EVENTS = {
   created: "created",
   updated: "updated",
   lastMade: "lastMade",
+  totalTime: "totalTime",
   shuffle: "shuffle",
 };
+
+// recipes without a value can't be ranked by these, so they always go to the end regardless of direction
+const NULLS_LAST_ORDER_BY = ["total_time_seconds"];
 
 const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
@@ -275,8 +291,9 @@ const queryFilter = computed(() => {
 
 async function fetchRecipes(pageCount = 1) {
   const orderDir = props.query?.orderDirection || preferences.value.orderDirection;
-  const orderByNullPosition = props.query?.orderByNullPosition || orderDir === "asc" ? "first" : "last";
   const orderBy = effectiveOrderBy.value;
+  const orderByNullPosition = props.query?.orderByNullPosition
+    || (NULLS_LAST_ORDER_BY.includes(orderBy) || orderDir !== "asc" ? "last" : "first");
   const localQuery = { ...props.query };
   if (orderBy === "random") {
     localQuery._searchSeed = randomSeed.value;
@@ -432,6 +449,15 @@ async function sortRecipes(sortType: string) {
         $globals.icons.sortCalendarAscending,
         $globals.icons.sortCalendarDescending,
         "desc",
+        true,
+      );
+      break;
+    case EVENTS.totalTime:
+      setter(
+        "total_time_seconds",
+        $globals.icons.sortAscending,
+        $globals.icons.sortDescending,
+        "asc",
         true,
       );
       break;

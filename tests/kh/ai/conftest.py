@@ -41,7 +41,9 @@ def fake_ai_calls(monkeypatch: pytest.MonkeyPatch) -> FakeAI:
     the event loop once, as a real one does, so requests running together really overlap."""
     fake = FakeAI()
 
-    async def get_raw_response(self, prompt, content, response_schema, provider, max_retries=None):
+    async def get_raw_response(
+        self, prompt, content, response_schema, provider, *, use_system_message=True, max_retries=None
+    ):
         fake.calls.append(provider.name)
         fake.retries.append(max_retries)
         await asyncio.sleep(0)

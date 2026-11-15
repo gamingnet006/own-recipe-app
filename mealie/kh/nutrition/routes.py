@@ -9,6 +9,7 @@ from mealie.kh.nutrition.mapping import food_mapping, list_mappings, load_aliase
 from mealie.kh.nutrition.schemas import BlsHitOut, FoodMappingIn, FoodMappingOut, NutritionOut
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
+from mealie.routes._base.permissions import Perm, require  # the route declares who may call it (Mealie 3.31)
 from mealie.routes._base.routers import UserAPIRouter
 from mealie.schema.response import ErrorResponse
 
@@ -24,11 +25,12 @@ class KhNutritionController(BaseUserController):
         """The group's foods that recipes use, unconfirmed first, then by name."""
         return list_mappings(self.session, self.group_id)
 
-    @router.put("/nutrition/foods/{food_id}", response_model=FoodMappingOut)
+    @router.put(
+        "/nutrition/foods/{food_id}", response_model=FoodMappingOut, dependencies=[require(Perm.GROUP_ORGANIZE)]
+    )
     def put_food(self, food_id: UUID4, data: FoodMappingIn) -> FoodMappingOut:
         """Saves a food's mapping and returns it as stored; 422 for a BLS code the table does not have, 404 for a
         food of another group, 403 without the permission to organize (as for editing a food in Mealie)."""
-        self.checks.can_organize()
         food = get_repositories(self.session, group_id=self.group_id, household_id=None).ingredient_foods.get_one(
             food_id
         )

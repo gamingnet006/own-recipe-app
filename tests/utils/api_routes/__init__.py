@@ -65,6 +65,8 @@ foods_empty = "/api/foods/empty"
 """`/api/foods/empty`"""
 foods_merge = "/api/foods/merge"
 """`/api/foods/merge`"""
+groups_ai_providers_prompts = "/api/groups/ai-providers/prompts"
+"""`/api/groups/ai-providers/prompts`"""
 groups_ai_providers_providers = "/api/groups/ai-providers/providers"
 """`/api/groups/ai-providers/providers`"""
 groups_ai_providers_providers_test = "/api/groups/ai-providers/providers/test"
@@ -238,6 +240,16 @@ def admin_debug_openai_provider_id(provider_id):
     return f"{prefix}/admin/debug/openai/{provider_id}"
 
 
+def admin_groups_group_id_ai_providers_prompts(group_id):
+    """`/api/admin/groups/{group_id}/ai-providers/prompts`"""
+    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts"
+
+
+def admin_groups_group_id_ai_providers_prompts_prompt_name(group_id, prompt_name):
+    """`/api/admin/groups/{group_id}/ai-providers/prompts/{prompt_name}`"""
+    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts/{prompt_name}"
+
+
 def admin_groups_group_id_ai_providers_providers(group_id):
     """`/api/admin/groups/{group_id}/ai-providers/providers`"""
     return f"{prefix}/admin/groups/{group_id}/ai-providers/providers"
@@ -348,6 +360,11 @@ def foods_item_id(item_id):
     return f"{prefix}/foods/{item_id}"
 
 
+def groups_ai_providers_prompts_prompt_name(prompt_name):
+    """`/api/groups/ai-providers/prompts/{prompt_name}`"""
+    return f"{prefix}/groups/ai-providers/prompts/{prompt_name}"
+
+
 def groups_ai_providers_providers_provider_id(provider_id):
     """`/api/groups/ai-providers/providers/{provider_id}`"""
     return f"{prefix}/groups/ai-providers/providers/{provider_id}"
@@ -381,6 +398,11 @@ def groups_reports_item_id(item_id):
 def households_cookbooks_item_id(item_id):
     """`/api/households/cookbooks/{item_id}`"""
     return f"{prefix}/households/cookbooks/{item_id}"
+
+
+def households_cookbooks_item_id_pdf(item_id):
+    """`/api/households/cookbooks/{item_id}/pdf`"""
+    return f"{prefix}/households/cookbooks/{item_id}/pdf"
 
 
 def households_events_notifications_item_id(item_id):
@@ -556,6 +578,11 @@ def recipes_slug_duplicate(slug):
 def recipes_slug_exports(slug):
     """`/api/recipes/{slug}/exports`"""
     return f"{prefix}/recipes/{slug}/exports"
+
+
+def recipes_slug_exports_pdf(slug):
+    """`/api/recipes/{slug}/exports/pdf`"""
+    return f"{prefix}/recipes/{slug}/exports/pdf"
 
 
 def recipes_slug_image(slug):

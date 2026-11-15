@@ -16,8 +16,8 @@ from mealie.kh.nutrition.bls import BlsFood, compact, load_bls
 from mealie.kh.nutrition.grams import name_stems
 from mealie.kh.nutrition.models import KhFoodNutrition
 from mealie.kh.nutrition.schemas import FoodMappingIn, FoodMappingOut
-from mealie.schema.recipe.recipe import Recipe
-from mealie.schema.recipe.recipe_ingredient import IngredientFood
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut
 
 ALIASES_JSON = Path(__file__).parent / "data" / "aliases.json"
 MIN_PREFIX_STEM = 4  # a shorter stem ("rot", "ei") would match far too many BLS names
@@ -94,7 +94,7 @@ def _row_of(session: Session, food_id: UUID4) -> KhFoodNutrition | None:
     return session.execute(sa.select(KhFoodNutrition).where(KhFoodNutrition.food_id == food_id)).scalar_one_or_none()
 
 
-def food_mapping(session: Session, food: IngredientFood) -> FoodMappingOut:
+def food_mapping(session: Session, food: IngredientFoodOut) -> FoodMappingOut:
     """The mapping of one food of the caller's group."""
     count = session.execute(
         sa.select(sa.func.count(sa.distinct(RecipeIngredientModel.recipe_id))).where(
@@ -126,7 +126,7 @@ def list_mappings(session: Session, group_id: UUID4) -> list[FoodMappingOut]:
     return sorted(out, key=lambda mapping: (mapping.confirmed, mapping.food_name.lower()))
 
 
-def mappings_for(session: Session, recipe: Recipe) -> dict[UUID, KhFoodNutrition]:
+def mappings_for(session: Session, recipe: RecipeDraft | RecipeOut) -> dict[UUID, KhFoodNutrition]:
     """The stored mappings of the foods the recipe uses, by food ID."""
     food_ids = [line.food.id for line in recipe.recipe_ingredient if line.food and line.food.id]
     rows = session.execute(sa.select(KhFoodNutrition).where(KhFoodNutrition.food_id.in_(food_ids))).scalars()

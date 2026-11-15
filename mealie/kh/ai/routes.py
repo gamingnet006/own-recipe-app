@@ -10,6 +10,7 @@ from mealie.kh.ai.chain import candidates
 from mealie.kh.ai.schemas import AiStatusOut, OrderIn, ProviderStateOut
 from mealie.kh.ai.state import in_order, load_states, save_state, sync_mealie_roles
 from mealie.routes._base import BaseUserController, controller
+from mealie.routes._base.permissions import Perm, require  # the route declares who may call it (Mealie 3.31)
 from mealie.routes._base.routers import UserAPIRouter
 from mealie.schema.response import ErrorResponse
 
@@ -29,17 +30,15 @@ class KhAiController(BaseUserController):
             for p in in_order(providers, states)
         ]
 
-    @router.get("/providers", response_model=list[ProviderStateOut])
+    @router.get("/providers", response_model=list[ProviderStateOut], dependencies=[require(Perm.GROUP_MANAGE)])
     def providers(self) -> list[ProviderStateOut]:
         """The providers in order, for whoever manages them."""
-        self.checks.can_manage()
         return self._listed()
 
-    @router.put("/providers/order", response_model=list[ProviderStateOut])
+    @router.put("/providers/order", response_model=list[ProviderStateOut], dependencies=[require(Perm.GROUP_MANAGE)])
     def set_order(self, data: OrderIn) -> list[ProviderStateOut]:
         """Sets the order; it must name every provider of the group exactly once. Mealie's default and image
         provider follow it."""
-        self.checks.can_manage()
         known = {p.id for p in self.repos.group_ai_providers.get_all()}
         if len(data.provider_ids) != len(set(data.provider_ids)) or set(data.provider_ids) != known:
             raise HTTPException(

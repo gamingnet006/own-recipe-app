@@ -12,7 +12,7 @@ import { clearKhTimers, useKhTimers } from "../composables/use-kh-timers";
 import { i18n } from "~/tests/setup";
 import en from "../../lang/en-US.json";
 import de from "../../lang/de-DE.json";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 i18n.global.mergeLocaleMessage("en-US", en);
 
@@ -54,7 +54,7 @@ describe("KhCookVoice", () => {
     slug: "suppe",
     recipeIngredient: [],
     recipeInstructions: [{ id: "1", text: "Zwiebeln anbraten." }, { id: "2", text: "10 Minuten kochen." }, { id: "3", text: "Servieren." }],
-  } as unknown as Recipe;
+  } as unknown as RecipeOut;
   const query = reactive<Record<string, string>>({});
   let said: (text: string) => void;
   const stopMock = vi.fn();

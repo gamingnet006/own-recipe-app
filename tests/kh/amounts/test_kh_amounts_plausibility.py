@@ -5,13 +5,13 @@ from fastapi.testclient import TestClient
 
 from mealie.kh.amounts.plausibility import plausibility_warnings
 from mealie.kh.amounts.service import ReadAmounts
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.parser_services._base import DataMatcher
 from tests.kh.amounts.helpers import build_recipe, recognized
 from tests.utils.fixture_schemas import TestUser
 
 
-def warnings(recipe: Recipe, unparsed: tuple[str, ...] = (), source: str | None = None) -> list[tuple[str, str]]:
+def warnings(recipe: RecipeDraft, unparsed: tuple[str, ...] = (), source: str | None = None) -> list[tuple[str, str]]:
     """The hints for RECIPE, as (kind, name)."""
     read = ReadAmounts(extras=[], unparsed=list(unparsed), links=[])
     return [(warning.kind, warning.name) for warning in plausibility_warnings(recipe, read, source)]

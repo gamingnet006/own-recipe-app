@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest";
 import type { RecipeIngredient } from "~/lib/api/types/recipe";
 import { useIngredientTextParser } from "../use-recipe-ingredients";
 import { useLocales } from "~/composables/use-locales";
+import { makeRecipe } from "~/tests/factories";
 
 vi.mock("~/composables/use-locales");
 
@@ -61,19 +62,21 @@ describe("parseIngredientText", () => {
     expect(result).contain("1½");
   });
 
-  test("sanitizes html", () => {
-    const ingredient = createRecipeIngredient({ note: "<script>alert('foo')</script>" });
+  // Callers render this through <SafeInlineHtml> or <SafeMarkdown>, which sanitize. Escaping here
+  // would put "&lt;" into clipboard copies and parser input.
+  test("returns user text unescaped", () => {
+    const ingredient = createRecipeIngredient({ note: "<b>x</b> & y" });
 
-    expect(parseIngredientText(ingredient)).not.toContain("<script>");
+    expect(parseIngredientText(ingredient)).toContain("<b>x</b> & y");
   });
 
   test("referenced recipe links navigate in the current page", () => {
     const ingredient = createRecipeIngredient({
-      referencedRecipe: {
+      referencedRecipe: makeRecipe({
         id: "recipe-1",
         name: "Curry Paste",
         slug: "curry-paste",
-      },
+      }),
     });
 
     const result = useParsedIngredientText(ingredient, 1, true, "home");
@@ -247,7 +250,7 @@ describe("parseIngredientText", () => {
     });
 
     // KH: Kochheft's amount display: fraction characters, one decimal, never below 0.1 shown as 0 (D39)
-    expect(parseIngredientText(ingredient)).toEqual("&lt; 0.1 cup salt");
+    expect(parseIngredientText(ingredient)).toEqual("< 0.1 cup salt");
   });
 
   test("fraction below minimum denominator shows < 1/10", () => {

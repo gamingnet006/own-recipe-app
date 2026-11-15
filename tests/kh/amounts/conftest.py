@@ -5,7 +5,7 @@ import pytest
 
 from mealie.db.models.recipe.ingredient import IngredientFoodModel
 from mealie.kh.amounts.parse import ensure_german_units
-from mealie.schema.recipe.recipe_ingredient import SaveIngredientFood
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodSave
 from mealie.services.parser_services._base import DataMatcher
 from mealie.services.seeder.seeder_service import SeederService
 from tests.kh.drafts.conftest import fake_ai, fake_page  # noqa: F401  the drafts' recorded AI answers and pages
@@ -25,6 +25,6 @@ def german(unique_user: TestUser) -> DataMatcher:
     for name, plural in FOODS:
         if IngredientFoodModel.normalize(name) not in known:
             repos.ingredient_foods.create(
-                SaveIngredientFood(name=name, plural_name=plural, group_id=unique_user.group_id)
+                IngredientFoodSave(name=name, plural_name=plural, group_id=unique_user.group_id)
             )
     return DataMatcher(repos)

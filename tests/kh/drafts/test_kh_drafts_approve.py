@@ -14,7 +14,7 @@ from mealie.kh.drafts.recognize import set_fields
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftStatus
 from mealie.kh.drafts.service import DraftService
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 from mealie.services.recipe.recipe_data_service import RecipeDataService
 from tests.kh.drafts.helpers import DRAFTS, get_draft, open_ids, png, post_draft
 from tests.utils.fixture_schemas import TestUser
@@ -101,7 +101,7 @@ def test_list_hides_approved(api_client: TestClient, unique_user: TestUser, fake
 
 def test_discard_removes_row_originals_and_recognition_dir(api_client: TestClient, unique_user: TestUser, fake_ai):
     draft = ready_draft(api_client, unique_user, fake_ai, image=True)
-    recognition = Recipe.directory_from_id(draft["recipe"]["id"])
+    recognition = RecipeOut.directory_from_id(draft["recipe"]["id"])
     assert draft_dir(draft["id"]).exists()
     assert recognition.exists()
 
@@ -120,7 +120,7 @@ def test_discard_keeps_folder_of_existing_recipe(
     # a second draft that claims the saved recipe's ID: discarding it must not touch that recipe's folder
     twin = stored_draft(session, unique_user, status="ready", recipe=saved["recipe"])
     assert api_client.delete(f"{DRAFTS}/{twin.id}", headers=unique_user.token).status_code == 204
-    assert Recipe.directory_from_id(saved["recipe"]["id"]).exists()
+    assert RecipeOut.directory_from_id(saved["recipe"]["id"]).exists()
 
 
 def test_discard_needs_ready_or_failed(api_client: TestClient, session: Session, unique_user: TestUser, fake_ai):

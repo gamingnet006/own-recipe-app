@@ -4,15 +4,15 @@ import pytest
 
 from mealie.kh.amounts.parse import stem
 from mealie.kh.nutrition.grams import food_entry, grams_of, name_stems
-from mealie.schema.recipe.recipe_ingredient import CreateIngredientFood, CreateIngredientUnit, RecipeIngredient
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodCreate, IngredientUnitCreate, RecipeIngredient
 
 
 def line(quantity: float | None, unit: str | None, food: str | None, abbreviation: str = "") -> RecipeIngredient:
     """An ingredient line like Mealie holds it: a quantity, a unit with its abbreviation, a food."""
     return RecipeIngredient(
         quantity=quantity,
-        unit=CreateIngredientUnit(name=unit, abbreviation=abbreviation) if unit else None,
-        food=CreateIngredientFood(name=food) if food else None,
+        unit=IngredientUnitCreate(name=unit, abbreviation=abbreviation) if unit else None,
+        food=IngredientFoodCreate(name=food) if food else None,
     )
 
 
@@ -49,13 +49,13 @@ def test_own_piece_weight_goes_before_the_table() -> None:
 def test_a_unit_found_by_its_abbreviation_or_plural() -> None:
     by_abbreviation = RecipeIngredient(
         quantity=2,
-        unit=CreateIngredientUnit(name="Löffel groß", abbreviation="EL"),
-        food=CreateIngredientFood(name="Öl"),
+        unit=IngredientUnitCreate(name="Löffel groß", abbreviation="EL"),
+        food=IngredientFoodCreate(name="Öl"),
     )
     by_plural = RecipeIngredient(
         quantity=2,
-        unit=CreateIngredientUnit(name="Tasse", plural_name="Tassen"),
-        food=CreateIngredientFood(name="Wasser"),
+        unit=IngredientUnitCreate(name="Tasse", plural_name="Tassen"),
+        food=IngredientFoodCreate(name="Wasser"),
     )
 
     assert grams_of(by_abbreviation) == pytest.approx(27.6)

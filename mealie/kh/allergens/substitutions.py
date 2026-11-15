@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
+from typing import Any
 
 import sqlalchemy as sa
 from pydantic import UUID4
@@ -14,8 +15,8 @@ from mealie.kh.allergens.rules import allergens_of_line, line_text, text_has
 from mealie.kh.allergens.schemas import ALLERGEN_NAMES_DE, AllergenHit, LineSubstitution
 from mealie.kh.allergens.service import set_correction
 from mealie.repos.all_repositories import AllRepositories
-from mealie.schema.recipe.recipe import Recipe
-from mealie.schema.recipe.recipe_ingredient import IngredientFood, RecipeIngredient, SaveIngredientFood
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut, IngredientFoodSave, RecipeIngredient
 from mealie.schema.recipe.request_helpers import RecipeDuplicate
 from mealie.services.recipe.recipe_service import RecipeService
 
@@ -38,7 +39,7 @@ def standard_rules() -> list[Substitution]:
     return [Substitution(**rule, own=False) for rule in json.loads(SUBSTITUTIONS_JSON.read_text(encoding="utf-8"))]
 
 
-def _plan(recipe: Recipe, allergens: list[str], own_rules: list[Substitution]) -> list[tuple[int, LineSubstitution]]:
+def _plan(recipe: RecipeOut, allergens: list[str], own_rules: list[Substitution]) -> list[tuple[int, LineSubstitution]]:
     """For each line (by index) and each of ALLERGENS the line has: the first rule that fits, own rules first."""
     rules = [*own_rules, *standard_rules()]
     plan = []
@@ -52,13 +53,15 @@ def _plan(recipe: Recipe, allergens: list[str], own_rules: list[Substitution]) -
     return plan
 
 
-def substitutions_for(recipe: Recipe, hits: list[AllergenHit], own_rules: list[Substitution]) -> list[LineSubstitution]:
+def substitutions_for(
+    recipe: RecipeOut, hits: list[AllergenHit], own_rules: list[Substitution]
+) -> list[LineSubstitution]:
     """A hint per ingredient line and allergen of the recipe (one a correction took out is left out)."""
     allergens = [hit.allergen for hit in hits if hit.corrected is not False]
     return [sub for _, sub in _plan(recipe, allergens, own_rules)]
 
 
-def _food_named(repos: AllRepositories, group_id: UUID4, name: str) -> IngredientFood:
+def _food_named(repos: AllRepositories, group_id: UUID4, name: str) -> IngredientFoodOut:
     """The group's food with this name (case does not matter), created when there is none."""
     food_id = repos.session.execute(
         sa.select(IngredientFoodModel.id).where(
@@ -66,10 +69,10 @@ def _food_named(repos: AllRepositories, group_id: UUID4, name: str) -> Ingredien
         )
     ).scalar()
     foods = repos.ingredient_foods
-    return (food_id and foods.get_one(food_id)) or foods.create(SaveIngredientFood(name=name, group_id=group_id))
+    return (food_id and foods.get_one(food_id)) or foods.create(IngredientFoodSave(name=name, group_id=group_id))
 
 
-def _removed(recipe: Recipe, plan: dict[int, LineSubstitution]) -> list[str]:
+def _removed(recipe: RecipeOut, plan: dict[int, LineSubstitution]) -> list[str]:
     """The allergens of PLAN no line of the recipe still has once the planned replacements are made (a line without a
     rule, Mozzarella next to Milch, keeps its allergen), in app order."""
     after = [
@@ -82,11 +85,11 @@ def _removed(recipe: Recipe, plan: dict[int, LineSubstitution]) -> list[str]:
 def save_variant(
     service: RecipeService,
     repos: AllRepositories,
-    recipe: Recipe,
+    recipe: RecipeOut,
     hits: list[AllergenHit],
     allergens: list[str],
     own_rules: list[Substitution],
-) -> Recipe:
+) -> RecipeOut:
     """Saves a copy of RECIPE named "<Name> (ohne <allergens>)" whose lines with one of ALLERGENS use the replacement
     food; quantity and unit stay. A line without a food carries its text in the note, so the note is replaced. The
     name lists only the allergens the copy really has no more, and the corrections that added an allergen go along.
@@ -107,7 +110,7 @@ def save_variant(
     for index, sub in plan.items():
         lines[index] = _replaced(lines[index], sub.replacement, repos, recipe.group_id)
     new.recipe_ingredient = lines
-    saved = service.update_one(new.slug, new)
+    saved = service.update_one(new.slug, RecipeDraft.model_validate(new.model_dump()))
     for hit in hits:
         if hit.corrected is True and hit.allergen not in removed:
             set_correction(repos.session, saved.id, hit.allergen, True)
@@ -117,7 +120,7 @@ def save_variant(
 def _replaced(line: RecipeIngredient, replacement: str, repos: AllRepositories, group_id: UUID4) -> RecipeIngredient:
     """LINE with the replacement food (or note, for a line without a food) and its display text made anew."""
     if line.food:
-        change = {"food": _food_named(repos, group_id, replacement).model_dump()}
+        change: dict[str, Any] = {"food": _food_named(repos, group_id, replacement).model_dump()}
     else:
         change = {"note": replacement}
     return RecipeIngredient.model_validate({**line.model_dump(), **change, "display": ""})

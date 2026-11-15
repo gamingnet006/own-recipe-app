@@ -26,9 +26,9 @@ import { useKhVoice } from "../composables/use-kh-voice";
 import { unlockAudio, useKhTimers } from "../composables/use-kh-timers";
 import { khStepTimes, timerLabel } from "../lib/step-text";
 import type { VoiceCommand } from "../lib/voice";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
-const props = defineProps<{ recipe: Recipe; scale: number; cook: KhCook }>();
+const props = defineProps<{ recipe: RecipeOut; scale: number; cook: KhCook }>();
 const emit = defineEmits<{ close: [] }>();
 
 const khOn = useKhOn();

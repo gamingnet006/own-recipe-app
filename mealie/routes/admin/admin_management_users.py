@@ -7,6 +7,7 @@ from mealie.core import security
 from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
+from mealie.routes._base.permissions import forbidden
 from mealie.schema.response.pagination import PaginationQuery
 from mealie.schema.response.responses import ErrorResponse
 from mealie.schema.user.auth import UnlockResults
@@ -66,7 +67,7 @@ class AdminUserManagementRoutes(BaseAdminController):
     def update_one(self, item_id: UUID4, data: UserOut):
         # Prevent self demotion
         if self.user.id == item_id and self.user.admin != data.admin:
-            raise HTTPException(status_code=403, detail=ErrorResponse.respond("you cannot demote yourself"))
+            raise forbidden("you cannot demote yourself")
 
         return self.mixins.update_one(data, item_id)
 

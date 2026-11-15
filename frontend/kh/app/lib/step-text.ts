@@ -4,7 +4,7 @@ import { parseTimes, type KhTime } from "./times";
 import { ovenBrackets, type Oven } from "./oven";
 import { khAmounts, khStepText } from "./amounts-store";
 import { useIngredientTextParser } from "~/composables/recipes/use-recipe-ingredients";
-import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
+import type { RecipeOut, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 
 /** An ingredient of the recipe as a step needs it; AMOUNT is html-safe, e.g. "200 g" at the current factor.
  * SHAREAMOUNT gives the amount of a FRACTION (0 to 1) of it in the same format. */
@@ -178,7 +178,7 @@ function lineAmount(line: RecipeIngredient, scale: number): string | null {
 }
 
 /** The "Du brauchst:" entries of step STEP at place PLACE of RECIPE at SCALE. */
-export function khStepNeeds(place: number, step: RecipeStep, recipe: Recipe, scale: number): string[] {
+export function khStepNeeds(place: number, step: RecipeStep, recipe: RecipeOut, scale: number): string[] {
   const needs = (recipe.recipeIngredient ?? []).flatMap((line): KhNeed[] => {
     const name = line.food?.name ?? line.note;
     if (!line.referenceId || !name) return [];
@@ -189,14 +189,14 @@ export function khStepNeeds(place: number, step: RecipeStep, recipe: Recipe, sca
 
 /** The times of step PLACE in the order its text shows them, matching khStepDisplay's times. Needs no Vuetify locale,
  * so a click handler can call it (the display's amount text can only be built while a component renders). */
-export function khStepTimes(place: number, step: RecipeStep, recipe: Recipe, scale: number): KhTime[] {
+export function khStepTimes(place: number, step: RecipeStep, recipe: RecipeOut, scale: number): KhTime[] {
   return parseTimes(khStepText(place, step.text, recipe.recipeIngredient ?? [], scale));
 }
 
 /** The one entry point for every view: step STEP at place PLACE of RECIPE at SCALE, with the amounts of
  * Phase 3 scaled first, then amounts, times and the OVEN's temperature brackets added (OVEN null: no brackets).
  * Call it while a component renders only: the amount text needs Vuetify's locale. */
-export function khStepDisplay(place: number, step: RecipeStep, recipe: Recipe, scale: number, oven: Oven | null = null): { html: string; times: KhTime[] } {
+export function khStepDisplay(place: number, step: RecipeStep, recipe: RecipeOut, scale: number, oven: Oven | null = null): { html: string; times: KhTime[] } {
   const lines = recipe.recipeIngredient ?? [];
   const ingredients = lines.flatMap((line): KhStepIngredient[] => {
     if (!line.referenceId || !line.food) return [];

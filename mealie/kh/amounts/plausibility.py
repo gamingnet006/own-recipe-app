@@ -7,7 +7,7 @@ from mealie.db.models.recipe.ingredient import IngredientUnitModel
 from mealie.kh.amounts.parse import stem
 from mealie.kh.amounts.service import ReadAmounts
 from mealie.kh.drafts.schemas import DraftWarning
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 
 MAX_GRAMS = 5000  # g or ml
@@ -48,7 +48,7 @@ def line_text(ingredient: RecipeIngredient) -> str:
     return ingredient.original_text or ingredient.display or ingredient.note or ""
 
 
-def unusual_amounts(recipe: Recipe) -> list[DraftWarning]:
+def unusual_amounts(recipe: RecipeDraft | RecipeOut) -> list[DraftWarning]:
     """Lines with more than their unit's limit, e.g. 6000 g or 25 EL."""
     found = []
     for ingredient in recipe.recipe_ingredient:
@@ -58,7 +58,7 @@ def unusual_amounts(recipe: Recipe) -> list[DraftWarning]:
     return found
 
 
-def unusual_times(recipe: Recipe) -> list[DraftWarning]:
+def unusual_times(recipe: RecipeDraft | RecipeOut) -> list[DraftWarning]:
     """Times over a day."""
     times = (
         (recipe.prep_time_seconds, recipe.prep_time),
@@ -72,7 +72,7 @@ def unusual_times(recipe: Recipe) -> list[DraftWarning]:
     ]
 
 
-def unusual_temperatures(recipe: Recipe) -> list[DraftWarning]:
+def unusual_temperatures(recipe: RecipeDraft | RecipeOut) -> list[DraftWarning]:
     """Temperatures in the steps below or above an oven's range, and any in °F."""
     found = []
     for step in recipe.recipe_instructions or []:
@@ -82,7 +82,7 @@ def unusual_temperatures(recipe: Recipe) -> list[DraftWarning]:
     return found
 
 
-def unused_ingredients(recipe: Recipe) -> list[DraftWarning]:
+def unused_ingredients(recipe: RecipeDraft | RecipeOut) -> list[DraftWarning]:
     """Lines whose name no step uses, compared by stem; filler words such as "etwas" name nothing."""
     used = {stem(word) for step in recipe.recipe_instructions or [] for word in LETTERS.findall(step.text)}
     found = []
@@ -94,14 +94,16 @@ def unused_ingredients(recipe: Recipe) -> list[DraftWarning]:
     return found
 
 
-def converted_units(recipe: Recipe, source_text: str | None) -> list[DraftWarning]:
+def converted_units(recipe: RecipeDraft | RecipeOut, source_text: str | None) -> list[DraftWarning]:
     """One hint when the source names American units and the result has metric ones: the AI converted them."""
     words = list(dict.fromkeys(match.group(0).lower() for match in IMPERIAL_WORDS.finditer(source_text or "")))
     metric = any(unit_name(ingredient) in METRIC for ingredient in recipe.recipe_ingredient)
     return [DraftWarning(kind="units_converted", name=", ".join(words))] if words and metric else []
 
 
-def plausibility_warnings(recipe: Recipe, read: ReadAmounts, source_text: str | None) -> list[DraftWarning]:
+def plausibility_warnings(
+    recipe: RecipeDraft | RecipeOut, read: ReadAmounts, source_text: str | None
+) -> list[DraftWarning]:
     """Every hint for the review on what looks wrong; SOURCE_TEXT is a text draft's own text, else None."""
     unparsed = [DraftWarning(kind="amount_unparsed", name=line) for line in read.unparsed]
     return (

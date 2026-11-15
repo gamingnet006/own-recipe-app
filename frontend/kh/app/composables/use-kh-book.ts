@@ -5,8 +5,8 @@ import { KhBooksApi, type KhBookSettings, type KhRecipeFlags } from "../lib/api/
 import { BOOK_AUTOSAVE_MS, defaultBookSettings, fillDefaults, withRecipe, withoutRecipesOutside } from "../lib/book";
 import { useRequests } from "~/composables/api/api-client";
 import { useUserApi } from "~/composables/api";
-import type { ReadCookBook } from "~/lib/api/types/cookbook";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { CookBookOut } from "~/lib/api/types/cookbook";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 export type BookSaveStatus = "idle" | "saving" | "saved" | "forbidden" | "error";
 
@@ -56,9 +56,9 @@ export function useBookSaving(cookbookId: string, settings: Ref<KhBookSettings>,
 
 /** The recipes with SLUGS in full (ingredients and steps), a few at a time; FAILED counts those that cannot be read
  * (left out of RECIPES), so the caller can say the book is incomplete. */
-async function fullRecipes(slugs: string[]): Promise<{ recipes: Recipe[]; failed: number }> {
+async function fullRecipes(slugs: string[]): Promise<{ recipes: RecipeOut[]; failed: number }> {
   const api = useUserApi();
-  const recipes: Recipe[] = [];
+  const recipes: RecipeOut[] = [];
   for (let from = 0; from < slugs.length; from += FETCH_AT_ONCE) {
     const answers = await Promise.all(slugs.slice(from, from + FETCH_AT_ONCE).map(slug => api.recipes.getOne(slug)));
     for (const { data } of answers) if (data) recipes.push(data);
@@ -72,7 +72,7 @@ async function householdName(): Promise<string> {
 }
 
 export interface KhBookData {
-  recipes: Recipe[];
+  recipes: RecipeOut[];
   flags: Record<string, KhRecipeFlags>;
   settings: KhBookSettings;
 }
@@ -81,7 +81,7 @@ export interface KhBookData {
  * cookbook for this user, "error" if the stored settings cannot be read (the defaults must never be saved over them).
  * CANSAVE: the cookbook belongs to the user's own household. FAILEDRECIPES: how many recipes could not be read. When
  * all were read, settings of recipes no longer in the cookbook are dropped, so a recipe added again starts fresh. */
-export async function loadCookbookBook(cookbookSlug: string, userHouseholdId: string | undefined): Promise<(KhBookData & { cookbook: ReadCookBook; canSave: boolean; failedRecipes: number }) | "error" | null> {
+export async function loadCookbookBook(cookbookSlug: string, userHouseholdId: string | undefined): Promise<(KhBookData & { cookbook: CookBookOut; canSave: boolean; failedRecipes: number }) | "error" | null> {
   const api = useUserApi();
   const books = new KhBooksApi(useRequests());
   const { data: cookbook } = await api.cookbooks.getOne(cookbookSlug);

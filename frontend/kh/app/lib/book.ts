@@ -1,7 +1,7 @@
 // KH: the family cookbook's pure logic (D43): default settings, which recipes go into a book, in what order and
 // with which number, photo and servings, and what the editor shows. No Vue, no requests.
 import type { KhBookRecipeSettings, KhBookSettings, KhRecipeFlags } from "./api/books";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 /** How long after the last change the editor saves the settings. */
 export const BOOK_AUTOSAVE_MS = 1000;
@@ -9,7 +9,7 @@ export const BOOK_AUTOSAVE_MS = 1000;
 /** One recipe as it appears in the book. */
 export interface BookEntry {
   number: number;
-  recipe: Recipe;
+  recipe: RecipeOut;
   photo: boolean;
   servings: number;
 }
@@ -35,10 +35,10 @@ export function recipeSettings(settings: KhBookSettings, slug: string): KhBookRe
 }
 
 const collator = new Intl.Collator("de");
-const firstCategory = (recipe: Recipe) => recipe.recipeCategory?.[0]?.name ?? null;
+const firstCategory = (recipe: RecipeOut) => recipe.recipeCategory?.[0]?.name ?? null;
 
 /** Compares by first category (recipes without one last), then by title, in German order. */
-function byCategoryThenTitle(a: Recipe, b: Recipe): number {
+function byCategoryThenTitle(a: RecipeOut, b: RecipeOut): number {
   const [ca, cb] = [firstCategory(a), firstCategory(b)];
   if (ca !== cb) {
     if (ca === null) return 1;
@@ -50,9 +50,9 @@ function byCategoryThenTitle(a: Recipe, b: Recipe): number {
 
 /** The entries of the book, numbered from 1. Settings for recipes that are no longer in RECIPES are ignored;
  * a photo needs the setting, the own-photo flag and an image. */
-export function bookRecipes(recipes: Recipe[], settings: KhBookSettings, flags: Record<string, KhRecipeFlags>): BookEntry[] {
+export function bookRecipes(recipes: RecipeOut[], settings: KhBookSettings, flags: Record<string, KhRecipeFlags>): BookEntry[] {
   const included = recipes.filter(recipe => recipeSettings(settings, recipe.slug ?? "").include);
-  const compare = settings.order === "alpha" ? (a: Recipe, b: Recipe) => collator.compare(a.name ?? "", b.name ?? "") : byCategoryThenTitle;
+  const compare = settings.order === "alpha" ? (a: RecipeOut, b: RecipeOut) => collator.compare(a.name ?? "", b.name ?? "") : byCategoryThenTitle;
   return [...included].sort(compare).map((recipe, index) => {
     const own = recipeSettings(settings, recipe.slug ?? "");
     return {
@@ -65,7 +65,7 @@ export function bookRecipes(recipes: Recipe[], settings: KhBookSettings, flags: 
 }
 
 /** What the editor shows: the hint for a cookbook whose filter finds no recipes, else the entries. */
-export function editorState(recipes: Recipe[], settings: KhBookSettings, flags: Record<string, KhRecipeFlags>): { empty: boolean; entries: BookEntry[] } {
+export function editorState(recipes: RecipeOut[], settings: KhBookSettings, flags: Record<string, KhRecipeFlags>): { empty: boolean; entries: BookEntry[] } {
   return recipes.length === 0 ? { empty: true, entries: [] } : { empty: false, entries: bookRecipes(recipes, settings, flags) };
 }
 

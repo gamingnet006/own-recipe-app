@@ -68,12 +68,12 @@ draft run; nothing else from a draft is put into the page as HTML. -->
 import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtml.vue";
 import RecipeYield from "~/components/Domain/Recipe/RecipeYield.vue";
 import { useStaticRoutes } from "~/composables/api";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 import { draftAmounts } from "../composables/use-kh-drafts";
 import { stepSegments } from "../lib/amounts";
 import { khAmounts } from "../lib/amounts-store";
 
-const props = defineProps<{ recipe: Recipe }>();
+const props = defineProps<{ recipe: RecipeOut }>();
 // the indices of the step links that stay linked; without it the review only shows them
 const linked = defineModel<number[]>("linked");
 

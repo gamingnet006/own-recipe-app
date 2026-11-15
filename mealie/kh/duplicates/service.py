@@ -11,7 +11,7 @@ from mealie.kh.drafts.duplicates import match_kind, recipe_candidate, title_simi
 from mealie.kh.duplicates.models import KhDuplicateIgnored
 from mealie.kh.duplicates.schemas import DUPLICATE_REPORT_LIMIT, DuplicatePair, RecipeRef
 from mealie.kh.features.settings import KhSettings
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 
 
 def sorted_pair(a: UUID4, b: UUID4) -> tuple[UUID4, UUID4]:
@@ -45,7 +45,7 @@ def delete_ignored(session: Session, recipe_ids: list[UUID4]) -> None:
 
 
 def duplicate_report(
-    session: Session, recipes: list[Recipe], tag_id: UUID4 | None, settings: KhSettings
+    session: Session, recipes: list[RecipeOut], tag_id: UUID4 | None, settings: KhSettings
 ) -> list[DuplicatePair]:
     """Pairs of RECIPES that may be the same dish, the most alike first, at most DUPLICATE_REPORT_LIMIT; without the
     ignored pairs, and with TAG_ID only those where at least one has that tag."""
@@ -71,7 +71,7 @@ def duplicate_report(
     return pairs[:DUPLICATE_REPORT_LIMIT]
 
 
-def ref(recipe: Recipe) -> RecipeRef:
+def ref(recipe: RecipeOut) -> RecipeRef:
     """The recipe as a report shows it."""
     return RecipeRef(
         slug=recipe.slug or "", name=recipe.name or "", org_url=recipe.org_url, tags=[t.name for t in recipe.tags or []]

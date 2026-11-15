@@ -6,8 +6,8 @@ import re
 
 from mealie.kh.amounts.parse import QUANTITY, WORD, amount_of, stem, unit_at
 from mealie.kh.amounts.schemas import DraftStepAmount, StepAmountOut
-from mealie.schema.recipe.recipe import Recipe
-from mealie.schema.recipe.recipe_ingredient import IngredientUnit, RecipeIngredient
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
+from mealie.schema.recipe.recipe_ingredient import IngredientUnitOut, RecipeIngredient
 
 PARTS = (1, 1 / 2, 1 / 3, 1 / 4, 2 / 3, 3 / 4)  # what a step may take of an ingredient
 TOLERANCE = 0.02  # how far, relative, a step's amount may be from such a part (83 g of 250 g is ⅓)
@@ -33,13 +33,13 @@ def part_of(value: float, quantity: float | None) -> float | None:
     return next((part for part in PARTS if abs(share - part) <= TOLERANCE * part), None)
 
 
-def same_unit(ingredient: RecipeIngredient, unit: IngredientUnit | None) -> bool:
+def same_unit(ingredient: RecipeIngredient, unit: IngredientUnitOut | None) -> bool:
     """Whether the step's unit is the ingredient's, or neither has one."""
     own = getattr(ingredient.unit, "id", None)
     return own == (unit.id if unit else None)
 
 
-def link_quantities(recipe: Recipe, units: dict[str, IngredientUnit]) -> list[DraftStepAmount]:
+def link_quantities(recipe: RecipeDraft | RecipeOut, units: dict[str, IngredientUnitOut]) -> list[DraftStepAmount]:
     """Every place in the steps that names an ingredient's amount or a part of it: number, then the ingredient's
     unit (or none for both), then a word with the stem of the ingredient's name. A range in a step stays free."""
     links: list[DraftStepAmount] = []

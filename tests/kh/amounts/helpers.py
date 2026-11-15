@@ -6,7 +6,7 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 from mealie.kh.amounts.parse import parse_ingredient
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.schema.recipe.recipe_step import RecipeStep
 from mealie.services.parser_services._base import DataMatcher
@@ -39,7 +39,7 @@ def amounts_of(api_client: TestClient, user: TestUser, recipe: dict[str, Any]) -
     return api_client.get(f"{AMOUNTS}/{recipe['id']}", headers=user.token).json()
 
 
-def build_recipe(german: DataMatcher, lines: list[str], steps: list[str]) -> Recipe:
+def build_recipe(german: DataMatcher, lines: list[str], steps: list[str]) -> RecipeDraft:
     """A recipe with LINES read like an import reads them and STEPS as written."""
     ingredients = []
     for line in lines:
@@ -49,6 +49,6 @@ def build_recipe(german: DataMatcher, lines: list[str], steps: list[str]) -> Rec
                 quantity=parsed.quantity, unit=parsed.unit, food=parsed.food, note=parsed.note, original_text=line
             )
         )
-    return Recipe(
+    return RecipeDraft(
         name="Testrezept", recipe_ingredient=ingredients, recipe_instructions=[RecipeStep(text=t) for t in steps]
     )

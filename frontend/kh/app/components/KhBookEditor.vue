@@ -116,14 +116,14 @@ import { useKhOven } from "../lib/oven";
 import { useStaticRoutes } from "~/composables/api";
 import { useRequests } from "~/composables/api/api-client";
 import { alert } from "~/composables/use-toast";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 /** Longest title or subtitle; the server refuses more (422). */
 const BOOK_TEXT_MAX = 120;
 
 const props = defineProps<{
   mode: "book" | "recipe";
-  recipes: Recipe[];
+  recipes: RecipeOut[];
   /** Whether this user may change the cookbook's settings (the cookbook of their own household). */
   canSave: boolean;
   /** The cookbook's id for saving; "book" mode only. */
@@ -147,11 +147,11 @@ const orders = computed(() => [
 ]);
 const state = computed(() => editorState(props.recipes, settings.value, flags.value));
 
-const of = (recipe: Recipe): KhBookRecipeSettings => recipeSettings(settings.value, recipe.slug ?? "");
-const ownPhoto = (recipe: Recipe): boolean => !!flags.value[recipe.slug ?? ""]?.ownPhoto;
+const of = (recipe: RecipeOut): KhBookRecipeSettings => recipeSettings(settings.value, recipe.slug ?? "");
+const ownPhoto = (recipe: RecipeOut): boolean => !!flags.value[recipe.slug ?? ""]?.ownPhoto;
 
 /** Changes one recipe's settings. */
-function change(recipe: Recipe, patch: Partial<KhBookRecipeSettings>) {
+function change(recipe: RecipeOut, patch: Partial<KhBookRecipeSettings>) {
   settings.value = withRecipe(settings.value, recipe.slug ?? "", patch);
 }
 
@@ -162,7 +162,7 @@ function servingsOf(value: string | number | null): number | null {
 }
 
 /** Sets the "photo is ours" flag on the server first; a refusal says so and leaves the switch as it was. */
-async function setOwnPhoto(recipe: Recipe, value: boolean) {
+async function setOwnPhoto(recipe: RecipeOut, value: boolean) {
   const slug = recipe.slug ?? "";
   const { error } = await books.putFlags(slug, value);
   if (error) {

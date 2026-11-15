@@ -16,7 +16,7 @@ from mealie.db.models.recipe.recipe import RecipeModel
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.schemas import DraftStatus
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 
 register_heif_opener()  # iPhone photos arrive as HEIC
 
@@ -80,7 +80,7 @@ def remove_recognition_dir(recipe_id: UUID4 | str | None, repos: AllRepositories
     as missing."""
     if recipe_id is None or repos.recipes.get_one(recipe_id, "id") is not None:
         return
-    shutil.rmtree(Recipe.directory_from_id(recipe_id), ignore_errors=True)
+    shutil.rmtree(RecipeOut.directory_from_id(recipe_id), ignore_errors=True)
 
 
 def sweep_orphans() -> None:

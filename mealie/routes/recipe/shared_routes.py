@@ -1,6 +1,6 @@
 from zipfile import ZipFile
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import UUID4
 from sqlalchemy.orm.session import Session
 from starlette.background import BackgroundTask
@@ -12,9 +12,9 @@ from mealie.db.db_setup import generate_session
 from mealie.kh.addons.service import require_household_share_links
 from mealie.kh.features.settings import require_share_links
 from mealie.repos.all_repositories import get_repositories
-from mealie.schema.recipe import Recipe
+from mealie.routes._base.permissions import not_found
+from mealie.schema.recipe import RecipeOut
 from mealie.schema.recipe.recipe_image_types import RecipeImageTypes
-from mealie.schema.response import ErrorResponse
 
 router = APIRouter()
 
@@ -25,10 +25,10 @@ logger = get_logger()
 # below calls the function directly, so Mealie's recipe download keeps working
 @router.get(
     "/shared/{token_id}",
-    response_model=Recipe,
+    response_model=RecipeOut,
     dependencies=[Depends(require_share_links), Depends(require_household_share_links)],
 )
-def get_shared_recipe(token_id: UUID4, session: Session = Depends(generate_session)) -> Recipe:
+def get_shared_recipe(token_id: UUID4, session: Session = Depends(generate_session)) -> RecipeOut:
     db = get_repositories(session, group_id=None, household_id=None)
 
     token_summary = db.recipe_share_tokens.get_one(token_id)
@@ -42,7 +42,7 @@ def get_shared_recipe(token_id: UUID4, session: Session = Depends(generate_sessi
         token_summary = None
 
     if token_summary is None:
-        raise HTTPException(status_code=404, detail=ErrorResponse.respond("Token Not Found"))
+        raise not_found("Token Not Found")
 
     return token_summary.recipe
 

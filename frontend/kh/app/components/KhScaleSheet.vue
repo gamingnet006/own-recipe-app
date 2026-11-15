@@ -86,11 +86,11 @@
 import { haveOnlyFactor, panFactor, parsePan, servingsFactor, type KhPan } from "../lib/amounts";
 import { scaleBase } from "../composables/use-kh-recipe";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 type PanForm = { shape: "round" | "rect"; diameter?: number; length?: number; width?: number };
 
-const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
+const props = defineProps<{ recipe: NoUndefinedField<RecipeOut> }>();
 const open = defineModel<boolean>({ required: true });
 const scale = defineModel<number>("scale", { required: true });
 

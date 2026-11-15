@@ -13,7 +13,7 @@ from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftStatus, DraftWarning
 from mealie.kh.features.settings import KhSettings
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 
 # Query parameters that only track where a link was shared, never which page it is
 TRACKING = re.compile(r"^(utm_.*|fbclid|gclid|igshid|igsh|si|ref)$")
@@ -81,7 +81,7 @@ def ingredient_overlap(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
-def recipe_candidate(recipe: Recipe) -> Candidate:
+def recipe_candidate(recipe: RecipeOut) -> Candidate:
     """A saved recipe as something to compare against."""
     return Candidate(
         kind="recipe",

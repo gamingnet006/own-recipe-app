@@ -12,7 +12,10 @@ def test_alchemy_exporter():
     exporter = AlchemyExporter(settings.DB_URL)
     data = exporter.dump()
 
-    assert data["alembic_version"] == alembic_versions()
+    # KH: two heads (Mealie's chain and our kh branch) are stored in no fixed order, so compare as sets
+    assert sorted(data["alembic_version"], key=lambda r: r["version_num"]) == sorted(
+        alembic_versions(), key=lambda r: r["version_num"]
+    )
     assert json.dumps(data, indent=4)  # Make sure data is json-serializable
 
     exporter.engine.dispose()

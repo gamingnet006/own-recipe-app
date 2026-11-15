@@ -10,28 +10,28 @@ from mealie.kh.nutrition.bls import BlsFood, load_bls
 from mealie.kh.nutrition.calculate import calculate
 from mealie.kh.nutrition.mapping import load_aliases
 from mealie.kh.nutrition.models import KhFoodNutrition
-from mealie.schema.recipe.recipe import Recipe
-from mealie.schema.recipe.recipe_ingredient import CreateIngredientFood, CreateIngredientUnit, RecipeIngredient
+from mealie.schema.recipe.recipe import RecipeDraft
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodCreate, IngredientUnitCreate, RecipeIngredient
 from mealie.schema.recipe.recipe_nutrition import Nutrition
 from tests.kh.nutrition.helpers import new_food, new_recipe
 from tests.utils.fixture_schemas import TestUser
 
-FOODS = {name: CreateIngredientFood(id=uuid4(), name=name) for name in ("Mehl", "Butter", "Eier", "Zucker", "Salz")}
-UNIT_G = CreateIngredientUnit(name="Gramm", abbreviation="g")
+FOODS = {name: IngredientFoodCreate(id=uuid4(), name=name) for name in ("Mehl", "Butter", "Eier", "Zucker", "Salz")}
+UNIT_G = IngredientUnitCreate(name="Gramm", abbreviation="g")
 
 
-def line(quantity: float | None, food: str | None, unit: CreateIngredientUnit | None = UNIT_G, note: str = ""):
+def line(quantity: float | None, food: str | None, unit: IngredientUnitCreate | None = UNIT_G, note: str = ""):
     """An ingredient line with one of FOODS."""
     return RecipeIngredient(quantity=quantity, unit=unit, food=FOODS[food] if food else None, note=note)
 
 
-def cake(servings: float = 4) -> Recipe:
+def cake(servings: float = 4) -> RecipeDraft:
     """250 g Mehl, 200 g Butter, 3 Eier, 150 g Zucker: with the fixture table 3161 kcal in all."""
     lines = [line(250, "Mehl"), line(200, "Butter"), line(3, "Eier", None), line(150, "Zucker")]
-    return Recipe(name="Testkuchen", recipe_ingredient=lines, recipe_servings=servings)
+    return RecipeDraft(name="Testkuchen", recipe_ingredient=lines, recipe_servings=servings)
 
 
-def calc(recipe: Recipe, mappings: dict | None = None):
+def calc(recipe: RecipeDraft, mappings: dict | None = None):
     """calculate() with the fixture's table and aliases."""
     return calculate(recipe, mappings or {}, load_bls(), load_aliases())
 
@@ -61,12 +61,12 @@ def test_lines_without_amount_food_or_known_unit_are_listed_as_missing(small_bls
     lines = [
         line(250, "Mehl"),
         line(None, None, None, note="Salz und Pfeffer"),
-        RecipeIngredient(quantity=1, unit=CreateIngredientUnit(name="Bund"), note="Petersilie"),
+        RecipeIngredient(quantity=1, unit=IngredientUnitCreate(name="Bund"), note="Petersilie"),
         line(None, "Salz", None, note="etwas Öl"),
         RecipeIngredient(title="Für den Teig"),  # a section title is no line
     ]
 
-    result = calc(Recipe(name="Wenig", recipe_ingredient=lines, recipe_servings=2))
+    result = calc(RecipeDraft(name="Wenig", recipe_ingredient=lines, recipe_servings=2))
 
     assert (result.counted, result.total) == (1, 4)
     assert result.missing == [lines[1].display, lines[2].display, lines[3].display]
@@ -88,7 +88,7 @@ def test_no_servings_gives_the_whole_recipe(small_bls) -> None:
 
 def test_a_food_mapped_to_no_entry_is_missing_not_suggested(small_bls, session: Session) -> None:
     mappings = {FOODS["Mehl"].id: KhFoodNutrition(session=session, food_id=FOODS["Mehl"].id, confirmed=True)}
-    recipe = Recipe(name="Nur Mehl", recipe_ingredient=[line(250, "Mehl")], recipe_servings=1)
+    recipe = RecipeDraft(name="Nur Mehl", recipe_ingredient=[line(250, "Mehl")], recipe_servings=1)
 
     result = calc(recipe, mappings)
 
@@ -112,7 +112,7 @@ def test_values_entered_by_hand_are_shown_and_nothing_is_calculated(small_bls) -
 
 def test_values_are_rounded_like_the_spec_says(session: Session) -> None:
     odd = BlsFood("X", "Test", 123.4, 12.6, 3.46, 0.04, None, 9.94, 10.4, 1.26)
-    recipe = Recipe(name="Rund", recipe_ingredient=[line(100, "Mehl")], recipe_servings=1)
+    recipe = RecipeDraft(name="Rund", recipe_ingredient=[line(100, "Mehl")], recipe_servings=1)
 
     values = calculate(
         recipe, {FOODS["Mehl"].id: KhFoodNutrition(session=session, bls_code="X", confirmed=True)}, {"X": odd}, {}

@@ -151,7 +151,12 @@ test("a tap on a time starts its timer and stops there; a tap elsewhere does not
   const step = { id: "s", text: "Teig 10 Min. ruhen", title: "", summary: "", ingredientReferences: [] };
   const recipe = { slug: "kuchen", recipeIngredient: [], recipeInstructions: [step] } as never;
   const container = document.createElement("div");
-  container.innerHTML = "<p>Teig <span class=\"kh-time\">10 Min.</span> ruhen</p>";
+  const time = document.createElement("span");
+  time.className = "kh-time";
+  time.textContent = "10 Min.";
+  const line = document.createElement("p");
+  line.append("Teig ", time, " ruhen");
+  container.append(line);
   const clickOn = (target: Element) => {
     const event = new MouseEvent("click", { bubbles: true });
     const stop = vi.spyOn(event, "stopPropagation");
@@ -251,7 +256,7 @@ test("after a reload the first tap anywhere unlocks sound, and a beep wakes a su
   const { useKhAlarm, startAlarm } = await fresh();
   useKhAlarm();
   expect(audio.made).not.toHaveBeenCalled();
-  document.dispatchEvent(new Event("pointerdown"));
+  document.dispatchEvent(new Event("touchend")); // Safari allows sound only at the end of a tap (v1.1)
   expect(audio.made).toHaveBeenCalled(); // earlier tests' listeners may have made one, too
   const before = audio.resume.mock.calls.length;
   startAlarm()();

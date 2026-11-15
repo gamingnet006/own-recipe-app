@@ -13,7 +13,7 @@ from mealie.kh.amounts.parse import ensure_german_units, parse_ingredient
 from mealie.kh.amounts.schemas import AmountsOut, DraftAmounts, DraftStepAmount, IngredientExtraOut, StepAmountOut
 from mealie.kh.amounts.steps import link_quantities, recheck_link
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.schema.recipe.recipe_step import RecipeStep
 from mealie.services.parser_services._base import DataMatcher
@@ -34,7 +34,7 @@ def text_only(ingredient: RecipeIngredient) -> bool:
     return not ingredient.quantity and not ingredient.unit and not ingredient.food and bool(ingredient.note)
 
 
-def read_amounts(repos: AllRepositories, recipe: Recipe) -> ReadAmounts:
+def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut) -> ReadAmounts:
     """Reads the recipe's text-only lines in place, with the group's units and foods, and links the steps' amounts
     to the lines; adds the German units once first. A line without an amount stays as it was."""
     ensure_german_units(repos)
@@ -62,13 +62,13 @@ def read_amounts(repos: AllRepositories, recipe: Recipe) -> ReadAmounts:
     return ReadAmounts(extras, unparsed, link_quantities(recipe, matcher.units_by_alias))
 
 
-def saved_ids(draft_recipe: dict[str, Any], saved: Recipe) -> dict[str, UUID4]:
+def saved_ids(draft_recipe: dict[str, Any], saved: RecipeOut) -> dict[str, UUID4]:
     """The draft's ingredient IDs mapped to the saved recipe's, by position in the list."""
     pairs = zip(draft_recipe.get("recipeIngredient") or [], saved.recipe_ingredient, strict=False)
     return {str(line.get("referenceId")): ingredient.reference_id for line, ingredient in pairs}
 
 
-def save_amounts(session: Session, draft_recipe: dict[str, Any], saved: Recipe, linked: list[int] | None) -> None:
+def save_amounts(session: Session, draft_recipe: dict[str, Any], saved: RecipeOut, linked: list[int] | None) -> None:
     """Saves what the draft carries under the saved recipe's IDs; LINKED are the indices of its step links the review
     kept, None keeps those the recognition linked. Commits."""
     amounts = DraftAmounts.model_validate(draft_recipe.get("khAmounts") or {})
@@ -114,7 +114,7 @@ def delete_amounts(session: Session, recipe_ids: list[UUID4]) -> None:
     session.commit()
 
 
-def new_places(before: Recipe, sent: list[RecipeStep]) -> dict[int, int]:
+def new_places(before: RecipeOut, sent: list[RecipeStep]) -> dict[int, int]:
     """Where each step of BEFORE stands in SENT, the steps as the editor sent them: they carry the old IDs in the new
     order, while Mealie gives the saved steps new IDs."""
     sent_ids = [step.id for step in sent]
@@ -130,7 +130,7 @@ def amount_key(ingredient: RecipeIngredient) -> tuple[float | None, UUID4 | None
     return ingredient.quantity, ingredient.unit.id if ingredient.unit else None
 
 
-def kept_lines(before: Recipe, saved: Recipe) -> set[UUID4]:
+def kept_lines(before: RecipeOut, saved: RecipeOut) -> set[UUID4]:
     """The lines of SAVED that BEFORE had with the same quantity and unit."""
     old = {ingredient.reference_id: amount_key(ingredient) for ingredient in before.recipe_ingredient}
     return {
@@ -140,7 +140,7 @@ def kept_lines(before: Recipe, saved: Recipe) -> set[UUID4]:
     }
 
 
-def recheck_amounts(session: Session, before: Recipe, sent: list[RecipeStep], saved: Recipe) -> None:
+def recheck_amounts(session: Session, before: RecipeOut, sent: list[RecipeStep], saved: RecipeOut) -> None:
     """Follows an edit of a recipe from BEFORE to SAVED: a link moves with its step and its text or goes, and links
     and extras of a line that is gone or has a new quantity or unit go too ("2–3 EL" edited to 4 EL). Commits."""
     places = new_places(before, sent)

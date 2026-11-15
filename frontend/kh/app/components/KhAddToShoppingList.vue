@@ -26,9 +26,9 @@ reader set. -->
 <script setup lang="ts">
 import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDialogAddToShoppingList.vue";
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
-defineProps<{ recipe: Recipe; scale: number }>();
+defineProps<{ recipe: RecipeOut; scale: number }>();
 
 const { shoppingLists, open, addAllLoading, addAllToList, addShoppingList } = useAddToShoppingListDialog();
 </script>

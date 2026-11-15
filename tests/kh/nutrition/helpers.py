@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi.testclient import TestClient
 
-from mealie.schema.recipe.recipe_ingredient import SaveIngredientFood, SaveIngredientUnit
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodSave, IngredientUnitSave
 from tests.utils import api_routes, random_string
 from tests.utils.fixture_schemas import TestUser
 
@@ -15,7 +15,7 @@ def new_food(user: TestUser, name: str):
     """The group's food NAME; created on first use (a module's group lives for the whole module)."""
     repos = user.repos
     return repos.ingredient_foods.get_one(name, "name") or repos.ingredient_foods.create(
-        SaveIngredientFood(name=name, group_id=user.group_id)
+        IngredientFoodSave(name=name, group_id=user.group_id)
     )
 
 
@@ -24,7 +24,7 @@ def new_unit(user: TestUser, abbreviation: str):
     repos = user.repos
     name = UNITS[abbreviation]
     return repos.ingredient_units.get_one(name, "name") or repos.ingredient_units.create(
-        SaveIngredientUnit(name=name, abbreviation=abbreviation, group_id=user.group_id)
+        IngredientUnitSave(name=name, abbreviation=abbreviation, group_id=user.group_id)
     )
 
 

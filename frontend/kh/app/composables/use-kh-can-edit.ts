@@ -5,10 +5,10 @@ import { usePageUser } from "~/composables/recipe-page/shared-state";
 import { useRecipePermissions } from "~/composables/recipes";
 import type { HouseholdSummary } from "~/lib/api/types/household";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 /** Who may edit, as in Mealie's RecipePageHeader: the recipe's household decides for other households' recipes. */
-export function useKhCanEdit(recipe: NoUndefinedField<Recipe>) {
+export function useKhCanEdit(recipe: NoUndefinedField<RecipeOut>) {
   const { user } = usePageUser();
   const recipeHousehold = ref<HouseholdSummary>();
   if (user) {

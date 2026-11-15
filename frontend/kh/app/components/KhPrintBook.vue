@@ -39,8 +39,9 @@ live preview in the editor and the printout, so what the preview shows is what t
             <h4 v-if="line.title" class="kh-group">
               {{ line.title }}
             </h4>
-            <!-- eslint-disable-next-line vue/no-v-html -- the text went through Mealie's sanitizer -->
-            <p class="kh-line" v-html="ingredientText(line, scaleOf(entry))" />
+            <p class="kh-line">
+              <SafeInlineHtml :html="ingredientText(line, scaleOf(entry))" />
+            </p>
           </template>
         </div>
         <div class="kh-steps">
@@ -94,7 +95,7 @@ function scaleOf(entry: BookEntry): number {
   return entry.recipe.recipeServings ? entry.servings / entry.recipe.recipeServings : 1;
 }
 
-/** The ingredient line at SCALE as Mealie writes it (already sanitized by Mealie's parser). */
+/** The ingredient line at SCALE as Mealie writes it; since Mealie 3.31 it is raw text, cleaned by <SafeInlineHtml>. */
 function ingredientText(line: RecipeIngredient, scale: number): string {
   return parseIngredientText(line, scale, false);
 }

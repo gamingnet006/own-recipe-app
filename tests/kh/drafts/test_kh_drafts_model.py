@@ -34,16 +34,16 @@ def test_table_exists_with_columns(api_client: TestClient, session: Session):
 
 
 def test_kh_branch_on_mealies_newest_and_database_at_heads(api_client: TestClient):
-    # Tripwire: one head today. Once an upstream Mealie migration lands on the same parent, this fails on
-    # purpose: init_db upgrades "heads" and restores build every recorded head, so either keep both heads or
-    # move kh0001 onto Mealie's newest revision; see docs/code-rundgang.md section 7.
+    # Since Mealie 3.31 (v1.1) Mealie's own migrations go on beside our kh branch, which stays on the revision it
+    # started from: two heads, allowed by D24 (init_db upgrades "heads", restores build every recorded head). The
+    # kh branch is never moved, so installed databases keep their history; see docs/code-rundgang.md section 7.
     script = ScriptDirectory.from_config(alembic_config())
     mealie_newest = sorted((ALEMBIC_DIR / "versions").glob("*.py"))[-1].name.split("_")[1]
     kh0001 = script.get_revision("kh0001")
     assert kh0001 is not None
     assert kh0001.branch_labels == {"kh"}
-    assert kh0001.down_revision == mealie_newest
-    assert script.get_heads() == [script.get_revision("kh@head").revision]
+    assert kh0001.down_revision == "1e69ea7cd45e"  # Mealie 3.29's newest revision
+    assert set(script.get_heads()) == {mealie_newest, script.get_revision("kh@head").revision}
     assert db_is_at_head(alembic_config())
 
 

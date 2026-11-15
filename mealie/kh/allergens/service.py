@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from mealie.db.models.recipe.recipe import RecipeModel
 from mealie.kh.allergens.models import KhRecipeAllergen, KhSubstitution, KhUserAllergies
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 
 
 def delete_recipe_allergens(session: Session, recipe_ids: list[UUID4]) -> None:
@@ -54,13 +54,13 @@ def set_correction(session: Session, recipe_id: UUID4, allergen: str, present: b
     session.commit()
 
 
-def group_recipes(session: Session, group_id: UUID4) -> list[Recipe]:
+def group_recipes(session: Session, group_id: UUID4) -> list[RecipeOut]:
     """All recipes of the group with their ingredients, of every household (the repository's list gives summaries
     without ingredients)."""
     rows = session.execute(
-        sa.select(RecipeModel).where(RecipeModel.group_id == group_id).options(*Recipe.loader_options())
+        sa.select(RecipeModel).where(RecipeModel.group_id == group_id).options(*RecipeOut.loader_options())
     )
-    return [Recipe.model_validate(row) for row in rows.unique().scalars()]
+    return [RecipeOut.model_validate(row) for row in rows.unique().scalars()]
 
 
 def delete_household_substitutions(session: Session, household_id: UUID4) -> None:

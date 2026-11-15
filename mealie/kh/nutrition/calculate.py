@@ -10,7 +10,7 @@ from mealie.kh.nutrition.grams import grams_of
 from mealie.kh.nutrition.mapping import resolve_code
 from mealie.kh.nutrition.models import KhFoodNutrition
 from mealie.kh.nutrition.schemas import NutritionOut, NutritionValues
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.schema.recipe.recipe_nutrition import Nutrition
 
@@ -67,7 +67,7 @@ def _manual(nutrition: Nutrition | None) -> dict[str, float | None] | None:
 
 
 def calculate(
-    recipe: Recipe,
+    recipe: RecipeDraft | RecipeOut,
     mappings: dict[UUID, KhFoodNutrition],
     bls: dict[str, BlsFood],
     aliases: dict[str, str],

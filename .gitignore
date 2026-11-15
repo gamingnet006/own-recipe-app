@@ -173,7 +173,6 @@ lcov.info
 dev/code-generation/openapi.json
 
 .run/
-.task/*
 .dev.env
 frontend/eslint.config.deprecated.js
 
@@ -192,3 +191,5 @@ kh/ops/auto_update.log
 kh/ops/.auto_update.*
 kh/ops/backup_copy.log
 kh/ops/.backup_copy.*/
+# Playwright MCP screenshots, snapshots, and console logs
+.playwright-mcp/

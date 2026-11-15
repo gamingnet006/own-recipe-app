@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai.state import save_state
+from mealie.schema.group.ai_providers import AIProviderCreate
 from tests.utils.fixture_schemas import TestUser
 
 PROVIDERS = "/api/kh/ai/providers"
@@ -65,9 +66,10 @@ def test_status_follows_pauses(api_client: TestClient, unique_user: TestUser, pr
 
 def test_list_names_the_address_but_never_the_key(api_client: TestClient, unique_user: TestUser, providers):
     """The settings tick off the free key places by the provider's address; the key itself never leaves the server."""
-    unique_user.repos.group_ai_providers.update(
-        providers["A"].id, {**providers["A"].model_dump(), "base_url": "https://api.groq.com/openai/v1"}
+    moved = AIProviderCreate(
+        name="A", model=providers["A"].model, base_url="https://api.groq.com/openai/v1", api_key="k"
     )
+    unique_user.repos.group_ai_providers.update(providers["A"].id, moved)  # a new address needs the key again
     listed = {p["name"]: p for p in api_client.get(PROVIDERS, headers=unique_user.token).json()}
     assert listed["A"]["baseUrl"] == "https://api.groq.com/openai/v1"
     assert listed["B"]["baseUrl"] is None

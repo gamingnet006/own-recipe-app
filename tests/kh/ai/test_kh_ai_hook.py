@@ -18,8 +18,9 @@ from mealie.db.models.group.ai_providers import AIProviderSettings
 from mealie.kh.ai.models import KhAiProviderState
 from mealie.kh.ai.state import END_POSITION, in_order, load_states, save_state, sync_mealie_roles
 from mealie.lang import get_locale_provider
+from mealie.schema.group.ai_providers import AIProviderCreate
 from mealie.schema.openai.general import OpenAIText
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.openai.openai import OpenAILocalAudio, OpenAIService
 from mealie.services.recipe.ai_recipe_service import AIRecipeService
 from mealie.services.scraper import scraper
@@ -131,7 +132,7 @@ async def test_a_test_of_unsaved_edits_stores_nothing(unique_user: TestUser, pro
 
 def test_saving_a_provider_makes_it_ready(unique_user: TestUser, providers):
     save_state(unique_user.repos.session, providers["A"].id, status="key")
-    unique_user.repos.group_ai_providers.update(providers["A"].id, {"name": "A", "model": "model-a2"})
+    unique_user.repos.group_ai_providers.update(providers["A"].id, AIProviderCreate(name="A", model="model-a2"))
     state = load_states(unique_user.repos.session, [providers["A"].id])[providers["A"].id]
     assert (state.status, state.paused_until) == ("ready", None)
 
@@ -189,9 +190,9 @@ def test_photo_draft_tells_an_outage_from_a_missing_recipe(
 def test_saving_a_new_model_forgets_image_support(unique_user: TestUser, providers):
     session = unique_user.repos.session
     save_state(session, providers["A"].id, supports_images=True)
-    unique_user.repos.group_ai_providers.update(providers["A"].id, {"name": "A2", "model": "model-a"})
+    unique_user.repos.group_ai_providers.update(providers["A"].id, AIProviderCreate(name="A2", model="model-a"))
     assert load_states(session, [providers["A"].id])[providers["A"].id].supports_images is True
-    unique_user.repos.group_ai_providers.update(providers["A"].id, {"name": "A2", "model": "model-a2"})
+    unique_user.repos.group_ai_providers.update(providers["A"].id, AIProviderCreate(name="A2", model="model-a2"))
     assert load_states(session, [providers["A"].id])[providers["A"].id].supports_images is None
 
 
@@ -224,9 +225,9 @@ def test_upgrade_starts_with_mealies_roles(unique_user: TestUser, providers):
 def test_draft_names_the_provider_that_answered(
     api_client: TestClient, unique_user: TestUser, providers, fake_ai_calls: FakeAI, monkeypatch: pytest.MonkeyPatch
 ):
-    async def build_recipe(self: AIRecipeService, **kwargs: Any) -> Recipe:
+    async def build_recipe(self: AIRecipeService, **kwargs: Any) -> RecipeDraft:
         await OpenAIService(self.repos).get_response("p", "m", response_schema=OpenAIText)
-        recorded = Recipe.model_validate(json.loads((DRAFT_DATA / "recipe.json").read_text()))
+        recorded = RecipeDraft.model_validate(json.loads((DRAFT_DATA / "recipe.json").read_text()))
         return await scraper.finalize_scraped_recipe(recorded, self.translator)
 
     monkeypatch.setattr(AIRecipeService, "build_recipe", build_recipe)
@@ -238,12 +239,12 @@ def test_draft_names_the_provider_that_answered(
 def test_draft_names_every_provider_that_answered(
     api_client: TestClient, unique_user: TestUser, providers, fake_ai_calls: FakeAI, monkeypatch: pytest.MonkeyPatch
 ):
-    async def build_recipe(self: AIRecipeService, **kwargs: Any) -> Recipe:
+    async def build_recipe(self: AIRecipeService, **kwargs: Any) -> RecipeDraft:
         ai = OpenAIService(self.repos)
         await ai.get_response("p", "m", response_schema=OpenAIText)  # A reads the source
         fake_ai_calls.behavior["A"] = status_error(openai.RateLimitError, 429)
         await ai.get_response("p", "m", response_schema=OpenAIText)  # A's quota is gone: B builds the recipe
-        recorded = Recipe.model_validate(json.loads((DRAFT_DATA / "recipe.json").read_text()))
+        recorded = RecipeDraft.model_validate(json.loads((DRAFT_DATA / "recipe.json").read_text()))
         return await scraper.finalize_scraped_recipe(recorded, self.translator)
 
     monkeypatch.setattr(AIRecipeService, "build_recipe", build_recipe)

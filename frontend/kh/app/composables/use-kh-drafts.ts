@@ -9,7 +9,7 @@ import {
   type KhRecipeChanges,
   type KhRequestError,
 } from "../lib/api/drafts";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 import type { KhDraftAmounts } from "../lib/api/amounts";
 import en from "../../lang/en-US.json";
 
@@ -110,14 +110,14 @@ export function pollingNeeded(list: KhDraft[]): boolean {
 }
 
 /** What a draft carries for its amounts under khAmounts in its recipe JSON (D39); empty for older drafts. */
-export function draftAmounts(recipe: Recipe | null | undefined): KhDraftAmounts {
+export function draftAmounts(recipe: RecipeOut | null | undefined): KhDraftAmounts {
   const amounts = (recipe as { khAmounts?: Partial<KhDraftAmounts> } | null | undefined)?.khAmounts;
   return { extras: amounts?.extras ?? [], stepAmounts: amounts?.stepAmounts ?? [] };
 }
 
 /** The review's fields start from what the recognition found: servings, yield amount and yield text, and the step
  * links it made. */
-export function recipeChanges(recipe: Recipe | null): KhRecipeChanges {
+export function recipeChanges(recipe: RecipeOut | null): KhRecipeChanges {
   return {
     recipeServings: recipe?.recipeServings ?? 0,
     recipeYieldQuantity: recipe?.recipeYieldQuantity ?? 0,

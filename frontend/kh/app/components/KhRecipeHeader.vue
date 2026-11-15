@@ -126,8 +126,8 @@ title with its origin, the times as tiles and the amount with − and +. -->
           <v-icon :icon="$globals.icons.minus" />
         </v-btn>
         <div aria-live="polite" class="text-center">
-          <!-- eslint-disable-next-line vue/no-v-html -- Mealie's amount, numbers only, with <sup>/<sub> fractions -->
-          <span v-if="base" class="text-title-large font-weight-bold" v-html="amount" />
+          <!-- Mealie's amount with <sup>/<sub> fractions -->
+          <SafeInlineHtml v-if="base" class="text-title-large font-weight-bold" :html="amount" />
           {{ label }}
         </div>
         <v-btn
@@ -171,9 +171,9 @@ import { usePageState } from "~/composables/recipe-page/shared-state";
 import { useScaledAmount } from "~/composables/recipes/use-scaled-amount";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
-const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
+const props = defineProps<{ recipe: NoUndefinedField<RecipeOut> }>();
 const online = useOnline();
 defineEmits<{ edit: [] }>();
 const scale = defineModel<number>("scale", { required: true });

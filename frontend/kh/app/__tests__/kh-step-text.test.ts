@@ -136,9 +136,17 @@ describe("onlyStepOf", () => {
   });
 });
 
+/** A DOM element with a class and children, built without parsing HTML (Mealie's security lint). */
+function el(tag: string, className: string, ...children: (Node | string)[]): HTMLElement {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  node.append(...children);
+  return node;
+}
+
 describe("timeIndex", () => {
-  const container = document.createElement("div");
-  container.innerHTML = "<p>erst <span class=\"kh-time\">10 Min.</span> dann <b><span class=\"kh-time\">1 <i>Std.</i></span></b></p>";
+  const container = el("div", "", el("p", "", "erst ", el("span", "kh-time", "10 Min."), " dann ",
+    el("b", "", el("span", "kh-time", "1 ", el("i", "", "Std.")))));
   const spans = container.querySelectorAll(".kh-time");
 
   test("the place of the clicked time among the times", () => {

@@ -8,7 +8,7 @@ from functools import cache
 from pathlib import Path
 
 from mealie.kh.allergens.schemas import ALLERGENS, AllergenHit
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 
 RULES_JSON = Path(__file__).parent / "data" / "rules.json"
@@ -62,7 +62,7 @@ def line_text(line: RecipeIngredient) -> tuple[str, str]:
     return shown, line.food.name if line.food else shown
 
 
-def recipe_allergens(recipe: Recipe, corrections: dict[str, bool]) -> list[AllergenHit]:
+def recipe_allergens(recipe: RecipeDraft | RecipeOut, corrections: dict[str, bool]) -> list[AllergenHit]:
     """The recipe's allergens in spec order with the ingredient lines they come from. A correction False keeps the
     allergen in the list with corrected=False (so it can be undone); True adds one the rules did not find."""
     lines: dict[str, list[str]] = {}

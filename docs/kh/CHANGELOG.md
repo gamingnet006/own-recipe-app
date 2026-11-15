@@ -4,6 +4,26 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [v1.1] - 2026-11-15
+
+- Based on Mealie v3.31.0 (was v3.29.0): 23 published security fixes, newer libraries (Pillow 13, SQLAlchemy 2.1 and
+  others with known vulnerabilities fixed), instruction durations and weekly meal plans. Mealie's migrations run beside
+  Kochheft's own as a second head (D24); the unused `cook_time` column moves into the cook time Mealie shows.
+- Mealie's new sanitizer keeps Kochheft's step marks (tap a time, amounts in brackets); printed ingredient lines and
+  the recipe header go through Mealie's safe inline HTML.
+- Fixed after a full audit: timers read "1/2 Stunde" and "1 1/2 Stunden"; ingredient lines read "1.000 g" and
+  "ca. 200 g"; allergen words fill gaps (Cheddar, Rührei, Eiweiss, Pizzateig, Langusten) and drop false alarms
+  (Tamarinde, Insekten, Milcheiweiß as egg); compounds weigh like their last part (Weizenmehl like Mehl); a 48 MP
+  photo no longer stops a small server; video links inside text and links without https are recognized; a stored
+  add-on switch from a newer version is ignored instead of breaking pages.
+- From 840 px the side menu ends with "More", so add-ons, system check and the oven, nutrition and clock settings are
+  reachable on iPad landscape and computers (D51). "I don't tolerate" never shows empty boxes after a failed load.
+  Saved recipes answer after 4 s on weak Wi-Fi; the alarm sound unlocks on the end of a tap; Enter cannot send a
+  draft twice.
+- Operations: a failed or damaged backup copy never keeps a backup's name; a keep count of 0 or a typo deletes
+  nothing; .env values may contain & and |; relative recordings in the hardware test; the release gate fails when no
+  older image can be loaded instead of skipping the upgrade test.
+
 ## [v1.0.1] - 2026-11-10
 
 - AI settings: Mealie's audio provider select is gone (it only served Mealie's video import, which Kochheft refuses);

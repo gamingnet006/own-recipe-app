@@ -36,7 +36,7 @@ from mealie.kh.allergens.substitutions import Substitution, save_variant, substi
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeOut
 from mealie.schema.response import ErrorResponse
 from mealie.services.recipe.recipe_service import RecipeService
 
@@ -47,7 +47,7 @@ router = UserAPIRouter()
 class KhAllergensController(BaseUserController):
     """Allergens of the recipes of the user's group and the user's own list."""
 
-    def _recipe(self, slug: str) -> Recipe:
+    def _recipe(self, slug: str) -> RecipeOut:
         """The group's recipe, from any household; 404 for others."""
         recipe = get_repositories(self.session, group_id=self.group_id, household_id=None).recipes.get_one(slug, "slug")
         if recipe is None:

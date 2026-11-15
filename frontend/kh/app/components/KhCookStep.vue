@@ -75,9 +75,9 @@ import { timersListedInStep } from "../composables/use-kh-timers";
 import { useKhOn } from "../composables/use-kh-addons";
 import { useKhOven } from "../lib/oven";
 import { khStepDisplay, khStepNeeds } from "../lib/step-text";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
-const props = defineProps<{ recipe: Recipe; scale: number; cook: KhCook }>();
+const props = defineProps<{ recipe: RecipeOut; scale: number; cook: KhCook }>();
 const emit = defineEmits<{ "close": []; "all-steps": [] }>();
 
 const onStepTextClick = useKhTimeTap();

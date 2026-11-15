@@ -1,7 +1,7 @@
 // KH: the drafts API (phase 2) as a Mealie API class. The answer types are written by hand, because
 // Mealie's type generator only reads mealie/schema and ours live in mealie/kh/drafts/schemas.py.
 import { BaseAPI } from "~/lib/api/base/base-clients";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 
 const drafts = "/api/kh/drafts";
 
@@ -38,7 +38,7 @@ export interface KhDraft {
   sourceUrlNormalized: string | null;
   sourceText: string | null;
   originalFiles: string[];
-  recipe: Recipe | null;
+  recipe: RecipeOut | null;
   warnings: KhDraftWarning[];
   error: string | null;
   aiModel: string | null;

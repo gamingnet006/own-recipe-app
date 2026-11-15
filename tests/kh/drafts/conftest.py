@@ -10,7 +10,7 @@ import pytest
 from fastapi import HTTPException
 
 from mealie.kh.drafts import recognize
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.recipe.ai_recipe_service import AIRecipeService
 from mealie.services.scraper import scraper
 
@@ -25,11 +25,11 @@ def fake_ai(monkeypatch: pytest.MonkeyPatch) -> Callable[[str | Exception], list
     def use(result: str | Exception) -> list[dict[str, Any]]:
         calls: list[dict[str, Any]] = []
 
-        async def build_recipe(self: AIRecipeService, **kwargs: Any) -> Recipe:
+        async def build_recipe(self: AIRecipeService, **kwargs: Any) -> RecipeDraft:
             calls.append(kwargs)
             if isinstance(result, Exception):
                 raise result
-            recorded = Recipe.model_validate(json.loads((DATA / result).read_text()))
+            recorded = RecipeDraft.model_validate(json.loads((DATA / result).read_text()))
             return await scraper.finalize_scraped_recipe(recorded, self.translator)
 
         monkeypatch.setattr(AIRecipeService, "build_recipe", build_recipe)
