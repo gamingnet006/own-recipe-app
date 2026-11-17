@@ -34,7 +34,7 @@ The labels below are the ones of the German interface; the English interface use
 
 ## Several households
 
-If a person belongs to two households, give them another one under **More → Households**. They then switch under **More → Switch household**, without a second password. No second invite link is needed.
+If a person belongs to two households, give them another one under **More → Household access**. They then switch under **More → Switch household**, without a second password. No second invite link is needed.
 
 ## Add it to the home screen
 

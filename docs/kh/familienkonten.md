@@ -32,7 +32,7 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
 
 ## Mehrere Haushalte
 
-Gehört eine Person zu zwei Haushalten, gibst du ihr unter **Mehr → Haushalte** einen weiteren frei. Sie wechselt dann unter **Mehr → Haushalt wechseln**, ohne zweites Passwort. Ein zweiter Einladungslink ist dafür nicht nötig.
+Gehört eine Person zu zwei Haushalten, gibst du ihr unter **Mehr → Haushalte freigeben** einen weiteren frei. Sie wechselt dann unter **Mehr → Haushalt wechseln**, ohne zweites Passwort. Ein zweiter Einladungslink ist dafür nicht nötig.
 
 ## Auf den Home-Bildschirm legen
 
