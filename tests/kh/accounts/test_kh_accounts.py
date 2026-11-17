@@ -8,8 +8,8 @@ import pytest
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
-from mealie.kh.accounts.models import KhAccountLink
 from mealie.db.models.users.users import User
+from mealie.kh.accounts.models import KhAccountLink
 from mealie.kh.allergens.models import KhUserAllergies
 from tests import utils
 from tests.utils import api_routes
