@@ -9,6 +9,7 @@ import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
 from mealie.kh.accounts.models import KhAccountLink
+from mealie.db.models.users.users import User
 from mealie.kh.allergens.models import KhUserAllergies
 from tests import utils
 from tests.utils import api_routes
@@ -197,3 +198,52 @@ def test_deleting_an_account_removes_its_link(
         session.execute(sa.select(KhAccountLink).where(KhAccountLink.user_id == UUID(account["userId"]))).first()
         is None
     )
+
+
+def _rights(api_client: TestClient, admin_token, user_id: str | UUID) -> dict[str, bool]:
+    body = api_client.get(api_routes.admin_users_item_id(user_id), headers=admin_token).json()
+    return {key: body[key] for key in ("admin", "canInvite", "canManage", "canManageHousehold", "canOrganize")}
+
+
+def test_a_right_changed_at_the_primary_reaches_linked_accounts_at_once(
+    api_client: TestClient, admin_token, unique_user: TestUser, h2_user: TestUser, make_link
+):
+    primary = api_client.get(api_routes.admin_users_item_id(unique_user.user_id), headers=admin_token).json()
+    account = make_link(h2_user.household_id)
+    try:
+        primary["canInvite"] = not primary["canInvite"]
+        api_client.put(api_routes.admin_users_item_id(unique_user.user_id), json=primary, headers=admin_token)
+        assert _rights(api_client, admin_token, account["userId"])["canInvite"] is primary["canInvite"]
+    finally:
+        primary["canInvite"] = not primary["canInvite"]
+        api_client.put(api_routes.admin_users_item_id(unique_user.user_id), json=primary, headers=admin_token)
+
+
+def test_unlinking_takes_every_right_from_the_account(
+    api_client: TestClient, admin_token, unique_user: TestUser, h2_user: TestUser, make_link
+):
+    primary = api_client.get(api_routes.admin_users_item_id(unique_user.user_id), headers=admin_token).json()
+    account = make_link(h2_user.household_id)
+    try:
+        primary["canOrganize"] = True
+        api_client.put(api_routes.admin_users_item_id(unique_user.user_id), json=primary, headers=admin_token)
+        assert _rights(api_client, admin_token, account["userId"])["canOrganize"] is True
+        api_client.delete(f"{ADMIN}/{account['userId']}", headers=admin_token)
+        assert not any(_rights(api_client, admin_token, account["userId"]).values())
+    finally:
+        primary["canOrganize"] = False
+        api_client.put(api_routes.admin_users_item_id(unique_user.user_id), json=primary, headers=admin_token)
+
+
+def test_a_deleted_primary_leaves_its_linked_accounts_without_rights(
+    api_client: TestClient, admin_token, unique_user: TestUser, h2_user: TestUser, make_link
+):
+    from mealie.kh.accounts.service import delete_links
+
+    account = make_link(h2_user.household_id)
+    session = unique_user.repos.session
+    session.execute(sa.update(User).where(User.id == UUID(account["userId"])).values(can_organize=True))
+    session.commit()
+    delete_links(session, unique_user.user_id)  # what deleting the primary does after the user row is gone
+    session.expire_all()
+    assert not any(_rights(api_client, admin_token, account["userId"]).values())

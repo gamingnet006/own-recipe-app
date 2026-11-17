@@ -24,7 +24,7 @@
     </v-alert>
 
     <!-- KH: step-by-step guide for a first provider, open while the list is empty -->
-    <KhAiSetupGuide :start-open="!khProviders.length" @preset="openPreset" />
+    <KhAiSetupGuide v-if="khList" :start-open="!khProviders.length" @preset="openPreset" />
 
     <GroupAIProviderDialog
       v-model="dialogOpen"

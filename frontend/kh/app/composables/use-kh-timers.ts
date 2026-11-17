@@ -232,7 +232,9 @@ function loadClock(): ClockSetting {
 const clock = ref(loadClock());
 watch(clock, setting => localStorage.setItem(CLOCK_KEY, JSON.stringify(setting)), { deep: true, flush: "sync" });
 
-/** Whether this device offers "Auf Uhr-Timer legen", and the name of its Shortcut; kept on the device. */
+/** Whether this device offers "Auf Uhr-Timer legen", and the name of its Shortcut; kept on the device. `offered`
+ * says whether the device can run it at all, so a switch left on from before (say on Android) shows no button. */
 export function useKhClockSetting() {
-  return { enabled: toRef(clock.value, "enabled"), name: toRef(clock.value, "name") };
+  const offered = offersClockShortcut(navigator.userAgent, navigator.maxTouchPoints);
+  return { enabled: toRef(clock.value, "enabled"), name: toRef(clock.value, "name"), offered };
 }

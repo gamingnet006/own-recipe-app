@@ -111,6 +111,19 @@ test("the clock shortcut is offered on iPhone and iPad only", async () => {
   expect(offersClockShortcut("Mozilla/5.0 (Windows NT 10.0; Win64; x64)", 0)).toBe(false);
 });
 
+test("an Android phone that turned the clock on in v1.1 is not offered the button any more", async () => {
+  localStorage.setItem("kh-clock-timer", JSON.stringify({ enabled: true, name: "KH Timer" }));
+  vi.stubGlobal("navigator", { ...navigator, userAgent: "Mozilla/5.0 (Linux; Android 15; Pixel 9)", maxTouchPoints: 5 });
+  try {
+    const { offered, enabled } = (await fresh()).useKhClockSetting();
+    expect(enabled.value).toBe(true);
+    expect(offered).toBe(false);
+  }
+  finally {
+    vi.unstubAllGlobals();
+  }
+});
+
 test("the alarm beeps and vibrates until stopped or the limit", async () => {
   const { startAlarm, unlockAudio, ALARM_MAX_MS } = await fresh();
   const beep = vi.fn();

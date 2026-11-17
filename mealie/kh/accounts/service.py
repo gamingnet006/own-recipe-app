@@ -62,9 +62,28 @@ def all_people(session: Session) -> list[PersonOut]:
     ]
 
 
+def _strip_rights(user: User) -> None:
+    """Takes every permission from an account that is no longer linked, so copied rights cannot outlive the link."""
+    for name in permission_attrs:
+        setattr(user, name, False)
+
+
+def sync_linked_rights(session: Session, primary_id: UUID4) -> None:
+    """Copies the primary's permissions onto all its linked accounts, so they are the same in every household; runs
+    when the admin changes the primary and before a switch. Does nothing for an account that is no primary. Commits."""
+    users = _person_users(session, primary_id)
+    for user in users[1:]:
+        for name in permission_attrs:
+            setattr(user, name, getattr(users[0], name))
+    session.commit()
+
+
 def delete_links(session: Session, user_id: UUID4) -> None:
-    """Deletes the links a deleted user is part of, on either side; SQLite in Mealie checks no foreign keys, so the
-    cascade is not enough. Commits."""
+    """Deletes the links a deleted user is part of, on either side, and takes the rights from the accounts that were
+    linked to it; SQLite in Mealie checks no foreign keys, so the cascade is not enough. Commits."""
+    for user in _person_users(session, user_id):
+        if user.id != user_id:
+            _strip_rights(user)
     session.execute(
         sa.delete(KhAccountLink).where(
             sa.or_(KhAccountLink.user_id == user_id, KhAccountLink.primary_user_id == user_id)
@@ -118,10 +137,11 @@ def link_account(repos: AllRepositories, primary_id: UUID4, household_id: UUID4)
 
 
 def unlink_account(session: Session, user_id: UUID4) -> None:
-    """Dissolves the link only; the account and its recipes stay."""
+    """Dissolves the link and takes the account's rights; the account and its recipes stay."""
     link = session.execute(sa.select(KhAccountLink).where(KhAccountLink.user_id == user_id)).scalar_one_or_none()
     if link is None:
         raise _fail(status.HTTP_404_NOT_FOUND, "This account is not linked")
+    _strip_rights(session.get(User, user_id))  # type: ignore[arg-type]
     session.delete(link)
     session.commit()
 
@@ -133,6 +153,4 @@ def prepare_switch(session: Session, current_id: UUID4, target_id: UUID4) -> Non
     users = {user.id: user for user in _person_users(session, primary_id)}
     if target_id not in users:
         raise _fail(status.HTTP_404_NOT_FOUND, "Account not found")
-    for name in permission_attrs:
-        setattr(users[target_id], name, getattr(users[primary_id], name))
-    session.commit()
+    sync_linked_rights(session, primary_id)

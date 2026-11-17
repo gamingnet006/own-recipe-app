@@ -154,7 +154,7 @@ everything the side menu holds on bigger screens. -->
 
 <script setup lang="ts">
 import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
-import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, offersClockShortcut, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useKhAccounts } from "~~/kh/app/composables/use-kh-accounts";
@@ -177,8 +177,7 @@ const toggleDark = useToggleDarkMode();
 const oven = useKhOven();
 const khOn = useKhOn();
 const showNutrition = useKhNutritionSetting();
-const { enabled: clockEnabled, name: clockName } = useKhClockSetting();
-const clockOffered = offersClockShortcut(navigator.userAgent, navigator.maxTouchPoints);
+const { enabled: clockEnabled, name: clockName, offered: clockOffered } = useKhClockSetting();
 
 /** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */
 function tryClockShortcut() {

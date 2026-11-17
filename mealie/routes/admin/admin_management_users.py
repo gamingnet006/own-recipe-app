@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4
 
 from mealie.core import security
-from mealie.kh.accounts.service import delete_links  # KH: a user's account links (D52)
+from mealie.kh.accounts.service import delete_links, sync_linked_rights  # KH: a user's account links (D52)
 from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
@@ -70,7 +70,9 @@ class AdminUserManagementRoutes(BaseAdminController):
         if self.user.id == item_id and self.user.admin != data.admin:
             raise forbidden("you cannot demote yourself")
 
-        return self.mixins.update_one(data, item_id)
+        updated = self.mixins.update_one(data, item_id)
+        sync_linked_rights(self.session, item_id)  # KH: linked accounts get the same rights at once (D52)
+        return updated
 
     @router.delete("/{item_id}", response_model=UserOut)
     def delete_one(self, item_id: UUID4):
