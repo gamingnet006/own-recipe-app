@@ -82,10 +82,7 @@
             {{ $t("meal-plan.calendar-feed-event-details-change-warning") }}
           </p>
         </div>
-        <DocLink
-          class="mt-2 mb-4"
-          link="/documentation/getting-started/features/#calendar-feed"
-        />
+        <!-- KH: Mealie's docs link removed, it describes a different app -->
         <v-text-field
           v-model="summary"
           :label="$t('meal-plan.calendar-feed-event-title')"

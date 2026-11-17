@@ -4,10 +4,7 @@
       <BaseCardSectionTitle :title="$t('admin.debug-ai-providers')">
         {{ $t('admin.debug-ai-providers-description') }}
         <br>
-        <DocLink
-          class="mt-2"
-          link="/documentation/getting-started/installation/ai-providers"
-        />
+        <!-- KH: Mealie's docs link removed, it describes a different app -->
       </BaseCardSectionTitle>
     </v-container>
     <v-form

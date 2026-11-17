@@ -23,7 +23,6 @@ import type ButtonLink from "@/components/global/ButtonLink.vue";
 import type ContextMenu from "@/components/global/ContextMenu.vue";
 import type CrudTable from "@/components/global/CrudTable.vue";
 import type DevDumpJson from "@/components/global/DevDumpJson.vue";
-import type DocLink from "@/components/global/DocLink.vue";
 import type DropZone from "@/components/global/DropZone.vue";
 import type HelpIcon from "@/components/global/HelpIcon.vue";
 import type ImageCropper from "@/components/global/ImageCropper.vue";
@@ -67,7 +66,6 @@ declare module "vue" {
     ContextMenu: typeof ContextMenu;
     CrudTable: typeof CrudTable;
     DevDumpJson: typeof DevDumpJson;
-    DocLink: typeof DocLink;
     DropZone: typeof DropZone;
     HelpIcon: typeof HelpIcon;
     ImageCropper: typeof ImageCropper;

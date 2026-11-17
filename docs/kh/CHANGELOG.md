@@ -10,6 +10,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
   it belongs to. A device that already uses "KH Timer" keeps its stored name.
 - Kochheft comes with the ready-made "Kochheft Timer" shortcut: More → Timer shows "Add shortcut" without any setting;
   `KH_CLOCK_SHORTCUT_URL` can still name another one.
+- The sign-in page says "Kochheft" and links only to Kochheft's own source (`KH_SOURCE_URL`); Mealie's sponsor link
+  and all "Docs" buttons to Mealie's documentation are gone.
 - More → Timer offers the clock timer on iPhone and iPad only; Android and computers see a short note instead, since
   they have no Shortcuts app.
 

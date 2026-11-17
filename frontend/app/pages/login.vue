@@ -55,8 +55,9 @@
           class="d-flex justify-center mb-4"
           dark
         >
+          <!-- KH: our name on the sign-in page -->
           <v-toolbar-title class="text-h4 text-center">
-            Mealie
+            Kochheft
           </v-toolbar-title>
         </v-toolbar>
         <AppLogo :size="100" />
@@ -179,39 +180,18 @@
           </v-btn>
         </v-card-actions>
 
-        <v-card-text class="d-flex justify-center flex-column flex-sm-row">
-          <div
-            v-for="link in [
-              {
-                text: $t('about.sponsor'),
-                icon: $globals.icons.heart,
-                href: 'https://github.com/sponsors/hay-kot',
-              },
-              {
-                text: $t('about.github'),
-                icon: $globals.icons.github,
-                href: 'https://github.com/mealie-recipes/mealie',
-              },
-              {
-                text: $t('about.docs'),
-                icon: $globals.icons.folderOutline,
-                href: 'https://docs.mealie.io/',
-              },
-            ]"
-            :key="link.text"
-            class="text-center"
+        <!-- KH: only a link to Kochheft's own source (KH_SOURCE_URL); Mealie's sponsor and docs links are gone -->
+        <v-card-text class="d-flex justify-center">
+          <v-btn
+            variant="text"
+            :href="$khFeatures.sourceUrl"
+            target="_blank"
           >
-            <v-btn
-              variant="text"
-              :href="link.href"
-              target="_blank"
-            >
-              <v-icon start>
-                {{ link.icon }}
-              </v-icon>
-              {{ link.text }}
-            </v-btn>
-          </div>
+            <v-icon start>
+              {{ $globals.icons.github }}
+            </v-icon>
+            {{ $t("about.github") }}
+          </v-btn>
         </v-card-text>
       </v-card>
     </template>
