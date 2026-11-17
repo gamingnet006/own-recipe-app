@@ -567,14 +567,14 @@
       "current": "Current household",
       "household-of": "Household: {name}",
       "admin": {
-        "description": "Let a person work in more than one household. Each household gets its own linked account for the person: what is made there belongs to that household. Permissions and the intolerance list are copied from the main account when the link is made.",
+        "description": "Let a person work in more than one household. Each household gets its own linked account for the person: what is made there belongs to that household. Permissions always match the main account; the intolerance list is copied when the link is made.",
         "main": "Main account",
         "add": "Give access to another household",
         "household": "Household",
         "give": "Give access",
         "remove": "Remove access",
         "added": "Access given.",
-        "removed": "Access removed. The account and its recipes stay; delete it under Admin > Users if you do not need it.",
+        "removed": "Access removed. The account has no management rights any more; it stays with its recipes, delete it under Admin > Users if you do not need it.",
         "none": "No other persons yet."
       }
     }

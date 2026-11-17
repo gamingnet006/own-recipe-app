@@ -567,14 +567,14 @@
       "current": "Aktueller Haushalt",
       "household-of": "Haushalt: {name}",
       "admin": {
-        "description": "Eine Person kann in mehreren Haushalten arbeiten. Jeder Haushalt bekommt dafür ein eigenes, verbundenes Konto der Person: Was dort angelegt wird, gehört zu diesem Haushalt. Rechte und die Liste „Ich vertrage nicht“ werden beim Verbinden vom Hauptkonto kopiert.",
+        "description": "Eine Person kann in mehreren Haushalten arbeiten. Jeder Haushalt bekommt dafür ein eigenes, verbundenes Konto der Person: Was dort angelegt wird, gehört zu diesem Haushalt. Die Rechte sind immer dieselben wie beim Hauptkonto; die Liste „Ich vertrage nicht“ wird beim Verbinden kopiert.",
         "main": "Hauptkonto",
         "add": "Weiteren Haushalt freigeben",
         "household": "Haushalt",
         "give": "Freigeben",
         "remove": "Freigabe entfernen",
         "added": "Haushalt freigegeben.",
-        "removed": "Freigabe entfernt. Das Konto und seine Rezepte bleiben; lösche es unter Admin > Benutzer, wenn du es nicht brauchst.",
+        "removed": "Freigabe entfernt. Das Konto hat jetzt keine Verwaltungsrechte mehr; es bleibt mit seinen Rezepten bestehen, lösche es unter Admin > Benutzer, wenn du es nicht brauchst.",
         "none": "Noch keine weiteren Personen."
       }
     }
