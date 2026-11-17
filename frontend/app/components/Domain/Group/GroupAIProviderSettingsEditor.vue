@@ -23,6 +23,9 @@
       {{ $t("kh.ai.choice-hint") }}
     </v-alert>
 
+    <!-- KH: step-by-step guide for a first provider, open while the list is empty -->
+    <KhAiSetupGuide :start-open="!khProviders.length" />
+
     <GroupAIProviderDialog
       v-model="dialogOpen"
       :provider-id="editingProviderId ?? undefined"

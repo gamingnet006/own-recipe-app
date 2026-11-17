@@ -3,7 +3,7 @@
 import { expect, test, vi } from "vitest";
 import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel } from "../composables/use-kh-ai";
 import type { KhProviderState } from "../lib/api/ai";
-import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, setUpPlaces } from "../lib/free-ai-keys";
+import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, GEMINI_MODELS, setUpPlaces } from "../lib/free-ai-keys";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -115,4 +115,12 @@ test("a free key place counts as set up when a provider uses its address, with o
   ]);
   expect([...done].sort()).toEqual(["Google AI Studio (Gemini)", "Groq"]);
   expect(setUpPlaces([]).size).toBe(0);
+});
+
+test("the setup guide finds Gemini's address and names two model IDs, in both languages", () => {
+  expect(FREE_AI_KEYS.find(key => key.baseUrl.includes("generativelanguage"))?.baseUrl)
+    .toBe("https://generativelanguage.googleapis.com/v1beta/openai/");
+  expect(GEMINI_MODELS).toEqual(["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]);
+  expect(Object.keys(de.kh.ai.guide)).toEqual(Object.keys(en.kh.ai.guide));
+  expect(de.kh.ai.guide.reserve).toContain("{model}");
 });

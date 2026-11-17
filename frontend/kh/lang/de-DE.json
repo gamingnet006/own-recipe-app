@@ -119,7 +119,7 @@
       "time-hint": "Bei so viel mehr oder weniger ändern sich Back- und Garzeiten oft."
     },
     "ai": {
-      "choice-hint": "So geht's: Unten mit „Anbieter anlegen“ einen Anbieter mit deinem Schlüssel eintragen, zum Beispiel Google Gemini (kostenlos, Anleitung in der README unter „KI einrichten“). Für Text und Rezepte nimmt Kochheft den obersten Anbieter der Liste, Fotos und Screenshots liest der oberste, der Bilder kann; die Reihenfolge änderst du mit den Pfeilen. Audio und Video: Mealies Audio-Anbieter ging nur mit Anbietern, die OpenAIs Schnittstelle zum Umwandeln von Sprache haben (praktisch nur OpenAI/ChatGPT), und diente nur dem Video-Download, den Kochheft nicht macht. Eigene Aufnahmen wandelt stattdessen das Zusatzmodul Whisper um; es läuft lokal und braucht keinen Schlüssel.",
+      "choice-hint": "So geht's: Unten mit „Anbieter erstellen“ einen Anbieter mit deinem Schlüssel eintragen, zum Beispiel Google Gemini (kostenlos, Schritt-für-Schritt-Anleitung gleich hier drunter). Für Text und Rezepte nimmt Kochheft den obersten Anbieter der Liste, Fotos und Screenshots liest der oberste, der Bilder kann; die Reihenfolge änderst du mit den Pfeilen. Audio und Video: Mealies Audio-Anbieter ging nur mit Anbietern, die OpenAIs Schnittstelle zum Umwandeln von Sprache haben (praktisch nur OpenAI/ChatGPT), und diente nur dem Video-Download, den Kochheft nicht macht. Eigene Aufnahmen wandelt stattdessen das Zusatzmodul Whisper um; es läuft lokal und braucht keinen Schlüssel.",
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
       "profile-lokal": "Profil \"lokal\": alles bleibt im Haus. Nur lokale KI-Anbieter nutzen (z. B. Ollama), keine Cloud-Schlüssel.",
       "move-up": "Nach oben",
@@ -144,7 +144,18 @@
       "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
       "no-images": "liest keine Bilder",
       "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
-      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon."
+      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon.",
+      "guide": {
+        "title": "Schritt für Schritt: Gemini einrichten (kostenlos)",
+        "key": "Schlüssel holen: Öffne die Seite unten, melde dich mit deinem Google-Konto an, tippe auf „API-Schlüssel erstellen“ und kopiere den Schlüssel. Hinterleg dort kein Bezahlkonto, dann kostet es nichts.",
+        "create": "Hier unten auf „Anbieter erstellen“ tippen. Es öffnet sich ein Fenster mit fünf Feldern.",
+        "fields": "Die Felder so ausfüllen (mit der Kopier-Taste daneben übernimmst du den Text genau richtig):",
+        "paste-key": "deinen kopierten Schlüssel einfügen",
+        "leave": "leer lassen",
+        "test": "Auf „Erstellen“ tippen. Dann in der Liste beim neuen Anbieter auf das Stift-Symbol tippen und „Test Connection“ drücken. Erscheint eine grüne Meldung, ist die KI fertig.",
+        "reserve": "Empfohlen: Einen zweiten Anbieter „Gemini Reserve“ genauso anlegen, mit demselben Schlüssel, aber dem Modell {model}. Ist das Tageskontingent des ersten aufgebraucht, nimmt Kochheft automatisch den zweiten.",
+        "mistakes": "Häufige Fehler: Ins Feld Modell gehört die Kennung wie „gemini-3.5-flash-lite“, nicht der Name „Gemini 3.5 Flash Lite“ aus Google. Beim Einfügen des Schlüssels darf kein Leerzeichen davor oder dahinter stehen."
+      }
     },
     "notices": {
       "title": "Meldungen",

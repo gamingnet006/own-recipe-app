@@ -11,6 +11,9 @@ export interface FreeAiKey {
   note: { de: string; en: string };
 }
 
+/** Gemini's free models for the setup guide: the first is the main provider, the second the reserve (README, step 7). */
+export const GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"] as const;
+
 export const FREE_AI_KEYS: FreeAiKey[] = [
   {
     name: "Google AI Studio (Gemini)",
