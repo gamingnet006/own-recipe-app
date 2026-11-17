@@ -32,6 +32,10 @@ The labels below are the ones of the German interface; the English interface use
 4. Tap **Weiter** (Next), then **Absenden** (Submit).
 5. Log in and tick **Angemeldet bleiben** (Remember me). You then stay logged in for 30 days, even without opening the app.
 
+## Several households
+
+If a person belongs to two households, give them another one under **More → Households**. They then switch under **More → Switch household**, without a second password. No second invite link is needed.
+
 ## Add it to the home screen
 
 Kochheft then opens like an app.

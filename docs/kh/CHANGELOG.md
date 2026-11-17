@@ -10,6 +10,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
   it belongs to. A device that already uses "KH Timer" keeps its stored name.
 - Kochheft comes with the ready-made "Kochheft Timer" shortcut: More → Timer shows "Add shortcut" without any setting;
   `KH_CLOCK_SHORTCUT_URL` can still name another one.
+- Switch household (D52): the admin can give a person further households, also in other groups, under More →
+  Households; the person switches under More → Switch household without a password. Each household gets its own
+  linked account, so what someone adds belongs to the household they are in.
 - The sign-in page says "Kochheft" and links only to Kochheft's own source (`KH_SOURCE_URL`); Mealie's sponsor link
   and all "Docs" buttons to Mealie's documentation are gone.
 - More → Timer offers the clock timer on iPhone and iPad only; Android and computers see a short note instead, since

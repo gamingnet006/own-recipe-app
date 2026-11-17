@@ -95,6 +95,8 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 
 Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an, siehe [familienkonten.md](familienkonten.md).
 
+**Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Haushalte** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
+
 ### 6. Automatische Updates
 
 Jede Nacht um 4 Uhr holt Kochheft die neueste stabile Version und spielt sie mit Backup und Rückfall ein (D29).
@@ -465,6 +467,8 @@ It then starts everything, creates the key for the backups and shows the first l
 ### 5. Invite the family
 
 Each person gets an invite link and creates their own account, see [familienkonten.en.md](familienkonten.en.md).
+
+**Several households:** if someone lives in two households, give them another one under **More → Households**, also in another group. Kochheft creates a linked account for it; the person switches under **More → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
 
 ### 6. Automatic updates
 

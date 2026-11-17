@@ -30,6 +30,10 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
 4. Tippe auf **Weiter** und dann auf **Absenden**.
 5. Melde dich an und setz dabei den Haken bei **Angemeldet bleiben**. Dann bleibst du 30 Tage angemeldet, auch wenn du die App nicht öffnest.
 
+## Mehrere Haushalte
+
+Gehört eine Person zu zwei Haushalten, gibst du ihr unter **Mehr → Haushalte** einen weiteren frei. Sie wechselt dann unter **Mehr → Haushalt wechseln**, ohne zweites Passwort. Ein zweiter Einladungslink ist dafür nicht nötig.
+
 ## Auf den Home-Bildschirm legen
 
 Dann öffnet sich Kochheft wie eine App.
