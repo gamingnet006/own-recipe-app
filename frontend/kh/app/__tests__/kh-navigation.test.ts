@@ -42,7 +42,7 @@ function everyTarget(): KhNavTarget[] {
   const { plan, collection } = moreSections("familie", "u1");
   const all = [...barTargets("familie", "/shopping-lists"), ...sidebarTargets("familie", "/shopping-lists"), ...plan,
     ...collection];
-  all.push(...settingsTargets({ canOrganize: true, admin: true }, "familie"));
+  all.push(...settingsTargets({ canOrganize: true, admin: true, linked: true }, "familie"));
   return all.flatMap(target => [target, ...(target.children ?? [])]);
 }
 
@@ -76,7 +76,7 @@ describe("destinations", () => {
   test("the settings follow the user's rights", () => {
     expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons", "about"]);
     expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
-      .toEqual(["profile", "data", "addons", "admin", "system", "about"]);
+      .toEqual(["profile", "data", "addons", "admin", "households", "system", "about"]);
     expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
       .toEqual(["/g/familie/systempruefung", "/g/familie/ueber"]);
   });

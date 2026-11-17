@@ -8,7 +8,7 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 const SHOPPING_LISTS = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons" | "switch" | "households";
 
 export type KhTab = "recipes" | "intake" | "shopping" | "more";
 
@@ -50,6 +50,9 @@ function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LIS
     about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
     system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
     addons: target("addons", `${group}/zusatzfunktionen`, "tools", "kh.nav.addons"),
+    // not a page: the More page opens a dialog for it
+    switch: target("switch", `${group}/more`, "swapHorizontal", "kh.accounts.switch"),
+    households: target("households", `${group}/haushalte`, "household", "kh.nav.households"),
   };
 }
 
@@ -104,14 +107,19 @@ export function moreSections(
   };
 }
 
-/** The settings pages this user may open, as in Mealie's side menu, plus our add-ons, system check (admins) and About. */
-export function settingsTargets(user: { canOrganize?: boolean; admin?: boolean }, groupSlug: string): KhNavTarget[] {
+/** The settings pages this user may open, as in Mealie's side menu, plus our add-ons, the household switch (only with
+ * linked accounts, D52), households and system check (admins) and About. */
+export function settingsTargets(
+  user: { canOrganize?: boolean; admin?: boolean; linked?: boolean },
+  groupSlug: string,
+): KhNavTarget[] {
   const all = allTargets(groupSlug, "");
   return [
     all.profile,
     ...(user.canOrganize ? [all.data] : []),
     all.addons,
-    ...(user.admin ? [all.admin, all.system] : []),
+    ...(user.linked ? [all.switch] : []),
+    ...(user.admin ? [all.admin, all.households, all.system] : []),
     all.about,
   ];
 }

@@ -111,9 +111,10 @@ everything the side menu holds on bigger screens. -->
         <v-list-item
           v-for="target in settings"
           :key="target.key"
-          :to="target.to"
+          :to="target.key === 'switch' ? undefined : target.to"
           :prepend-icon="icon(target.icon)"
           :title="$t(target.title)"
+          @click="target.key === 'switch' && (switchDialog = true)"
         />
         <v-list-item
           v-if="user?.canInvite"
@@ -147,6 +148,7 @@ everything the side menu holds on bigger screens. -->
 
     <UserInviteDialog v-model="inviteDialog" />
     <LanguageDialog v-model="languageDialog" />
+    <KhAccountSwitch v-model="switchDialog" />
   </v-container>
 </template>
 
@@ -155,6 +157,7 @@ import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navi
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, offersClockShortcut, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
+import { useKhAccounts } from "~~/kh/app/composables/use-kh-accounts";
 import { useKhOven } from "~~/kh/app/lib/oven";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
@@ -187,6 +190,9 @@ useSeoMeta({ title: i18n.t("kh.nav.more") });
 const user = computed(() => auth.user.value);
 const inviteDialog = ref(false);
 const languageDialog = ref(false);
+const switchDialog = ref(false);
+const { accounts, load: loadAccounts } = useKhAccounts();
+onMounted(loadAccounts);
 
 const sections = computed(() => {
   const { plan, collection } = moreSections(route.params.groupSlug as string, user.value?.id ?? "");
@@ -196,7 +202,10 @@ const sections = computed(() => {
   ];
 });
 const settings = computed(() =>
-  settingsTargets({ canOrganize: user.value?.canOrganize, admin: user.value?.admin }, route.params.groupSlug as string),
+  settingsTargets(
+    { canOrganize: user.value?.canOrganize, admin: user.value?.admin, linked: accounts.value.length > 0 },
+    route.params.groupSlug as string,
+  ),
 );
 
 /** One of Mealie's icons by its name in the list of destinations. */

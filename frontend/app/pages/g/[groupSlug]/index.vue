@@ -1,5 +1,6 @@
 <template>
   <div>
+    <KhHouseholdBadge /> <!-- KH: current household, only with linked accounts (D52) -->
     <RecipeExplorerPage />
   </div>
 </template>

@@ -104,7 +104,8 @@
       "tolerance": "I do not tolerate",
       "about": "About Kochheft",
       "system": "System check",
-      "addons": "Add-ons"
+      "addons": "Add-ons",
+      "households": "Household access"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -548,6 +549,23 @@
       },
       "local-ai": "Local AI (e.g. Ollama) works in principle too – see the guide. Untested.",
       "local-ai-link": "Guide"
+    },
+    "accounts": {
+      "switch": "Switch household",
+      "switch-hint": "Choose the household you want to work in.",
+      "current": "Current household",
+      "household-of": "Household: {name}",
+      "admin": {
+        "description": "Let a person work in more than one household. Each household gets its own linked account for the person: what is made there belongs to that household. Permissions and the intolerance list are copied from the main account when the link is made.",
+        "main": "Main account",
+        "add": "Give access to another household",
+        "household": "Household",
+        "give": "Give access",
+        "remove": "Remove access",
+        "added": "Access given.",
+        "removed": "Access removed. The account and its recipes stay; delete it under Admin > Users if you do not need it.",
+        "none": "No other persons yet."
+      }
     }
   }
 }
