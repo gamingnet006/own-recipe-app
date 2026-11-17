@@ -200,10 +200,11 @@
       "clock-add": "Kurzbefehl hinzufügen",
       "clock-setup": "So richtest du den Kurzbefehl ein",
       "clock-step-1": "App „Kurzbefehle“ öffnen, unten rechts auf „+“ tippen.",
-      "clock-step-2": "Oben den Namen auf „KH Timer“ ändern (genau so, oder den Namen hier unten anpassen).",
+      "clock-step-2": "Oben den Namen auf „Kochheft Timer“ ändern (genau so, oder den Namen hier unten anpassen).",
       "clock-step-3": "Aktion „Zahlen aus Eingabe abrufen“ hinzufügen; als Quelle „Kurzbefehleingabe“.",
       "clock-step-4": "Aktion „Timer starten“ hinzufügen; Dauer = die Zahl aus Schritt 3, Einheit Minuten. Fertig.",
-      "clock-try": "Ausprobieren (1 Minute)"
+      "clock-try": "Ausprobieren (1 Minute)",
+      "clock-ios-only": "Den Uhr-Timer gibt es nur auf iPhone und iPad, weil er die App Kurzbefehle braucht. Hier klingelt der Timer, solange Kochheft offen ist."
     },
     "cook": {
       "step-of": "Schritt {n} von {total}",

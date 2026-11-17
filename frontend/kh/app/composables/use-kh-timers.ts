@@ -7,7 +7,7 @@ import { uuid4 } from "~/composables/use-utils";
 const STORAGE_KEY = "kh-timers";
 const CLOCK_KEY = "kh-clock-timer";
 /** The name of the iOS Shortcut that starts the clock app's timer, unless the device is set to another. */
-export const DEFAULT_CLOCK_SHORTCUT = "KH Timer";
+export const DEFAULT_CLOCK_SHORTCUT = "Kochheft Timer";
 /** The alarm stops by itself after this long if nobody taps "Aus". */
 export const ALARM_MAX_MS = 120_000;
 const ALARM_ROUND_MS = 1000;
@@ -205,6 +205,14 @@ export function useKhAlarm(): void {
 /** The address that starts an iOS Shortcut named NAME with the minutes (rounded up) for the clock app's timer. */
 export function clockTimerUrl(name: string, seconds: number): string {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${Math.ceil(seconds / 60)}`;
+}
+
+/**
+ * Whether this device can run an iOS Shortcut: iPhone and iPad only. iPadOS Safari names itself "Macintosh", so a Mac
+ * name with a touch screen counts as an iPad. Android has no Shortcuts app, and browsers there cannot start its timer.
+ */
+export function offersClockShortcut(userAgent: string, touchPoints: number): boolean {
+  return /iPhone|iPad|iPod/.test(userAgent) || (/Macintosh/.test(userAgent) && touchPoints > 1);
 }
 
 interface ClockSetting {

@@ -102,6 +102,15 @@ test("the link to the clock app", async () => {
   expect(clockTimerUrl("KH Timer", 61)).toBe("shortcuts://run-shortcut?name=KH%20Timer&input=text&text=2");
 });
 
+test("the clock shortcut is offered on iPhone and iPad only", async () => {
+  const { offersClockShortcut } = await fresh();
+  expect(offersClockShortcut("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)", 5)).toBe(true);
+  expect(offersClockShortcut("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 5)).toBe(true); // iPad
+  expect(offersClockShortcut("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 0)).toBe(false); // Mac
+  expect(offersClockShortcut("Mozilla/5.0 (Linux; Android 15; Pixel 9)", 5)).toBe(false);
+  expect(offersClockShortcut("Mozilla/5.0 (Windows NT 10.0; Win64; x64)", 0)).toBe(false);
+});
+
 test("the alarm beeps and vibrates until stopped or the limit", async () => {
   const { startAlarm, unlockAudio, ALARM_MAX_MS } = await fresh();
   const beep = vi.fn();
@@ -174,13 +183,13 @@ test("a tap on a time starts its timer and stops there; a tap elsewhere does not
 
 describe("the clock shortcut setting", () => {
   const KEY = "kh-clock-timer";
-  const standard = { enabled: false, name: "KH Timer" };
+  const standard = { enabled: false, name: "Kochheft Timer" };
   const read = async () => {
     const { enabled, name } = (await fresh()).useKhClockSetting();
     return { enabled: enabled.value, name: name.value };
   };
 
-  test("off and named KH Timer at first", async () => {
+  test("off and named Kochheft Timer at first", async () => {
     expect(await read()).toEqual(standard);
   });
   test("stored values come back, and changes are stored", async () => {

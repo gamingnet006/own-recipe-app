@@ -280,9 +280,11 @@ Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Ei
 
 Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
 
+> **Nur iPhone und iPad.** Der Uhr-Timer braucht die App Kurzbefehle. Android hat keine, und eine Webseite kann dort den Timer der Uhr-App nicht starten. Auf Android und am Computer zeigt **Mehr → Timer** deshalb nur einen Hinweis; der Timer in Kochheft klingelt dort, solange die App offen ist.
+
 1. **Kurzbefehl einrichten.** Unter **Mehr → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
    - App **Kurzbefehle** öffnen, unten rechts auf **+** tippen.
-   - Oben den Namen auf „KH Timer“ ändern (oder den Namen in Kochheft anpassen).
+   - Oben den Namen auf „Kochheft Timer“ ändern (oder den Namen in Kochheft anpassen).
    - Aktion **Zahlen aus Eingabe abrufen** hinzufügen, Quelle **Kurzbefehleingabe**.
    - Aktion **Timer starten** hinzufügen, Dauer = diese Zahl, Einheit **Minuten**.
 2. **Einschalten:** In Kochheft unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
@@ -650,9 +652,11 @@ Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake
 
 A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
 
+> **iPhone and iPad only.** The clock timer needs the Shortcuts app. Android has none, and a web page cannot start the Clock app's timer there. On Android and on a computer, **More → Timer** therefore shows only a note; the timer in Kochheft rings there while the app is open.
+
 1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
    - Open the **Shortcuts** app and tap **+** at the bottom right.
-   - Change the name at the top to "KH Timer" (or adjust the name in Kochheft).
+   - Change the name at the top to "Kochheft Timer" (or adjust the name in Kochheft).
    - Add the action **Get Numbers from Input**, source **Shortcut Input**.
    - Add the action **Start Timer**, duration = that number, unit **minutes**.
 2. **Turn it on:** in Kochheft under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.

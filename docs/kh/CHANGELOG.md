@@ -4,6 +4,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+- The clock timer shortcut is now called "Kochheft Timer" (was "KH Timer"), so it is clear in the Shortcuts app what
+  it belongs to. A device that already uses "KH Timer" keeps its stored name.
+- More → Timer offers the clock timer on iPhone and iPad only; Android and computers see a short note instead, since
+  they have no Shortcuts app.
+
 ## [v1.1] - 2026-11-15
 
 - Based on Mealie v3.31.0 (was v3.29.0): 23 published security fixes, newer libraries (Pillow 13, SQLAlchemy 2.1 and
