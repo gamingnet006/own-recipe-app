@@ -1,9 +1,9 @@
 // KH: tests for the AI list in the settings (D39): moving a provider up or down, when the own list shows instead of
 // Mealie's, the words for each state, and the free keys with their date.
 import { expect, test, vi } from "vitest";
-import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel } from "../composables/use-kh-ai";
+import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel, testWaiting } from "../composables/use-kh-ai";
 import type { KhProviderState } from "../lib/api/ai";
-import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, freePlace, GEMINI_MODELS, GEMINI_PRESETS, setUpPlaces } from "../lib/free-ai-keys";
+import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, freePlace, GEMINI_MODELS, GEMINI_PRESET, setUpPlaces } from "../lib/free-ai-keys";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -134,10 +134,25 @@ test("only Cohere and NVIDIA are trial credits, every other place is free", () =
   expect(FREE_AI_KEYS.filter(place => place.trial).map(place => place.name)).toEqual(["Cohere", "NVIDIA"]);
 });
 
-test("the Gemini presets fill everything but the key", () => {
-  expect(GEMINI_PRESETS).toEqual([
-    { name: "Gemini", model: "gemini-3.5-flash-lite", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/" },
-    { name: "Gemini Reserve", model: "gemini-3.1-flash-lite", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/" },
-  ]);
-  expect(GEMINI_MODELS[0]).toBe(GEMINI_PRESETS[0]!.model);
+test("the Gemini preset fills everything but the key and brings its reserve", () => {
+  expect(GEMINI_PRESET).toEqual({
+    name: "Gemini",
+    model: "gemini-3.5-flash-lite",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    reserve: { name: "Gemini Reserve", model: "gemini-3.1-flash-lite" },
+  });
+  expect(GEMINI_MODELS).toEqual([GEMINI_PRESET.model, GEMINI_PRESET.reserve.model]);
+});
+
+test("providers made from the preset are tested once, untested ones only", async () => {
+  const row = (providerId: string, name: string, supportsImages: boolean | null) =>
+    ({ providerId, name, supportsImages }) as KhProviderState;
+  const waiting = new Set(["Gemini", "Gemini Reserve"]);
+  const test = vi.fn(async () => {});
+  const list = [row("1", "Gemini", null), row("2", "Groq", null), row("3", "Gemini Reserve", true)];
+  expect(await testWaiting(list, waiting, test)).toBe(true);
+  expect(test.mock.calls).toEqual([["1"]]);
+  expect([...waiting]).toEqual(["Gemini Reserve"]);
+  expect(await testWaiting(list, waiting, test)).toBe(false);
+  expect(test).toHaveBeenCalledTimes(1);
 });

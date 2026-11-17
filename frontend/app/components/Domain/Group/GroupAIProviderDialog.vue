@@ -101,6 +101,14 @@
         >
           {{ connectionMessage }}{{ imageSupportMessage }}
         </v-alert>
+        <!-- KH: the Gemini guide's reserve, ticked by default -->
+        <v-checkbox
+          v-if="!isEdit && preset"
+          v-model="khAlsoReserve"
+          :label="$t('kh.ai.guide.also-reserve', { name: preset.reserve.name })"
+          hide-details
+          density="compact"
+        />
       </v-form>
     </v-card-text>
     <AppLoader v-else />
@@ -122,11 +130,12 @@
 import { useAIProviders } from "~/composables/use-ai-providers";
 import { validators } from "~/composables/use-validators";
 import type { AIProviderCreate, AIProviderTestResult, AIProviderUpdate } from "~/lib/api/types/group";
+import type { ProviderPreset } from "~~/kh/app/lib/free-ai-keys"; // KH
 
 const props = withDefaults(defineProps<{
   providerId?: string;
-  // KH: values a new provider starts with, from the Gemini guide's buttons, so only the key is left to paste
-  preset?: { name: string; model: string; baseUrl: string };
+  // KH: values a new provider starts with, from the Gemini guide's button, so only the key is left to paste
+  preset?: ProviderPreset;
 }>(), {
   providerId: undefined,
   preset: undefined,
@@ -185,6 +194,7 @@ watch(hiddenValuesNeedReentry, (needsReentry) => {
   if (needsReentry) advancedPanel.value = 0;
 });
 
+const khAlsoReserve = ref(true); // KH: "also make the reserve", only shown for the guide's preset
 const testing = ref(false);
 const testResult = ref<AIProviderTestResult | null>(null);
 
@@ -228,7 +238,9 @@ watch(
     if (!id) {
       // Create mode — just show the empty form
       resetForm();
-      Object.assign(formData, props.preset ?? {}); // KH: start from the guide's preset, if any
+      // KH: start from the guide's preset, if any; its reserve is made too unless the tick is taken away
+      if (props.preset) Object.assign(formData, { name: props.preset.name, model: props.preset.model, baseUrl: props.preset.baseUrl });
+      khAlsoReserve.value = true;
       init.value = true;
       return;
     }
@@ -279,6 +291,8 @@ function handleSubmit() {
       requestParams: Object.keys(formData.requestParams).length ? formData.requestParams : undefined,
     };
     emit("create", createPayload as AIProviderCreate);
+    // KH: the guide's reserve, same key and address, another free model with its own daily quota
+    if (props.preset && khAlsoReserve.value) emit("create", { ...createPayload, ...props.preset.reserve } as AIProviderCreate);
   }
 }
 

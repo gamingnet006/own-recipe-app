@@ -150,12 +150,11 @@
       "guide": {
         "title": "Step by step: set up Gemini (free)",
         "key": "Get a key: open the page below, sign in with your Google account, tap \"Create API key\" and copy the key. Do not add a billing account there; then it costs nothing.",
-        "preset": "Back in Kochheft, tap here. The window opens already filled in; you only paste the key into the \"API Key\" field:",
+        "preset": "Back in Kochheft, tap here. The window opens already filled in; you only paste the key into the \"API Key\" field. Best leave the tick \"Also add Gemini Reserve\" on: when the first model's daily quota runs out, Kochheft takes the second one automatically.",
         "preset-main": "Open Gemini preset",
-        "test": "Tap \"Create\". Then tap the pencil icon next to the new provider in the list and press \"Test Connection\" (the key is already saved). A green message means the AI is ready.",
-        "reserve": "Recommended: add a second provider the same way with this button, with the same key. When the first one's daily quota runs out, Kochheft takes the second one automatically.",
-        "preset-reserve": "Open reserve preset",
-        "mistakes": "Common mistakes: when pasting the key, no space may come before or after it. The Model field takes the ID such as \"gemini-3.5-flash-lite\", not the name \"Gemini 3.5 Flash Lite\" from Google; the presets fill it in correctly."
+        "test": "Tap \"Create\". Kochheft then tests the new providers itself; after a few seconds the list shows whether they work and read photos. If it shows an error, the key is usually wrong: tap the pencil icon next to the provider, paste the key again and tap \"Update\".",
+        "mistakes": "Common mistakes: when pasting the key, no space may come before or after it. The Model field takes the ID such as \"gemini-3.5-flash-lite\", not the name \"Gemini 3.5 Flash Lite\" from Google; the preset fills it in correctly.",
+        "also-reserve": "Also add {name} (same key, its own daily quota)"
       }
     },
     "notices": {

@@ -150,12 +150,11 @@
       "guide": {
         "title": "Schritt für Schritt: Gemini einrichten (kostenlos)",
         "key": "Schlüssel holen: Öffne die Seite unten, melde dich mit deinem Google-Konto an, tippe auf „API-Schlüssel erstellen“ und kopiere den Schlüssel. Hinterleg dort kein Bezahlkonto, dann kostet es nichts.",
-        "preset": "Zurück in Kochheft hier tippen. Das Fenster öffnet sich schon ausgefüllt; du fügst nur noch den Schlüssel ins Feld „API-Key“ ein:",
+        "preset": "Zurück in Kochheft hier tippen. Das Fenster öffnet sich schon ausgefüllt; du fügst nur noch den Schlüssel ins Feld „API-Key“ ein. Der Haken „Gemini Reserve gleich mit anlegen“ bleibt am besten an: Ist das Tageskontingent des ersten Modells aufgebraucht, nimmt Kochheft automatisch das zweite.",
         "preset-main": "Gemini-Vorlage öffnen",
-        "test": "Auf „Erstellen“ tippen. Dann in der Liste beim neuen Anbieter auf das Stift-Symbol tippen und „Test Connection“ drücken (der Schlüssel ist schon gespeichert). Erscheint eine grüne Meldung, ist die KI fertig.",
-        "reserve": "Empfohlen: Mit dieser Taste genauso einen zweiten Anbieter anlegen, mit demselben Schlüssel. Ist das Tageskontingent des ersten aufgebraucht, nimmt Kochheft automatisch den zweiten.",
-        "preset-reserve": "Reserve-Vorlage öffnen",
-        "mistakes": "Häufige Fehler: Beim Einfügen des Schlüssels darf kein Leerzeichen davor oder dahinter stehen. Ins Feld Modell gehört die Kennung wie „gemini-3.5-flash-lite“, nicht der Name „Gemini 3.5 Flash Lite“ aus Google; die Vorlagen tragen das schon richtig ein."
+        "test": "Auf „Erstellen“ tippen. Kochheft prüft die neuen Anbieter dann selbst; nach ein paar Sekunden steht in der Liste, ob sie gehen und Fotos lesen. Steht dort ein Fehler, stimmt meist der Schlüssel nicht: beim Anbieter auf das Stift-Symbol tippen, den Schlüssel neu einfügen und „Aktualisieren“ tippen.",
+        "mistakes": "Häufige Fehler: Beim Einfügen des Schlüssels darf kein Leerzeichen davor oder dahinter stehen. Ins Feld Modell gehört die Kennung wie „gemini-3.5-flash-lite“, nicht der Name „Gemini 3.5 Flash Lite“ aus Google; die Vorlage trägt das schon richtig ein.",
+        "also-reserve": "{name} gleich mit anlegen (gleicher Schlüssel, eigenes Tageskontingent)"
       }
     },
     "notices": {

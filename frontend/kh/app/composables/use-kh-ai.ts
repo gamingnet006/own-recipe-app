@@ -102,3 +102,18 @@ export function useKhAiProviders() {
 
   return { providers, load, move };
 }
+
+/** Tests the saved providers named in WAITING that have no result yet, each once, so providers made from the Gemini
+ * guide show whether they work and read images without the pencil and Test Connection. True when one was tested. */
+export async function testWaiting(
+  providers: KhProviderState[],
+  waiting: Set<string>,
+  test: (id: string) => Promise<unknown>,
+): Promise<boolean> {
+  const due = providers.filter(provider => waiting.has(provider.name) && provider.supportsImages === null);
+  for (const provider of due) {
+    waiting.delete(provider.name);
+    await test(provider.providerId);
+  }
+  return due.length > 0;
+}

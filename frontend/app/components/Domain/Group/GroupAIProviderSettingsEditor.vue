@@ -101,6 +101,9 @@
 <script setup lang="ts">
 import type { AIProviderCreate, AIProviderUpdate } from "~/lib/api/types/group";
 import type { AIProviderSettingsOut } from "~/lib/api/types/user";
+import { useAIProviders } from "~/composables/use-ai-providers";
+import { testWaiting } from "~~/kh/app/composables/use-kh-ai"; // KH: D39 guide
+import type { ProviderPreset } from "~~/kh/app/lib/free-ai-keys"; // KH: D39 guide
 
 const providerSettings = defineModel<AIProviderSettingsOut>({ required: true });
 
@@ -137,13 +140,21 @@ defineEmits<{
 const dialogOpen = ref(false);
 const editingProviderId = ref<string | null>(null);
 
-// KH: the Gemini guide opens the window already filled in; a plain "Create provider" starts empty
-const khPreset = ref<{ name: string; model: string; baseUrl: string }>();
-function openPreset(preset: { name: string; model: string; baseUrl: string }) {
+// KH: the Gemini guide opens the window already filled in; a plain "Create provider" starts empty. Providers made
+// from it are tested on their own once they show up in the list, so nobody needs the pencil and Test Connection.
+const khPreset = ref<ProviderPreset>();
+const khWaiting = new Set<string>();
+function openPreset(preset: ProviderPreset) {
   editingProviderId.value = null;
   khPreset.value = preset;
+  khWaiting.clear();
+  khWaiting.add(preset.name).add(preset.reserve.name);
   dialogOpen.value = true;
 }
+const { testSavedOne: khTestSaved } = useAIProviders();
+watch(khProviders, async (list) => {
+  if (await testWaiting(list, khWaiting, khTestSaved)) loadKhProviders();
+});
 
 function openCreate() {
   khPreset.value = undefined;

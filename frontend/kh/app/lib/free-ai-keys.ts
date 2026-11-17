@@ -16,11 +16,15 @@ export interface FreeAiKey {
 export const GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"] as const;
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
 
-/** What the guide's buttons fill into the new provider window, so only the key is left to paste. */
-export const GEMINI_PRESETS = [
-  { name: "Gemini", model: GEMINI_MODELS[0], baseUrl: GEMINI_URL },
-  { name: "Gemini Reserve", model: GEMINI_MODELS[1], baseUrl: GEMINI_URL },
-];
+/** What the guide's button fills into the new provider window, so only the key is left to paste; the reserve is a
+ * second provider with the same key, made in the same step unless its tick is taken away. */
+export const GEMINI_PRESET = {
+  name: "Gemini",
+  model: GEMINI_MODELS[0],
+  baseUrl: GEMINI_URL,
+  reserve: { name: "Gemini Reserve", model: GEMINI_MODELS[1] },
+};
+export type ProviderPreset = typeof GEMINI_PRESET;
 
 export const FREE_AI_KEYS: FreeAiKey[] = [
   {
