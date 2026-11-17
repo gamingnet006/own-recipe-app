@@ -8,6 +8,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 - The clock timer shortcut is now called "Kochheft Timer" (was "KH Timer"), so it is clear in the Shortcuts app what
   it belongs to. A device that already uses "KH Timer" keeps its stored name.
+- Kochheft comes with the ready-made "Kochheft Timer" shortcut: More → Timer shows "Add shortcut" without any setting;
+  `KH_CLOCK_SHORTCUT_URL` can still name another one.
 - More → Timer offers the clock timer on iPhone and iPad only; Android and computers see a short note instead, since
   they have no Shortcuts app.
 

@@ -6,7 +6,7 @@ from collections.abc import Generator
 import pytest
 from fastapi.testclient import TestClient
 
-from mealie.kh.features.settings import KhSettings, get_kh_settings
+from mealie.kh.features.settings import DEFAULT_CLOCK_SHORTCUT_URL, KhSettings, get_kh_settings
 from mealie.routes import spa
 from tests.utils import api_routes
 from tests.utils.factories import random_string
@@ -52,7 +52,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "shareLinks": on,
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
-            "clockShortcutUrl": None,
+            "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
             "media": False,
             "profile": "leicht",
         }
@@ -101,9 +101,15 @@ def test_features_name_the_poll_interval(api_client: TestClient):
 VALID_SHORTCUT = "https://www.icloud.com/shortcuts/0123456789abcdefABCDEF"
 
 
-def test_clock_shortcut_url_is_unset_by_default(monkeypatch: pytest.MonkeyPatch):
+def test_clock_shortcut_url_is_the_kochheft_timer_by_default(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("KH_CLOCK_SHORTCUT_URL", raising=False)
-    assert KhSettings().clock_shortcut_url is None
+    assert KhSettings().clock_shortcut_url == DEFAULT_CLOCK_SHORTCUT_URL
+    assert DEFAULT_CLOCK_SHORTCUT_URL == "https://www.icloud.com/shortcuts/c6b533e1ee864389831f5a2d7801a9c9"
+
+
+def test_an_empty_clock_shortcut_url_keeps_the_default(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("KH_CLOCK_SHORTCUT_URL", "")  # what Compose passes for an empty line in .env
+    assert KhSettings().clock_shortcut_url == DEFAULT_CLOCK_SHORTCUT_URL
 
 
 @pytest.mark.parametrize("url", [VALID_SHORTCUT, VALID_SHORTCUT + "/"])

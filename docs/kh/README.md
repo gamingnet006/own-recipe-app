@@ -291,7 +291,7 @@ Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei 
 
 Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Kochheft läuft weiter.
 
-*Optional für die Admin:* Wer den Kurzbefehl einmal gebaut hat, kann ihn teilen (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` eintragen (nur `https://www.icloud.com/shortcuts/…`; alles andere wird ignoriert). Dann zeigt **Mehr → Timer** die Taste „Kurzbefehl hinzufügen“, die ihn auf dem Gerät anlegt.
+**Kurzbefehl hinzufügen:** Kochheft bringt den fertigen Kurzbefehl „Kochheft Timer“ als iCloud-Link mit. **Mehr → Timer** zeigt dafür die Taste „Kurzbefehl hinzufügen“; ein Tipp legt ihn auf dem Gerät an. Wer lieber einen eigenen nimmt, teilt ihn (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und trägt den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` ein (nur `https://www.icloud.com/shortcuts/…`; alles andere blendet die Taste aus).
 
 ### Telegram-Bot einrichten
 
@@ -663,7 +663,7 @@ A timer in the app rings only while the app is open. So that it rings on a locke
 
 Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Kochheft keeps running.
 
-*Optional for the admin:* once the shortcut is built, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else is ignored). **More → Timer** then shows the button "Add shortcut", which adds it on the device.
+**Add shortcut:** Kochheft comes with the ready-made "Kochheft Timer" shortcut as an iCloud link. **More → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
 
 ### Set up the Telegram bot
 

@@ -17,6 +17,8 @@ logger = get_logger()
 
 # The only address the "add shortcut" button may open: a shared iOS Shortcut on iCloud
 CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]+/?")
+# The "Kochheft Timer" shortcut the maintainer shared (no personal data in it), so every install offers it unconfigured
+DEFAULT_CLOCK_SHORTCUT_URL = "https://www.icloud.com/shortcuts/c6b533e1ee864389831f5a2d7801a9c9"
 
 # Cloudflare's free plan cuts uploads at 100 MB, so a bigger recording could never reach the app through the tunnel
 TUNNEL_UPLOAD_MB = 95
@@ -31,8 +33,8 @@ class KhSettings(BaseSettings):
     # Public recipe pages by link; Leitplanke 1: share links only on purpose, off by default
     share_links: bool = False
 
-    # Ready-made iOS Shortcut for the Clock timer (D42), an iCloud share link; anything else counts as unset
-    clock_shortcut_url: str | None = None
+    # Ready-made iOS Shortcut for the Clock timer (D42), an iCloud share link; empty keeps our own, anything else unset
+    clock_shortcut_url: str | None = DEFAULT_CLOCK_SHORTCUT_URL
 
     # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
     draft_max_images: int = 5
@@ -79,6 +81,8 @@ class KhSettings(BaseSettings):
     @classmethod
     def only_icloud_shortcut_links(cls, value: str | None) -> str | None:
         """Drops any address that is not an iCloud Shortcuts link; the warning names the setting, not the value."""
+        if value == "":
+            return DEFAULT_CLOCK_SHORTCUT_URL
         if value is not None and not CLOCK_SHORTCUT_URL.fullmatch(value):
             logger.warning("KH_CLOCK_SHORTCUT_URL is not an iCloud Shortcuts link, ignored")
             return None
