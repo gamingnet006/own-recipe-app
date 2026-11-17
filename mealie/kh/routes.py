@@ -3,6 +3,7 @@ each of our functions adds its routes here."""
 
 from fastapi import APIRouter, Depends
 
+from mealie.kh.accounts import routes as accounts
 from mealie.kh.addons import routes as addons
 from mealie.kh.addons.guards import require_addon
 from mealie.kh.ai import routes as ai
@@ -21,6 +22,8 @@ router = APIRouter(prefix="/kh")
 router.include_router(features.router, tags=["KH: Features"])
 router.include_router(addons.router, tags=["KH: Add-ons"])
 router.include_router(addons.admin_router, tags=["KH: Add-ons"])
+router.include_router(accounts.router, tags=["KH: Accounts"])
+router.include_router(accounts.admin_router, tags=["KH: Accounts"])
 router.include_router(drafts.router, tags=["KH: Drafts"])
 router.include_router(drafts.origin_router, tags=["KH: Drafts"])
 router.include_router(ai.router, tags=["KH: AI"])
