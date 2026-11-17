@@ -105,7 +105,7 @@ def link_account(repos: AllRepositories, primary_id: UUID4, household_id: UUID4)
             group=household.group.name,
             household=household.name,
             **{name: getattr(primary, name) for name in permission_attrs},
-        )
+        ).model_dump()  # validated as UserIn, handed over as a dict like Mealie's own sign-in providers do
     )
     session.add(KhAccountLink(session=session, primary_user_id=primary_id, user_id=created.id))
     allergies = session.execute(
