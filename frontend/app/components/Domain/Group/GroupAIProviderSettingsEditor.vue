@@ -24,11 +24,12 @@
     </v-alert>
 
     <!-- KH: step-by-step guide for a first provider, open while the list is empty -->
-    <KhAiSetupGuide :start-open="!khProviders.length" />
+    <KhAiSetupGuide :start-open="!khProviders.length" @preset="openPreset" />
 
     <GroupAIProviderDialog
       v-model="dialogOpen"
       :provider-id="editingProviderId ?? undefined"
+      :preset="khPreset"
       @create="(data) => $emit('create', data)"
       @update="(id, data) => $emit('update', id, data)"
     />
@@ -136,7 +137,16 @@ defineEmits<{
 const dialogOpen = ref(false);
 const editingProviderId = ref<string | null>(null);
 
+// KH: the Gemini guide opens the window already filled in; a plain "Create provider" starts empty
+const khPreset = ref<{ name: string; model: string; baseUrl: string }>();
+function openPreset(preset: { name: string; model: string; baseUrl: string }) {
+  editingProviderId.value = null;
+  khPreset.value = preset;
+  dialogOpen.value = true;
+}
+
 function openCreate() {
+  khPreset.value = undefined;
   editingProviderId.value = null;
   dialogOpen.value = true;
 }

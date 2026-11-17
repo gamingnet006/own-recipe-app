@@ -3,7 +3,7 @@
 import { expect, test, vi } from "vitest";
 import { aiHintKey, moveProvider, refreshWatch, sameProviders, saveOrder, statusLabel } from "../composables/use-kh-ai";
 import type { KhProviderState } from "../lib/api/ai";
-import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, GEMINI_MODELS, setUpPlaces } from "../lib/free-ai-keys";
+import { FREE_AI_KEYS, FREE_AI_KEYS_DATE, freePlace, GEMINI_MODELS, GEMINI_PRESETS, setUpPlaces } from "../lib/free-ai-keys";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
 
@@ -122,5 +122,22 @@ test("the setup guide finds Gemini's address and names two model IDs, in both la
     .toBe("https://generativelanguage.googleapis.com/v1beta/openai/");
   expect(GEMINI_MODELS).toEqual(["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]);
   expect(Object.keys(de.kh.ai.guide)).toEqual(Object.keys(en.kh.ai.guide));
-  expect(de.kh.ai.guide.reserve).toContain("{model}");
+});
+
+test("a provider's address finds its free place, however the address was typed", () => {
+  expect(freePlace("https://API.groq.com/openai/v1/")?.name).toBe("Groq");
+  expect(freePlace("https://example.com/v1")).toBeUndefined();
+  expect(freePlace(null)).toBeUndefined();
+});
+
+test("only Cohere and NVIDIA are trial credits, every other place is free", () => {
+  expect(FREE_AI_KEYS.filter(place => place.trial).map(place => place.name)).toEqual(["Cohere", "NVIDIA"]);
+});
+
+test("the Gemini presets fill everything but the key", () => {
+  expect(GEMINI_PRESETS).toEqual([
+    { name: "Gemini", model: "gemini-3.5-flash-lite", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/" },
+    { name: "Gemini Reserve", model: "gemini-3.1-flash-lite", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/" },
+  ]);
+  expect(GEMINI_MODELS[0]).toBe(GEMINI_PRESETS[0]!.model);
 });

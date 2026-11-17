@@ -44,6 +44,9 @@
         <div class="flex-grow-1 ms-2 py-2">
           <div class="text-title-medium">
             {{ index + 1 }}. {{ provider.name }}
+            <strong v-if="freePlace(provider.baseUrl)">
+              ({{ $t(freePlace(provider.baseUrl)!.trial ? "kh.ai.free-keys.trial" : "kh.ai.free-keys.free") }})
+            </strong>
           </div>
           <div class="text-body-small">
             {{ provider.model }}
@@ -76,6 +79,7 @@
 <script setup lang="ts">
 import type { KhProviderState } from "../lib/api/ai";
 import { clockTime, shownStatus, statusLabel } from "../composables/use-kh-ai";
+import { freePlace } from "../lib/free-ai-keys";
 
 defineProps<{ providers: KhProviderState[] }>();
 defineEmits<{ move: [index: number, delta: -1 | 1]; edit: [id: string]; delete: [id: string] }>();

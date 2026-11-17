@@ -17,6 +17,7 @@
           <a :href="place.keyUrl" target="_blank" rel="noopener noreferrer" class="text-title-small">
             {{ place.name }}: {{ $t("kh.ai.free-keys.get-key") }}
           </a>
+          <strong>({{ $t(place.trial ? "kh.ai.free-keys.trial" : "kh.ai.free-keys.free") }})</strong>
           <!-- ticks itself off when a provider of the group uses this address -->
           <v-chip v-if="done.has(place.name)" size="small" color="success" :prepend-icon="$globals.icons.check">
             {{ $t("kh.ai.free-keys.set-up") }}

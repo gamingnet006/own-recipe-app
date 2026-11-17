@@ -125,8 +125,11 @@ import type { AIProviderCreate, AIProviderTestResult, AIProviderUpdate } from "~
 
 const props = withDefaults(defineProps<{
   providerId?: string;
+  // KH: values a new provider starts with, from the Gemini guide's buttons, so only the key is left to paste
+  preset?: { name: string; model: string; baseUrl: string };
 }>(), {
   providerId: undefined,
+  preset: undefined,
 });
 
 const emit = defineEmits<{
@@ -225,6 +228,7 @@ watch(
     if (!id) {
       // Create mode — just show the empty form
       resetForm();
+      Object.assign(formData, props.preset ?? {}); // KH: start from the guide's preset, if any
       init.value = true;
       return;
     }

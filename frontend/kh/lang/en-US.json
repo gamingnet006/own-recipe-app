@@ -139,7 +139,9 @@
         "set-up": "set up",
         "not-set-up": "not set up yet (optional)",
         "get-key": "Get a key",
-        "address": "Address"
+        "address": "Address",
+        "free": "free",
+        "trial": "trial credits"
       },
       "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
       "no-images": "reads no images",
@@ -148,13 +150,12 @@
       "guide": {
         "title": "Step by step: set up Gemini (free)",
         "key": "Get a key: open the page below, sign in with your Google account, tap \"Create API key\" and copy the key. Do not add a billing account there; then it costs nothing.",
-        "create": "Tap \"Create provider\" below. A window with five fields opens.",
-        "fields": "Fill in the fields like this (the copy button next to a value takes it over exactly):",
-        "paste-key": "paste your copied key",
-        "leave": "leave empty",
-        "test": "Tap \"Create\". Then tap the pencil icon next to the new provider in the list and press \"Test Connection\". A green message means the AI is ready.",
-        "reserve": "Recommended: add a second provider \"Gemini Reserve\" the same way, with the same key but the model {model}. When the first one's daily quota runs out, Kochheft takes the second one automatically.",
-        "mistakes": "Common mistakes: the Model field takes the ID such as \"gemini-3.5-flash-lite\", not the name \"Gemini 3.5 Flash Lite\" from Google. When pasting the key, no space may come before or after it."
+        "preset": "Back in Kochheft, tap here. The window opens already filled in; you only paste the key into the \"API Key\" field:",
+        "preset-main": "Open Gemini preset",
+        "test": "Tap \"Create\". Then tap the pencil icon next to the new provider in the list and press \"Test Connection\" (the key is already saved). A green message means the AI is ready.",
+        "reserve": "Recommended: add a second provider the same way with this button, with the same key. When the first one's daily quota runs out, Kochheft takes the second one automatically.",
+        "preset-reserve": "Open reserve preset",
+        "mistakes": "Common mistakes: when pasting the key, no space may come before or after it. The Model field takes the ID such as \"gemini-3.5-flash-lite\", not the name \"Gemini 3.5 Flash Lite\" from Google; the presets fill it in correctly."
       }
     },
     "notices": {

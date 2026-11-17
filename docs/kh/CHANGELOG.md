@@ -13,8 +13,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Switch household (D52): the admin can give a person further households, also in other groups, under More →
   Households; the person switches under More → Switch household without a password. Each household gets its own
   linked account, so what someone adds belongs to the household they are in.
-- The AI provider page has a step-by-step Gemini guide with copy buttons for the address and model IDs, open while
-  no provider exists.
+- The AI provider page has a step-by-step Gemini guide, open while no provider exists: its buttons open the provider
+  window already filled in, so only the key is left to paste. Free places and providers carry "(free)" or "(trial
+  credits)" in bold.
 - The sign-in page says "Kochheft" and links only to Kochheft's own source (`KH_SOURCE_URL`); Mealie's sponsor link
   and all "Docs" buttons to Mealie's documentation are gone.
 - More → Timer offers the clock timer on iPhone and iPad only; Android and computers see a short note instead, since

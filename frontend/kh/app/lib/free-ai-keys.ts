@@ -9,16 +9,24 @@ export interface FreeAiKey {
   keyUrl: string; // where the key is made
   baseUrl: string; // what goes into the provider's address field
   note: { de: string; en: string };
+  trial?: true; // only credits to try it out, not a lasting free tier
 }
 
 /** Gemini's free models for the setup guide: the first is the main provider, the second the reserve (README, step 7). */
 export const GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"] as const;
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
+
+/** What the guide's buttons fill into the new provider window, so only the key is left to paste. */
+export const GEMINI_PRESETS = [
+  { name: "Gemini", model: GEMINI_MODELS[0], baseUrl: GEMINI_URL },
+  { name: "Gemini Reserve", model: GEMINI_MODELS[1], baseUrl: GEMINI_URL },
+];
 
 export const FREE_AI_KEYS: FreeAiKey[] = [
   {
     name: "Google AI Studio (Gemini)",
     keyUrl: "https://aistudio.google.com/apikey",
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    baseUrl: GEMINI_URL,
     note: {
       de: "Liest Fotos; im Gratis-Angebot darf Google die Daten zur Verbesserung nutzen.",
       en: "Reads photos; on the free tier Google may use the data to improve its products.",
@@ -95,6 +103,7 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
       de: "Test-Schlüssel mit 1.000 Anfragen im Monat und 20 pro Minute, zum Ausprobieren gedacht.",
       en: "Trial key with 1,000 requests a month and 20 a minute, meant for trying it out.",
     },
+    trial: true,
   },
   {
     name: "NVIDIA",
@@ -104,13 +113,18 @@ export const FREE_AI_KEYS: FreeAiKey[] = [
       de: "Einmalig 1.000 Credits zum Ausprobieren, bis 40 Anfragen pro Minute.",
       en: "1,000 one-time credits to try it out, up to 40 requests a minute.",
     },
+    trial: true,
   },
 ];
 
 /** The places whose address one of the group's providers uses, by name; compared by address without case and last
  * slash, so a provider counts however the address was typed. Lets the list tick off what is already set up. */
 export function setUpPlaces(baseUrls: (string | null)[]): Set<string> {
+  return new Set(baseUrls.map(freePlace).filter(place => !!place).map(place => place!.name));
+}
+
+/** The free place a provider's address belongs to, compared without case and last slash; none for other addresses. */
+export function freePlace(baseUrl: string | null): FreeAiKey | undefined {
   const plain = (url: string) => url.trim().toLowerCase().replace(/\/+$/, "");
-  const used = new Set(baseUrls.filter((url): url is string => !!url).map(plain));
-  return new Set(FREE_AI_KEYS.filter(place => used.has(plain(place.baseUrl))).map(place => place.name));
+  return baseUrl ? FREE_AI_KEYS.find(place => plain(place.baseUrl) === plain(baseUrl)) : undefined;
 }
