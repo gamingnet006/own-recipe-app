@@ -93,7 +93,7 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 
 ### 5. Familie einladen
 
-Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an, siehe [familienkonten.md](familienkonten.md).
+Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an. Oder du legst es unter **Admin → Benutzer** selbst an, auch ohne E-Mail; dann wählt die Person beim ersten Anmelden ihr eigenes Passwort. Beides steht in [familienkonten.md](familienkonten.md).
 
 **Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Haushalte freigeben** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
 
@@ -390,6 +390,7 @@ Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
 | Backups und Kopie | alle Daten, auch der KI-Schlüssel | dein Backup-Ordner und, falls eingerichtet, der USB-Stick; verschlüsselt, wenn beim Einrichten ein Passwort gewählt wurde (D32, D33) | `kh/ops/backup_copy.sh off` für die Kopie |
 | Meldungen | ob Backup, Kopie und Update geklappt haben | dein Uptime Kuma | Push-Adressen in `kh/ops/.env` leer lassen |
+| Mail-Versand (D53, nur wenn eingerichtet) | Willkommens-, Bestätigungs- und Passwort-Mails mit Name, Benutzername und Link | dein Mail-Anbieter (`KH_SMTP_*`) und das Postfach der Person | `KH_SMTP_HOST` leer lassen |
 | Nährwerte | die Zutatennamen, nur zum Abgleich mit der Tabelle in deinem eigenen Kochheft | nirgends: Die BLS-Tabelle (CC BY 4.0) liegt im Image | – |
 | Videolinks (Instagram, TikTok, YouTube, Facebook) | nichts: Kochheft ruft sie nicht ab und lädt keine Videos (D5); du fügst die Beschreibung ein oder lädst einen Screenshot hoch | niemand | – |
 | Teilen per Telegram (Zusatzmodul, standardmäßig aus) | Link, Text oder Foto aus deinem Chat | Telegram-Server; im Profil „lokal“ gesperrt | Dienst `telegram` nicht starten |
@@ -466,7 +467,7 @@ It then starts everything, creates the key for the backups and shows the first l
 
 ### 5. Invite the family
 
-Each person gets an invite link and creates their own account, see [familienkonten.en.md](familienkonten.en.md).
+Each person gets an invite link and creates their own account. Or you create it yourself under **Admin → Users**, also without e-mail; the person then chooses their own password at the first sign-in. Both are in [familienkonten.en.md](familienkonten.en.md).
 
 **Several households:** if someone lives in two households, give them another one under **More → Household access**, also in another group. Kochheft creates a linked account for it; the person switches under **More → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
 
@@ -764,6 +765,7 @@ What Kochheft sends out. There is no telemetry.
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |
 | Backups and copy | all data, the AI key included | your backup folder and, if set up, the USB stick; encrypted when a password was chosen during setup (D32, D33) | `kh/ops/backup_copy.sh off` for the copy |
 | Reports | whether backup, copy and update worked | your Uptime Kuma | leave the push addresses in `kh/ops/.env` empty |
+| Mail sending (D53, only when set up) | welcome, confirm and password mails with name, user name and link | your mail provider (`KH_SMTP_*`) and the person's mailbox | leave `KH_SMTP_HOST` empty |
 | Nutrition | the ingredient names, only to match them with the table inside your own Kochheft | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
 | Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Kochheft does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
 | Share via Telegram (optional module, off by default) | link, text or photo from your chat | Telegram servers; blocked in the "lokal" profile | do not start the `telegram` service |

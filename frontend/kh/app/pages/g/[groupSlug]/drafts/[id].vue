@@ -40,7 +40,13 @@ recognized (one below the other on a phone, side by side from iPad width), then 
           <p v-if="draft.status === 'working'">
             {{ $t("kh.drafts.working-hint") }}
           </p>
-          <KhDraftReview v-else-if="draft.recipe" v-model:linked="linkedSteps" :recipe="{ ...draft.recipe, ...changes }" />
+          <KhDraftReview
+            v-else-if="draft.recipe"
+            v-model:linked="linkedSteps"
+            :recipe="{ ...draft.recipe, ...changes }"
+            :editable="draft.status === 'ready'"
+            :edit="edit"
+          />
           <!-- Like Mealie's editor: servings, yield amount and yield text, saved with the recipe -->
           <v-row v-if="draft.status === 'ready' && changes" dense class="mt-2">
             <v-col cols="3">
@@ -77,12 +83,14 @@ recognized (one below the other on a phone, side by side from iPad width), then 
         </v-col>
       </v-row>
 
+      <KhDraftWhere v-if="draft.status === 'ready' && changes" v-model="categories" class="mt-6" />
+
       <div v-if="draft.status === 'ready' || draft.status === 'failed'" class="d-flex flex-wrap ga-2 mt-6">
         <template v-if="draft.status === 'ready'">
-          <v-btn color="success" :loading="busy" @click="approve(false)">
+          <v-btn color="success" :loading="busy || editing > 0" @click="approve(false)">
             {{ $t("kh.drafts.approve") }}
           </v-btn>
-          <v-btn color="primary" variant="tonal" :loading="busy" @click="approve(true)">
+          <v-btn color="primary" variant="tonal" :loading="busy || editing > 0" @click="approve(true)">
             {{ $t("kh.drafts.approve-and-edit") }}
           </v-btn>
         </template>
@@ -122,11 +130,13 @@ recognized (one below the other on a phone, side by side from iPad width), then 
 </template>
 
 <script setup lang="ts">
-import type { KhDraft, KhDraftWarning, KhRecipeChanges } from "~~/kh/app/lib/api/drafts";
+import type { KhCategoryRef, KhDraft, KhDraftWarning, KhRecipeChanges } from "~~/kh/app/lib/api/drafts";
+import { remapLinked, type KhDraftEdit } from "~~/kh/app/lib/draft-edit";
 import {
   approveTarget,
   draftTitle,
   errorText,
+  draftAmounts,
   pollingNeeded,
   recipeChanges,
   requestError,
@@ -163,6 +173,12 @@ const linkedSteps = computed({
     if (changes.value && value) changes.value.linkedSteps = value;
   },
 });
+const categories = computed({
+  get: () => changes.value?.recipeCategory ?? [],
+  set: (value: KhCategoryRef[]) => {
+    if (changes.value) changes.value.recipeCategory = value;
+  },
+});
 const columns = computed(() => (reviewLayout(display.width.value) === "side" ? 6 : 12));
 
 useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.drafts.drafts")) });
@@ -180,10 +196,42 @@ function showError(error: unknown) {
   alert.error(errorText(requestError(error).code, i18n.t));
 }
 
+// edits go one after the other, so the answers come back in order and the newest one is what stays on the page
+let pending: Promise<unknown> = Promise.resolve();
+const editing = ref(0);
+
+/** Sends one change made in the preview, after the ones before it; true when it worked. */
+function edit(body: KhDraftEdit): Promise<boolean> {
+  editing.value++;
+  const result = pending.then(() => send(body));
+  pending = result.finally(() => { editing.value--; });
+  return result;
+}
+
+/** Shows the draft as the server has it after the edit; the step links the review kept follow their links to their
+ * new places. A failure shows its message and keeps what the page had. */
+async function send(body: KhDraftEdit): Promise<boolean> {
+  const { data, error } = await api.edit(id, body);
+  if (!data) {
+    showError(error);
+    return false;
+  }
+  if (changes.value) {
+    changes.value.linkedSteps = remapLinked(
+      draftAmounts(draft.value?.recipe).stepAmounts,
+      draftAmounts(data.recipe).stepAmounts,
+      changes.value.linkedSteps,
+    );
+  }
+  draft.value = data;
+  return true;
+}
+
 /** Saves the draft as a recipe with the review's servings and yield and opens it. Possible duplicates found
  * since the recognition are asked about first; FORCE saves anyway. If someone else was quicker, their recipe opens. */
 async function approve(edit: boolean, force = false) {
   busy.value = true;
+  await pending; // an edit still on its way is part of what is saved
   const { data, error } = await api.approve(id, force, changes.value ?? undefined);
   busy.value = false;
   if (data) {

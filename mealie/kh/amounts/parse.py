@@ -27,6 +27,7 @@ FIXED_UNITS = {"prise", "messerspitze"}  # normalized unit names that never scal
 FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack)\b", re.IGNORECASE)
 ABOUT = re.compile(r"^(?:ca\.?|circa|etwa|ungefähr|rund)\s+(?=\d)", re.IGNORECASE)  # "ca. 200 g": the amount follows
 THOUSANDS = re.compile(r"(?<![\d.])([1-9]\d{0,2})((?:\.\d{3})+)(?![\d.])")  # "1.000" and "1.250,5", never "1.5"
+PLURAL_MARKER = re.compile(r"(?<=[^\W\d_])\((?:n|en|e|er|s|nen)\)")  # a plural ending in brackets, glued on
 ENDINGS = ("en", "er", "e", "n", "s")  # up to two are cut off by stem(), the longest first
 
 # Kochheft's additions to Mealie's German units: name, plural, abbreviation
@@ -56,7 +57,8 @@ class ParsedLine:
 
 def clean(text: str) -> str:
     """The line in a form QUANTITY reads: plain spaces, fractions as 1/2 ("1½" → "1 1/2"), a decimal point instead of
-    a comma (thousands points dropped), and a space between a number and a unit written onto it ("250g" → "250 g")."""
+    a comma (thousands points dropped), a space between a number and a unit written onto it ("250g" → "250 g"), and
+    no plural endings in brackets ("Birne(n)" → "Birne")."""
     chars = []
     for index, char in enumerate(text):
         value = unicodedata.numeric(char, 0) if unicodedata.category(char) == "No" else 0
@@ -69,6 +71,7 @@ def clean(text: str) -> str:
     text = THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(".", ""), "".join(chars))  # German: point groups
     text = re.sub(r"(?<=\d),(?=\d)", ".", text)
     text = re.sub(r"(?<=\d)(?=[^\W\d_])", " ", text)
+    text = PLURAL_MARKER.sub("", text)  # Chefkoch writes "Birne(n)", "Ei(er)", "Prise(n)"
     return re.sub(r" {2,}", " ", text).strip()
 
 

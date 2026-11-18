@@ -32,6 +32,20 @@ The labels below are the ones of the German interface; the English interface use
 4. Tap **Weiter** (Next), then **Absenden** (Submit).
 5. Log in and tick **Angemeldet bleiben** (Remember me). You then stay logged in for 30 days, even without opening the app.
 
+## Create an account yourself, also without e-mail
+
+Instead of an invite link you can create an account yourself: **Admin → Users → New**.
+
+- The e-mail is optional. Without it the person signs in with the user name.
+- Give the person the user name and a start password. At the first sign-in they choose their own password before anything else.
+- Forgot the password: open their account under **Admin → Users**, tap **Generate password reset link** and send them the link, e.g. by messenger.
+
+With mail sending set up (`KH_SMTP_*` in `kh/ops/.env`, a Gmail example in `kh/ops/.env.example`) there is more:
+
+- Someone created with an e-mail gets a welcome mail with a link to choose their password. A password is never in the mail. The link is valid for 72 hours (`KH_ACCOUNT_LINK_HOURS`).
+- **Reset password** shows on the sign-in page again.
+- Under **Admin → Users** you can switch on **E-mail address required**. Then everyone without a confirmed address enters one after signing in and confirms it by link. Admins are exempt, so nobody locks themselves out.
+
 ## Several households
 
 If a person belongs to two households, give them another one under **More → Household access**. They then switch under **More → Switch household**, without a second password. No second invite link is needed.

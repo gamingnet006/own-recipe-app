@@ -37,7 +37,7 @@ live preview in the editor and the printout, so what the preview shows is what t
           <h3>{{ $t("recipe.ingredients") }}</h3>
           <template v-for="(line, index) in entry.recipe.recipeIngredient ?? []" :key="index">
             <h4 v-if="line.title" class="kh-group">
-              {{ line.title }}
+              {{ scaleTitle(line.title, scaleOf(entry), $i18n.locale) }}
             </h4>
             <p class="kh-line">
               <SafeInlineHtml :html="ingredientText(line, scaleOf(entry))" />
@@ -70,6 +70,7 @@ live preview in the editor and the printout, so what the preview shows is what t
 
 <script setup lang="ts">
 import { recipeTimes } from "../composables/use-kh-recipe";
+import { scaleTitle } from "../lib/amounts";
 import type { KhBookSettings } from "../lib/api/books";
 import type { BookEntry } from "../lib/book";
 import type { Oven } from "../lib/oven";

@@ -8,6 +8,7 @@ from sqlalchemy.orm.session import Session
 from mealie.core.security import hash_password, url_safe_token
 from mealie.db.models.users.password_reset import PasswordResetModel
 from mealie.db.models.users.users import AuthMethod
+from mealie.kh.onboarding.service import after_password_reset  # KH: a reset ends the first-sign-in step (D53)
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.user.user_passwords import PasswordResetTokenSave
 from mealie.services._base_service import BaseService
@@ -86,3 +87,4 @@ class PasswordResetService(BaseService):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid password")
 
         self._delete_user_tokens(user.id)
+        after_password_reset(self.db.session, user.id)  # KH: see import (D53)

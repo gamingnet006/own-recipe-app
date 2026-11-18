@@ -6,7 +6,8 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from mealie.kh.amounts.schemas import StepAmountOut
-from mealie.kh.amounts.steps import link_quantities, recheck_link
+from mealie.kh.amounts.steps import link_quantities, name_stems, recheck_link
+from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.services.parser_services._base import DataMatcher
 from tests.kh.amounts.helpers import amounts_of, approve, approved, build_recipe, recognized
 from tests.utils.fixture_schemas import TestUser
@@ -25,6 +26,27 @@ def test_whole_amount_is_linked(german: DataMatcher):
 def test_parts_are_linked(german: DataMatcher):
     assert links(german, ["250 g Mehl"], ["Die Hälfte, 125 g Mehl, zuerst"]) == [(12, 17, "125 g", 0.5)]
     assert links(german, ["250 g Mehl"], ["83 g Mehl"]) == [(0, 4, "83 g", 0.333)]
+
+
+def test_egg_parts_are_linked(german: DataMatcher):
+    # v1.3: "2 Eigelbe" uses the eggs too, so it scales with them (Grießpudding at more servings)
+    steps = ["2 Eigelbe verrühren.", "2 Eiweiß steif schlagen.", "1 Eidotter dazu."]
+    found = link_quantities(build_recipe(german, ["2 Eier"], steps), german.units_by_alias)
+    assert [(link.step, link.text, round(link.fraction, 3)) for link in found] == [
+        (0, "2", 1),
+        (1, "2", 1),
+        (2, "1", 0.5),
+    ]
+
+
+def test_egg_parts_of_a_plural_name():
+    # review: a line named "Eier" (no seeded food) still links "2 Eigelbe": the parts join the stem, not the word
+    assert "eigelb" in name_stems(RecipeIngredient(quantity=2, note="Eier, frisch"))
+
+
+def test_other_compounds_stay_free(german: DataMatcher):
+    # only the egg parts join the name; "2 Eierlikör" is no part of the eggs
+    assert links(german, ["2 Eier"], ["2 Eierlikör dazu."]) == []
 
 
 def test_same_amount_twice(german: DataMatcher):

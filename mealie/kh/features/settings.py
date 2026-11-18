@@ -57,6 +57,8 @@ class KhSettings(BaseSettings):
     # Bell (D39): days a notice is kept, minutes between the app's checks for new ones
     notice_days: int = Field(30, ge=1)
     notice_poll_minutes: int = Field(5, ge=1)
+    # Accounts without e-mail (D53): hours the mailed welcome and confirm-e-mail links stay valid
+    account_link_hours: int = Field(72, ge=1)
     # About and system check (P8): the running image (its tag is the version), where the source can be read (AGPL),
     # the third-party notices shipped in the image, and the optional modules (only whether they are set is ever shown)
     image: str | None = None

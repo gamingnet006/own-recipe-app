@@ -26,6 +26,10 @@
             type="text"
             :rules="[validators.email]"
           />
+          <!-- KH: accounts without e-mail cannot use this (D53) -->
+          <p class="text-center text-caption">
+            {{ $t('kh.onboarding.forgot-hint') }}
+          </p>
           <p class="text-center">
             {{ $t('user.forgot-password-text') }}
           </p>

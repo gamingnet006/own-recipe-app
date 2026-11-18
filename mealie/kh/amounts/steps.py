@@ -3,13 +3,20 @@
 as written. After an edit a link follows its text or goes."""
 
 import re
+from itertools import dropwhile
 
 from mealie.kh.amounts.parse import QUANTITY, WORD, amount_of, stem, unit_at
 from mealie.kh.amounts.schemas import DraftStepAmount, StepAmountOut
 from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import IngredientUnitOut, RecipeIngredient
+from mealie.schema.recipe.recipe_step import IngredientReferences
 
 PARTS = (1, 1 / 2, 1 / 3, 1 / 4, 2 / 3, 3 / 4)  # what a step may take of an ingredient
+PART_WORDS = ("gelb", "weiß", "dotter", "klar")  # a step names the part of an egg it uses: "2 Eigelbe"
+LETTERS = re.compile(r"[^\W\d_]+")  # the words of a text, without numbers and punctuation
+# a first step that only says what the recipe makes, as pages read without AI carry it: "Für 12 Muffins."
+YIELD_STEP = re.compile(r"^\s*(?:für|ergibt)\s+(?:ca\.\s*)?(\d+)\s+([^\W\d_][\w-]*)\s*[.:]?\s*$", re.IGNORECASE)
+UNIT_WORD_MAX = 3  # a short lowercase word before a note's name is a unit (g, ml, kg)
 TOLERANCE = 0.02  # how far, relative, a step's amount may be from such a part (83 g of 250 g is ⅓)
 
 
@@ -19,10 +26,19 @@ def readable(text: str) -> str:
     return re.sub(r"(?<=\d),(?=\d)", ".", text)
 
 
-def name_stem(ingredient: RecipeIngredient) -> str:
-    """The stem a step names the ingredient by: its food, else the first word of its note."""
-    words = WORD.findall(ingredient.food.name if ingredient.food else ingredient.note or "")
-    return stem(words[0]) if words else ""
+def name_stems(ingredient: RecipeIngredient, units: dict[str, IngredientUnitOut] | None = None) -> set[str]:
+    """The stems a step names the ingredient by: its food, else the first word of its note after a unit left there
+    ("ml Milch" names Milch; UNITS are the group's, a short lowercase word counts too), and that word joined with a
+    part of it ("Eigelb" for "Ei"); empty without a name."""
+    text = ingredient.food.name if ingredient.food else ingredient.note or ""
+    found = unit_at(text, units) if units and not ingredient.food else None
+    words = LETTERS.findall(text[found[1] :] if found else text)
+    if not ingredient.food:  # a unit the group does not know ("g", "ml"): German food names start with a capital
+        words = list(dropwhile(lambda word: word.islower() and len(word) <= UNIT_WORD_MAX, words))
+    if not words:
+        return set()
+    base = stem(words[0])
+    return {base, *(stem(base + part) for part in PART_WORDS)}
 
 
 def part_of(value: float, quantity: float | None) -> float | None:
@@ -55,7 +71,7 @@ def link_quantities(recipe: RecipeDraft | RecipeOut, units: dict[str, Ingredient
                 continue
             for ingredient in recipe.recipe_ingredient:
                 part = part_of(value, ingredient.quantity)
-                if part and same_unit(ingredient, unit) and stem(words[0]) == name_stem(ingredient):
+                if part and same_unit(ingredient, unit) and stem(words[0]) in name_stems(ingredient, units):
                     start, stop = match.start(), match.end() + end
                     links.append(
                         DraftStepAmount(
@@ -80,3 +96,30 @@ def recheck_link(text: str, link: StepAmountOut) -> StepAmountOut | None:
         return None
     start = min(places, key=lambda place: abs(place - link.start))
     return link.model_copy(update={"start": start, "end": start + len(link.text)})
+
+
+def link_steps(recipe: RecipeDraft | RecipeOut, units: dict[str, IngredientUnitOut]) -> None:
+    """Links each step to the ingredients its text names, for recipes whose steps came without links (pages read
+    without AI). Steps that are linked already, by the AI or a person, leave the whole recipe as it is."""
+    steps = recipe.recipe_instructions or []
+    if any(step.ingredient_references for step in steps):
+        return
+    for step in steps:
+        named = {stem(word) for word in LETTERS.findall(step.text)}
+        step.ingredient_references = [
+            IngredientReferences(reference_id=line.reference_id)
+            for line in recipe.recipe_ingredient
+            if line.reference_id and name_stems(line, units) & named
+        ]
+
+
+def yield_from_steps(recipe: RecipeDraft | RecipeOut) -> None:
+    """Turns a first step that only names the yield ("Für 12 Muffins.") into servings and yield, when the recipe has
+    no servings of its own (none or 1); otherwise the steps stay as they are."""
+    steps = recipe.recipe_instructions or []
+    found = YIELD_STEP.match(steps[0].text) if steps else None
+    if found is None or (recipe.recipe_servings or 0) > 1:
+        return
+    count = float(found.group(1))
+    recipe.recipe_servings, recipe.recipe_yield_quantity, recipe.recipe_yield = count, count, found.group(2)
+    recipe.recipe_instructions = steps[1:]

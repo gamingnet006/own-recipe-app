@@ -2,6 +2,7 @@
 recognitions, marks recognitions that hang as interrupted, and turns an approved draft into a Mealie
 recipe whose origin it then stays."""
 
+from copy import deepcopy
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.amounts.schemas import DraftAmounts
 from mealie.kh.amounts.service import save_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates, normalize_url
+from mealie.kh.drafts.edit import edit_ingredient, edit_name, edit_step
 from mealie.kh.drafts.files import (
     original_path,
     prepare_original,
@@ -28,6 +30,7 @@ from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import (
     ApproveIn,
     ApproveOut,
+    DraftEditIn,
     DraftError,
     DraftOut,
     DraftSource,
@@ -43,6 +46,7 @@ from mealie.repos.all_repositories import get_repositories
 from mealie.schema.household.household import HouseholdOut
 from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.user.user import PrivateUser
+from mealie.services.parser_services._base import DataMatcher
 from mealie.services.recipe.recipe_service import RecipeService
 
 MAX_NOTE = 200  # longest file name kept as a draft's note
@@ -217,6 +221,28 @@ class DraftService:
         """409 that also says where the saved recipe is."""
         recipe = self._all_repos().recipes.get_one(draft.recipe_id, "id") if draft.recipe_id else None
         return conflict("already_approved", slug=recipe.slug if recipe else None)
+
+    def edit(self, draft_id: UUID4, data: DraftEditIn) -> DraftOut:
+        """Applies one edit from the review's preview to a ready draft's recipe and returns the draft."""
+        draft = self.get(draft_id)
+        if draft.status != DraftStatus.ready:
+            raise conflict("not_ready")
+        recipe = deepcopy(draft.recipe or {})
+        if data.name is not None:
+            edit_name(recipe, data.name)
+        elif data.ingredient is not None:
+            matcher = DataMatcher(self._household_repos())
+            edit_ingredient(recipe, data.ingredient.index, data.ingredient.text, matcher)
+        elif data.step is not None:
+            edit_step(recipe, data.step.index, data.step.text)
+        # written only while the draft is still ready, so an edit racing an approval never lands in an approved draft
+        written = self.session.execute(
+            sa.update(KhDraft).where(KhDraft.id == draft_id, KhDraft.status == DraftStatus.ready).values(recipe=recipe)
+        )
+        self.session.commit()
+        if written.rowcount == 0:  # type: ignore[attr-defined]
+            raise conflict("not_ready")
+        return self.get(draft_id)
 
     def _all_repos(self):
         """Repositories that see every group, for checks that must not miss another household's recipe."""

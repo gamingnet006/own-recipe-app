@@ -12,7 +12,8 @@ export function showsSegments(total: number): boolean {
 }
 
 /** The position in a recipe of TOTAL() steps; `step` is 0-based, `step=3` in the address means index 2. Opening cook
- * mode (IS_OPEN turns true) starts at the step view, not at the list of all steps. */
+ * mode (IS_OPEN turns true) starts at the step view, not at the list of all steps, and at the first step again when it
+ * was left on the last one: the dish is done, the next time is a new start. */
 export function useKhCook(total: () => number, isOpen: () => boolean = () => true) {
   const query = useRouteQuery<string>("step", "");
   const clamp = (index: number) => Math.min(Math.max(index, 0), Math.max(total() - 1, 0));
@@ -20,12 +21,25 @@ export function useKhCook(total: () => number, isOpen: () => boolean = () => tru
   // The address is read once, at the start; after that the step only goes into it.
   const index = ref(clamp(parseInt(query.value, 10) - 1 || 0));
   const step = computed(() => clamp(index.value));
-  watch(step, value => (query.value = String(value + 1)));
+  // The restart on opening is not written into the address: opening writes `cook` there at the same moment, and two
+  // late writes of the address undo each other (Mealie's useRouteQuery spreads the query it saw before).
+  let quiet = false;
+  watch(step, (value) => {
+    if (quiet) quiet = false;
+    else query.value = String(value + 1);
+  });
 
   const allSteps = ref(false);
-  watch(isOpen, open => open && (allSteps.value = false));
   const isFirst = computed(() => step.value === 0);
   const isLast = computed(() => step.value >= total() - 1);
+  watch(isOpen, (open) => {
+    if (!open) return;
+    allSteps.value = false;
+    if (isLast.value && step.value !== 0) {
+      quiet = true;
+      index.value = 0;
+    }
+  });
 
   /** Moves to step I, kept within the recipe's steps. */
   function goTo(i: number): void {
@@ -35,7 +49,9 @@ export function useKhCook(total: () => number, isOpen: () => boolean = () => tru
   return { step, allSteps, isFirst, isLast, goTo, next: () => goTo(step.value + 1), back: () => goTo(step.value - 1) };
 }
 
-/** "Weiter" goes on; on the last step "Fertig" calls CLOSE. */
+/** "Weiter" goes on; on the last step "Fertig" calls CLOSE. The next opening starts at the first step again (see
+ * useKhCook): resetting here would write the step into the address while closing, and the two late writes of the
+ * address would undo each other (cook mode back in the address). */
 export function cookForward(cook: KhCook, close: () => void): void {
   if (cook.isLast.value) close();
   else cook.next();

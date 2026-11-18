@@ -15,3 +15,4 @@ from mealie.kh.drafts.models import KhDraft  # noqa: F401
 from mealie.kh.duplicates.models import KhDuplicateIgnored  # noqa: F401
 from mealie.kh.notices.models import KhNotice, KhNoticeRead  # noqa: F401
 from mealie.kh.nutrition.models import KhFoodNutrition  # noqa: F401
+from mealie.kh.onboarding.models import KhAccountSettings, KhAccountToken, KhUserOnboarding  # noqa: F401

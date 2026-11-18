@@ -81,6 +81,9 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D49 | Name `Kochheft` mit dem Logo aus Vorschlag 1 (Heft mit Löffel als Lesezeichen), Wahl des Nutzers am 9.11.2026. Umbenannt wird alles, was Nutzer sehen (App-Titel, Logo, Symbole, Texte, Anleitungen, Bot-Antworten); technische Namen bleiben, damit laufende Installationen und Updates weiter funktionieren (`kh`-Ordner, `KH_*`-Variablen, Compose-Projekt und Container `kuechenhelfer-*`, Image `own-recipe-app`, Repo-Name). Markenprüfung bei DPMA und TMview vor dem Release (T7) | beschlossen |
 | D50 | Idee (10.11.2026), zurückgestellt: Den KI-Anbieter richtet ein Admin einmal für die ganze Installation ein, er gilt dann für alle, die Kochheft benutzen, und die Einstellung taucht sonst nirgends mehr auf. Heute gilt sie pro Gruppe (Mealie, D25), was bei einer Familie mit einer Gruppe praktisch dasselbe ist. Neu entscheiden, falls Kochheft einmal für mehrere Familien oder öffentlich betrieben wird | zurückgestellt |
 | D52 | Haushalt wechseln (17.11.2026): Eine Person kann zwischen Haushalten umschalten, die der Admin freigibt, auch in anderen Gruppen. Umgesetzt als verbundene Konten (Tabelle `kh_account_links`): Für jeden weiteren Haushalt legt Kochheft ein eigenes Konto an, „Haushalt wechseln“ meldet per Tipp ohne Passwort dorthin um. Ein echter Wechsel von `household_id` scheidet aus, weil Rezepte, Einkaufslisten und Essenspläne ihren Haushalt über den Ersteller bekommen und mitwandern würden. Rechte kommen bei jedem Wechsel vom Hauptkonto, Unverträglichkeiten werden beim Anlegen einmal kopiert. Nur der Admin vergibt Freigaben. | beschlossen |
+| D53 | Konten ohne E-Mail (18.11.2026): Der Admin legt Konten auch ohne E-Mail an; Kochheft trägt dann eine Platzhalter-Adresse `<hex>@no-email.invalid` ein, die die Oberfläche als „keine E-Mail“ zeigt, damit Mealies Kern unverändert bleibt. „Passwort zurücksetzen“ erscheint nur mit eingerichtetem Mail-Versand, sonst der Hinweis auf den Admin. Wer vom Admin angelegt wird, legt beim ersten Anmelden ein eigenes Passwort fest. Mit E-Mail und Mail-Versand kommt eine Willkommens-Mail mit einem Link zum Festlegen des Passworts, ohne Passwort im Klartext. Der Admin-Schalter „E-Mail-Adresse Pflicht“ (nur mit Mail-Versand) verlangt von Personen ohne bestätigte Adresse eine, die per Link bestätigt wird. Links gelten `KH_ACCOUNT_LINK_HOURS` (72) Stunden. Die Sperre beim ersten Anmelden sitzt nur in der Oberfläche. | beschlossen |
+| D54 | Kommentare zurück (18.11.2026): Die Rezeptseite zeigt wieder Mealies Kommentare (D38 hatte sie ausgeblendet). Jede Person kann beliebig viele Kommentare schreiben, alle sehen sie. Abschalten lassen sie sich mit Mealies eigenen Schaltern pro Haushalt und pro Rezept, eine eigene Zusatzfunktion braucht es nicht. Nur in der eigenen Gruppe, nicht im Bearbeiten- und Kochmodus. | beschlossen |
+| D55 | Neues Rezept direkt prüfen (18.11.2026): In der Vorschau eines Entwurfs tippt man auf Titel, Zutat oder Schritt und ändert ihn dort; eine Zutat wird neu gelesen, Schritt-Verknüpfungen folgen dem Text oder fallen weg. Darunter fragt „Wohin kommt das Rezept?“ nach Kategorien und Kochbuch; ein Kochbuch zählt, wenn sein Filter genau eine Kategorie ist, „+ Neu“ legt Kategorie oder Kochbuch an (nur mit Recht zum Organisieren). Ein Knopf „Übernehmen“ wie bisher. | beschlossen |
 | D51 | Seitenmenü ab 840 px (15.11.2026): Am Ende steht „Mehr“. Nur dort liegen die Zusatzfunktionen, Systemprüfung, Über und die Einstellungen für Umluft, Nährwerte und Uhr; ohne den Eintrag waren sie auf iPad quer und Computer nicht erreichbar. Ergänzt D38. | beschlossen |
 
 ---
@@ -266,6 +269,26 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 - **Fertig wenn:** Eine fremde Person installiert es nur mit dem README auf einem frischen Raspberry Pi.
 
 **Später:** Wochenplan und Einkaufsliste (in Mealie vorhanden, nur aufräumen) · Notizfeld „Nächstes Mal“ · Desktop-App.
+
+### Wünsche nach v1.2 (gesammelt am 18.11.2026)
+
+Erste Antwort auf „Was muss noch gemacht werden?“. In Arbeit für v1.3:
+
+- [x] Konten ohne E-Mail, eigenes Passwort beim ersten Anmelden, Willkommens- und Bestätigungs-Mail (D53).
+- [x] Kommentare unter jedem Rezept (D54).
+- [x] Portionen: Überschriften wie „Zutaten für 6 Portionen“ rechnen mit, „2 Eigelbe“ und „2 Eiweiß“ wachsen mit den Eiern.
+- [x] Neues Rezept prüfen: in der Vorschau auf Titel, Zutat oder Schritt tippen und gleich dort ändern, ein Knopf „Übernehmen“ (D55).
+- [x] Neues Rezept prüfen: gleich fragen, in welche Kategorie und welches Kochbuch es kommt; „Nein“, eines aus der Liste oder unten „+ Neu“ (gehört zu D55).
+- [x] Chefkoch-Import: Mengen und Zutaten in den Schritten (z. B. Milch) werden nicht erkannt.
+- [x] Kochmodus: nach dem letzten Schritt beginnt er beim nächsten Mal wieder vorn statt am Ende.
+- [x] Kochmodus: am Ende „Fertig“ und „Fertig, als gekocht markieren“, statt über das Drei-Punkte-Menü.
+
+Ideen, noch nicht geplant:
+
+- [ ] Einkaufsliste an eine andere App schicken (wie Bring!): wie das geht, ohne Abo und ohne fremde Konten, erst prüfen.
+- [ ] Teilen-Kurzbefehl „In Kochheft importieren“ aus jeder App (z. B. Notizen): öffnet Kochheft mit dem Text; wer nicht angemeldet ist, meldet sich an und landet danach automatisch beim Import.
+- [ ] Kurze Einführung beim ersten Anmelden: Der Admin setzt beim Anlegen eines Kontos den Haken „Mit Einführung“; die Person wird dann Schritt für Schritt durch die App geführt, unten links „Überspringen“.
+- [ ] Eigene Seitenleiste pro Person: unter Mehr bei jeder Funktion ein Haken „in der Seitenleiste“. Standard wie heute; ohne Haken steht die Funktion nur unter Mehr.
 
 ---
 

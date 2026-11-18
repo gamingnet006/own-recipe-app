@@ -8,6 +8,7 @@ import {
   panFactor,
   parsePan,
   scaleStepText,
+  scaleTitle,
   servingsFactor,
   stepSegments,
   timeHint,
@@ -213,4 +214,13 @@ test("the amounts load when the recipe opens and again after a save, the newest 
   answers[0]!({ data: { extras: [{ referenceId: "x", upper: 3, fixed: false }], stepAmounts: [] } }); // late, older
   await new Promise(resolve => setTimeout(resolve));
   expect(khAmounts.value).toEqual(newer);
+});
+
+test("scaleTitle follows the servings a section title names (v1.3)", () => {
+  expect(scaleTitle("Zutaten für 6 Portionen:", 8 / 6, "de-DE")).toBe("Zutaten für 8 Portionen:");
+  expect(scaleTitle("Für 4 Personen", 1.5, "de-DE")).toBe("Für 6 Personen");
+  expect(scaleTitle("Ingredients for 4 servings", 0.5, "en-US")).toBe("Ingredients for 2 servings");
+  expect(scaleTitle("Teig für 4 Portionen", 1 / 3, "de-DE")).toBe("Teig für 1,3 Portionen");
+  expect(scaleTitle("Für den Teig", 2, "de-DE")).toBe("Für den Teig");
+  expect(scaleTitle("Zutaten für 6 Portionen:", 1, "de-DE")).toBe("Zutaten für 6 Portionen:");
 });

@@ -87,9 +87,8 @@
                     <v-text-field
                       v-model="userCopy.email"
                       :label="$t('user.email')"
-                      :rules="[validators.required, validators.email]"
+                      :rules="[(v: string | null) => !v || validators.email(v)] /* KH: e-mail optional (D53) */"
                       validate-on="blur"
-                      required
                       density="comfortable"
                       variant="underlined"
                     />
@@ -227,6 +226,7 @@
 import { useUserApi } from "~/composables/api";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import UserPasswordStrength from "~/components/Domain/User/UserPasswordStrength.vue";
+import { shownEmail } from "~~/kh/app/lib/onboarding"; // KH: placeholder addresses (D53)
 import { validators } from "~/composables/use-validators";
 import { useUserActivityPreferences } from "~/composables/use-users/preferences";
 import useDefaultActivity from "~/composables/use-default-activity";
@@ -254,9 +254,10 @@ watch(selectedDefaultActivity, () => {
   activityPreferences.value.defaultActivity = getActivityKey(i18n, selectedDefaultActivity.value) ?? ActivityKey.RECIPES;
 });
 
-const userCopy = ref({ ...user.value });
+// KH: placeholder addresses show as empty; saving it empty keeps the stored one (D53)
+const userCopy = ref({ ...user.value, email: shownEmail(user.value?.email) });
 watch(user, () => {
-  userCopy.value = { ...user.value };
+  userCopy.value = { ...user.value, email: shownEmail(user.value?.email) };
 });
 
 const api = useUserApi();
@@ -276,13 +277,13 @@ async function updateUser() {
   if (!valid) return;
 
   const userData = userCopy.value;
-  if (!userData?.id || !userData.email) return;
+  if (!userData?.id) return; // KH: the e-mail address is optional (D53)
 
   const updatePayload: UserBase = {
     id: userData.id,
     username: userData.username,
     fullName: userData.fullName,
-    email: userData.email,
+    email: userData.email ?? "", // KH: an empty address keeps the stored one (D53)
     authMethod: userData.authMethod,
     admin: userData.admin,
     group: userData.group,

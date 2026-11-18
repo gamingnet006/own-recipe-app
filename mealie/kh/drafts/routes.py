@@ -10,7 +10,7 @@ from pydantic import UUID4
 
 from mealie.kh.addons.service import ensure_addon
 from mealie.kh.drafts.recognize import recognize
-from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftOut, OriginOut
+from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, OriginOut
 from mealie.kh.drafts.service import DraftService
 from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
@@ -74,6 +74,11 @@ class KhDraftsController(_DraftsBase):
         draft = self.service.retry(draft_id)
         self._recognize_later(tasks, draft)
         return draft
+
+    @router.patch("/{draft_id}/recipe", response_model=DraftOut)
+    def edit_recipe(self, draft_id: UUID4, data: DraftEditIn) -> DraftOut:
+        """Changes the name, one ingredient line or one step of a ready draft's recipe."""
+        return self.service.edit(draft_id, data)
 
     @router.post("/{draft_id}/approve", response_model=ApproveOut)
     def approve(self, draft_id: UUID4, data: ApproveIn | None = None) -> ApproveOut:

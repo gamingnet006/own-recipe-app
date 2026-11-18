@@ -3,11 +3,14 @@ codes, never sentences; the frontend turns them into German or English text."""
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import UUID4, ConfigDict, Field
+from pydantic import UUID4, ConfigDict, Field, StringConstraints, model_validator
 
 from mealie.schema._mealie import MealieModel
+
+MAX_NAME = 200  # longest recipe name the review accepts
+MAX_LINE = 2000  # longest ingredient line or step the review accepts
 
 
 class DraftStatus(StrEnum):
@@ -104,6 +107,40 @@ class OriginOut(MealieModel):
     original_count: int
 
 
+class CategoryRef(MealieModel):
+    """A category chosen in the review, as the recipe holds it."""
+
+    id: UUID4
+    name: str
+    slug: str
+
+
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_NAME)]
+Line = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_LINE)]
+
+
+class LineEdit(MealieModel):
+    """One ingredient line or step to change: its place in the recipe, from 0, and its new text."""
+
+    index: int = Field(ge=0)
+    text: Line
+
+
+class DraftEditIn(MealieModel):
+    """One edit made in the review's preview: the name, one ingredient line or one step; exactly one per call."""
+
+    name: Name | None = None
+    ingredient: LineEdit | None = None
+    step: LineEdit | None = None
+
+    @model_validator(mode="after")
+    def exactly_one(self) -> DraftEditIn:
+        """Refuses a call with none or several edits."""
+        if sum(part is not None for part in (self.name, self.ingredient, self.step)) != 1:
+            raise ValueError("exactly one of name, ingredient and step")
+        return self
+
+
 class ApproveIn(MealieModel):
     """Approve, optionally with servings and yield set in the review and the step links it kept. FORCE also approves
     when the check finds possible duplicates that were not there at recognition."""
@@ -113,6 +150,7 @@ class ApproveIn(MealieModel):
     recipe_servings: float | None = Field(default=None, ge=0)
     recipe_yield_quantity: float | None = Field(default=None, ge=0)
     recipe_yield: str | None = None
+    recipe_category: list[CategoryRef] | None = None  # where the recipe goes, chosen in the review
 
     def recipe_changes(self) -> dict[str, Any]:
         """What the review set, under the recipe's own JSON keys."""

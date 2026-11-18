@@ -53,6 +53,7 @@
           @unlock-all-users="unlockAllUsers"
         />
       </v-toolbar>
+      <KhEmailRequiredSwitch /> <!-- KH: admin switch "e-mail address required" (D53) -->
       <v-data-table
         :headers="headers"
         :items="users || []"
@@ -65,6 +66,10 @@
         :search="state.search"
         @click:row="($event, { item }) => handleRowClick(item)"
       >
+        <!-- KH: placeholder addresses are not shown (D53) -->
+        <template #[`item.email`]="{ item }">
+          {{ shownEmail(item.email) || $t("kh.onboarding.no-email") }}
+        </template>
         <template #[`item.admin`]="{ item }">
           <v-icon
             end
@@ -97,6 +102,7 @@
 
 <script setup lang="ts">
 import { useAdminApi } from "~/composables/api";
+import { shownEmail } from "~~/kh/app/lib/onboarding"; // KH: placeholder addresses (D53)
 import { alert } from "~/composables/use-toast";
 import { useUser, useAllUsers } from "~/composables/use-user";
 import type { UserOut } from "~/lib/api/types/user";

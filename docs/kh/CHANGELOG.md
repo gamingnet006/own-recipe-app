@@ -4,6 +4,25 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+- Accounts without e-mail (D53): the admin can leave the e-mail empty; the person signs in with the user name.
+  Everyone the admin creates chooses their own password at the first sign-in. "Reset password" on the sign-in page
+  shows only with mail sending set up, otherwise "ask the admin". With mail sending (new `KH_SMTP_*` settings):
+  a welcome mail with a link to choose the password, and the admin switch "e-mail address required" with a confirm link.
+- Comments are back under every recipe (D54); Mealie's household and recipe switches still turn them off.
+- Servings: a section title like "Zutaten für 6 Portionen" follows the chosen servings; "2 Eigelbe" and
+  "2 Eiweiß" in a step grow with the eggs.
+- Pages read without AI, like Chefkoch: a first step "Für 12 Muffins." becomes the yield, steps are linked to the
+  ingredients they name (the amount shows behind "Milch" again), and "Birne(n)", "Ei(er)", "Prise(n) Salz" are read
+  right. Recipes imported before stay as they are; import them again to get this.
+- Reviewing a new recipe (D55): tap the title, an ingredient or a step in the preview and change it right there; below
+  it, "Wohin kommt das Rezept?" sets categories and a cookbook, or makes a new one.
+- Drafts and the first-steps pages no longer show Mealie's extra English "request failed with status 409" message next
+  to their own (e.g. next to the duplicates warning).
+- Cook mode starts at the first step again after it was finished, and the last step offers "Fertig und als gekocht
+  markieren".
+
 ## [v1.2.1] - 2026-11-18
 
 - An update now deletes the older Kochheft images and keeps only the new one and the fallback. Every release is

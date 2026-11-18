@@ -96,8 +96,9 @@
                   {{ $t("general.close") }}
                 </BaseButton>
                 <v-spacer />
+                <!-- KH: e-mail button only with mail sending and a real address (D53) -->
                 <BaseButton
-                  v-if="user.email"
+                  v-if="$khFeatures.emailReady && user.email"
                   color="info"
                   class="mr-1"
                   @click="sendResetEmail"
@@ -141,6 +142,7 @@
 import { useAdminApi, useUserApi } from "~/composables/api";
 import { useGroups } from "~/composables/use-groups";
 import { useAdminHouseholds } from "~/composables/use-households";
+import { shownEmail } from "~~/kh/app/lib/onboarding"; // KH: placeholder addresses (D53)
 import { alert } from "~/composables/use-toast";
 import { useUserForm } from "~/composables/use-users";
 import { validators } from "~/composables/use-validators";
@@ -208,6 +210,7 @@ watch(
 const userError = ref(false);
 
 const resetUrl = ref<string | null>(null);
+const khStoredEmail = ref(""); // KH: the address as stored, also a placeholder (D53)
 const generatingToken = ref(false);
 
 onMounted(async () => {
@@ -219,7 +222,8 @@ onMounted(async () => {
   }
 
   if (data) {
-    user.value = data;
+    user.value = { ...data, email: shownEmail(data.email) }; // KH: placeholder addresses show as empty (D53)
+    khStoredEmail.value = data.email; // KH: the reset link is made by the stored address, placeholder too (D53)
   }
 });
 
@@ -229,7 +233,8 @@ async function handleSubmit() {
   const { response, data } = await adminApi.users.updateOne(user.value.id, user.value);
 
   if (response?.status === 200 && data) {
-    user.value = data;
+    user.value = { ...data, email: shownEmail(data.email) }; // KH: placeholder addresses show as empty (D53)
+    khStoredEmail.value = data.email; // KH: the reset link is made by the stored address, placeholder too (D53)
   }
 }
 
@@ -237,7 +242,7 @@ async function handlePasswordReset() {
   if (user.value === null) return;
   generatingToken.value = true;
 
-  const { response, data } = await adminApi.users.generatePasswordResetToken({ email: user.value.email });
+  const { response, data } = await adminApi.users.generatePasswordResetToken({ email: khStoredEmail.value }); // KH: D53
 
   if (response?.status === 201 && data) {
     const token: string = data.token;

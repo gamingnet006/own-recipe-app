@@ -77,6 +77,45 @@ describe("useKhCook", () => {
   });
 });
 
+test("opening cook mode again after the last step starts at the first (v1.3)", async () => {
+  const open = ref(true);
+  const cook = useKhCook(() => 4, () => open.value);
+  cook.goTo(3);
+  open.value = false;
+  await flushPromises();
+  open.value = true;
+  await flushPromises();
+  expect(cook.step.value).toBe(0);
+  expect(query.step).toBe("4"); // the restart is not written, so it cannot race the opening in the address
+  cook.next();
+  await flushPromises();
+  expect(query.step).toBe("2"); // the next move writes again
+});
+
+test("opening cook mode again in the middle stays at that step", async () => {
+  const open = ref(true);
+  const cook = useKhCook(() => 4, () => open.value);
+  cook.goTo(2);
+  open.value = false;
+  await flushPromises();
+  open.value = true;
+  await flushPromises();
+  expect(cook.step.value).toBe(2);
+});
+
+test("Fertig on the last step closes, and the next opening starts at the first step (v1.3)", async () => {
+  const open = ref(true);
+  const cook = useKhCook(() => 3, () => open.value);
+  cook.goTo(2);
+  cookForward(cook, () => (open.value = false));
+  await flushPromises();
+  expect(open.value).toBe(false);
+  expect(query.step).toBe("3"); // closing writes no step, so it cannot race the closing in the address
+  open.value = true;
+  await flushPromises();
+  expect(cook.step.value).toBe(0);
+});
+
 test("the progress bar is one continuous bar from 12 steps on", () => {
   expect(showsSegments(11)).toBe(true);
   expect(showsSegments(12)).toBe(false);

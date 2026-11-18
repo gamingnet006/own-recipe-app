@@ -127,7 +127,12 @@
         </v-card-text>
       </v-card>
       <WakelockSwitch />
-      <!-- KH: no comments on the recipe page (D38) -->
+      <!-- KH: comments are back (D54); Mealie's household and recipe switches still turn them off -->
+      <RecipePageComments
+        v-if="!disableComments && !isEditForm && !isCookMode && isOwnGroup"
+        v-model="recipe"
+        class="px-1 my-4 d-print-none"
+      />
       <RecipePrintContainer :recipe="displayedRecipe" :scale="scale" />
     </v-container>
     <!-- KH: "Start cooking" in the view, outside the card, so the wake-lock switch never scrolls over it (D38) -->
@@ -269,6 +274,8 @@ import RecipePageOrganizers from "./RecipePageParts/RecipePageOrganizers.vue";
 import RecipePageParseDialog from "./RecipePageParts/RecipeParseDialog/RecipePageParseDialog.vue";
 import RecipePageScale from "./RecipePageParts/RecipePageScale.vue";
 import RecipePageInfoEditor from "./RecipePageParts/RecipePageInfoEditor.vue";
+import RecipePageComments from "./RecipePageParts/RecipePageComments.vue"; // KH: D54
+import { useHouseholdSelf } from "~/composables/use-households"; // KH: D54
 import RecipePrintContainer from "~/components/Domain/Recipe/RecipePrintContainer.vue";
 import {
   clearPageState,
@@ -310,6 +317,12 @@ const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isPar
   = usePageState(recipe.value.slug);
 const { deactivateNavigationWarning } = useNavigationWarning();
 const scale = ref(1);
+
+// KH: Mealie's own switches for comments, per household and per recipe (D54)
+const { household } = useHouseholdSelf();
+const disableComments = computed(() =>
+  household.value?.preferences?.recipeDisableComments || recipe.value?.settings?.disableComments || false,
+);
 // KH: the recipe's range ends, fixed lines and step links, for every view of it, reloaded after a save (D39)
 useKhAmounts(() => recipe.value);
 // KH: the step view of cook mode: the current step and whether Mealie's list of all steps shows instead (D42)

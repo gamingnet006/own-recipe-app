@@ -30,6 +30,20 @@ Jede Person in der Familie bekommt ein eigenes Konto ohne Admin-Rechte (D31). Du
 4. Tippe auf **Weiter** und dann auf **Absenden**.
 5. Melde dich an und setz dabei den Haken bei **Angemeldet bleiben**. Dann bleibst du 30 Tage angemeldet, auch wenn du die App nicht öffnest.
 
+## Konto selbst anlegen, auch ohne E-Mail
+
+Statt eines Einladungslinks kannst du ein Konto auch selbst anlegen: **Admin → Benutzer → Neu**.
+
+- Die E-Mail ist freiwillig. Ohne sie meldet sich die Person mit dem Benutzernamen an.
+- Gib der Person Benutzername und Startpasswort. Beim ersten Anmelden legt sie ein eigenes Passwort fest, erst dann geht es weiter.
+- Hat sie ihr Passwort vergessen: Öffne unter **Admin → Benutzer** ihr Konto, tippe auf **Link zum Zurücksetzen erzeugen** und schick ihr den Link, z. B. per Messenger.
+
+Mit eingerichtetem Mail-Versand (`KH_SMTP_*` in `kh/ops/.env`, Beispiel für Gmail in `kh/ops/.env.example`) gibt es mehr:
+
+- Wer beim Anlegen eine E-Mail bekommt, erhält eine Willkommens-Mail mit einem Link zum Festlegen des Passworts. Ein Passwort steht nie in der Mail. Der Link gilt 72 Stunden (`KH_ACCOUNT_LINK_HOURS`).
+- Auf der Anmeldeseite erscheint **Passwort zurücksetzen** wieder.
+- Unter **Admin → Benutzer** lässt sich **E-Mail-Adresse Pflicht** einschalten. Dann gibt jede Person ohne bestätigte Adresse nach dem Anmelden eine an und bestätigt sie per Link. Admins sind davon ausgenommen, damit sich niemand aussperrt.
+
 ## Mehrere Haushalte
 
 Gehört eine Person zu zwei Haushalten, gibst du ihr unter **Mehr → Haushalte freigeben** einen weiteren frei. Sie wechselt dann unter **Mehr → Haushalt wechseln**, ohne zweites Passwort. Ein zweiter Einladungslink ist dafür nicht nötig.

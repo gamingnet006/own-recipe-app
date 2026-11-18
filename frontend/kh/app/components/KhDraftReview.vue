@@ -11,9 +11,19 @@ draft run; nothing else from a draft is put into the page as HTML. -->
       rounded
       class="mb-3"
     />
-    <h3 class="text-h5 mb-2">
-      {{ recipe.name }}
-    </h3>
+    <KhEditableLine
+      :editable="!!editable"
+      :active="isActive('name')"
+      :text="recipe.name ?? ''"
+      :label="$t('kh.drafts.edit.title')"
+      :save="text => save({ kind: 'name' }, text)"
+      @start="open('name')"
+      @cancel="active = null"
+    >
+      <h3 class="text-h5 mb-2">
+        {{ recipe.name }}
+      </h3>
+    </KhEditableLine>
     <RecipeYield
       v-if="recipe.recipeYieldQuantity || recipe.recipeYield"
       :yield-quantity="recipe.recipeYieldQuantity ?? 0"
@@ -31,7 +41,17 @@ draft run; nothing else from a draft is put into the page as HTML. -->
     <ul class="mb-4 ml-5">
       <!-- Mealie's display with Kochheft's amounts, so a range reads "2–3 EL" as recognized (D39) -->
       <li v-for="(ingredient, index) in recipe.recipeIngredient" :key="index">
-        <RecipeIngredientHtml :ingredient="ingredient" />
+        <KhEditableLine
+          :editable="!!editable"
+          :active="isActive('ingredient', index)"
+          :text="ingredient.originalText || ingredient.display || ingredient.note || ''"
+          :label="$t('kh.drafts.edit.ingredient')"
+          :save="text => save({ kind: 'ingredient', index }, text)"
+          @start="open('ingredient', index)"
+          @cancel="active = null"
+        >
+          <RecipeIngredientHtml :ingredient="ingredient" />
+        </KhEditableLine>
       </li>
     </ul>
     <h4 class="text-subtitle-1 font-weight-bold">
@@ -39,26 +59,37 @@ draft run; nothing else from a draft is put into the page as HTML. -->
     </h4>
     <ol class="ml-5">
       <li v-for="(step, index) in recipe.recipeInstructions" :key="index" class="mb-2">
-        <!-- a step with linked amounts (D39): tapping one unlinks or links it again -->
-        <p v-if="stepParts[index]">
-          <template v-for="(part, n) in stepParts[index]" :key="n">
-            <button
-              v-if="part.index !== null"
-              type="button"
-              class="kh-amount"
-              :class="{ 'kh-amount--on': isLinked(part.index) }"
-              :aria-pressed="isLinked(part.index)"
-              :disabled="!linked"
-              @click="toggle(part.index)"
-            >
-              {{ part.text }}
-            </button>
-            <template v-else>
-              {{ part.text }}
+        <KhEditableLine
+          :editable="!!editable"
+          :active="isActive('step', index)"
+          :text="step.text ?? ''"
+          :label="$t('kh.drafts.edit.step')"
+          multiline
+          :save="text => save({ kind: 'step', index }, text)"
+          @start="open('step', index)"
+          @cancel="active = null"
+        >
+          <!-- a step with linked amounts (D39): tapping one unlinks or links it again -->
+          <p v-if="stepParts[index]">
+            <template v-for="(part, n) in stepParts[index]" :key="n">
+              <button
+                v-if="part.index !== null"
+                type="button"
+                class="kh-amount"
+                :class="{ 'kh-amount--on': isLinked(part.index) }"
+                :aria-pressed="isLinked(part.index)"
+                :disabled="!linked"
+                @click="toggle(part.index)"
+              >
+                {{ part.text }}
+              </button>
+              <template v-else>
+                {{ part.text }}
+              </template>
             </template>
-          </template>
-        </p>
-        <SafeMarkdown v-else :source="step.text" />
+          </p>
+          <SafeMarkdown v-else :source="step.text" />
+        </KhEditableLine>
       </li>
     </ol>
   </div>
@@ -71,11 +102,33 @@ import { useStaticRoutes } from "~/composables/api";
 import type { RecipeOut } from "~/lib/api/types/recipe";
 import { draftAmounts } from "../composables/use-kh-drafts";
 import { stepSegments } from "../lib/amounts";
+import { editBody, type KhDraftEdit, type KhEditTarget } from "../lib/draft-edit";
 import { khAmounts } from "../lib/amounts-store";
 
-const props = defineProps<{ recipe: RecipeOut }>();
+// edit: the page sends a line changed in the preview (D55) to the server and says whether it worked
+const props = defineProps<{ recipe: RecipeOut; editable?: boolean; edit?: (body: KhDraftEdit) => Promise<boolean> }>();
 // the indices of the step links that stay linked; without it the review only shows them
 const linked = defineModel<number[]>("linked");
+
+// the line that is open for editing, one at a time
+const active = ref<KhEditTarget | null>(null);
+
+function isActive(kind: KhEditTarget["kind"], index?: number): boolean {
+  const open = active.value;
+  return open?.kind === kind && (open.kind === "name" || open.index === index);
+}
+
+function open(kind: KhEditTarget["kind"], index = 0) {
+  active.value = kind === "name" ? { kind } : { kind, index };
+}
+
+/** Hands the new text of a line to the page; the field closes once it worked, an empty text changes nothing. */
+async function save(target: KhEditTarget, text: string): Promise<boolean> {
+  const body = editBody(target, text);
+  const ok = !body || (await props.edit?.(body)) === true;
+  if (ok) active.value = null;
+  return ok;
+}
 
 const i18n = useI18n();
 const { recipeImage } = useStaticRoutes();

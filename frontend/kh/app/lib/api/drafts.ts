@@ -1,7 +1,9 @@
 // KH: the drafts API (phase 2) as a Mealie API class. The answer types are written by hand, because
 // Mealie's type generator only reads mealie/schema and ours live in mealie/kh/drafts/schemas.py.
 import { BaseAPI } from "~/lib/api/base/base-clients";
+import { OWN_ERRORS } from "./own-errors";
 import type { RecipeOut } from "~/lib/api/types/recipe";
+import type { KhDraftEdit } from "../draft-edit";
 
 const drafts = "/api/kh/drafts";
 
@@ -59,13 +61,21 @@ export interface KhOrigin {
   originalCount: number;
 }
 
-/** Servings and yield set in the review, and the indices of the step links it kept; saved with the recipe when it
- * is approved. */
+/** A category chosen in the review, as the recipe holds it. */
+export interface KhCategoryRef {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+/** Servings and yield set in the review, the indices of the step links it kept and the categories it chose (D55);
+ * saved with the recipe when it is approved. */
 export interface KhRecipeChanges {
   recipeServings: number;
   recipeYieldQuantity: number;
   recipeYield: string;
   linkedSteps: number[];
+  recipeCategory?: KhCategoryRef[];
 }
 
 /** The detail of a failed drafts request: a code, and for some codes what goes with it. */
@@ -78,7 +88,7 @@ export interface KhRequestError {
 export class KhDraftsApi extends BaseAPI {
   /** Hands in a link, a text or photos (form fields url, text, images); the recognition runs afterwards. */
   async create(form: FormData) {
-    return await this.requests.post<KhDraft, FormData>(drafts, form);
+    return await this.requests.post<KhDraft, FormData>(drafts, form, OWN_ERRORS);
   }
 
   /** The household's drafts that are not approved yet, newest first. */
@@ -90,9 +100,14 @@ export class KhDraftsApi extends BaseAPI {
     return await this.requests.get<KhDraft>(`${drafts}/${id}`);
   }
 
+  /** Changes the name, one ingredient line or one step of a ready draft's recipe; answers the draft as it is now. */
+  async edit(id: string, body: KhDraftEdit) {
+    return await this.requests.patch<KhDraft, KhDraftEdit>(`${drafts}/${id}/recipe`, body, OWN_ERRORS);
+  }
+
   /** Starts the recognition of a failed draft again. */
   async retry(id: string) {
-    return await this.requests.post<KhDraft, undefined>(`${drafts}/${id}/retry`, undefined);
+    return await this.requests.post<KhDraft, undefined>(`${drafts}/${id}/retry`, undefined, OWN_ERRORS);
   }
 
   /** Saves the draft as a recipe with the review's changes; FORCE saves it despite possible duplicates that
@@ -101,11 +116,12 @@ export class KhDraftsApi extends BaseAPI {
     return await this.requests.post<{ slug: string }, { force: boolean } & Partial<KhRecipeChanges>>(
       `${drafts}/${id}/approve`,
       { force, ...changes },
+      OWN_ERRORS,
     );
   }
 
   async discard(id: string) {
-    return await this.requests.delete(`${drafts}/${id}`);
+    return await this.requests.delete(`${drafts}/${id}`, OWN_ERRORS);
   }
 
   /** Where a recipe came from; no data for recipes that were not added through a draft. */

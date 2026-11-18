@@ -4,6 +4,7 @@ from pydantic import UUID4
 from mealie.core.security import hash_password
 from mealie.core.security.providers.credentials_provider import CredentialsProvider
 from mealie.db.models.users.users import AuthMethod
+from mealie.kh.onboarding.service import email_or_stored  # KH: blank e-mail keeps the stored one (D53)
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.permissions import not_found
 from mealie.routes._base.routers import UserAPIRouter
@@ -63,6 +64,7 @@ class UserController(BaseUserController):
     @user_router.put("/{item_id}")
     def update_user(self, item_id: UUID4, new_data: UserBase):
         assert_user_change_allowed(item_id, self.user, new_data)
+        new_data.email = email_or_stored(self.session, item_id, new_data.email)  # KH: see import (D53)
 
         try:
             self.repos.users.update(item_id, new_data.model_dump())

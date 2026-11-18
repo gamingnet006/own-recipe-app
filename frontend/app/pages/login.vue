@@ -170,14 +170,21 @@
           >
             {{ $t("user.invite-only") }}
           </v-btn>
+          <!-- KH: reset by e-mail only when mail sending works; otherwise the admin helps (D53) -->
           <v-btn
-            v-if="$appInfo.allowPasswordLogin"
+            v-if="$appInfo.allowPasswordLogin && $khFeatures.emailReady"
             class="mr-auto"
             variant="text"
             to="/forgot-password"
           >
             {{ $t("user.reset-password") }}
           </v-btn>
+          <span
+            v-else-if="$appInfo.allowPasswordLogin"
+            class="mr-auto text-caption"
+          >
+            {{ $t("kh.onboarding.forgot-admin") }}
+          </span>
         </v-card-actions>
 
         <!-- KH: only a link to Kochheft's own source (KH_SOURCE_URL); Mealie's sponsor and docs links are gone -->

@@ -241,3 +241,16 @@ export function scaleStepText(
   }
   return result;
 }
+
+// "für 6 Portionen" in a section title (photo imports keep the original's line), German and English
+const TITLE_SERVINGS = /(\b(?:für|for)\s+)(\d+(?:[.,]\d+)?)(\s+(?:Portionen|Portion|Personen|Person|servings|serving|people|persons)\b)/i;
+
+/** A section title at SCALE: the servings it names follow the chosen ones ("Zutaten für 6 Portionen" at 8 servings
+ * reads "für 8"), with at most one decimal; any other title stays as written. */
+export function scaleTitle(title: string, scale: number, locale: string): string {
+  if (scale === 1) return title;
+  return title.replace(TITLE_SERVINGS, (_, before: string, count: string, after: string) => {
+    const scaled = Number(count.replace(",", ".")) * scale;
+    return before + new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(scaled) + after;
+  });
+}

@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter
 
+from mealie.core.config import get_app_settings
 from mealie.kh.features.settings import get_kh_settings
 from mealie.schema._mealie import MealieModel
 
@@ -17,6 +18,7 @@ class KhFeatures(MealieModel):
     media: bool  # own audio and video files are accepted, because a Whisper server is set (P7.3)
     profile: str  # leicht, normal, stark or lokal (P7.4)
     clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
+    email_ready: bool  # Mealie can send mail, so reset and welcome links work (D53)
 
 
 @router.get("", response_model=KhFeatures)
@@ -30,4 +32,5 @@ def get_features() -> KhFeatures:
         media=bool(settings.whisper_url),
         profile=settings.profile,
         clock_shortcut_url=settings.clock_shortcut_url,
+        email_ready=get_app_settings().SMTP_ENABLE,
     )

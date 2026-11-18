@@ -31,6 +31,7 @@ describe("kh-features plugin", () => {
       clockShortcutUrl: null,
       media: false,
       profile: "leicht",
+      emailReady: false,
     });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features", { timeout: 5000 });
   });
@@ -46,6 +47,7 @@ describe("kh-features plugin", () => {
       clockShortcutUrl: null,
       media: false,
       profile: "leicht",
+      emailReady: false,
     });
     expect(errorSpy).toHaveBeenCalled();
   });

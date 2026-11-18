@@ -23,7 +23,9 @@ export const useUserForm = () => {
       label: i18n.t("user.email"),
       varName: "email",
       type: fieldTypes.TEXT,
-      rules: [validators.required],
+      // KH: the e-mail address is optional (D53); a filled one must still look like an address
+      hint: i18n.t("kh.onboarding.admin.create-email-hint"),
+      rules: [(v: string | null) => !v || validators.email(v)],
     },
     {
       cols: 6,

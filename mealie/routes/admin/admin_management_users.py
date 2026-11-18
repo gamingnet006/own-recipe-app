@@ -1,11 +1,17 @@
 from functools import cached_property
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import UUID4
 
 from mealie.core import security
 from mealie.kh.accounts.service import delete_links, sync_linked_rights  # KH: a user's account links (D52)
 from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
+from mealie.kh.onboarding.service import (  # KH: accounts without e-mail (D53)
+    after_admin_create,
+    delete_user_rows,
+    email_or_stored,
+    placeholder_email,
+)
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
 from mealie.routes._base.permissions import forbidden
@@ -44,14 +50,18 @@ class AdminUserManagementRoutes(BaseAdminController):
         return response
 
     @router.post("", response_model=UserOut, status_code=201)
-    def create_one(self, data: UserIn):
+    def create_one(self, data: UserIn, accept_language: str | None = Header(None)):
+        data.email = data.email.strip() or placeholder_email()  # KH: blank e-mail becomes a placeholder (D53)
         if self.repos.users.get_by_username(data.username):
             raise HTTPException(status.HTTP_409_CONFLICT, {"message": self.t("exceptions.username-conflict-error")})
         elif self.repos.users.get_one(data.email, "email"):
             raise HTTPException(status.HTTP_409_CONFLICT, {"message": self.t("exceptions.email-conflict-error")})
 
         data.password = security.hash_password(data.password)
-        return self.mixins.create_one(data)
+        created = self.mixins.create_one(data)
+        # KH: first-sign-in flag and welcome mail (D53)
+        after_admin_create(self.session, created.id, created.email, created.username, accept_language)
+        return created
 
     @router.post("/unlock", response_model=UnlockResults)
     def unlock_users(self, force: bool = False) -> UnlockResults:
@@ -70,6 +80,7 @@ class AdminUserManagementRoutes(BaseAdminController):
         if self.user.id == item_id and self.user.admin != data.admin:
             raise forbidden("you cannot demote yourself")
 
+        data.email = email_or_stored(self.session, item_id, data.email)  # KH: blank keeps the stored e-mail (D53)
         updated = self.mixins.update_one(data, item_id)
         sync_linked_rights(self.session, item_id)  # KH: linked accounts get the same rights at once (D52)
         return updated
@@ -80,6 +91,7 @@ class AdminUserManagementRoutes(BaseAdminController):
         # KH: the user's allergy list goes too; SQLite in Mealie skips cascades (D44)
         delete_user_allergies(self.session, item_id)
         delete_links(self.session, item_id)  # KH: same for the account links (D52)
+        delete_user_rows(self.session, item_id)  # KH: and the onboarding row and mailed links (D53)
         return deleted
 
     @router.post("/password-reset-token", response_model=PasswordResetToken, status_code=201)

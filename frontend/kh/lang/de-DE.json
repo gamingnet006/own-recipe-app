@@ -80,10 +80,29 @@
         "whisper_failed": "Die Spracherkennung konnte diese Aufnahme nicht lesen.",
         "media_too_large": "Die Aufnahme ist zu groß.",
         "media_not_configured": "Aufnahmen sind nicht eingeschaltet (Whisper).",
-        "not_audio_video": "Diese Datei ist keine Audio- oder Videoaufnahme."
+        "not_audio_video": "Diese Datei ist keine Audio- oder Videoaufnahme.",
+        "index": "Diese Zeile gibt es im Rezept nicht mehr. Bitte lade die Seite neu."
       },
       "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
-      "type-yourself": "Rezept selbst eintippen"
+      "type-yourself": "Rezept selbst eintippen",
+      "edit": {
+        "title": "Titel ändern",
+        "ingredient": "Diese Zutat ändern",
+        "step": "Diesen Schritt ändern",
+        "pencil": "Ändern"
+      },
+      "where": {
+        "title": "Wohin kommt das Rezept?",
+        "hint": "Du kannst das leer lassen.",
+        "categories": "Kategorien",
+        "cookbook": "Kochbuch",
+        "none": "Keins",
+        "new-category": "+ Neue Kategorie",
+        "new-cookbook": "+ Neues Kochbuch",
+        "name": "Name",
+        "create": "Anlegen",
+        "create-failed": "Das hat nicht geklappt. Bitte versuche es noch einmal."
+      }
     },
     "nav": {
       "intake": "Eingang",
@@ -226,6 +245,7 @@
       "back": "Zurück",
       "next": "Weiter",
       "done": "Fertig",
+      "done-made": "Fertig und als gekocht markieren",
       "you-need": "Du brauchst:",
       "leave": "Kochmodus verlassen",
       "no-steps": "Dieses Rezept hat keine Schritte.",
@@ -576,6 +596,47 @@
         "added": "Haushalt freigegeben.",
         "removed": "Freigabe entfernt. Das Konto hat jetzt keine Verwaltungsrechte mehr; es bleibt mit seinen Rezepten bestehen, lösche es unter Admin > Benutzer, wenn du es nicht brauchst.",
         "none": "Noch keine weiteren Personen."
+      }
+    },
+    "onboarding": {
+      "first-steps": "Erste Schritte",
+      "first-steps-hint": "Bevor es losgeht, fehlt noch etwas.",
+      "password": {
+        "title": "Eigenes Passwort festlegen",
+        "hint": "Mindestens 8 Zeichen. Das vorläufige Passwort gilt danach nicht mehr.",
+        "new": "Neues Passwort",
+        "repeat": "Passwort wiederholen",
+        "save": "Passwort speichern",
+        "saved": "Passwort gespeichert."
+      },
+      "email": {
+        "title": "E-Mail-Adresse angeben",
+        "hint": "Wir schicken dir einen Link zum Bestätigen. Damit kannst du dein Passwort später selbst zurücksetzen.",
+        "send": "Link senden",
+        "sent": "Link gesendet an {email}. Öffne ihn in deiner Mail.",
+        "resend": "Mail erneut senden",
+        "checked": "Ich habe bestätigt",
+        "not-yet": "Die Adresse ist noch nicht bestätigt."
+      },
+      "welcome": {
+        "title": "Willkommen, {name}!",
+        "hint": "Lege dein Passwort fest. Danach meldest du dich mit dem Benutzernamen {username} an.",
+        "saved": "Passwort gespeichert. Du kannst dich jetzt anmelden."
+      },
+      "link-invalid": "Der Link ist ungültig oder abgelaufen.",
+      "ask-admin": "Wende dich an den Admin.",
+      "confirm": {
+        "title": "E-Mail-Adresse bestätigen",
+        "done": "Deine E-Mail-Adresse ist bestätigt."
+      },
+      "forgot-admin": "Passwort vergessen? Wende dich an den Admin.",
+      "forgot-hint": "Nur für Konten mit E-Mail-Adresse; sonst hilft der Admin.",
+      "no-email": "keine E-Mail",
+      "admin": {
+        "create-email-hint": "Freiwillig. Mit Adresse und eingerichtetem Mail-Versand bekommt die Person eine Willkommens-Mail mit einem Link zum Festlegen ihres Passworts. Ohne Adresse meldet sie sich mit dem Benutzernamen an.",
+        "email-required": "E-Mail-Adresse Pflicht",
+        "email-required-hint": "Wer sich anmeldet, muss eine bestätigte E-Mail-Adresse angeben.",
+        "needs-mail": "Geht erst mit eingerichtetem Mail-Versand"
       }
     }
   }

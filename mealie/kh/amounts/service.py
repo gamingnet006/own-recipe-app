@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from mealie.kh.amounts.models import KhIngredientExtra, KhStepAmount
 from mealie.kh.amounts.parse import ensure_german_units, parse_ingredient
 from mealie.kh.amounts.schemas import AmountsOut, DraftAmounts, DraftStepAmount, IngredientExtraOut, StepAmountOut
-from mealie.kh.amounts.steps import link_quantities, recheck_link
+from mealie.kh.amounts.steps import link_quantities, link_steps, recheck_link, yield_from_steps
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
@@ -38,6 +38,7 @@ def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut) -> Rea
     """Reads the recipe's text-only lines in place, with the group's units and foods, and links the steps' amounts
     to the lines; adds the German units once first. A line without an amount stays as it was."""
     ensure_german_units(repos)
+    yield_from_steps(recipe)
     matcher = DataMatcher(repos)
     extras: list[IngredientExtraOut] = []
     unparsed: list[str] = []
@@ -59,6 +60,7 @@ def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut) -> Rea
         recipe.recipe_ingredient[index] = RecipeIngredient.model_validate(
             ingredient.model_dump() | changes | {"original_text": line, "display": ""}
         )
+    link_steps(recipe, matcher.units_by_alias)  # pages read without AI bring no links between steps and ingredients
     return ReadAmounts(extras, unparsed, link_quantities(recipe, matcher.units_by_alias))
 
 

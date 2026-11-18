@@ -21,7 +21,8 @@
           v-if="showTitleEditor[index]"
           class="mt-4 mb-0"
         >
-          {{ ingredient.title }}
+          <!-- KH: "für 6 Portionen" in the title follows the chosen servings (v1.3) -->
+          {{ scaleTitle(ingredient.title ?? "", scale, $i18n.locale) }}
         </h3>
         <v-divider v-if="showTitleEditor[index]" class="my-2" />
         <v-list-item
@@ -58,6 +59,7 @@ import RecipeIngredientListItem from "./RecipeIngredientListItem.vue";
 import { useSessionStorage } from "@vueuse/core";
 import { useIngredientTextParser } from "~/composables/recipes";
 import type { RecipeIngredient } from "~/lib/api/types/recipe";
+import { scaleTitle } from "~~/kh/app/lib/amounts"; // KH: servings in section titles (v1.3)
 
 interface Props {
   value?: RecipeIngredient[];

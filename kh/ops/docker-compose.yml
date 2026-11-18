@@ -55,6 +55,15 @@ services:
       KH_WHISPER_MODEL: ${KH_WHISPER_MODEL:-}
       KH_DRAFT_MAX_MEDIA_MB: ${KH_DRAFT_MAX_MEDIA_MB:-}
       KH_PROFILE: ${KH_PROFILE:-}
+      KH_ACCOUNT_LINK_HOURS: ${KH_ACCOUNT_LINK_HOURS:-}
+      # Mail sending (D53): welcome and confirm mails, "Passwort zurücksetzen"; empty host = no mail
+      SMTP_HOST: ${KH_SMTP_HOST:-}
+      SMTP_PORT: ${KH_SMTP_PORT:-587}
+      SMTP_FROM_NAME: ${KH_SMTP_FROM_NAME:-Kochheft}
+      SMTP_FROM_EMAIL: ${KH_SMTP_FROM_EMAIL:-}
+      SMTP_AUTH_STRATEGY: ${KH_SMTP_AUTH_STRATEGY:-TLS}
+      SMTP_USER: ${KH_SMTP_USER:-}
+      SMTP_PASSWORD: ${KH_SMTP_PASSWORD:-}
 
   # Optional Telegram bot (P7.1, off by default): hands links, texts and photos from allowed chats in as drafts.
   # Start: docker compose --profile telegram up -d telegram (needs the three KH_TELEGRAM_* values in .env).

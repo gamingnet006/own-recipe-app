@@ -9,6 +9,7 @@ export interface KhFeatures {
   clockShortcutUrl: string | null; // ready-made Clock timer shortcut to add, null while not configured (D42)
   media: boolean; // own audio and video files are accepted, because a Whisper server is set (P7.3)
   profile: string; // leicht, normal, stark or lokal (P7.4)
+  emailReady: boolean; // mail sending is set up, so reset links and verification mails work (D53)
 }
 
 // A slow server must not hold the whole app start: without an answer the hidden parts stay hidden.
@@ -21,6 +22,7 @@ const ALL_HIDDEN: KhFeatures = {
   clockShortcutUrl: null,
   media: false,
   profile: "leicht",
+  emailReady: false,
 };
 
 export default defineNuxtPlugin({

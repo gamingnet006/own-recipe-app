@@ -63,6 +63,26 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
         {{ cook.isLast.value ? $t("kh.cook.done") : $t("kh.cook.next") }}
       </v-btn>
     </div>
+    <!-- on the last step: done and noted as cooked in one go, with Mealie's "I made this" dialog -->
+    <v-btn
+      v-if="cook.isLast.value && isOwnGroup"
+      size="large"
+      variant="tonal"
+      color="success"
+      block
+      class="mt-3"
+      :prepend-icon="$globals.icons.chefHat"
+      @click="madeThis = true"
+    >
+      {{ $t("kh.cook.done-made") }}
+    </v-btn>
+    <RecipeLastMade
+      v-if="isOwnGroup"
+      v-model:dialog="madeThis"
+      :recipe="recipe"
+      class="d-none"
+      @event-created="cookForward(cook, () => emit('close'))"
+    />
   </div>
 </template>
 
@@ -76,9 +96,13 @@ import { useKhOn } from "../composables/use-kh-addons";
 import { useKhOven } from "../lib/oven";
 import { khStepDisplay, khStepNeeds } from "../lib/step-text";
 import type { RecipeOut } from "~/lib/api/types/recipe";
+import RecipeLastMade from "~/components/Domain/Recipe/RecipeLastMade.vue";
+import { useLoggedInState } from "~/composables/use-logged-in-state";
 
 const props = defineProps<{ recipe: RecipeOut; scale: number; cook: KhCook }>();
 const emit = defineEmits<{ "close": []; "all-steps": [] }>();
+const { isOwnGroup } = useLoggedInState();
+const madeThis = ref(false); // the "I made this" dialog, opened from the last step
 
 const onStepTextClick = useKhTimeTap();
 // Read while rendering (khStepDisplay needs the render context), never from a click handler.

@@ -80,10 +80,29 @@
         "whisper_failed": "The speech recognition could not read this recording.",
         "media_too_large": "The recording is too large.",
         "media_not_configured": "Recordings are not switched on (Whisper).",
-        "not_audio_video": "This file is not an audio or video recording."
+        "not_audio_video": "This file is not an audio or video recording.",
+        "index": "That line is no longer in the recipe. Please reload the page."
       },
       "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
-      "type-yourself": "Type a recipe in yourself"
+      "type-yourself": "Type a recipe in yourself",
+      "edit": {
+        "title": "Change the title",
+        "ingredient": "Change this ingredient",
+        "step": "Change this step",
+        "pencil": "Edit"
+      },
+      "where": {
+        "title": "Where does the recipe go?",
+        "hint": "You can leave this empty.",
+        "categories": "Categories",
+        "cookbook": "Cookbook",
+        "none": "None",
+        "new-category": "+ New category",
+        "new-cookbook": "+ New cookbook",
+        "name": "Name",
+        "create": "Create",
+        "create-failed": "Could not create it. Please try again."
+      }
     },
     "nav": {
       "intake": "Intake",
@@ -226,6 +245,7 @@
       "back": "Back",
       "next": "Next",
       "done": "Done",
+      "done-made": "Done, mark as cooked",
       "you-need": "You need:",
       "leave": "Leave cook mode",
       "no-steps": "This recipe has no steps.",
@@ -576,6 +596,47 @@
         "added": "Access given.",
         "removed": "Access removed. The account has no management rights any more; it stays with its recipes, delete it under Admin > Users if you do not need it.",
         "none": "No other persons yet."
+      }
+    },
+    "onboarding": {
+      "first-steps": "First steps",
+      "first-steps-hint": "Something is still missing before you start.",
+      "password": {
+        "title": "Choose your own password",
+        "hint": "At least 8 characters. The temporary password stops working afterwards.",
+        "new": "New password",
+        "repeat": "Repeat password",
+        "save": "Save password",
+        "saved": "Password saved."
+      },
+      "email": {
+        "title": "Add your e-mail address",
+        "hint": "We send you a link to confirm it. It lets you reset your password yourself later.",
+        "send": "Send link",
+        "sent": "Link sent to {email}. Open it in your mail.",
+        "resend": "Send mail again",
+        "checked": "I have confirmed",
+        "not-yet": "The address is not confirmed yet."
+      },
+      "welcome": {
+        "title": "Welcome, {name}!",
+        "hint": "Choose your password. Afterwards you sign in with the username {username}.",
+        "saved": "Password saved. You can sign in now."
+      },
+      "link-invalid": "The link is invalid or has expired.",
+      "ask-admin": "Ask your admin.",
+      "confirm": {
+        "title": "Confirm e-mail address",
+        "done": "Your e-mail address is confirmed."
+      },
+      "forgot-admin": "Forgot your password? Ask your admin.",
+      "forgot-hint": "Only for accounts with an e-mail address; otherwise your admin can help.",
+      "no-email": "no e-mail",
+      "admin": {
+        "create-email-hint": "Optional. With an address and mail sending set up, the person gets a welcome mail with a link to choose their password. Without one they sign in with the username.",
+        "email-required": "E-mail address required",
+        "email-required-hint": "People who sign in must give a confirmed e-mail address.",
+        "needs-mail": "Only works once mail sending is set up"
       }
     }
   }
