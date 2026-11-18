@@ -108,6 +108,13 @@ check "image_repo strips the tag" "$(image_repo ghcr.io/x/app:v1.2)" "ghcr.io/x/
 check "image_repo keeps a registry port" "$(image_repo localhost:5000/app:v1)" "localhost:5000/app"
 check "image_repo of a name without tag is empty" "$(image_repo localhost:5000/app)" ""
 
+# --- free space of Docker's disk from df -Pk, checked before an update (v1.2.1) ---
+df_out='Filesystem     1024-blocks     Used Available Capacity Mounted on
+overlay           30830592 19504128   9646080      67% /'
+check "free_gb reads the available whole gigabytes" "$(echo "$df_out" | free_gb)" "9"
+check "free_gb of a full disk is 0" "$(printf 'Filesystem 1024-blocks Used Available Capacity Mounted on\noverlay 30830592 30830592 0 100%% /\n' | free_gb)" "0"
+check "free_gb of no answer is empty" "$(echo "" | free_gb)" ""
+
 # --- argument checks (stop before touching Docker) ---
 check "no image is a usage error" "$(sh "$here/update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "an invalid image name is a usage error" "$(sh "$here/update.sh" 'bad|image' >/dev/null 2>&1 && echo 0 || echo $?)" "2"

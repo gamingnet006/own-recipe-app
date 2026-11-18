@@ -156,6 +156,17 @@ remove_old_images() {  # ref keep_id...
     || echo "Hinweis: nicht alle alten Images ließen sich löschen, 'docker images' zeigt die übrigen."
 }
 
+# Whole gigabytes free from `df -Pk` output on stdin (second line, "Available" column); empty without one.
+free_gb() {
+  awk 'NR == 2 && $4 ~ /^[0-9]+$/ { print int($4 / 1048576) }'
+}
+
+# Gigabytes free on Docker's own disk (on a Mac the Colima VM, not the Mac's disk), measured inside the
+# running image, so no extra image is needed.
+docker_free_gb() {  # image_id
+  docker run --rm --entrypoint df "$1" -Pk / 2>/dev/null | free_gb
+}
+
 # Image ID the mealie container was created from.
 running_image_id() {
   docker inspect -f '{{.Image}}' "$(container_id)" 2>/dev/null
@@ -269,6 +280,12 @@ preflight() {
   OLD_REF=$(setting KH_IMAGE kuechenhelfer:dev)
   old_id=$(running_image_id) || abort "das Kochheft läuft nicht, bitte zuerst starten"
   [ "$(health_status)" = healthy ] || abort "das Kochheft ist gerade nicht bereit"
+  # A full Docker disk breaks the pull or the start halfway (v1.2: "No space left on device"); stop before that.
+  MIN_FREE=$(setting KH_UPDATE_MIN_FREE_GB 4)
+  case "$MIN_FREE" in ''|*[!0-9]*) abort "KH_UPDATE_MIN_FREE_GB muss eine Zahl (Gigabyte) sein" ;; esac
+  free=$(docker_free_gb "$old_id")
+  [ -n "$free" ] || abort "der freie Speicher von Docker ist nicht messbar"
+  [ "$free" -ge "$MIN_FREE" ] || abort "Docker hat nur noch $free GB frei, nötig sind $MIN_FREE GB. Platz schaffen, z. B. alte Images mit 'docker images' prüfen und 'docker rmi' löschen"
 }
 
 main() {

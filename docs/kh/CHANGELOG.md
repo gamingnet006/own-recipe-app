@@ -4,10 +4,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
-## [Unreleased]
+## [v1.2.1] - 2026-11-18
 
 - An update now deletes the older Kochheft images and keeps only the new one and the fallback. Every release is
   about 1.5 GB and they used to pile up until Docker's disk was full; on the Mac mini that stopped the restore test.
+- Before an update Kochheft checks that Docker has at least 4 GB free (`KH_UPDATE_MIN_FREE_GB`). With less it
+  stops before changing anything and says so; automatic updates report it and try again the next night.
 
 ## [v1.2] - 2026-11-17
 
