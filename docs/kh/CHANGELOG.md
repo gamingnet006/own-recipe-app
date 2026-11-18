@@ -4,6 +4,11 @@ Notable changes per release. Every release is a git tag with the app image in GH
 `ghcr.io/gamingnet006/own-recipe-app:<version>-arm64` (Raspberry Pi, Apple Silicon) and
 `<version>-amd64` (Intel/AMD), published with `kh/ops/release.sh`. That script refuses a version without its own `## [version]` section here.
 
+## [Unreleased]
+
+- An update now deletes the older Kochheft images and keeps only the new one and the fallback. Every release is
+  about 1.5 GB and they used to pile up until Docker's disk was full; on the Mac mini that stopped the restore test.
+
 ## [v1.2] - 2026-11-17
 
 - The clock timer shortcut is now called "Kochheft Timer" (was "KH Timer"), so it is clear in the Shortcuts app what

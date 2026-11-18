@@ -131,6 +131,31 @@ image_id() {
   docker image inspect -f '{{.Id}}' "$1" 2>/dev/null
 }
 
+# Repository of an image name with tag (ghcr.io/x/app:v1 -> ghcr.io/x/app); empty without a tag.
+image_repo() {
+  case "${1##*/}" in *:*) echo "${1%:*}" ;; esac
+}
+
+# Names from "name id" lines on stdin whose ID is none of the given ones; untagged lines are skipped.
+stale_images() {  # keep_id...
+  while read -r name id; do
+    case "$name" in *:'<none>') continue ;; esac
+    case " $* " in *" $id "*) ;; *) echo "$name" ;; esac
+  done
+}
+
+# Deletes the other images of REF's repository after a successful update; each release is about 1.5 GB and
+# filled the Docker disk of the Mac mini (v1.2). docker rmi without -f leaves images a container still uses.
+remove_old_images() {  # ref keep_id...
+  repo=$(image_repo "$1"); shift
+  [ -n "$repo" ] || return 0
+  old=$(docker images --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' "$repo" | stale_images "$@")
+  [ -n "$old" ] || return 0
+  echo "Alte Images löschen:" $old
+  echo "$old" | xargs docker rmi >/dev/null 2>&1 \
+    || echo "Hinweis: nicht alle alten Images ließen sich löschen, 'docker images' zeigt die übrigen."
+}
+
 # Image ID the mealie container was created from.
 running_image_id() {
   docker inspect -f '{{.Image}}' "$(container_id)" 2>/dev/null
@@ -284,6 +309,7 @@ main() {
     echo "Update fertig: $new_ref läuft, alle $before Rezepte sind da."
     echo "Für den Notfall bleiben bis zum nächsten Update: $SNAP und das Image $ROLLBACK_TAG"
     disarm_rollback_trap
+    remove_old_images "$new_ref" "$new_id" "$old_id"
     refresh_companions
     exit 0
   fi

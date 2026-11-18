@@ -97,6 +97,17 @@ check "an abort before any change exits 4" "$(sh "$tmp/install/update.sh" exampl
 check "a TERM after arming runs the rollback with both values" "$(sh -c 'set -- --lib; . "$0"; roll_back() { echo "rollback $1 $2"; exit 1; }; arm_rollback_trap sha256:old 7; kill -TERM $$; sleep 1' "$here/update.sh")" "rollback sha256:old 7"
 check "disarming removes the traps" "$(sh -c 'set -- --lib; . "$0"; arm_rollback_trap a 1; disarm_rollback_trap; trap' "$here/update.sh")" ""
 
+# --- old images after a successful update: all of the repository except the new and the rollback one (v1.2.1) ---
+list='ghcr.io/x/app:v1.2 sha256:new
+ghcr.io/x/app:v1.1 sha256:old
+ghcr.io/x/app:v1.0 sha256:older
+ghcr.io/x/app:<none> sha256:dangling'
+check "stale_images lists only images that are neither kept nor untagged" "$(echo "$list" | stale_images sha256:new sha256:old)" "ghcr.io/x/app:v1.0"
+check "stale_images keeps everything that is kept" "$(echo "$list" | stale_images sha256:new sha256:old sha256:older)" ""
+check "image_repo strips the tag" "$(image_repo ghcr.io/x/app:v1.2)" "ghcr.io/x/app"
+check "image_repo keeps a registry port" "$(image_repo localhost:5000/app:v1)" "localhost:5000/app"
+check "image_repo of a name without tag is empty" "$(image_repo localhost:5000/app)" ""
+
 # --- argument checks (stop before touching Docker) ---
 check "no image is a usage error" "$(sh "$here/update.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"
 check "an invalid image name is a usage error" "$(sh "$here/update.sh" 'bad|image' >/dev/null 2>&1 && echo 0 || echo $?)" "2"

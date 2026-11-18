@@ -28,9 +28,9 @@ Gemessen am 9.11.2026 mit `v1.0` · measured on 9 Nov 2026 with `v1.0`:
 | Speicherplatz · disk | 5 GB frei · free | 20 GB auf einer SSD · on an SSD |
 | Mit Whisper (optional) · with Whisper | + 1 GB RAM, + 2 GB Speicher · disk | 8 GB RAM, 4 Kerne · cores |
 
-- **Warum so viel Speicherplatz?** Das Programm-Image ist rund 1,5 GB groß (Download rund 400 MB). Bei einem Update liegt das alte Image als Rückfall bereit, also kurz zweimal. Dazu kommen deine Rezepte mit Fotos (etwa 1 GB je 2.000 Rezepte mit Foto) und die Backups, die ungefähr so groß sind wie die Rezeptdaten.
+- **Warum so viel Speicherplatz?** Das Programm-Image ist rund 1,5 GB groß (Download rund 400 MB). Bei einem Update liegt das alte Image als Rückfall bereit, also zweimal; noch ältere löscht das Update selbst. Dazu kommen deine Rezepte mit Fotos (etwa 1 GB je 2.000 Rezepte mit Foto) und die Backups, die ungefähr so groß sind wie die Rezeptdaten.
 - **Der Code selbst** ist klein: das Repository rund 37 MB, davon unsere Erweiterungen rund 3 MB (einschließlich der Nährwert-Tabelle mit 0,6 MB).
-- **Why this much disk?** The app image is about 1.5 GB (about 400 MB to download). During an update the old image stays as a fallback, so briefly twice. Add your recipes with photos (roughly 1 GB per 2,000 recipes with a photo) and backups of about the same size. The code itself is small: about 37 MB for the repository, about 3 MB of it our additions.
+- **Why this much disk?** The app image is about 1.5 GB (about 400 MB to download). After an update the old image stays as a fallback, so twice; the update deletes anything older. Add your recipes with photos (roughly 1 GB per 2,000 recipes with a photo) and backups of about the same size. The code itself is small: about 37 MB for the repository, about 3 MB of it our additions.
 
 ## Installieren
 
