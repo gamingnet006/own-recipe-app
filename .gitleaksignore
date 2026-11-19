@@ -17,3 +17,8 @@ c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cac
 c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:52
 c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:121
 c91d216fe9a848dabe0bb62fb02f6ca30d916e4c:tests/unit_tests/core/security/auth_cache/test_auth_cache_integration.py:generic-api-key:122
+# KH: the letter list for temporary passwords in the setup wizard (D83), no key; checked 19 Nov 2026
+eda5ce668e039693591985d9baa6ab92e204d9ba:frontend/kh/app/lib/setup-wizard.ts:generic-api-key:63
+# KH: the same upstream test page in two more old commits, checked 19 Nov 2026
+76830802cc7dd1bc1b6f7c084952a7b8eb4b8789:mealie/tests/data/scraper/html-raw/carottes-rapps-with-rice-and-sunflower-seeds.html:generic-api-key:45
+9818d567b9575a4968ba9cff833160c96a18fb2b:mealie/test/data/html-raw/carottes-rapps-with-rice-and-sunflower-seeds.html:generic-api-key:45
