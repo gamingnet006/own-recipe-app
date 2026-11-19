@@ -92,6 +92,8 @@
               />
               <!-- KH: under the ingredients (D38) -->
               <KhAddToShoppingList v-if="!isEditForm && isOwnGroup && khOn.shopping" :recipe="recipe" :scale="scale" class="pr-2" /> <!-- KH: D46 switch -->
+              <!-- KH: "Wünsch ich mir" (D72) -->
+              <KhWishButton v-if="!isEditForm && isOwnGroup && khOn.planner && recipe.id" :recipe-id="recipe.id" class="pr-2" />
               <!-- KH: nutrition values and allergens under the ingredients (D44) -->
               <KhNutrition v-if="!isEditForm && isOwnGroup && khOn.nutrition" :slug="recipe.slug" :group-slug="groupSlug" />
               <KhAllergens v-if="!isEditForm && isOwnGroup && khOn.allergens" :slug="recipe.slug" :group-slug="groupSlug" :can-edit="canEditRecipe" />
@@ -162,6 +164,7 @@
       :recipe="displayedRecipe"
       :scale="scale"
       :cook="khCook"
+      :ingredient-storage-key="ingredientStorageKey"
       @close="toggleCookMode()"
       @all-steps="khCook.allSteps.value = true"
     />

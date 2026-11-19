@@ -46,6 +46,7 @@ dependencies = [
     "pint==0.26.2",
     "httpx-curl-cffi==0.1.5",
     "fpdf2==2.9.0",
+    "pywebpush==2.5.0",  # KH: web push for "Mitteilungen" (D75), MPL-2.0
 ]
 
 [project.scripts]

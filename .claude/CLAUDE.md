@@ -43,6 +43,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 - Neue Funktionen kommen in `kh/<funktion>/`. Fertigen Code früherer Phasen nur für Fehlerbehebungen ändern, jeweils mit Test.
 - Spätere Phasen docken an Erweiterungspunkte an (Listen oder Einhängepunkte), statt früheren Code umzubauen.
 - API, Funktionen und Datenformate früherer Phasen bleiben kompatibel; Migrationen nur additiv.
+- Vor jedem Release mit neuen Funktionen Karten für „Neu in Kochheft“ in `frontend/kh/app/lib/whats-new.ts` und `NEWS_VERSION` ergänzen.
 - Die Tests aller Phasen müssen grün bleiben. Vor jedem Release ein Upgrade-Test vom vorherigen Tag (läuft automatisch in `kh-release.yml`, Testdaten in `kh/ops/testdata/`).
 
 ## Zugangsdaten

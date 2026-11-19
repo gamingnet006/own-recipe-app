@@ -146,6 +146,10 @@ everything the side menu holds on bigger screens. -->
           @click="inviteDialog = true"
         />
         <v-list-item :prepend-icon="$globals.icons.wave" :title="$t('kh.tour.view')" @click="tourOpen = true" />
+        <!-- KH: setup page and all news (D68, D69) -->
+        <v-list-item :prepend-icon="$globals.icons.cellphone" :title="$t('kh.setup.title')" :to="SETUP_PATH" />
+        <v-list-item :prepend-icon="$globals.icons.star" :title="$t('kh.news.menu')" @click="newsOpen = true" />
+        <v-list-item :prepend-icon="$globals.icons.bellOutline" :title="$t('kh.notifications.title')" to="/mitteilungen" /> <!-- D75 -->
         <v-list-item
           :prepend-icon="$globals.icons.translate"
           :title="$t('sidebar.language')"
@@ -174,6 +178,7 @@ everything the side menu holds on bigger screens. -->
     <LanguageDialog v-model="languageDialog" />
     <KhAccountSwitch v-model="switchDialog" />
     <KhTour v-model="tourOpen" />
+    <KhNews v-model="newsOpen" :news="allNews" />
   </v-container>
 </template>
 
@@ -186,9 +191,11 @@ import {
 import { khSidebar, saveKhSidebar } from "~~/kh/app/composables/use-kh-sidebar";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
-import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
+import { khAddons, useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useKhAccounts } from "~~/kh/app/composables/use-kh-accounts";
 import { useKhOven } from "~~/kh/app/lib/oven";
+import { SETUP_PATH } from "~~/kh/app/lib/device-setup";
+import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { alert } from "~/composables/use-toast";
 import { useToggleDarkMode } from "~/composables/use-utils";
 
@@ -221,6 +228,8 @@ const inviteDialog = ref(false);
 const languageDialog = ref(false);
 const switchDialog = ref(false);
 const tourOpen = ref(false); // shown again any time, without a call to the server (D59)
+const newsOpen = ref(false); // all versions any time, without a call to the server (D69)
+const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled));
 const { accounts, load: loadAccounts } = useKhAccounts();
 onMounted(loadAccounts);
 

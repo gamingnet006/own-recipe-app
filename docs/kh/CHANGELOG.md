@@ -6,6 +6,25 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Set up Kochheft (D68): a page under More (`/aufs-handy`) with short steps per device (iPhone, iPad, Android, Mac,
+  other computers) for the home screen or Dock, the shopping list as its own icon, a key for shortcuts, the import and
+  Siri shortcuts and the Clock timer; a question on each new device after sign-in; the introduction got steps for
+  sharing and setup. New settings `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL`, in `/api/kh/features` as
+  `importShortcutUrl` and `siriShortcutUrl`.
+- "What's new" (D69): cards with the news after an update, under More → What's new for all versions; new column
+  `news_seen` (migration kh0011); new people see the introduction instead.
+- Notifications (D75): per person and household, push messages for the meal plan, an evening reminder with
+  thaw and prepare hints, the shopping list, wishes, the inbox and news; More → Notifications. New tables
+  `kh_push_subscriptions` and `kh_notification_settings` (migration kh0013), new dependency pywebpush (MPL-2.0).
+- "What do I cook this week?" (D70): in the meal planner "Suggest a week" proposes a dinner for each free day from
+  what you cook often, what you have not cooked for long, wishes and favorites; swap single ones, then apply.
+- Phones stay upright (D71): a phone held sideways shows "Please turn your phone upright" over the app (iPads and
+  computers are not affected); an installed Android app also asks the system to lock portrait.
+- Wish list (D72): "I wish for this" on a recipe; the planner lists the household's wishes, a tap on a day plans one
+  as dinner and ends the wish. New table `kh_recipe_wishes` (migration kh0012).
+- Share the week (D73): "Share the week" in the planner sends the planned days as text.
+- Cook mode on a landscape iPad or a computer (D74): ingredients on the left with the current step's ones
+  highlighted, the step on the right; phones and portrait unchanged.
 - Shopping list without network (D63): `/einkauf` opens from the last loaded state when there is no signal; ticking
   off, adding, amounts, properties, urgency and notes work and are sent in order when the network is back (a banner
   says so). Needs the add-on "Offline recipes"; switching it off or signing out removes the stored lists.

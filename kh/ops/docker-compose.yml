@@ -32,6 +32,9 @@ services:
       KH_SHARE_LINKS: ${KH_SHARE_LINKS:-false}
       # Ready-made Clock timer shortcut (D42); empty means none.
       KH_CLOCK_SHORTCUT_URL: ${KH_CLOCK_SHORTCUT_URL:-}
+      # Ready-made import and Siri shortcuts for the setup page (D68); empty means none.
+      KH_IMPORT_SHORTCUT_URL: ${KH_IMPORT_SHORTCUT_URL:-}
+      KH_SIRI_SHORTCUT_URL: ${KH_SIRI_SHORTCUT_URL:-}
       # Drafts and duplicate hints (phase 2, D35); empty keeps the defaults in mealie/kh/features/settings.py.
       KH_DRAFT_MAX_IMAGES: ${KH_DRAFT_MAX_IMAGES:-}
       KH_DRAFT_MAX_IMAGE_MB: ${KH_DRAFT_MAX_IMAGE_MB:-}

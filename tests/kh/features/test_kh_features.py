@@ -54,6 +54,8 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
             "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
+            "importShortcutUrl": None,
+            "siriShortcutUrl": None,
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
             "media": False,
@@ -145,3 +147,18 @@ def test_clock_shortcut_url_drops_anything_else_and_warns(
 def test_features_report_the_shortcut_url(api_client: TestClient, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(get_kh_settings(), "clock_shortcut_url", VALID_SHORTCUT)
     assert api_client.get("/api/kh/features").json()["clockShortcutUrl"] == VALID_SHORTCUT
+
+
+@pytest.mark.parametrize("name", ["KH_IMPORT_SHORTCUT_URL", "KH_SIRI_SHORTCUT_URL"])
+def test_import_and_siri_shortcut_urls_take_only_shortcuts_links(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, name: str
+):
+    field = name.removeprefix("KH_").lower()
+    monkeypatch.setenv(name, VALID_SHORTCUT)
+    assert getattr(KhSettings(), field) == VALID_SHORTCUT
+    monkeypatch.setenv(name, "https://example.com/shortcuts/abc123")
+    with caplog.at_level("WARNING"):
+        assert getattr(KhSettings(), field) is None
+    assert name in caplog.text
+    monkeypatch.setenv(name, "")  # what Compose passes for an empty line in .env
+    assert getattr(KhSettings(), field) is None

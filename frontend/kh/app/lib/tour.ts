@@ -4,11 +4,13 @@ import type { KhOnboardingStatus } from "./api/onboarding";
 
 export interface KhTourStep {
   /** Key of the texts under kh.tour.steps. */
-  key: "welcome" | "recipes" | "intake" | "shopping" | "cook" | "more";
+  key: "welcome" | "recipes" | "intake" | "shopping" | "cook" | "share" | "phone" | "more";
   /** Name of one of Mealie's icons ($globals.icons) */
   icon: string;
   /** The add-on that has to be on for the step to show. */
   addon?: keyof KhAddonFlags;
+  /** A button on the step; "setup" opens the setup page (D68) and finishes the tour. */
+  action?: "setup";
 }
 
 export const TOUR_STEPS: KhTourStep[] = [
@@ -17,6 +19,8 @@ export const TOUR_STEPS: KhTourStep[] = [
   { key: "intake", icon: "import" },
   { key: "shopping", icon: "formatListCheck", addon: "shopping" },
   { key: "cook", icon: "chefHat" },
+  { key: "share", icon: "shareVariant" },
+  { key: "phone", icon: "cellphone", action: "setup" },
   { key: "more", icon: "dotsHorizontal" },
 ];
 

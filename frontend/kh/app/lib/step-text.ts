@@ -22,6 +22,11 @@ function references(step: StepReferences | undefined, referenceId: string): bool
   return !!step?.ingredientReferences?.some(r => r.referenceId === referenceId);
 }
 
+/** The ids of the ingredients STEP references (the ones the wide cook view highlights in its list). */
+export function stepIngredientIds(step: StepReferences | undefined): Set<string> {
+  return new Set((step?.ingredientReferences ?? []).flatMap(r => (r.referenceId ? [r.referenceId] : [])));
+}
+
 /** The place of the one step that references REFERENCEID; null if no step or several do (then no amount is
  * shown, since the whole amount would not fit one step). */
 export function onlyStepOf(referenceId: string, steps: StepReferences[]): number | null {

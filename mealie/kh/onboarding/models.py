@@ -21,6 +21,7 @@ class KhUserOnboarding(SqlAlchemyBase, BaseMixins):
     must_change_password: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
     verified_email: Mapped[str | None] = mapped_column(sa.String, nullable=True)
     tour: Mapped[bool] = mapped_column(sa.Boolean, default=False, server_default=sa.false(), nullable=False)  # D59
+    news_seen: Mapped[str | None] = mapped_column(sa.String(20), nullable=True)  # newest "Neu in Kochheft" seen (D69)
 
     @auto_init()
     def __init__(self, **_) -> None:

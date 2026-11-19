@@ -260,6 +260,37 @@
       "often": "Often cooked",
       "long-ago": "Not cooked for a while"
     },
+    "portrait": {
+      "message": "Please turn your phone upright."
+    },
+    "wishes": {
+      "button": "I wish for this",
+      "you": "You",
+      "and": "and",
+      "line-self": "You wish for this",
+      "line-one": "{names} wishes for this",
+      "line-many": "{names} wish for this",
+      "title": "Wishes",
+      "no-day": "No day left in this range.",
+      "planned": "{name} is planned"
+    },
+    "week-share": {
+      "button": "Share the week",
+      "title": "Food this week",
+      "empty": "Nothing is planned in this range yet."
+    },
+    "week-suggestion": {
+      "button": "Suggest a week",
+      "title": "Suggest a week",
+      "loading": "Looking for ideas …",
+      "none": "These days are already planned.",
+      "take": "Plan it",
+      "other": "Another",
+      "apply": "Apply",
+      "no-more": "No more suggestions.",
+      "planned": "{count} dinner planned – add it all to the shopping list now? | {count} dinners planned – add it all to the shopping list now?",
+      "to-list": "To the shopping list"
+    },
     "cook": {
       "step-of": "Step {n} of {total}",
       "step": "Step {n}",
@@ -686,16 +717,24 @@
           "text": "Search for a recipe, set the servings and start the cooking mode."
         },
         "intake": {
-          "title": "Intake",
-          "text": "Send a link, a photo or a text. You check the result and then keep it."
+          "title": "Inbox",
+          "text": "Send a link, a photo, a text or a file, also from the share menu of other apps. You check the result and accept it."
         },
         "shopping": {
           "title": "Shopping list",
-          "text": "Put the ingredients of a recipe on the list and share it with other apps."
+          "text": "Tiles per store, with details, offline too. With Siri, items get on the list by voice."
         },
         "cook": {
           "title": "Cooking mode",
           "text": "Cook step by step, with timers. At the end, mark the recipe as cooked."
+        },
+        "share": {
+          "title": "Sharing",
+          "text": "Share a recipe “as text”, or a whole cookbook as files."
+        },
+        "phone": {
+          "title": "Set up Kochheft",
+          "text": "Icon on the home screen or in the Dock, shopping list as its own icon, shortcuts: done in 2 minutes."
         },
         "more": {
           "title": "More",
@@ -760,6 +799,250 @@
       "run": "Export",
       "failed": "Not exported: {names}",
       "done": "Done, the ZIP file was saved."
+    },
+    "setup": {
+      "title": "Set up Kochheft",
+      "intro": "In a few minutes Kochheft is easy to reach on this device. Tick off what you have done.",
+      "device": "Device",
+      "device-hint": "Another device? Pick it here to see its steps.",
+      "this-device": "this device",
+      "start": "Set up now",
+      "done": "Done",
+      "add-shortcut": "Add shortcut",
+      "asks-for": "While adding it, the device asks for the address and the key. The address:",
+      "address": "Address of Kochheft",
+      "devices": {
+        "iphone": "iPhone",
+        "ipad": "iPad",
+        "android": "Android",
+        "mac": "Mac",
+        "computer": "Windows or other computer"
+      },
+      "prompt": {
+        "title": "New device?",
+        "text-phone": "Set up Kochheft here in 2 minutes: icon on the home screen, shopping list, shortcuts.",
+        "text-computer": "Set up Kochheft here in 2 minutes: icon in the Dock or as an app, shopping list, shortcuts.",
+        "yes": "Yes, show me",
+        "later": "Later",
+        "never": "No, thanks"
+      },
+      "home": {
+        "installed": "You are using Kochheft as an app right now. This is already done.",
+        "ios": {
+          "title": "Kochheft on the home screen",
+          "s1": "Open Kochheft in Safari.",
+          "s2": "Tap Share (the square with the arrow).",
+          "s3": "Choose “Add to Home Screen” and tap Add."
+        },
+        "android": {
+          "title": "Kochheft on the home screen",
+          "s1": "Open Kochheft in Chrome.",
+          "s2": "Tap the menu ⋮ at the top right.",
+          "s3": "Choose “Install app” or “Add to Home screen”."
+        },
+        "mac": {
+          "title": "Kochheft in the Dock",
+          "s1": "Safari (macOS Sonoma or newer): open Kochheft and choose File → “Add to Dock”.",
+          "s2": "Chrome or Edge: click the install icon in the address bar.",
+          "s3": "Confirm with “Add” or “Install”. Then you start Kochheft like any other app."
+        },
+        "computer": {
+          "title": "Kochheft as an app",
+          "s1": "Open Kochheft in Chrome or Edge.",
+          "s2": "Click the install icon in the address bar (or menu → “Install app”).",
+          "s3": "Confirm with “Install”."
+        }
+      },
+      "list": {
+        "open": "Open shopping list",
+        "ios": {
+          "title": "Shopping list as its own icon",
+          "s1": "Tap “Open shopping list”. It opens in Safari.",
+          "s2": "Tap Share.",
+          "s3": "Choose “Add to Home Screen”.",
+          "s4": "Tap Add. The icon opens the list right away."
+        },
+        "android": {
+          "title": "Shopping list as its own icon",
+          "s1": "Press and hold the Kochheft icon on the home screen.",
+          "s2": "Choose “Shopping list”.",
+          "s3": "Drag the entry onto the home screen."
+        },
+        "mac": {
+          "title": "Shopping list in the Dock",
+          "s1": "Click “Open shopping list”.",
+          "s2": "Safari: File → “Add to Dock”. Chrome or Edge: install icon in the address bar.",
+          "s3": "Confirm with “Add” or “Install”."
+        },
+        "computer": {
+          "title": "Shopping list as its own app",
+          "s1": "Click “Open shopping list”.",
+          "s2": "Click the install icon in the address bar.",
+          "s3": "Confirm with “Install”."
+        }
+      },
+      "key": {
+        "make": "Create a key for this device",
+        "copy": "Copy key",
+        "once": "Only visible now. If the phone is lost, delete the key under Profile → API tokens.",
+        "ios": {
+          "title": "Key for shortcuts",
+          "s1": "Tap “Create a key for this device”.",
+          "s2": "Copy the key right away, it is only visible now.",
+          "s3": "Paste it when you add a shortcut and the device asks for it."
+        },
+        "android": {
+          "title": "Key for shortcuts",
+          "s1": "Tap “Create a key for this device”.",
+          "s2": "Copy the key right away, it is only visible now.",
+          "s3": "You only need it for apps and automations that reach Kochheft."
+        },
+        "mac": {
+          "title": "Key for shortcuts",
+          "s1": "On the Mac you can create your own key: click the button below.",
+          "s2": "Copy the key right away, it is only visible now.",
+          "s3": "You can also use the iPhone's key. One key per device can be deleted on its own."
+        },
+        "computer": {
+          "title": "Key for shortcuts",
+          "s1": "Click “Create a key for this device”.",
+          "s2": "Copy the key right away, it is only visible now.",
+          "s3": "You only need it for programs and automations that reach Kochheft."
+        }
+      },
+      "import": {
+        "with-link": "Tap “Add shortcut”. Afterwards “In Kochheft importieren” appears in the share menu of Safari, Instagram and Photos.",
+        "ios": {
+          "title": "Import recipes from other apps",
+          "s1": "Open the Shortcuts app, tap + and turn on “Show in Share Sheet” under ⓘ (types text and URLs).",
+          "s2": "Build the shortcut “In Kochheft importieren” following the README (section “Share by shortcut”).",
+          "s3": "Then it appears in the share menu of Safari, Instagram and Photos."
+        },
+        "mac": {
+          "title": "Import recipes from other apps",
+          "s1": "Shortcuts from the iPhone reach the Mac through iCloud: Shortcuts → Settings → iCloud Sync.",
+          "s2": "“In Kochheft importieren” then appears in Safari's share menu on the Mac.",
+          "s3": "If you do not have it yet, set it up on the iPhone first."
+        },
+        "android": {
+          "title": "Import recipes from other apps",
+          "s1": "Kochheft is right in the share menu of other apps. Nothing to do here."
+        }
+      },
+      "siri": {
+        "with-link": "Tap “Add shortcut”. Afterwards “Hey Siri, Auf die Einkaufsliste” works.",
+        "android-note": "Google Assistant cannot do “Auf die Einkaufsliste”. On Android you type items straight into the shopping list.",
+        "ios": {
+          "title": "“Hey Siri, Auf die Einkaufsliste”",
+          "s1": "Build the shortcut “Auf die Einkaufsliste” in the Shortcuts app (instructions in the README).",
+          "s2": "It needs the key from above and the address of Kochheft.",
+          "s3": "Then say “Hey Siri, Auf die Einkaufsliste” and dictate what is missing."
+        },
+        "mac": {
+          "title": "“Hey Siri, Auf die Einkaufsliste”",
+          "s1": "The shortcut from the iPhone reaches the Mac through iCloud (Shortcuts → Settings → iCloud Sync).",
+          "s2": "Then “Hey Siri, Auf die Einkaufsliste” works on the Mac too."
+        }
+      },
+      "timer": {
+        "open": "Open More",
+        "ios": {
+          "title": "Clock timer",
+          "s1": "Under More → Timer turn on “Put on Clock timer”.",
+          "s2": "The timer then rings even when the device is locked."
+        }
+      }
+    },
+    "news": {
+      "title": "New in Kochheft {version}",
+      "done": "Got it",
+      "menu": "What's new",
+      "v1-3": {
+        "tiles": {
+          "title": "Shopping list with tiles",
+          "text": "Tap items instead of typing them. Every store has its own list, and details like “2 packs” sit next to the item."
+        },
+        "amount": {
+          "title": "Type the amount",
+          "text": "Just write “2 milk”: Kochheft splits amount and item itself."
+        },
+        "offline": {
+          "title": "Offline and “Always at home”",
+          "text": "The list works even where the supermarket has no signal. Mark salt, flour and oil as “Always at home”, they stay unticked."
+        },
+        "siri": {
+          "title": "Hey Siri, Auf die Einkaufsliste",
+          "text": "Tell Siri what is missing and it lands on the list. Setting it up takes two minutes."
+        },
+        "share": {
+          "title": "Share recipes",
+          "text": "Share a recipe “as text” with any messenger, or export your cookbook as files."
+        },
+        "files": {
+          "title": "Import files",
+          "text": "Drop recipe files or a whole ZIP into the inbox. You check before anything reaches the cookbook."
+        },
+        "week": {
+          "title": "What do I cook this week?",
+          "text": "In the meal plan “Suggest a week” offers dishes you have not had for a while. You choose, Kochheft plans them."
+        },
+        "wishes": {
+          "title": "Wish list",
+          "text": "Wish for a recipe: the family sees the wishes in the meal plan and plans one with a tap."
+        },
+        "weekshare": {
+          "title": "Share the week",
+          "text": "Send the week's plan as text to the family, right from the meal plan."
+        },
+        "setup": {
+          "title": "Set up Kochheft",
+          "text": "Icon on the home screen, shopping list as its own icon, shortcuts: step by step, on iPad and Mac too."
+        },
+        "notifications": {
+          "title": "Notifications",
+          "text": "If you like, Kochheft speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "this-device": "Notifications on this device",
+      "install-first": "On iPhone and iPad, notifications only reach Kochheft on the home screen. Put it there first.",
+      "unsupported": "This browser cannot show notifications from Kochheft.",
+      "denied": "Notifications are blocked for Kochheft. Allow them in the settings of the device or browser.",
+      "no-worker": "The app is not ready yet. Reload the page and try again in a moment.",
+      "evening-time": "Time",
+      "test": "Send test notification",
+      "test-sent": "Test notification sent",
+      "test-failed": "The test notification did not arrive anywhere",
+      "devices": "Your devices",
+      "remove": "Remove",
+      "events": {
+        "plan": {
+          "title": "Meal plan",
+          "text": "Someone in the household plans a dish."
+        },
+        "evening": {
+          "title": "Evening reminder",
+          "text": "The evening before: what is cooked tomorrow, with hints for thawing and preparing."
+        },
+        "shopping": {
+          "title": "Shopping list",
+          "text": "Someone puts things on a list. Several arrive bundled."
+        },
+        "wishes": {
+          "title": "Wishes",
+          "text": "Someone wishes for a recipe."
+        },
+        "intake": {
+          "title": "Inbox",
+          "text": "A recipe is ready for review."
+        },
+        "news": {
+          "title": "What's new",
+          "text": "After an update with new functions, once."
+        }
+      }
     }
   }
 }

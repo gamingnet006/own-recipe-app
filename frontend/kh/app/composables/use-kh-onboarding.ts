@@ -59,5 +59,12 @@ export function useKhOnboarding(i18n?: Composer) {
     if (error) alert.error(failureText(error, fallback));
   }
 
-  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour };
+  /** "Neu in Kochheft" was finished or skipped: remembers VERSION on the server and in the cached status. */
+  async function finishNews(version: string, fallback: string): Promise<void> {
+    if (khOnboarding.status) khOnboarding.status = { ...khOnboarding.status, newsSeen: version };
+    const { error } = await api().newsSeen(version);
+    if (error) alert.error(failureText(error, fallback));
+  }
+
+  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour, finishNews };
 }

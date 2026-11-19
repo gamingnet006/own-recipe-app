@@ -12,6 +12,7 @@ from mealie.kh.onboarding.schemas import (
     AccountSettingsIn,
     AccountSettingsOut,
     EmailIn,
+    NewsSeenIn,
     OnboardingStatus,
     PasswordIn,
     TokenIn,
@@ -51,6 +52,11 @@ class KhOnboardingController(BaseUserController):
     def tour_done(self) -> None:
         """The person finished or skipped the first-sign-in tour (D59)."""
         service.set_tour(self.session, self.user.id, False)
+
+    @router.post("/news-seen")
+    def news_seen(self, data: NewsSeenIn) -> None:
+        """The person finished or skipped "Neu in Kochheft" up to this version (D69)."""
+        service.set_news_seen(self.session, self.user.id, data.version)
 
     @router.post("/email")
     def request_email(self, data: EmailIn, accept_language: str | None = Header(None)) -> None:

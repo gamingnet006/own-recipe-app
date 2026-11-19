@@ -28,6 +28,7 @@
         <v-list-item
           density="compact"
           class="px-0 py-1 ingredient-list-item"
+          :class="{ 'kh-ingredient-used': isHighlighted(index) }"
           @click.stop="toggleChecked(index)"
         >
           <template #prepend>
@@ -66,12 +67,14 @@ interface Props {
   scale?: number;
   isCookMode?: boolean;
   storageKey?: string;
+  highlightIds?: string[]; // KH: ingredients the current cook step uses (D74)
 }
 const props = withDefaults(defineProps<Props>(), {
   value: () => [],
   scale: 1,
   isCookMode: false,
   storageKey: undefined,
+  highlightIds: () => [],
 });
 
 const { parseIngredientText } = useIngredientTextParser();
@@ -102,6 +105,12 @@ const ingredientCopyText = computed(() => {
 
   return components.join("\n");
 });
+
+// KH: marks the ingredients of the current cook step (D74)
+function isHighlighted(index: number) {
+  const referenceId = props.value[index]?.referenceId;
+  return !!referenceId && props.highlightIds.includes(referenceId);
+}
 
 function toggleChecked(index: number) {
   setChecked(index, !isChecked(index));
@@ -147,6 +156,12 @@ function setChecked(index: number, value: boolean) {
 
 .ingredient-list-item {
   align-items: flex-start;
+}
+
+/* KH: the ingredients the current cook step uses (D74) */
+.kh-ingredient-used {
+  background: rgba(var(--v-theme-primary), 0.14);
+  border-radius: 8px;
 }
 
 .ingredient-list-item .v-list-item__prepend,

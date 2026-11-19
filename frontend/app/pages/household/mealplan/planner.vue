@@ -8,6 +8,8 @@
       @list-created="addShoppingList"
     />
     <GroupMealPlanCalendarDialog v-model="calendarDialog" />
+    <!-- KH: "Woche vorschlagen" (D70) -->
+    <KhWeekSuggestion v-model="suggestionDialog" :days="days" :meals="allMeals" @planned="onSuggestionPlanned" />
     <!-- range navigation and page actions share one toolbar, kept apart from the plan below -->
     <div class="d-flex flex-wrap align-center ga-2">
       <div class="range-nav d-flex align-center ga-2">
@@ -116,6 +118,20 @@
           {{ $t("meal-plan.days") }}
         </v-btn>
       </v-btn-toggle>
+      <!-- KH: D70 -->
+      <v-btn
+        v-if="khOn.planner"
+        variant="outlined"
+        color="primary"
+        :prepend-icon="$globals.icons.calendar"
+        @click="suggestionDialog = true"
+      >
+        {{ $t("kh.week-suggestion.button") }}
+      </v-btn>
+      <!-- KH: D73 -->
+      <v-btn variant="outlined" :prepend-icon="$globals.icons.shareVariant" @click="shareWeek(mealsByDate)">
+        {{ $t("kh.week-share.button") }}
+      </v-btn>
       <BaseButtonGroup
         class="d-flex ms-auto"
         :buttons="[
@@ -162,10 +178,16 @@
     </div>
     <v-divider class="my-4" />
     <div>
-      <NuxtPage
-        :mealplans="plans"
-        :actions="actions"
-      />
+      <!-- KH: D72: the wishes sit beside the plan on wide screens and above it on small ones -->
+      <div class="d-md-flex ga-4">
+        <KhWishes v-if="khOn.planner" ref="wishesPanel" :days="days" class="order-md-2 mb-4 mb-md-0" @planned="actions.refreshAll()" />
+        <div class="flex-grow-1" style="min-width: 0">
+          <NuxtPage
+            :mealplans="plans"
+            :actions="actions"
+          />
+        </div>
+      </div>
     </div>
 
     <v-row />
@@ -181,6 +203,10 @@ import type { MealsByDate } from "~/composables/use-group-mealplan";
 import { getScaledRecipes, getWeekRange, useMealplans } from "~/composables/use-group-mealplan";
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
+import KhWeekSuggestion from "~~/kh/app/components/KhWeekSuggestion.vue"; // KH: D70
+import KhWishes from "~~/kh/app/components/KhWishes.vue"; // KH: D72
+import { shareWeek } from "~~/kh/app/composables/use-kh-share-week"; // KH: D73
+import { alert } from "~/composables/use-toast"; // KH: D70
 import { useUserMealPlanPreferences } from "~/composables/use-users/preferences";
 
 definePageMeta({
@@ -199,6 +225,8 @@ const { household, actions: householdActions } = useHouseholdSelf();
 const { shoppingLists, open: shoppingListDialog, addAllToList, addShoppingList } = useAddToShoppingListDialog();
 const khOn = useKhOn(); // KH: D46
 const calendarDialog = ref(false);
+const suggestionDialog = ref(false); // KH: D70
+const wishesPanel = ref<InstanceType<typeof KhWishes>>(); // KH: D72
 
 useSeoMeta({
   title: i18n.t("meal-plan.dinner-this-week"),
@@ -414,6 +442,16 @@ const allMeals = computed(() => plans.value.flatMap(({ meals }) => meals));
 const hasRecipes = computed(() => {
   return allMeals.value.some(meal => meal.recipe);
 });
+
+// KH: D70: after "Woche vorschlagen" planned some dinners, reload and offer the shopping list
+async function onSuggestionPlanned(count: number) {
+  await actions.refreshAll();
+  void wishesPanel.value?.reload(); // KH: D72: planning a wished recipe ended its wish
+  alert.success(i18n.t("kh.week-suggestion.planned", count), null, {
+    timeout: 10000,
+    action: khOn.value.shopping ? { onClick: addAllToList, message: i18n.t("kh.week-suggestion.to-list") } : undefined,
+  });
+}
 
 const weekRecipesWithScales = computed(() => {
   return getScaledRecipes(allMeals.value);

@@ -291,6 +291,22 @@ Im **Wochenplan** („Essen diese Woche“) steht oben rechts das Menü **⋮ �
 
 Auf der Startseite zeigen zwei Reihen über der Rezeptliste, was ihr oft kocht (mindestens zweimal in den letzten 365 Tagen) und was ihr lange nicht gekocht habt (zuletzt vor über 30 Tagen). Grundlage sind die Einträge, die „Fertig und als gekocht markieren“ im Kochmodus oder **Ich hab's gemacht** am Rezept anlegen, und die des Tagesplans. Ohne solche Einträge fehlen die Reihen.
 
+### Woche vorschlagen, Wünsche und Woche teilen
+
+Im **Wochenplan** (nur mit der Zusatzfunktion „Essensplan“) gibt es drei Helfer:
+
+- **Woche vorschlagen** zeigt für jeden Tag der angezeigten Zeit ohne Abendessen (vergangene Tage nicht) ein Gericht. Zuerst kommen Wünsche, dann abwechselnd, was ihr oft kocht und was ihr lange nicht gekocht habt, dann deine Favoriten, die noch nie gekocht wurden, dann zufällige Rezepte. Nie dabei: was in den letzten 7 Tagen gekocht wurde oder in den nächsten 14 Tagen schon geplant ist. Mit **Anderes** bekommst du ein anderes Gericht für den Tag, mit dem Haken wählst du Tage ab. **Übernehmen** legt Abendessen an und fragt, ob alles auf die Einkaufsliste soll.
+- **Wünsche:** Auf jedem Rezept steht **Wünsch ich mir** (jede Person wünscht für sich, darunter steht, wer sich das Rezept wünscht). Im Wochenplan stehen alle Wünsche des Haushalts neben dem Plan (auf dem Handy darüber, einklappbar). Wunsch antippen, Tag antippen, fertig: Das Rezept ist als Abendessen eingeplant und der Wunsch erledigt. Ein Wunsch endet auch, wenn das Rezept auf anderem Weg für heute oder später eingeplant wird.
+- **Woche teilen** schickt den angezeigten Plan als kurzen Text („Mo 24.11.: Lasagne“, ein Tag pro Zeile, mit der Adresse am Ende) ans Teilen-Menü, sonst in die Zwischenablage.
+
+### Kochmodus am iPad quer
+
+Am iPad im Querformat und am Computer (ab 1024 px Breite) zeigt der Kochmodus links die Zutaten in der gewählten Menge zum Abhaken; was der aktuelle Schritt braucht, ist hervorgehoben. Rechts steht groß der Schritt mit Timern. Am Handy und im Hochformat bleibt alles wie gewohnt.
+
+### Handy bleibt hochkant
+
+Auf dem Handy (Touch, kürzere Bildschirmseite unter 500 px) deckt ein Hinweis die App ab, solange das Handy quer liegt, auch beim Kochen. iPads und Computer sind nicht betroffen. Auf Android wird in der installierten App zusätzlich die Sperre auf hochkant angefordert.
+
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
@@ -341,6 +357,26 @@ Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei 
 Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Kochheft läuft weiter.
 
 **Kurzbefehl hinzufügen:** Kochheft bringt den fertigen Kurzbefehl „Kochheft Timer“ als iCloud-Link mit. **Mehr → Timer** zeigt dafür die Taste „Kurzbefehl hinzufügen“; ein Tipp legt ihn auf dem Gerät an. Wer lieber einen eigenen nimmt, teilt ihn (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und trägt den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` ein (nur `https://www.icloud.com/shortcuts/…`; alles andere blendet die Taste aus).
+
+### Kochheft einrichten (D68)
+
+Unter **Mehr → Kochheft einrichten** (Adresse `/aufs-handy`) führt eine Seite durch alles, was ein neues Gerät braucht. Sie erkennt iPhone, iPad, Android, Mac und andere Computer und zeigt deren Schritte; über „Gerät“ siehst du auch die Schritte der anderen. Jede Karte hat 2 bis 5 kurze Schritte und einen Haken „Erledigt“ (bleibt auf diesem Gerät):
+
+- **Kochheft auf den Home-Bildschirm oder ins Dock:** iPhone und iPad über Safari → Teilen → „Zum Home-Bildschirm“, Android über das Menü ⋮ → „App installieren“, Mac über Safari (macOS Sonoma oder neuer) Ablage → „Zum Dock hinzufügen“ oder das Installieren-Symbol in Chrome und Edge. Läuft Kochheft schon als App, gilt die Karte als erledigt.
+- **Einkaufsliste als eigenes Symbol:** „Einkaufsliste öffnen“ öffnet `/einkauf` im Browser (nicht in der installierten App), dann dieselben Schritte; auf Android hältst du das Kochheft-Symbol gedrückt und ziehst „Einkaufsliste“ heraus.
+- **Schlüssel für Kurzbefehle:** „Schlüssel für dieses Gerät erstellen“ legt einen API-Token „Kurzbefehle <Gerät> <Datum>“ an und zeigt ihn einmal mit Kopieren-Taste. Er wird nirgends gespeichert; geht das Gerät verloren, löschst du ihn unter Profil → API-Tokens. Am Mac kannst du einen eigenen Schlüssel erstellen.
+- **Rezepte aus anderen Apps importieren** und **„Hey Siri, Auf die Einkaufsliste“** (iPhone, iPad, am Mac über die iCloud-Synchronisierung der Kurzbefehle): mit `KH_IMPORT_SHORTCUT_URL` und `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env` (iCloud-Links geteilter Kurzbefehle, wie `KH_CLOCK_SHORTCUT_URL`) gibt es einen Knopf „Kurzbefehl hinzufügen“; sonst stehen die Schritte der Abschnitte oben da. Auf Android steht Kochheft direkt im Teilen-Menü; für „Auf die Einkaufsliste“ gibt es dort keinen Assistenten.
+- **Uhr-Timer** (nur iPhone und iPad): Verweis auf Mehr → Timer.
+
+Auf einem neuen Handy, iPad oder (in Safari, Chrome, Edge) Computer fragt Kochheft nach der Anmeldung einmal „Neues Gerät? Richte Kochheft hier in 2 Minuten ein“: „Ja, zeigen“ öffnet die Seite, „Später“ fragt nach 7 Tagen wieder, „Nein, danke“ nie wieder auf diesem Gerät. Die Einführung (Mehr → Einführung ansehen) endet mit einem Knopf „Jetzt einrichten“.
+
+### Neu in Kochheft (D69)
+
+Nach einem Update zeigt die Startseite einmal ein paar Karten mit den Neuerungen (Vollbild am Handy, Karte auf iPad und Computer; „Überspringen“ unten links). Wer neu angelegt wird, sieht stattdessen die Einführung. Unter **Mehr → Neuigkeiten** lassen sich alle Versionen jederzeit ansehen. Die Karten stehen in `frontend/kh/app/lib/whats-new.ts` (Texte unter `kh.news.*`); Entwickler ergänzen sie vor jedem Release mit neuen Funktionen und heben `NEWS_VERSION` in `mealie/kh/onboarding/news.py` an, ein Test prüft, dass beide übereinstimmen.
+
+### Mitteilungen (D75)
+
+Unter **Mehr → Mitteilungen** entscheidet jede Person, welche Mitteilungen sie bekommt (Web Push, keine Store-App). Der große Schalter „Mitteilungen auf diesem Gerät“ fragt nach der Erlaubnis; auf iPhone und iPad (ab 16.4) geht das nur für Kochheft auf dem Home-Bildschirm (die Seite verweist auf „Kochheft einrichten“). Sechs Schalter: **Essensplan** (jemand plant ein Gericht ein, eng aufeinanderfolgende kommen gesammelt), **Abend-Erinnerung** („Morgen: Lasagne“ zur gewählten Uhrzeit, mit „Denk ans Auftauen: …“ für Zutaten mit dem Label Fleisch, Fleischprodukte, Meeresfrüchte oder Tiefkühlware und „Am Vortag vorbereiten: …“ für Schritte mit „über Nacht“, „am Vortag“, „einweichen“, „marinieren“; nichts geplant, keine Mitteilung), **Einkaufsliste** (höchstens eine Mitteilung je Liste in 15 Minuten), **Wünsche**, **Eingang** (ein Rezept ist zum Prüfen bereit) und **Neuigkeiten** (einmal nach einem Update). Beim ersten Gerät sind Essensplan, Abend und Wünsche an. Niemand bekommt eine Mitteilung für das, was er selbst getan hat (Ausnahme „Eingang“); es gilt immer nur der eigene Haushalt. Mit „Test-Mitteilung senden“ prüfst du die Einrichtung, die Geräte-Liste erlaubt „Entfernen“. Der Server-Schlüssel (VAPID) entsteht beim ersten Gebrauch in `<Daten>/kh/vapid.json` (nur für die App lesbar, im Backup enthalten).
 
 ### Telegram-Bot einrichten
 
@@ -432,6 +468,7 @@ Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 | Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
 | KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | die eingetragenen KI-Anbieter in der Reihenfolge der Prio-Liste, z. B. Google Gemini; jeder mit eigenen Regeln (D35, D39) | KI-Anbieter in den Gruppen-Einstellungen löschen |
 | Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Kochheft, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
+| Mitteilungen (Web Push, D75) | verschlüsselte Mitteilung (Titel und Text); der Dienst sieht nur, dass eine Mitteilung an ein Gerät geht, nicht ihren Inhalt | der Push-Dienst von Apple, Google oder Mozilla, je nach Gerät | Schalter unter Mehr → Mitteilungen aus oder Gerät entfernen |
 | Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
@@ -713,6 +750,22 @@ In the **meal plan** ("Dinner this week") the menu **⋮ → "Add all to list"**
 
 On the start page two rows above the recipe list show what you cook often (at least twice in the last 365 days) and what you have not cooked for long (last cooked over 30 days ago). They come from the entries that "Done and mark as cooked" in cooking mode or **I made this** on a recipe create, and from the daily meal plan. Without such entries the rows are left out.
 
+### Suggest a week, wishes and share the week
+
+In the **meal planner** (only with the add-on "Meal planner") there are three helpers:
+
+- **Suggest a week** shows a dinner for each day of the shown range that has none yet (days in the past are skipped). Wishes come first, then what you cook often and what you have not cooked for a while, then your favorites that were never cooked, then random recipes. Never included: anything cooked in the last 7 days or already planned in the next 14. **Another** swaps the dish of one day, the tick removes a day. **Apply** creates the dinners and asks whether to put everything on the shopping list.
+- **Wishes:** every recipe has **I wish for this** (each person wishes for themselves; a line below says who wishes the recipe). The planner lists the household's wishes beside the plan (above it on a phone, collapsible). Tap a wish, tap a day, done: the recipe is planned as dinner and the wish is gone. A wish also ends when the recipe is planned some other way for today or later.
+- **Share the week** sends the shown plan as short text ("Mo 24.11.: Lasagne", one day per line, the site address at the end) to the share sheet, or to the clipboard.
+
+### Cook mode on a landscape iPad
+
+On an iPad in landscape and on a computer (1024 px wide or more) cook mode shows the ingredients at the chosen amount on the left to tick off, with the ones the current step needs highlighted, and the step with its timers big on the right. Phones and portrait stay as before.
+
+### Phones stay upright
+
+On a phone (touch, shorter screen side under 500 px) a notice covers the app while the phone is held sideways, also while cooking. iPads and computers are not affected. An installed Android app also asks the system to lock portrait.
+
 ### Share shortcut (iPhone and iPad)
 
 With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
@@ -763,6 +816,18 @@ A timer in the app rings only while the app is open. So that it rings on a locke
 Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Kochheft keeps running.
 
 **Add shortcut:** Kochheft comes with the ready-made "Kochheft Timer" shortcut as an iCloud link. **More → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
+
+### Set up Kochheft (D68)
+
+Under **More → Set up Kochheft** (address `/aufs-handy`) a page walks through everything a new device needs. It recognizes iPhone, iPad, Android, Mac and other computers and shows their steps; "Device" lets you see the steps of the others. Each card has 2 to 5 short steps and a "Done" tick (kept on this device): Kochheft on the home screen or in the Dock, the shopping list as its own icon (opens `/einkauf` in the browser), a key for shortcuts (an API token "Kurzbefehle <device> <date>", shown once and never stored; delete it under Profile → API tokens if the device is lost; on a Mac you can create your own), importing recipes from other apps and "Hey Siri, Auf die Einkaufsliste" (iPhone, iPad, and the Mac through iCloud sync of Shortcuts; with `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env` there is an "Add shortcut" button, otherwise the manual steps), and the Clock timer (iPhone and iPad). On a new phone, iPad or (in Safari, Chrome, Edge) computer, Kochheft asks once after sign-in: "Yes, show me", "Later" (asks again after 7 days) or "No, thanks" (never on this device). The introduction ends with a "Set up now" button.
+
+### What's new in Kochheft (D69)
+
+After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
+
+### Notifications (D75)
+
+Under **More → Notifications** each person chooses which push messages they get (web push, no store app). The big switch "Notifications on this device" asks for permission; on iPhone and iPad (16.4 or newer) this only works for Kochheft on the home screen. Six switches: **Meal plan**, **Evening reminder** ("Morgen: Lasagne" at the chosen time with thawing and prepare-the-day-before hints; nothing planned, no message), **Shopping list** (at most one message per list in 15 minutes), **Wishes**, **Inbox** (a recipe is ready for review) and **What's new** (once after an update). The first device switches on meal plan, evening and wishes. Nobody is told about what they did themselves (except "Inbox"), and only the own household counts. "Send test notification" checks the setup; the device list lets you remove devices. The server's VAPID key is made on first use in `<data>/kh/vapid.json` (readable by the app only, included in backups).
 
 ### Set up the Telegram bot
 
@@ -854,6 +919,7 @@ What Kochheft sends out. There is no telemetry.
 | Read a link | fetching the page and its recipe picture | the website in question | – |
 | AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | the AI providers entered, in the order of the priority list, e.g. Google Gemini; each with its own rules (D35, D39) | delete the AI provider in the group settings |
 | Share shortcut | link, text or photo, with the device's key | your Kochheft, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
+| Notifications (web push, D75) | an encrypted message (title and text); the service only sees that a message goes to a device, not its content | the push service of Apple, Google or Mozilla, depending on the device | switch off under More → Notifications or remove the device |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |

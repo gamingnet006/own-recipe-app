@@ -1,5 +1,7 @@
 """KH: the data of first sign-in, welcome and confirm-e-mail links, and the admin switch (D53)."""
 
+from pydantic import Field
+
 from mealie.schema._mealie import MealieModel
 
 
@@ -10,6 +12,7 @@ class OnboardingStatus(MealieModel):
     needs_email: bool
     pending_email: str | None = None  # address a confirm link was sent to and that is not yet confirmed
     tour: bool = False  # the first-sign-in tour is still to be shown (D59)
+    news_seen: str | None = None  # newest "Neu in Kochheft" version the person has seen, None: none yet (D69)
 
 
 class PasswordIn(MealieModel):
@@ -41,6 +44,10 @@ class AccountSettingsOut(MealieModel):
 
 class AccountSettingsIn(MealieModel):
     email_required: bool
+
+
+class NewsSeenIn(MealieModel):
+    version: str = Field(max_length=20)
 
 
 class TourIn(MealieModel):

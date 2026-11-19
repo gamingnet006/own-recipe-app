@@ -9,6 +9,8 @@ export interface KhOnboardingStatus {
   pendingEmail: string | null;
   /** The first-sign-in tour is still to be shown (D59). */
   tour: boolean;
+  /** The newest "Neu in Kochheft" version the person has seen; null: none yet (D69). */
+  newsSeen: string | null;
 }
 
 export interface KhWelcomeInfo {
@@ -56,6 +58,11 @@ export class KhOnboardingApi extends BaseAPI {
   /** The person finished or skipped the first-sign-in tour. */
   async tourDone() {
     return await this.requests.post<unknown>(`${prefix}/tour-done`, {}, OWN_ERRORS);
+  }
+
+  /** The person finished or skipped "Neu in Kochheft" up to this version. */
+  async newsSeen(version: string) {
+    return await this.requests.post<unknown>(`${prefix}/news-seen`, { version }, OWN_ERRORS);
   }
 
   /** Admin: shows or hides the first-sign-in tour of a user. */

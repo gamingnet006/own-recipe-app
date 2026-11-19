@@ -1,7 +1,7 @@
 // KH: tests for the step display text (D41, D42): amount parentheses behind ingredient names under the four
 // conditions of the spec, and the highlighted times, also inside Markdown.
 import { describe, expect, test } from "vitest";
-import { onlyStepOf, stepDisplay, stepNeeds, timeIndex, timerLabel, type KhNeed, type KhStepIngredient } from "../lib/step-text";
+import { onlyStepOf, stepDisplay, stepIngredientIds, stepNeeds, timeIndex, timerLabel, type KhNeed, type KhStepIngredient } from "../lib/step-text";
 
 const butter: KhStepIngredient = { referenceId: "b", names: ["Butter"], amount: "200 g" };
 const ref = (...ids: string[]) => ({ ingredientReferences: ids.map(referenceId => ({ referenceId })) });
@@ -187,5 +187,17 @@ describe("stepNeeds", () => {
   test("nothing without references", () => {
     expect(stepNeeds(0, ref(), needs, [ref()])).toEqual([]);
     expect(stepNeeds(0, {}, needs, [{}])).toEqual([]);
+  });
+});
+
+describe("stepIngredientIds", () => {
+  test("lists the ingredients a step references and ignores empty ids", () => {
+    const step = { ingredientReferences: [{ referenceId: "a" }, { referenceId: null }, { referenceId: "b" }] };
+    expect([...stepIngredientIds(step)]).toEqual(["a", "b"]);
+  });
+
+  test("a step without references or no step uses none", () => {
+    expect(stepIngredientIds({}).size).toBe(0);
+    expect(stepIngredientIds(undefined).size).toBe(0);
   });
 });

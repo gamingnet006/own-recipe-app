@@ -19,6 +19,7 @@ from mealie.kh.accounts.models import KhAccountLink
 from mealie.kh.features.settings import get_kh_settings
 from mealie.kh.onboarding.mails import send_account_mail
 from mealie.kh.onboarding.models import KhAccountSettings, KhAccountToken, KhUserOnboarding
+from mealie.kh.onboarding.news import NEWS_VERSION
 from mealie.kh.onboarding.schemas import OnboardingStatus, WelcomeInfo
 
 logger = get_logger()
@@ -65,7 +66,9 @@ def _row_for(session: Session, user_id: UUID4) -> KhUserOnboarding:
 
 def mark_new_user(session: Session, user_id: UUID4) -> None:
     """Makes the person choose their own password at the first sign-in."""
-    _row_for(session, user_id).must_change_password = True
+    row = _row_for(session, user_id)
+    row.must_change_password = True
+    row.news_seen = NEWS_VERSION  # the tour introduces a new person, the news are for those who knew the app (D69)
     session.commit()
 
 
@@ -131,6 +134,7 @@ def status_of(session: Session, user: User) -> OnboardingStatus:
         needs_email=needs_email,
         pending_email=pending,
         tour=bool(row and row.tour),
+        news_seen=row.news_seen if row else None,
     )
 
 
@@ -237,6 +241,12 @@ def set_tour(session: Session, user_id: UUID4, tour: bool) -> None:
     if session.get(User, user_id) is None:
         raise _fail(status.HTTP_404_NOT_FOUND, "User not found")
     _row_for(session, user_id).tour = tour
+    session.commit()
+
+
+def set_news_seen(session: Session, user_id: UUID4, version: str) -> None:
+    """Remembers the newest "Neu in Kochheft" version the person has seen (D69). Commits."""
+    _row_for(session, user_id).news_seen = version
     session.commit()
 
 

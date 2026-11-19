@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import HTTPException, status
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from mealie.core.root_logger import get_logger
@@ -35,6 +35,10 @@ class KhSettings(BaseSettings):
 
     # Ready-made iOS Shortcut for the Clock timer (D42), an iCloud share link; empty keeps our own, anything else unset
     clock_shortcut_url: str | None = DEFAULT_CLOCK_SHORTCUT_URL
+    # Ready-made iOS Shortcuts for the share-sheet import and "Hey Siri, Auf die Einkaufsliste" (D68), iCloud share
+    # links shown on the setup page; none: the page shows the manual steps instead
+    import_shortcut_url: str | None = None
+    siri_shortcut_url: str | None = None
 
     # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
     draft_max_images: int = 5
@@ -90,6 +94,15 @@ class KhSettings(BaseSettings):
             return DEFAULT_CLOCK_SHORTCUT_URL
         if value is not None and not CLOCK_SHORTCUT_URL.fullmatch(value):
             logger.warning("KH_CLOCK_SHORTCUT_URL is not an iCloud Shortcuts link, ignored")
+            return None
+        return value
+
+    @field_validator("import_shortcut_url", "siri_shortcut_url")
+    @classmethod
+    def only_icloud_links_or_none(cls, value: str | None, info: ValidationInfo) -> str | None:
+        """Same rule as the Clock link, but unset stays unset."""
+        if value is not None and not CLOCK_SHORTCUT_URL.fullmatch(value):
+            logger.warning(f"KH_{str(info.field_name).upper()} is not an iCloud Shortcuts link, ignored")
             return None
         return value
 

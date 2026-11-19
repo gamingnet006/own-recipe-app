@@ -4,6 +4,7 @@ from functools import cached_property
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import UUID4
 
+from mealie.kh.notifications.events import item_names_by_list, notify_items_added  # KH: push to the household (D75)
 from mealie.routes._base.base_controllers import BaseCrudController
 from mealie.routes._base.controller import controller
 from mealie.routes._base.mixins import HttpRepo
@@ -122,6 +123,9 @@ class ShoppingListItemController(BaseCrudController):
     def create_many(self, data: list[ShoppingListItemCreate]):
         items = self.service.bulk_create_items(data)
         publish_list_item_events(self.publish_event, items)
+        # KH: tell the household's other people what was put on the list (D75)
+        for list_id, names in item_names_by_list(items.created_items).items():
+            notify_items_added(self.user.id, self.household_id, list_id, names)
         return items
 
     @item_router.post("", response_model=ShoppingListItemsCollectionOut, status_code=201)

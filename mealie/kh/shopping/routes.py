@@ -4,6 +4,7 @@ write down an item, and only ever make a food or one of four standard units."""
 
 from fastapi import HTTPException, status
 
+from mealie.kh.notifications.events import notify_items_added
 from mealie.kh.shopping.on_hand import set_on_hand
 from mealie.kh.shopping.schemas import AddByVoiceIn, AddByVoiceOut, EnsureFoodIn, EnsureUnitIn, OnHandIn
 from mealie.kh.shopping.service import ensure_food, ensure_unit
@@ -53,6 +54,7 @@ class KhShoppingController(BaseUserController):
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("Ich habe keinen Artikel verstanden.")
             ) from None
+        notify_items_added(self.user.id, self.household_id, shopping_list.id, names)  # D75
         return AddByVoiceOut(message=spoken_confirmation(names, shopping_list.name or "Einkaufsliste"))
 
     @router.post("/on-hand", response_model=IngredientFoodOut)

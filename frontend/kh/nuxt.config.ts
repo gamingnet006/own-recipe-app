@@ -33,5 +33,6 @@ export default defineNuxtConfig({
     ],
   },
   // The last recipes and their photos stay available offline (D42); merged into Mealie's workbox settings
-  pwa: { workbox: { runtimeCaching: offlineCaching(), globIgnores: ["**/vosk-*.js"] } },
+  // and the push messages of "Mitteilungen" are handled by public/kh-push.js (D75)
+  pwa: { workbox: { runtimeCaching: offlineCaching(), globIgnores: ["**/vosk-*.js"], importScripts: ["/kh-push.js"] } },
 });

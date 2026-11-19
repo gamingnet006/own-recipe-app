@@ -260,6 +260,37 @@
       "often": "Oft gekocht",
       "long-ago": "Lange nicht gekocht"
     },
+    "portrait": {
+      "message": "Bitte dreh dein Handy hochkant."
+    },
+    "wishes": {
+      "button": "Wünsch ich mir",
+      "you": "Du",
+      "and": "und",
+      "line-self": "Du wünschst dir das",
+      "line-one": "{names} wünscht sich das",
+      "line-many": "{names} wünschen sich das",
+      "title": "Wünsche",
+      "no-day": "Kein Tag mehr in dieser Woche.",
+      "planned": "{name} ist eingeplant"
+    },
+    "week-share": {
+      "button": "Woche teilen",
+      "title": "Essen diese Woche",
+      "empty": "In dieser Zeit ist noch nichts geplant."
+    },
+    "week-suggestion": {
+      "button": "Woche vorschlagen",
+      "title": "Woche vorschlagen",
+      "loading": "Suche Ideen …",
+      "none": "Für diese Tage ist schon alles geplant.",
+      "take": "Einplanen",
+      "other": "Anderes",
+      "apply": "Übernehmen",
+      "no-more": "Keine weiteren Vorschläge.",
+      "planned": "{count} Gericht eingeplant – jetzt alles auf die Einkaufsliste? | {count} Gerichte eingeplant – jetzt alles auf die Einkaufsliste?",
+      "to-list": "Zur Einkaufsliste"
+    },
     "cook": {
       "step-of": "Schritt {n} von {total}",
       "step": "Schritt {n}",
@@ -687,15 +718,23 @@
         },
         "intake": {
           "title": "Eingang",
-          "text": "Schick einen Link, ein Foto oder einen Text. Du prüfst das Ergebnis und übernimmst es."
+          "text": "Schick einen Link, ein Foto, einen Text oder eine Datei, auch aus dem Teilen-Menü anderer Apps. Du prüfst das Ergebnis und übernimmst es."
         },
         "shopping": {
           "title": "Einkaufsliste",
-          "text": "Setz die Zutaten eines Rezepts auf die Liste und teile sie mit anderen Apps."
+          "text": "Kacheln je Laden, mit Details, auch ohne Netz. Mit Siri kommen Artikel per Stimme auf die Liste."
         },
         "cook": {
           "title": "Kochmodus",
           "text": "Du kochst Schritt für Schritt, mit Timern. Am Ende markierst du das Rezept als gekocht."
+        },
+        "share": {
+          "title": "Teilen",
+          "text": "Rezepte teilst du „Als Text“, ein ganzes Kochbuch als Dateien."
+        },
+        "phone": {
+          "title": "Kochheft einrichten",
+          "text": "Symbol auf dem Home-Bildschirm oder im Dock, Einkaufsliste als eigenes Symbol, Kurzbefehle: in 2 Minuten erledigt."
         },
         "more": {
           "title": "Mehr",
@@ -760,6 +799,250 @@
       "run": "Exportieren",
       "failed": "Nicht exportiert: {names}",
       "done": "Fertig, die ZIP-Datei wurde gespeichert."
+    },
+    "setup": {
+      "title": "Kochheft einrichten",
+      "intro": "In ein paar Minuten ist Kochheft auf diesem Gerät bequem erreichbar. Hake ab, was du erledigt hast.",
+      "device": "Gerät",
+      "device-hint": "Anderes Gerät? Wähl es hier, dann siehst du dessen Schritte.",
+      "this-device": "dieses Gerät",
+      "start": "Jetzt einrichten",
+      "done": "Erledigt",
+      "add-shortcut": "Kurzbefehl hinzufügen",
+      "asks-for": "Beim Hinzufügen fragt das iPhone nach der Adresse und dem Schlüssel. Die Adresse:",
+      "address": "Adresse von Kochheft",
+      "devices": {
+        "iphone": "iPhone",
+        "ipad": "iPad",
+        "android": "Android",
+        "mac": "Mac",
+        "computer": "Windows oder anderer Computer"
+      },
+      "prompt": {
+        "title": "Neues Gerät?",
+        "text-phone": "Richte Kochheft hier in 2 Minuten ein: Symbol auf dem Home-Bildschirm, Einkaufsliste, Kurzbefehle.",
+        "text-computer": "Richte Kochheft hier in 2 Minuten ein: Symbol im Dock oder als App, Einkaufsliste, Kurzbefehle.",
+        "yes": "Ja, zeigen",
+        "later": "Später",
+        "never": "Nein, danke"
+      },
+      "home": {
+        "installed": "Du nutzt Kochheft gerade als App. Das ist schon erledigt.",
+        "ios": {
+          "title": "Kochheft auf den Home-Bildschirm",
+          "s1": "Öffne Kochheft in Safari.",
+          "s2": "Tippe auf Teilen (das Quadrat mit dem Pfeil).",
+          "s3": "Wähle „Zum Home-Bildschirm“ und tippe auf Hinzufügen."
+        },
+        "android": {
+          "title": "Kochheft auf den Startbildschirm",
+          "s1": "Öffne Kochheft in Chrome.",
+          "s2": "Tippe oben rechts auf das Menü ⋮.",
+          "s3": "Wähle „App installieren“ oder „Zum Startbildschirm“."
+        },
+        "mac": {
+          "title": "Kochheft ins Dock",
+          "s1": "Safari (macOS Sonoma oder neuer): Öffne Kochheft und wähle Ablage → „Zum Dock hinzufügen“.",
+          "s2": "Chrome oder Edge: Klick in der Adresszeile auf das Installieren-Symbol.",
+          "s3": "Bestätige mit „Hinzufügen“ oder „Installieren“. Danach startest du Kochheft wie jede andere App."
+        },
+        "computer": {
+          "title": "Kochheft als App",
+          "s1": "Öffne Kochheft in Chrome oder Edge.",
+          "s2": "Klick in der Adresszeile auf das Installieren-Symbol (oder Menü → „App installieren“).",
+          "s3": "Bestätige mit „Installieren“."
+        }
+      },
+      "list": {
+        "open": "Einkaufsliste öffnen",
+        "ios": {
+          "title": "Einkaufsliste als eigenes Symbol",
+          "s1": "Tippe auf „Einkaufsliste öffnen“. Sie öffnet sich in Safari.",
+          "s2": "Tippe auf Teilen.",
+          "s3": "Wähle „Zum Home-Bildschirm“.",
+          "s4": "Tippe auf Hinzufügen. Das Symbol öffnet gleich die Liste."
+        },
+        "android": {
+          "title": "Einkaufsliste als eigenes Symbol",
+          "s1": "Halte das Kochheft-Symbol auf dem Startbildschirm gedrückt.",
+          "s2": "Wähle „Einkaufsliste“.",
+          "s3": "Zieh den Eintrag auf den Startbildschirm."
+        },
+        "mac": {
+          "title": "Einkaufsliste ins Dock",
+          "s1": "Klick auf „Einkaufsliste öffnen“.",
+          "s2": "Safari: Ablage → „Zum Dock hinzufügen“. Chrome oder Edge: Installieren-Symbol in der Adresszeile.",
+          "s3": "Bestätige mit „Hinzufügen“ oder „Installieren“."
+        },
+        "computer": {
+          "title": "Einkaufsliste als eigene App",
+          "s1": "Klick auf „Einkaufsliste öffnen“.",
+          "s2": "Klick in der Adresszeile auf das Installieren-Symbol.",
+          "s3": "Bestätige mit „Installieren“."
+        }
+      },
+      "key": {
+        "make": "Schlüssel für dieses Gerät erstellen",
+        "copy": "Schlüssel kopieren",
+        "once": "Nur jetzt sichtbar. Geht das Handy verloren, löschst du den Schlüssel unter Profil → API-Tokens.",
+        "ios": {
+          "title": "Schlüssel für Kurzbefehle",
+          "s1": "Tippe auf „Schlüssel für dieses Gerät erstellen“.",
+          "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
+          "s3": "Füg ihn beim Hinzufügen eines Kurzbefehls ein, wenn das Gerät danach fragt."
+        },
+        "android": {
+          "title": "Schlüssel für Kurzbefehle",
+          "s1": "Tippe auf „Schlüssel für dieses Gerät erstellen“.",
+          "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
+          "s3": "Du brauchst ihn nur für Apps und Automationen, die auf Kochheft zugreifen."
+        },
+        "mac": {
+          "title": "Schlüssel für Kurzbefehle",
+          "s1": "Am Mac kannst du einen eigenen Schlüssel erstellen: Klick auf die Taste unten.",
+          "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
+          "s3": "Du kannst auch den Schlüssel vom iPhone nehmen. Ein eigener je Gerät lässt sich einzeln löschen."
+        },
+        "computer": {
+          "title": "Schlüssel für Kurzbefehle",
+          "s1": "Klick auf „Schlüssel für dieses Gerät erstellen“.",
+          "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
+          "s3": "Du brauchst ihn nur für Programme und Automationen, die auf Kochheft zugreifen."
+        }
+      },
+      "import": {
+        "with-link": "Tippe auf „Kurzbefehl hinzufügen“. Danach erscheint „In Kochheft importieren“ im Teilen-Menü von Safari, Instagram und Fotos.",
+        "ios": {
+          "title": "Rezepte aus anderen Apps importieren",
+          "s1": "Öffne die App „Kurzbefehle“, tippe auf + und schalte unter ⓘ „Im Share-Sheet anzeigen“ ein (Typen Text und URLs).",
+          "s2": "Baue den Kurzbefehl „In Kochheft importieren“ nach der Anleitung in der README (Abschnitt „Teilen per Kurzbefehl“).",
+          "s3": "Danach erscheint er im Teilen-Menü von Safari, Instagram und Fotos."
+        },
+        "mac": {
+          "title": "Rezepte aus anderen Apps importieren",
+          "s1": "Kurzbefehle vom iPhone kommen per iCloud auf den Mac: Kurzbefehle → Einstellungen → iCloud-Synchronisierung.",
+          "s2": "„In Kochheft importieren“ erscheint dann im Teilen-Menü von Safari am Mac.",
+          "s3": "Hast du ihn noch nicht, richte ihn zuerst auf dem iPhone ein."
+        },
+        "android": {
+          "title": "Rezepte aus anderen Apps importieren",
+          "s1": "Kochheft steht direkt im Teilen-Menü anderer Apps. Hier ist nichts zu tun."
+        }
+      },
+      "siri": {
+        "with-link": "Tippe auf „Kurzbefehl hinzufügen“. Danach funktioniert „Hey Siri, Auf die Einkaufsliste“.",
+        "android-note": "Der Google Assistant kann „Auf die Einkaufsliste“ nicht. Auf Android tippst du Artikel direkt in die Einkaufsliste.",
+        "ios": {
+          "title": "„Hey Siri, Auf die Einkaufsliste“",
+          "s1": "Baue den Kurzbefehl „Auf die Einkaufsliste“ in der App Kurzbefehle (Anleitung in der README).",
+          "s2": "Er braucht den Schlüssel von oben und die Adresse von Kochheft.",
+          "s3": "Sag dann „Hey Siri, Auf die Einkaufsliste“ und diktiere, was fehlt."
+        },
+        "mac": {
+          "title": "„Hey Siri, Auf die Einkaufsliste“",
+          "s1": "Der Kurzbefehl vom iPhone kommt per iCloud auf den Mac (Kurzbefehle → Einstellungen → iCloud-Synchronisierung).",
+          "s2": "Dann funktioniert „Hey Siri, Auf die Einkaufsliste“ auch am Mac."
+        }
+      },
+      "timer": {
+        "open": "Mehr öffnen",
+        "ios": {
+          "title": "Uhr-Timer",
+          "s1": "Unter Mehr → Timer schaltest du „Auf Uhr-Timer legen“ ein.",
+          "s2": "Der Timer klingelt dann auch bei gesperrtem Gerät."
+        }
+      }
+    },
+    "news": {
+      "title": "Neu in Kochheft {version}",
+      "done": "Alles klar",
+      "menu": "Neuigkeiten",
+      "v1-3": {
+        "tiles": {
+          "title": "Einkaufsliste mit Kacheln",
+          "text": "Tippe Artikel an, statt zu tippen. Jeder Laden hat seine eigene Liste, und Details wie „2 Packungen“ stehen dabei."
+        },
+        "amount": {
+          "title": "Menge tippen",
+          "text": "Schreib einfach „2 Milch“: Kochheft trennt Menge und Artikel selbst."
+        },
+        "offline": {
+          "title": "Ohne Netz und „Immer im Haus“",
+          "text": "Die Liste geht auch im Supermarkt-Funkloch. Salz, Mehl und Öl markierst du als „Immer im Haus“, sie bleiben ungehakt."
+        },
+        "siri": {
+          "title": "Hey Siri, Auf die Einkaufsliste",
+          "text": "Sag Siri, was fehlt, und es steht auf der Liste. Die Einrichtung dauert zwei Minuten."
+        },
+        "share": {
+          "title": "Rezepte teilen",
+          "text": "Teile ein Rezept „Als Text“ mit jedem Messenger, oder exportiere dein Kochbuch als Dateien."
+        },
+        "files": {
+          "title": "Dateien importieren",
+          "text": "Wirf Rezeptdateien oder ein ganzes ZIP in den Eingang. Du prüfst, bevor etwas im Kochbuch landet."
+        },
+        "week": {
+          "title": "Was koche ich diese Woche?",
+          "text": "Im Essensplan schlägt „Woche vorschlagen“ Gerichte vor, die ihr länger nicht hattet. Du wählst aus, Kochheft plant ein."
+        },
+        "wishes": {
+          "title": "Wunschliste",
+          "text": "Wünsch dir ein Rezept: Im Essensplan sieht die Familie die Wünsche und plant sie mit einem Tipp ein."
+        },
+        "weekshare": {
+          "title": "Woche teilen",
+          "text": "Schick den Wochenplan als Text an die Familie, direkt aus dem Essensplan."
+        },
+        "setup": {
+          "title": "Kochheft einrichten",
+          "text": "Symbol auf dem Home-Bildschirm, Einkaufsliste als eigenes Symbol, Kurzbefehle: Schritt für Schritt, auch am iPad und Mac."
+        },
+        "notifications": {
+          "title": "Mitteilungen",
+          "text": "Auf Wunsch meldet sich Kochheft: wenn jemand etwas einplant oder auf die Liste setzt, und abends mit dem, was morgen ansteht. Du stellst es unter Mehr ein."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Mitteilungen",
+      "this-device": "Mitteilungen auf diesem Gerät",
+      "install-first": "Auf iPhone und iPad kommen Mitteilungen nur bei Kochheft auf dem Home-Bildschirm an. Hol es zuerst dorthin.",
+      "unsupported": "Dieser Browser kann keine Mitteilungen von Kochheft zeigen.",
+      "denied": "Mitteilungen sind für Kochheft gesperrt. Erlaube sie in den Einstellungen des Geräts oder Browsers.",
+      "no-worker": "Die App ist noch nicht bereit. Lade die Seite neu und versuche es gleich noch einmal.",
+      "evening-time": "Uhrzeit",
+      "test": "Test-Mitteilung senden",
+      "test-sent": "Test-Mitteilung gesendet",
+      "test-failed": "Die Test-Mitteilung ist nirgends angekommen",
+      "devices": "Deine Geräte",
+      "remove": "Entfernen",
+      "events": {
+        "plan": {
+          "title": "Essensplan",
+          "text": "Jemand aus dem Haushalt plant ein Gericht ein."
+        },
+        "evening": {
+          "title": "Abend-Erinnerung",
+          "text": "Am Vorabend: was morgen gekocht wird, mit Hinweisen zum Auftauen und Vorbereiten."
+        },
+        "shopping": {
+          "title": "Einkaufsliste",
+          "text": "Jemand setzt Sachen auf eine Liste. Mehrere kommen gesammelt."
+        },
+        "wishes": {
+          "title": "Wünsche",
+          "text": "Jemand wünscht sich ein Rezept."
+        },
+        "intake": {
+          "title": "Eingang",
+          "text": "Ein Rezept ist zum Prüfen bereit."
+        },
+        "news": {
+          "title": "Neuigkeiten",
+          "text": "Nach einem Update mit neuen Funktionen, einmal."
+        }
+      }
     }
   }
 }

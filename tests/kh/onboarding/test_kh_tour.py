@@ -1,11 +1,15 @@
 """KH: tests for the first-sign-in tour (D59): the admin sets it for a user, the person's own status reports it, and
-finishing or skipping clears it. Only the admin may set it."""
+finishing or skipping clears it. Only the admin may set it. Also "Neu in Kochheft" (D69): which version a person has
+seen, and that a new person starts with the newest one as seen."""
 
+import re
 from collections.abc import Callable, Generator
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from mealie.kh.onboarding.news import NEWS_VERSION
 from tests import utils
 from tests.utils import api_routes
 from tests.utils.fixture_schemas import TestUser
@@ -86,3 +90,35 @@ def test_unknown_user_is_404(api_client: TestClient, admin_token):
 def test_tour_done_without_a_tour_is_harmless(api_client: TestClient, unique_user: TestUser):
     assert api_client.post(DONE, headers=unique_user.token).status_code == 200
     assert api_client.post(DONE).status_code == 401
+
+
+NEWS_SEEN = "/api/kh/onboarding/news-seen"
+WHATS_NEW_TS = Path(__file__).parents[3] / "frontend/kh/app/lib/whats-new.ts"
+
+
+def test_the_backend_knows_the_newest_news_version_the_frontend_lists_first():
+    """Both lists must agree, or a new person would see news for a version the tour already covers (or none)."""
+    first = re.search(r'version:\s*"([^"]+)"', WHATS_NEW_TS.read_text())
+    assert first and first.group(1) == NEWS_VERSION
+
+
+def test_news_seen_starts_empty_and_is_saved(api_client: TestClient, unique_user: TestUser):
+    assert api_client.get(ME, headers=unique_user.token).json()["newsSeen"] is None
+    assert api_client.post(NEWS_SEEN, json={"version": "1.3"}, headers=unique_user.token).status_code == 200
+    assert api_client.get(ME, headers=unique_user.token).json()["newsSeen"] == "1.3"
+
+
+def test_news_seen_is_per_person_and_needs_a_sign_in(api_client: TestClient, unique_user: TestUser, make_user):
+    other = make_user()
+    api_client.post(NEWS_SEEN, json={"version": "0.5"}, headers=unique_user.token)
+    assert api_client.get(ME, headers=other["headers"]).json()["newsSeen"] == NEWS_VERSION
+    api_client.cookies.clear()  # the sign-in of make_user also set a session cookie
+    assert api_client.post(NEWS_SEEN, json={"version": "1.3"}).status_code == 401
+
+
+def test_news_seen_refuses_an_overlong_version(api_client: TestClient, unique_user: TestUser):
+    assert api_client.post(NEWS_SEEN, json={"version": "1" * 21}, headers=unique_user.token).status_code == 422
+
+
+def test_an_admin_created_user_has_the_newest_news_as_seen(api_client: TestClient, make_user):
+    assert api_client.get(ME, headers=make_user()["headers"]).json()["newsSeen"] == NEWS_VERSION

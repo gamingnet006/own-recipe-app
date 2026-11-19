@@ -79,6 +79,7 @@ class AlchemyExporter(BaseService):
         "approved_at",  # KH: kh_drafts (phase 2)
         "paused_until",  # KH: kh_ai_provider_state (D39)
         "until",  # KH: kh_notices (D39)
+        "last_ok_at",  # KH: kh_push_subscriptions (D75)
         "last_read_at",  # KH: kh_notice_reads (D39)
     }
     """Column names restored back into datetimes. Anything stored as a `NaiveDateTime` and missing
@@ -93,7 +94,9 @@ class AlchemyExporter(BaseService):
         "allergens",
         "flags",
         "hidden",
-    }  # KH: kh_drafts, kh_cookbook_print, kh_user_allergies, kh_household_addons, kh_user_navigation (D58)
+        "toggles",
+    }  # KH: kh_drafts, kh_cookbook_print, kh_user_allergies, kh_household_addons, kh_user_navigation (D58),
+    # kh_notification_settings (D75)
     """KH: JSON columns, restored as they were saved. Mealie's own tables have none, and walking into one
     breaks the restore; `test_every_json_column_is_restored_as_saved` guards against forgetting one."""
     look_for_time = {"scheduled_time"}

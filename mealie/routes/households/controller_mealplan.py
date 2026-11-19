@@ -6,6 +6,7 @@ from dateutil.tz import tzlocal
 from fastapi import APIRouter, Depends
 
 from mealie.core.exceptions import mealie_registered_exceptions
+from mealie.kh.notifications.events import notify_plan_created  # KH: push to the household (D75)
 from mealie.repos.all_repositories import get_repositories
 from mealie.repos.repository_meals import RepositoryMeals
 from mealie.routes._base import controller
@@ -135,6 +136,10 @@ class GroupMealplanController(BaseCrudController):
         self._require_group_recipe(data.recipe_id)
         data = mapper.cast(data, PlanEntrySave, group_id=self.group_id, user_id=self.user.id)
         result = self.mixins.create_one(data)
+        # KH: tell the household's other people (D75)
+        notify_plan_created(
+            self.user.id, self.household_id, result.recipe.name if result.recipe else result.title, data.date
+        )
 
         self.publish_event(
             event_type=EventTypes.mealplan_entry_created,

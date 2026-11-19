@@ -18,6 +18,8 @@ class KhFeatures(MealieModel):
     media: bool  # own audio and video files are accepted, because a Whisper server is set (P7.3)
     profile: str  # leicht, normal, stark or lokal (P7.4)
     clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
+    import_shortcut_url: str | None  # ready-made share-sheet import shortcut, None while not configured (D68)
+    siri_shortcut_url: str | None  # ready-made "Auf die Einkaufsliste" Siri shortcut, None while not configured (D68)
     email_ready: bool  # Mealie can send mail, so reset and welcome links work (D53)
     draft_max_text: int  # longest recipe text one draft takes; a text shared into the app is cut here (D57)
 
@@ -33,6 +35,8 @@ def get_features() -> KhFeatures:
         media=bool(settings.whisper_url),
         profile=settings.profile,
         clock_shortcut_url=settings.clock_shortcut_url,
+        import_shortcut_url=settings.import_shortcut_url,
+        siri_shortcut_url=settings.siri_shortcut_url,
         email_ready=get_app_settings().SMTP_ENABLE,
         draft_max_text=settings.draft_max_text,
     )

@@ -96,6 +96,9 @@ import {
   mdiMagnify,
   mdiMenu,
   mdiMicrophone, // KH: choosing an own recording for the intake (P7.3)
+  mdiCellphone, // KH: the setup page (D68)
+  mdiKeyVariant, // KH: the key for shortcuts (D68)
+  mdiOpenInNew, // KH: opens the shopping list outside the installed app (D68)
   mdiMinus,
   mdiMinusCircle,
   mdiNewBox,
@@ -241,6 +244,9 @@ export const icons = {
   manageData: mdiTableEdit,
   menu: mdiMenu,
   microphone: mdiMicrophone, // KH: P7.3
+  cellphone: mdiCellphone, // KH: D68
+  keyVariant: mdiKeyVariant, // KH: D68
+  openInNew: mdiOpenInNew, // KH: D68
   minusCircle: mdiMinusCircle,
   newBox: mdiNewBox,
   orderAlphabeticalAscending: mdiOrderAlphabeticalAscending,

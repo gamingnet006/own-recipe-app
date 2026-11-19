@@ -26,6 +26,7 @@ from mealie.kh.drafts.text_format import parse_kochheft_text
 from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import WhisperError, media_path, transcribe
 from mealie.kh.features.settings import get_kh_settings
+from mealie.kh.notifications.events import notify_draft_ready
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
 from mealie.repos.all_repositories import get_repositories
@@ -188,6 +189,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdO
             ai_model=ai_model,
             warnings=[warning.model_dump(mode="json", by_alias=True) for warning in warnings],
         )
+        notify_draft_ready(draft.household_id, recipe.name or "")  # D75: the household's people who asked for it
 
 
 async def recognize_all(

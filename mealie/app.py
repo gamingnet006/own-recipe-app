@@ -22,6 +22,7 @@ from mealie.core.root_logger import get_logger
 from mealie.core.settings import branding
 from mealie.core.settings.static import APP_VERSION
 from mealie.kh.drafts.files import sweep_orphans  # KH: daily cleanup of draft files (phase 2)
+from mealie.kh.notifications.tasks import run_notifications  # KH: push messages that wait or are due (D75)
 from mealie.middleware.body_size_limit import BodySizeLimitMiddleware
 from mealie.middleware.locale_context import LocaleContextMiddleware
 from mealie.routes import router, spa, utility_routes
@@ -145,6 +146,7 @@ async def start_scheduler():
 
     SchedulerRegistry.register_minutely(
         tasks.post_group_webhooks,
+        run_notifications,  # KH: (every 5 min) bundled and evening push messages, news once (D75)
     )
 
     SchedulerRegistry.register_hourly(

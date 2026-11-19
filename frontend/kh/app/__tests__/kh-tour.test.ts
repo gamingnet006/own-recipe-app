@@ -6,17 +6,23 @@ import { shouldShowTour, TOUR_STEPS, tourSteps } from "../lib/tour";
 import khTexts from "../../lang/en-US.json";
 import khTextsDe from "../../lang/de-DE.json";
 
-const open = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: true };
+const open = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: true, newsSeen: null };
 
 describe("tourSteps", () => {
-  test("has the six steps in order", () => {
-    expect(tourSteps(DEFAULT_ADDONS).map(step => step.key)).toEqual(["welcome", "recipes", "intake", "shopping", "cook", "more"]);
+  test("has the eight steps in order", () => {
+    expect(tourSteps(DEFAULT_ADDONS).map(step => step.key)).toEqual(
+      ["welcome", "recipes", "intake", "shopping", "cook", "share", "phone", "more"],
+    );
   });
 
   test("leaves out the shopping list while its add-on is off", () => {
     const keys = tourSteps({ ...DEFAULT_ADDONS, shopping: false }).map(step => step.key);
-    expect(keys).toEqual(["welcome", "recipes", "intake", "cook", "more"]);
+    expect(keys).toEqual(["welcome", "recipes", "intake", "cook", "share", "phone", "more"]);
   });
+});
+
+test("only the phone step has a button, and it leads to the setup page", () => {
+  expect(TOUR_STEPS.filter(step => step.action).map(step => [step.key, step.action])).toEqual([["phone", "setup"]]);
 });
 
 describe("shouldShowTour", () => {
