@@ -6,6 +6,7 @@ from collections.abc import Generator
 import pytest
 from fastapi.testclient import TestClient
 
+from mealie.core.config import get_app_settings
 from mealie.kh.features.settings import DEFAULT_CLOCK_SHORTCUT_URL, KhSettings, get_kh_settings
 from mealie.routes import spa
 from tests.utils import api_routes
@@ -53,7 +54,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
             "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
-            "emailReady": False,
+            "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
             "media": False,
             "profile": "leicht",
