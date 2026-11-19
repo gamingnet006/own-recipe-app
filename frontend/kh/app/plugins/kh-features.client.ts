@@ -13,6 +13,7 @@ export interface KhFeatures {
   profile: string; // leicht, normal, stark or lokal (P7.4)
   emailReady: boolean; // mail sending is set up, so reset links and verification mails work (D53)
   draftMaxText: number; // longest recipe text one draft takes; a text shared into the app is cut here (D57)
+  baseUrl: string | null; // Mealie's BASE_URL, null while it is still the default (D83)
 }
 
 // A slow server must not hold the whole app start: without an answer the hidden parts stay hidden.
@@ -29,6 +30,7 @@ const ALL_HIDDEN: KhFeatures = {
   profile: "leicht",
   emailReady: false,
   draftMaxText: 20000,
+  baseUrl: null,
 };
 
 export default defineNuxtPlugin({

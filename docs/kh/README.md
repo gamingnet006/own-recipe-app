@@ -339,7 +339,7 @@ Mit einem Kurzbefehl sagst du Siri, was auf die Einkaufsliste soll, zum Beispiel
 3. **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/shopping/add`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Schlüssel, Anfragetext **JSON** mit dem Feld `text` (Text) = Antwort auf die Frage.
 4. **Wert für Schlüssel abrufen** mit `message` aus dem Ergebnis, dann **Text sprechen**.
 
-Danach funktioniert „Hey Siri, Auf die Einkaufsliste“. Siri liest zum Beispiel vor: „Milch und Butter stehen auf der Liste Rewe.“ Mehrere Artikel trennst du mit „und“ oder einer Sprechpause (Komma). Ein Artikel, der schon offen ist, bekommt die Menge dazu; ein abgehakter kommt zurück auf die Liste. Ohne Angabe landet alles auf der Liste, die zuletzt geändert wurde. Für einen bestimmten Laden legst du einen zweiten Kurzbefehl an, etwa „Auf die Rewe-Liste“, und fügst dem JSON das Feld `list` (Text) mit dem Namen des Ladens hinzu.
+Danach funktioniert „Hey Siri, Auf die Einkaufsliste“. Siri liest zum Beispiel vor: „Milch und Butter stehen auf der Liste Rewe.“ Mehrere Artikel trennst du mit „und“ oder einer Sprechpause (Komma). Ein Artikel, der schon offen ist, bekommt die neu gesagte Menge; ein abgehakter kommt zurück auf die Liste. Ohne Angabe landet alles auf der Liste, die zuletzt geändert wurde. Für einen bestimmten Laden legst du einen zweiten Kurzbefehl an, etwa „Auf die Rewe-Liste“, und fügst dem JSON das Feld `list` (Text) mit dem Namen des Ladens hinzu.
 
 ### Uhr-Timer per Kurzbefehl (iPhone und iPad)
 
@@ -389,6 +389,12 @@ Auf **Mehr → Kochheft einrichten** gibt es „Für die Küche“: einen QR-Cod
 ### Unsere Notiz am Rezept (D82)
 
 Unter dem Kopf jedes Rezepts steht „Unsere Notiz“, eine Notiz pro Rezept und Haushalt („weniger Zucker, so mögen es die Kinder“, bis 2000 Zeichen). Alle im Haushalt sehen und ändern sie, andere Haushalte sehen sie nicht. Mit dem Stift bearbeiten, ohne Notiz gibt es „Notiz hinzufügen“. Im Kochmodus steht sie als kleines, einklappbares Banner über dem Schritt. „Als Text teilen“ schreibt sie als Zeile „Unsere Notiz: …“ vor „Quelle:“; beim Import landet sie bei den Rezeptnotizen. Beim Löschen eines Kontos geht die Notiz an die Erbin oder den Erben. Neue Tabelle `kh_recipe_notes` (Migration kh0015).
+
+### Ersteinrichtung (D83)
+
+Beim ersten Start führt Mealies Einrichtungs-Assistent durch: Konto, Grunddaten, KI, dann die Schritte von Kochheft. **Grunddaten:** Die Auswahl „Deutsche Lebensmittel, Einheiten und Abteilungen anlegen“ ist an; sie legt nur an, was es in der Gruppe noch nicht gibt, die Abteilungen entstehen mit den Lebensmitteln (sie braucht die Einkaufsliste mit Kacheln). **KI:** freiwillig, Links mit Rezeptdaten und Kochheft-Dateien gehen auch ohne. **Zusatzfunktionen:** „Nur Rezepte“, „Rezepte und Einkaufsliste“ oder „Alles mit Essensplaner“ als große Karten, darunter die einzelnen Schalter; jede Wahl gilt sofort. **Familie:** Name, Benutzername, E-Mail (freiwillig), „Mit Einführung“ (an) und „Einfache Ansicht“ (aus) je Person, „Weitere Person“ für mehr. Nach „Anlegen“ steht je Person eine Karte mit Adresse, Benutzername und vorläufigem Passwort zum Kopieren; das Passwort siehst du nur dort, beim ersten Anmelden wählt die Person ein eigenes. „Später“ überspringt den Schritt. **Prüfen:** Backup, USB-Kopie, automatische Updates, Zugang von unterwegs, Mail, KI; USB-Kopie und Zugang laufen am Rechner und zeigen nur den Befehl zum Prüfen. Ohne Mailversand gibt es keine Mails zum Zurücksetzen, Willkommens-Links und Passwörter gibst du selbst weiter. Zum Schluss führen Knöpfe zu „Dieses Gerät einrichten“ und „Mitteilungen“.
+
+Den Assistenten kannst du als Admin jederzeit unter **Mehr → Einstellungen → Einrichtungs-Assistent** wieder öffnen. Er überspringt den Kontoschritt und schreibt nur, was du änderst; vorhandene Lebensmittel und Einheiten bleiben unberührt. Für Admins gibt es dazu eine Karte in „Neu in Kochheft“.
 
 ### Konto löschen (D78)
 
@@ -818,7 +824,7 @@ With a shortcut you tell Siri what goes on the shopping list, for example "milk 
 3. **Get Contents of URL** with `https://<your-address>/api/kh/shopping/add`, method **POST**, header `Authorization` with `Bearer ` followed by the key, request body **JSON** with the field `text` (Text) = the answer.
 4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**.
 
-Then "Hey Siri, Add to the shopping list" works. Siri reads out, for example: "Milch und Butter stehen auf der Liste Rewe." (German). Separate several articles with "und" or a comma (a pause). An article that is already open gets the amount added; a ticked-off one goes back on the list. Without a name everything lands on the list changed last. For one particular store make a second shortcut, say "Add to the Rewe list", and add the field `list` (Text) with the store's name to the JSON.
+Then "Hey Siri, Add to the shopping list" works. Siri reads out, for example: "Milch und Butter stehen auf der Liste Rewe." (German). Separate several articles with "und" or a comma (a pause). An article that is already open takes the amount you say; a ticked-off one goes back on the list. Without a name everything lands on the list changed last. For one particular store make a second shortcut, say "Add to the Rewe list", and add the field `list` (Text) with the store's name to the JSON.
 
 ### Clock timer via shortcut (iPhone and iPad)
 
@@ -860,6 +866,12 @@ An add-on (off; **More → Settings → More functions → Season**): the start 
 ### Our note on a recipe (D82)
 
 Under the head of every recipe there is "Our note", one note per recipe and household ("less sugar, the kids like it so", up to 2000 characters). Everyone in the household sees and changes it, other households do not see it. Edit it with the pencil; without a note there is "Add note". In cook mode it shows as a small, collapsible banner above the step. "Share as text" writes it as a line "Unsere Notiz: …" before "Quelle:"; on import it lands in the recipe notes. When an account is deleted the note goes to the heir. New table `kh_recipe_notes` (migration kh0015).
+
+### First-time setup (D83)
+
+On first start Mealie's setup assistant walks you through: account, basic data, AI, then Kochheft's steps. **Basic data:** "Create German foods, units and departments" is on; it only creates what the group does not have yet, the departments come with the foods (the tile shopping list needs them). **AI:** optional, links with recipe data and Kochheft files work without it. **Add-ons:** "Recipes only", "Recipes and shopping list" or "Everything with meal planner" as big cards, below them the single switches; every choice applies at once. **Family:** name, username, e-mail (optional), "With introduction" (on) and "Simple view" (off) per person, "Another person" for more. After "Add" every person gets a card with address, username and temporary password to copy; you only see the password there, at the first sign-in the person chooses their own. "Later" skips the step. **Check:** backup, USB copy, automatic updates, access from outside, mail, AI; USB copy and access run on the host and only show the command to check them. Without mail sending there are no reset mails, you pass on welcome links and passwords yourself. At the end buttons lead to "Set up this device" and "Notifications".
+
+As admin you can open the assistant again any time under **More → Settings → Setup assistant**. It skips the account step and writes only what you change; existing foods and units stay untouched. Admins also get a card in "What's new".
 
 ### Delete account (D78)
 

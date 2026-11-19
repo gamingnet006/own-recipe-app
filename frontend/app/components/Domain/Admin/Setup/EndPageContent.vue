@@ -9,6 +9,7 @@
           {{ $t('admin.setup.here-are-a-few-things-to-help-you-get-started') }}
         </v-card-subtitle>
       </div>
+      <KhSetupEnd /> <!-- KH: set up this device, notifications (D83) -->
       <div
         v-for="section, idx in sections"
         :key="idx"

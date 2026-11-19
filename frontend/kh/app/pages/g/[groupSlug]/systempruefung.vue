@@ -12,15 +12,7 @@ first-start list with links. -->
     <v-alert v-if="failed" type="error" variant="tonal">
       {{ $t("kh.system.failed") }}
     </v-alert>
-    <v-list v-else-if="rows.length" rounded="lg" class="py-0 mb-6">
-      <v-list-item
-        v-for="row in rows"
-        :key="row.key"
-        :prepend-icon="icon(LIGHTS[row.state].icon)"
-        :base-color="LIGHTS[row.state].color"
-        :title="rowText($t, row)"
-      />
-    </v-list>
+    <KhSystemRows v-else-if="rows.length" :rows="rows" class="mb-6" />
     <v-progress-linear v-else indeterminate />
 
     <h2 class="text-h6 mb-2">
@@ -45,7 +37,7 @@ first-start list with links. -->
 
 <script setup lang="ts">
 import { KhSystemApi, type KhCheck } from "~~/kh/app/lib/api/system";
-import { firstStartSteps, LIGHTS, rowText } from "~~/kh/app/lib/system";
+import { firstStartSteps } from "~~/kh/app/lib/system";
 import { useRequests } from "~/composables/api/api-client";
 
 definePageMeta({
@@ -53,17 +45,12 @@ definePageMeta({
 });
 
 const i18n = useI18n();
-const { $globals, $khFeatures } = useNuxtApp();
+const { $khFeatures } = useNuxtApp();
 useSeoMeta({ title: i18n.t("kh.nav.system") });
 
 const rows = ref<KhCheck[]>([]);
 const failed = ref(false);
 const steps = firstStartSteps($khFeatures.sourceUrl);
-
-/** One of Mealie's icons by its name; empty when unknown. */
-function icon(name: string): string {
-  return ($globals.icons as Record<string, string>)[name] ?? "";
-}
 
 onMounted(async () => {
   const { data } = await new KhSystemApi(useRequests()).checks();
@@ -71,10 +58,3 @@ onMounted(async () => {
   failed.value = !data;
 });
 </script>
-
-<style scoped>
-/* Long check texts (the default account, the AI provider) wrap on a phone instead of ending in "…" */
-.v-list-item :deep(.v-list-item-title) {
-  white-space: normal;
-}
-</style>

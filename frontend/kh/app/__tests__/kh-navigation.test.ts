@@ -74,9 +74,9 @@ describe("destinations", () => {
   test("the settings follow the user's rights", () => {
     expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons"]);
     expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
-      .toEqual(["profile", "data", "addons", "admin", "households", "system"]);
-    expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
-      .toEqual(["/g/familie/haushalte", "/g/familie/systempruefung"]);
+      .toEqual(["profile", "data", "addons", "admin", "households", "system", "wizard"]);
+    expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-3))
+      .toEqual(["/g/familie/haushalte", "/g/familie/systempruefung", "/admin/setup"]);
   });
 
   test("switched-off add-ons leave the bar, the side menu and More (D46)", () => {

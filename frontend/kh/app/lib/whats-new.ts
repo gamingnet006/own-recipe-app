@@ -9,8 +9,10 @@ export interface KhNewsCard {
   key: string;
   /** The add-on that has to be on for the card to show. */
   addon?: keyof KhAddonFlags;
-  /** A button on the card; "setup" opens the setup page. */
-  action?: "setup";
+  /** Only admins see the card (D83). */
+  admin?: boolean;
+  /** A button on the card: "setup" opens the device setup page, "wizard" the first-time setup (D83). */
+  action?: "setup" | "wizard";
 }
 
 export interface KhNewsVersion {
@@ -26,6 +28,7 @@ export const WHATS_NEW: KhNewsVersion[] = [
       { icon: "foods", key: "season", addon: "season" },
       { icon: "qrCode", key: "qr", addon: "shopping", action: "setup" },
       { icon: "noteTextOutline", key: "note" },
+      { icon: "autoFix", key: "wizard", admin: true, action: "wizard" },
     ],
   },
   {
@@ -57,18 +60,22 @@ export function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-/** LIST without the cards of switched-off add-ons; a version left with no card is dropped. */
-export function forAddons(list: KhNewsVersion[], on: KhAddonFlags): KhNewsVersion[] {
+/** LIST without the cards of switched-off add-ons and, unless IS_ADMIN, the admin cards; a version left with no card is
+ * dropped. */
+export function forAddons(list: KhNewsVersion[], on: KhAddonFlags, isAdmin = false): KhNewsVersion[] {
   return list
-    .map(entry => ({ ...entry, cards: entry.cards.filter(card => !card.addon || on[card.addon]) }))
+    .map(entry => ({
+      ...entry,
+      cards: entry.cards.filter(card => (!card.addon || on[card.addon]) && (!card.admin || isAdmin)),
+    }))
     .filter(entry => entry.cards.length > 0);
 }
 
 /** What a person has not seen: the versions newer than NEWS_SEEN (null: all), at most the two newest, newest first,
- * without cards of switched-off add-ons. */
-export function unseenNews(newsSeen: string | null, list: KhNewsVersion[], on: KhAddonFlags): KhNewsVersion[] {
+ * without cards of switched-off add-ons or (for non-admins) admin cards. */
+export function unseenNews(newsSeen: string | null, list: KhNewsVersion[], on: KhAddonFlags, isAdmin = false): KhNewsVersion[] {
   const newer = list.filter(entry => newsSeen === null || compareVersions(entry.version, newsSeen) > 0);
-  return forAddons(newer, on)
+  return forAddons(newer, on, isAdmin)
     .sort((a, b) => compareVersions(b.version, a.version))
     .slice(0, 2);
 }

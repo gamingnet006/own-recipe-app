@@ -54,7 +54,7 @@ function storedAnswer() {
 }
 
 // Decided once when the start page opens, so a finished dialog does not make the next one pop up
-const news = unseenNews(khOnboarding.status?.newsSeen ?? null, WHATS_NEW, khAddons.enabled);
+const news = unseenNews(khOnboarding.status?.newsSeen ?? null, WHATS_NEW, khAddons.enabled, !!useMealieAuth().user.value?.admin);
 const chosen = startDialog({
   status: khOnboarding.status,
   signedIn: !!userId,

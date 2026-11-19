@@ -39,6 +39,14 @@ describe("unseenNews", () => {
   });
 });
 
+test("admin cards show to admins only, and a version of nothing else is dropped for the others", () => {
+  const admin: KhNewsVersion[] = [{ version: "1.4", cards: [{ icon: "autoFix", key: "wizard", admin: true }] }];
+  expect(forAddons(admin, DEFAULT_ADDONS)).toEqual([]);
+  expect(forAddons(admin, DEFAULT_ADDONS, true)).toEqual(admin);
+  expect(unseenNews(null, admin, DEFAULT_ADDONS)).toEqual([]);
+  expect(unseenNews(null, admin, DEFAULT_ADDONS, true)).toEqual(admin);
+});
+
 test("the first list entry has 3 to 12 cards and the first card names a text key", () => {
   expect(WHATS_NEW[0]!.cards.length).toBeGreaterThanOrEqual(3);
   expect(WHATS_NEW[0]!.cards.length).toBeLessThanOrEqual(12);

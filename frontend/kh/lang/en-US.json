@@ -153,7 +153,8 @@
       "week": "Week",
       "settings": "Settings",
       "help": "Help",
-      "account": "Account"
+      "account": "Account",
+      "wizard": "Setup assistant"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -534,6 +535,16 @@
         },
         "whisper": {
           "info": "Speech recognition (Whisper): {value}"
+        },
+        "mail": {
+          "ok": "Mail sending is on: reset mails and welcome links arrive by e-mail.",
+          "warn": "Mail sending is off: no password reset mails. As admin you see the welcome links and temporary passwords and pass them on."
+        },
+        "usbCopy": {
+          "info": "USB copy of the backups: runs on the host, not visible here. Check with kh/ops/backup_copy.sh status."
+        },
+        "tunnel": {
+          "info": "Access from outside: switched on at the host, not visible here. Check with kh/ops/tunnel.sh status."
         }
       },
       "start": {
@@ -563,7 +574,8 @@
         "title": "How do you want to use Kochheft?",
         "recipes": "Recipes only",
         "shopping": "Recipes and shopping list",
-        "planner": "Everything with the meal planner"
+        "planner": "Everything with the meal planner",
+        "custom": "Custom"
       },
       "areas": {
         "title": "Big areas",
@@ -1059,6 +1071,10 @@
         "note": {
           "title": "Our note on a recipe",
           "text": "Write the family's wisdom right on the recipe, for example “less sugar”."
+        },
+        "wizard": {
+          "title": "Setup assistant",
+          "text": "The first-time setup now knows Kochheft: add-ons, adding the family, a short check. You can open it again any time."
         }
       }
     },
@@ -1121,6 +1137,60 @@
       "add": "Add note",
       "edit": "Edit note",
       "placeholder": "e.g. Less sugar, the kids like it so"
+    },
+    "wizard": {
+      "open": "Open",
+      "later": "Later",
+      "seed": "Create foods, units and departments (needed for the shopping list tiles)",
+      "ai-hint": "Optional. Links with recipe data and Kochheft files work without AI. For photos, text and speech you need a provider; free keys are listed further down.",
+      "addons": {
+        "intro": "What do you need? You can change this any time under More → Add-ons.",
+        "recipes": "Collect and cook recipes, without shopping list and meal plan.",
+        "shopping": "Plus the tile shopping list, also in the shop without signal.",
+        "planner": "Plus the week plan with wishes and suggestions."
+      },
+      "family": {
+        "title": "Family",
+        "intro": "Who else cooks with you? Add the people right here. You can skip this step and do it later under Admin → Users.",
+        "name": "Name",
+        "username": "Username",
+        "email": "E-mail (optional)",
+        "remove": "Remove",
+        "more": "Another person",
+        "create": "Add | Add {n} person | Add {n} people",
+        "invite-hint": "Without mail sending each person gets a temporary password from you. Or create an invite link under Profile.",
+        "created-title": "Added",
+        "created-hint": "You only see the password now. Send the text to the person or read it out.",
+        "welcome": "Address {origin}, username {username}, temporary password {password} — at the first sign-in {name} chooses their own.",
+        "problem": {
+          "name": "Name is missing",
+          "username": "Username is missing",
+          "spaces": "No spaces, please",
+          "twice": "This username appears twice",
+          "email": "Not a valid e-mail address",
+          "taken": "Username or e-mail is already taken",
+          "failed": "Could not add the person"
+        },
+        "tour-failed": "{name} was added, but the introduction could not be switched on.",
+        "simple-failed": "{name} was added, but the simple view could not be switched on.",
+        "pending-title": "One person has not been added yet. Add now? | {n} people have not been added yet. Add now?",
+        "create-now": "Add",
+        "discard": "Discard"
+      },
+      "check": {
+        "title": "Check",
+        "intro": "The most important things at a glance. Nothing is changed here; the full list is under More → Settings → System check."
+      },
+      "summary": {
+        "addons": "Add-ons",
+        "family": "New people",
+        "nobody": "Nobody",
+        "ai": "AI provider set up"
+      },
+      "end": {
+        "device": "Set up this device",
+        "notifications": "Notifications"
+      }
     }
   }
 }

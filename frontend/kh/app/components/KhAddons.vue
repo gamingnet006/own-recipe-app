@@ -2,7 +2,7 @@
 state, only admins (canChange) can change it. Every change is stored at once. -->
 <template>
   <div>
-    <KhAddonPresets v-if="canChange" class="mb-6" />
+    <KhAddonPresets v-if="canChange && !hidePresets" class="mb-6" />
 
     <h2 class="text-h6 mb-2">
       {{ $t("kh.addons.areas.title") }}
@@ -53,7 +53,7 @@ import KhAddonPresets from "./KhAddonPresets.vue";
 import { ADDON_NAMES, type KhAddonName, rowState, type KhRowState } from "../lib/addons";
 import { khAddons, saveKhAddons } from "../composables/use-kh-addons";
 
-defineProps<{ canChange: boolean }>();
+defineProps<{ canChange: boolean; hidePresets?: boolean }>(); // the setup steps show the presets as cards (D83)
 
 const i18n = useI18n();
 const AREAS = ["shopping", "planner"] as const;

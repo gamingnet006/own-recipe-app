@@ -1,6 +1,7 @@
 // KH: the destinations of Kochheft's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
 // side menu from 840 px and the More page all read from here, so a destination is added or renamed in one place.
 import type { KhAddonFlags } from "../lib/addons";
+import { WIZARD_PATH } from "../lib/setup-wizard";
 import { khAddons } from "./use-kh-addons";
 import { khSidebar } from "./use-kh-sidebar";
 
@@ -9,7 +10,7 @@ const SHOPPING_PAGE = "/einkauf";
 const CLASSIC_SHOPPING = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "switch" | "households";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "wizard" | "switch" | "households";
 
 /** The side-menu entries a person may hide (D58), in the menu's order; the server holds the same keys
  * (mealie/kh/navigation/schemas.py). Recipes and More always stay. */
@@ -64,6 +65,7 @@ function allTargets(groupSlug: string, userId: string): Targets {
     about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
     system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
     addons: target("addons", `${group}/zusatzfunktionen`, "tools", "kh.nav.addons"),
+    wizard: target("wizard", WIZARD_PATH, "autoFix", "kh.nav.wizard"), // D83: Mealie's setup wizard, opened again
     // not a page: the settings page opens a dialog for it
     switch: target("switch", `${group}/more`, "swapHorizontal", "kh.accounts.switch"),
     households: target("households", `${group}/haushalte`, "household", "kh.nav.households"),
@@ -179,7 +181,7 @@ export function settingsTargets(
     ...(user.canOrganize ? [all.data] : []),
     all.addons,
     ...(user.linked ? [all.switch] : []),
-    ...(user.admin ? [all.admin, all.households, all.system] : []),
+    ...(user.admin ? [all.admin, all.households, all.system, all.wizard] : []),
   ];
 }
 

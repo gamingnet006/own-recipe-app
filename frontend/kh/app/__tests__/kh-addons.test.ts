@@ -195,6 +195,6 @@ test("both languages name every add-on and area", () => {
       expect(entry?.title, name).toBeTruthy();
       expect(entry?.text, name).toBeTruthy();
     }
-    expect(Object.keys(texts.kh.addons.presets)).toEqual(["title", "recipes", "shopping", "planner"]);
+    expect(Object.keys(texts.kh.addons.presets)).toEqual(["title", "recipes", "shopping", "planner", "custom"]);
   }
 });

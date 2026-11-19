@@ -22,12 +22,13 @@ class KhFeatures(MealieModel):
     siri_shortcut_url: str | None  # ready-made "Auf die Einkaufsliste" Siri shortcut, None while not configured (D68)
     email_ready: bool  # Mealie can send mail, so reset and welcome links work (D53)
     draft_max_text: int  # longest recipe text one draft takes; a text shared into the app is cut here (D57)
+    base_url: str | None  # the address Mealie's BASE_URL names, None while it is still the default (D83)
 
 
 @router.get("", response_model=KhFeatures)
 def get_features() -> KhFeatures:
     """Public, because the frontend loads it before anyone logs in; the switches hold no secrets."""
-    settings = get_kh_settings()
+    settings, app_settings = get_kh_settings(), get_app_settings()
     return KhFeatures(
         share_links=settings.share_links,
         notice_poll_minutes=settings.notice_poll_minutes,
@@ -37,6 +38,7 @@ def get_features() -> KhFeatures:
         clock_shortcut_url=settings.clock_shortcut_url,
         import_shortcut_url=settings.import_shortcut_url,
         siri_shortcut_url=settings.siri_shortcut_url,
-        email_ready=get_app_settings().SMTP_ENABLE,
+        email_ready=app_settings.SMTP_ENABLE,
         draft_max_text=settings.draft_max_text,
+        base_url=None if app_settings.is_default_base_url else app_settings.BASE_URL,
     )

@@ -19,7 +19,8 @@
       </v-toolbar>
 
       <!-- Stepper Wizard -->
-      <v-stepper v-model="currentPage" mobile-breakpoint="sm" alt-labels>
+      <!-- KH: nine steps need the short header up to 960 px (D83) -->
+      <v-stepper v-model="currentPage" mobile-breakpoint="md" alt-labels>
         <v-stepper-header>
           <v-stepper-item
             :value="Pages.LANDING"
@@ -28,8 +29,9 @@
             :color="getStepperColor(currentPage, Pages.LANDING)"
             :title="$t('general.start')"
           />
-          <v-divider />
+          <v-divider v-if="!rerun" /> <!-- KH: no account step when the wizard is opened again (D83) -->
           <v-stepper-item
+            v-if="!rerun"
             :value="Pages.USER_INFO"
             :icon="$globals.icons.user"
             :complete="currentPage > Pages.USER_INFO"
@@ -53,6 +55,17 @@
             :title="$t('group.ai-provider-settings.ai-providers')"
           />
           <v-divider />
+          <!-- KH: Kochheft's own steps (D83) -->
+          <template v-for="step in KH_STEPS" :key="step.page">
+            <v-stepper-item
+              :value="step.page"
+              :icon="$globals.icons[step.icon]"
+              :complete="currentPage > step.page"
+              :color="getStepperColor(currentPage, step.page)"
+              :title="$t(step.title)"
+            />
+            <v-divider />
+          </template>
           <v-stepper-item
             :value="Pages.CONFIRM"
             :icon="$globals.icons.chefHat"
@@ -203,6 +216,7 @@
               <v-card-subtitle class="px-0 py-2 text-wrap">
                 {{ $t('group.ai-provider-settings.ai-providers-description') }}
               </v-card-subtitle>
+              <KhSetupAiHint /> <!-- KH: AI is optional (D83) -->
               <GroupAIProviderSettingsEditor
                 v-if="group?.aiProviderSettings"
                 v-model="group.aiProviderSettings"
@@ -229,6 +243,22 @@
                 />
               </template>
             </v-stepper-actions>
+          </v-stepper-window-item>
+
+          <!-- KH: Kochheft's own steps (D83) -->
+          <v-stepper-window-item v-for="step in KH_STEPS" :key="step.page" :value="step.page">
+            <v-container max-width="880">
+              <v-card-title class="headline pa-0 mb-2">
+                {{ $t(step.title) }}
+              </v-card-title>
+              <component :is="step.component" v-if="currentPage === step.page" />
+            </v-container>
+            <KhSetupActions
+              :disabled="isSubmitting"
+              :next-text="step.page === Pages.KH_FAMILY && !khFamily.created.length ? 'kh.wizard.later' : undefined"
+              @prev="onPrev"
+              @next="onKhNext(step.page)"
+            />
           </v-stepper-window-item>
 
           <!-- CONFIRMATION -->
@@ -297,6 +327,8 @@
         </v-stepper-window>
       </v-stepper>
 
+      <KhSetupPending v-model="pendingOpen" @next="onNext" /> <!-- KH: D83 -->
+
       <!-- Dialog Language -->
       <LanguageDialog v-model="langDialog" />
     </v-card>
@@ -315,6 +347,13 @@ import { useAIProviders } from "~/composables/use-ai-providers";
 import UserRegistrationForm from "~/components/Domain/User/UserRegistrationForm.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
 import type { AIProviderCreate, AIProviderUpdate } from "~/lib/api/types/group";
+import KhSetupAddons from "~~/kh/app/components/KhSetupAddons.vue"; // KH: D83
+import KhSetupFamily from "~~/kh/app/components/KhSetupFamily.vue"; // KH: D83
+import KhSetupCheck from "~~/kh/app/components/KhSetupCheck.vue"; // KH: D83
+import { khFamily, pendingCount, resetKhFamily } from "~~/kh/app/composables/use-kh-setup-family"; // KH: D83
+import { useKhSetupSummary } from "~~/kh/app/composables/use-kh-setup-summary"; // KH: D83
+import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: D83
+import { isRerun, seedTasks } from "~~/kh/app/lib/setup-wizard"; // KH: D83
 
 definePageMeta({
   layout: "blank",
@@ -380,9 +419,26 @@ enum Pages {
   USER_INFO = 2,
   PAGE_2 = 3,
   AI_PROVIDERS = 4,
-  CONFIRM = 5,
-  END = 6,
+  KH_ADDONS = 5, // KH: Kochheft's own steps (D83)
+  KH_FAMILY = 6,
+  KH_CHECK = 7,
+  CONFIRM = 8,
+  END = 9,
 }
+
+// KH: the steps Kochheft adds between the AI providers and the summary (D83)
+const KH_STEPS = [
+  { page: Pages.KH_ADDONS, icon: "tools", title: "kh.nav.addons", component: KhSetupAddons },
+  { page: Pages.KH_FAMILY, icon: "group", title: "kh.wizard.family.title", component: KhSetupFamily },
+  { page: Pages.KH_CHECK, icon: "clipboardCheck", title: "kh.wizard.check.title", component: KhSetupCheck },
+];
+
+// KH: the wizard opened again on an install that was set up before (D83): no account step, and only the settings the
+// admin changes are written
+const rerun = isRerun(auth.user.value?.email);
+const initialPublic = ref(false);
+useKhAddonsLoader();
+onBeforeUnmount(resetKhFamily); // the temporary passwords are not kept
 
 function getStepperColor(currentPage: Pages, page: Pages) {
   if (currentPage == page) {
@@ -403,25 +459,27 @@ const commonSettings = ref({
   useSeedData: true,
 });
 
+const khSummary = useKhSetupSummary(computed(() => group.value?.aiProviderSettings?.providers.length ?? 0)); // KH: D83
+
 const confirmationData = computed(() => {
   return [
     {
-      display: true,
+      display: !rerun, // KH: no account lines when opened again (D83)
       text: i18n.t("user.email"),
       value: accountDetails.email.value,
     },
     {
-      display: true,
+      display: !rerun,
       text: i18n.t("user.username"),
       value: accountDetails.username.value,
     },
     {
-      display: true,
+      display: !rerun,
       text: i18n.t("user.full-name"),
       value: accountDetails.fullName.value,
     },
     {
-      display: true,
+      display: !rerun,
       text: i18n.t("user.enable-advanced-content"),
       value: accountDetails.advancedOptions.value ? i18n.t("general.yes") : i18n.t("general.no"),
     },
@@ -435,7 +493,18 @@ const confirmationData = computed(() => {
       text: i18n.t("user-registration.use-seed-data"),
       value: commonSettings.value.useSeedData ? i18n.t("general.yes") : i18n.t("general.no"),
     },
+    ...khSummary.value, // KH: add-ons, people, AI (D83)
   ];
+});
+
+// KH: an opened-again wizard starts with the privacy the group has now (D83)
+onMounted(async () => {
+  if (!rerun) return;
+  const { data } = await userApi.groups.getOne(auth.user.value!.groupId);
+  if (data?.preferences) {
+    initialPublic.value = !data.preferences.privateGroup;
+    commonSettings.value.makeGroupRecipesPublic = initialPublic.value;
+  }
 });
 
 // ================================================================
@@ -565,17 +634,19 @@ async function seedUnits() {
 }
 
 async function seedData() {
-  if (!commonSettings.value.useSeedData) {
-    return;
-  }
+  // KH: not what the group already has, so an install running the wizard again keeps its lists (D83). Seeding foods
+  // also creates the labels (departments) the shopping list tiles need.
+  const [foods, units] = await Promise.all([userApi.foods.getAll(1, 1), userApi.units.getAll(1, 1)]);
+  const tasks = seedTasks(commonSettings.value.useSeedData, foods.data?.total ?? 0, units.data?.total ?? 0);
 
-  await Promise.all([seedFoods(), seedUnits()]);
+  await Promise.all(tasks.map(task => (task === "foods" ? seedFoods() : seedUnits())));
 }
 
 async function submitCommonSettings() {
+  // KH: an opened-again wizard writes the privacy only when the admin changed it (D83)
+  const privacyTouched = !rerun || commonSettings.value.makeGroupRecipesPublic !== initialPublic.value;
   const tasks = [
-    updateGroup(),
-    updateHousehold(),
+    ...(privacyTouched ? [updateGroup(), updateHousehold()] : []),
     seedData(),
   ];
 
@@ -585,11 +656,12 @@ async function submitCommonSettings() {
 async function submitAll() {
   // Not part of the parallel batch: changing the password invalidates the session and establishes a
   // new one, and any request landing in that window would 401 and bounce the admin out of setup.
-  await submitRegistration();
+  if (!rerun) await submitRegistration(); // KH: the account stays as it is when the wizard is opened again (D83)
 
   const tasks = [
     submitCommonSettings(),
-    groupActions.updateAIProviderSettings(),
+    // KH: providers and their order are saved as they are made; an opened-again wizard writes nothing more (D83)
+    ...(rerun ? [] : [groupActions.updateAIProviderSettings()]),
   ];
 
   await Promise.all(tasks);
@@ -622,7 +694,7 @@ async function handleSubmit(page: number) {
 // Stepper Navigation Handlers
 function onPrev() {
   if (isSubmitting.value) return;
-  if (currentPage.value > Pages.LANDING) currentPage.value -= 1;
+  if (currentPage.value > Pages.LANDING) currentPage.value -= rerun && currentPage.value === Pages.PAGE_2 ? 2 : 1; // KH: D83
 }
 
 async function onNext() {
@@ -635,7 +707,14 @@ async function onNext() {
     await handleSubmit(Pages.CONFIRM);
     return;
   }
-  currentPage.value += 1;
+  currentPage.value += rerun && currentPage.value === Pages.LANDING ? 2 : 1; // KH: skips the account step (D83)
+}
+
+// KH: typed but not created people are asked about before the wizard moves on (D83)
+const pendingOpen = ref(false);
+async function onKhNext(page: Pages) {
+  if (page === Pages.KH_FAMILY && pendingCount() > 0) pendingOpen.value = true;
+  else await onNext();
 }
 
 async function onFinish() {

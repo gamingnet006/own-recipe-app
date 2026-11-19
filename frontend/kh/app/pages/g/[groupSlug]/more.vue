@@ -145,7 +145,7 @@ const languageDialog = ref(false);
 const deleteOpen = ref(false);
 const tourOpen = ref(false); // shown again any time, without a call to the server (D59)
 const newsOpen = ref(false); // all versions any time, without a call to the server (D69)
-const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled));
+const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled, !!auth.user.value?.admin));
 
 const lists = computed(() => moreSections(route.params.groupSlug as string, auth.user.value?.id ?? ""));
 const layout = computed(() => moreLayout(khSidebar.simple));

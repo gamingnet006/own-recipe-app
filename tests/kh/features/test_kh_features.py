@@ -58,6 +58,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "siriShortcutUrl": None,
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
+            "baseUrl": None if get_app_settings().is_default_base_url else get_app_settings().BASE_URL,
             "media": False,
             "profile": "leicht",
         }
@@ -142,6 +143,13 @@ def test_clock_shortcut_url_drops_anything_else_and_warns(
         assert KhSettings().clock_shortcut_url is None
     assert "KH_CLOCK_SHORTCUT_URL" in caplog.text
     assert url not in caplog.text
+
+
+def test_features_name_the_base_url_only_when_it_is_set(api_client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(get_app_settings(), "BASE_URL", "https://kochen.example.com")
+    assert api_client.get("/api/kh/features").json()["baseUrl"] == "https://kochen.example.com"
+    monkeypatch.setattr(get_app_settings(), "BASE_URL", "http://localhost:8080")
+    assert api_client.get("/api/kh/features").json()["baseUrl"] is None
 
 
 def test_features_report_the_shortcut_url(api_client: TestClient, monkeypatch: pytest.MonkeyPatch):

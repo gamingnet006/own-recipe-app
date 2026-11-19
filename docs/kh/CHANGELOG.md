@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.4] - 2026-11-19
+
 - Simple view (D79): per person (More > Account, or the admin on the user page) larger text, a short bar and side menu
   (Recipes, Shopping list, Week, More), no filters on the start page, More with Show more; new column `simple`
   (migration kh0014), `PUT /api/kh/admin/navigation/{user_id}`.
@@ -16,6 +18,10 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Our note on a recipe (D82): one note per recipe and household under the recipe head and in cook mode, in the text
   export ("Unsere Notiz:") and the import; new table `kh_recipe_notes` (migration kh0015); handed to the heir on
   account deletion. The 1.4 news has four cards.
+- First-time setup knows Kochheft (D83): three new steps (add-ons as big preset cards, family with temporary
+  passwords, a compact system check), German seed data only where the group has none, a summary of the Kochheft
+  choices, buttons for the device setup and notifications on the last page; More > Settings > Setup assistant (admins)
+  opens it again without touching what is set. News cards can be for admins only (`admin: true`).
 
 ## [v1.3] - 2026-11-19
 

@@ -16,7 +16,7 @@ export const useCommonSettingsForm = () => {
     },
     {
       section: i18n.t("data-pages.data-management"),
-      label: i18n.t("user-registration.use-seed-data"),
+      label: i18n.t("kh.wizard.seed"), // KH: names the departments and the shopping list tiles (D83)
       hint: i18n.t("user-registration.use-seed-data-description"),
       varName: "useSeedData",
       type: fieldTypes.BOOLEAN,

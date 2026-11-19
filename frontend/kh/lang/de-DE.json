@@ -153,7 +153,8 @@
       "week": "Woche",
       "settings": "Einstellungen",
       "help": "Hilfe",
-      "account": "Konto"
+      "account": "Konto",
+      "wizard": "Einrichtungs-Assistent"
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -534,6 +535,16 @@
         },
         "whisper": {
           "info": "Spracherkennung (Whisper): {value}"
+        },
+        "mail": {
+          "ok": "Mailversand ist an: Mails zum Zurücksetzen und Willkommens-Links kommen per E-Mail.",
+          "warn": "Mailversand ist aus: keine Mails zum Zurücksetzen des Passworts. Willkommens-Links und vorläufige Passwörter siehst du als Admin und gibst sie weiter."
+        },
+        "usbCopy": {
+          "info": "USB-Kopie der Backups: läuft am Rechner, hier nicht sichtbar. Prüfen mit kh/ops/backup_copy.sh status."
+        },
+        "tunnel": {
+          "info": "Zugang von unterwegs: wird am Rechner eingeschaltet, hier nicht sichtbar. Prüfen mit kh/ops/tunnel.sh status."
         }
       },
       "start": {
@@ -563,7 +574,8 @@
         "title": "Wie wollt ihr Kochheft nutzen?",
         "recipes": "Nur Rezepte",
         "shopping": "Rezepte und Einkaufsliste",
-        "planner": "Alles mit Essensplaner"
+        "planner": "Alles mit Essensplaner",
+        "custom": "Angepasst"
       },
       "areas": {
         "title": "Große Bereiche",
@@ -1059,6 +1071,10 @@
         "note": {
           "title": "Unsere Notiz am Rezept",
           "text": "Schreib die Familienweisheit direkt an das Rezept, zum Beispiel „weniger Zucker“."
+        },
+        "wizard": {
+          "title": "Einrichtungs-Assistent",
+          "text": "Die erste Einrichtung kennt jetzt Kochheft: Zusatzfunktionen, Familie anlegen, kurze Prüfung. Du kannst sie jederzeit wieder öffnen."
         }
       }
     },
@@ -1121,6 +1137,60 @@
       "add": "Notiz hinzufügen",
       "edit": "Notiz bearbeiten",
       "placeholder": "z. B. Weniger Zucker, so mögen es die Kinder"
+    },
+    "wizard": {
+      "open": "Öffnen",
+      "later": "Später",
+      "seed": "Deutsche Lebensmittel, Einheiten und Abteilungen anlegen (nötig für die Kacheln der Einkaufsliste)",
+      "ai-hint": "Freiwillig. Links mit Rezeptdaten und Kochheft-Dateien gehen auch ohne KI. Für Fotos, Text und Sprache brauchst du einen Anbieter; kostenlose Schlüssel stehen weiter unten.",
+      "addons": {
+        "intro": "Was braucht ihr? Das lässt sich jederzeit unter Mehr → Zusatzfunktionen ändern.",
+        "recipes": "Rezepte sammeln und kochen, ohne Einkaufsliste und Essensplan.",
+        "shopping": "Dazu die Einkaufsliste mit Kacheln, auch im Laden ohne Netz.",
+        "planner": "Dazu der Wochenplan mit Wünschen und Vorschlägen."
+      },
+      "family": {
+        "title": "Familie",
+        "intro": "Wer kocht noch mit? Lege die Personen gleich an. Du kannst den Schritt auch überspringen und es später unter Verwaltung → Benutzer tun.",
+        "name": "Name",
+        "username": "Benutzername",
+        "email": "E-Mail (freiwillig)",
+        "remove": "Entfernen",
+        "more": "Weitere Person",
+        "create": "Anlegen | {n} Person anlegen | {n} Personen anlegen",
+        "invite-hint": "Ohne Mailversand bekommt jede Person von dir ein vorläufiges Passwort. Alternativ erzeugst du einen Einladungslink unter Profil.",
+        "created-title": "Angelegt",
+        "created-hint": "Das Passwort siehst du nur jetzt. Schick den Text der Person oder lies ihn vor.",
+        "welcome": "Adresse {origin}, Benutzername {username}, vorläufiges Passwort {password} — beim ersten Anmelden wählt {name} ein eigenes.",
+        "problem": {
+          "name": "Name fehlt",
+          "username": "Benutzername fehlt",
+          "spaces": "Ohne Leerzeichen",
+          "twice": "Benutzername kommt doppelt vor",
+          "email": "Keine gültige E-Mail-Adresse",
+          "taken": "Benutzername oder E-Mail ist schon vergeben",
+          "failed": "Anlegen hat nicht geklappt"
+        },
+        "tour-failed": "{name} ist angelegt, aber die Einführung konnte nicht eingeschaltet werden.",
+        "simple-failed": "{name} ist angelegt, aber die Einfache Ansicht konnte nicht eingeschaltet werden.",
+        "pending-title": "Eine Person ist noch nicht angelegt. Jetzt anlegen? | {n} Personen sind noch nicht angelegt. Jetzt anlegen?",
+        "create-now": "Anlegen",
+        "discard": "Verwerfen"
+      },
+      "check": {
+        "title": "Prüfen",
+        "intro": "Das Wichtigste auf einen Blick. Hier wird nichts geändert; die ganze Liste steht unter Mehr → Einstellungen → Systemprüfung."
+      },
+      "summary": {
+        "addons": "Zusatzfunktionen",
+        "family": "Neue Personen",
+        "nobody": "Niemand",
+        "ai": "KI-Anbieter eingerichtet"
+      },
+      "end": {
+        "device": "Dieses Gerät einrichten",
+        "notifications": "Mitteilungen"
+      }
     }
   }
 }
