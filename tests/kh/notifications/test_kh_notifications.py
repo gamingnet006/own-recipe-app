@@ -568,3 +568,15 @@ def test_a_late_evening_time_still_fires_once_just_after_midnight(
     assert tasks.send_due_evenings(session, today + timedelta(minutes=5)) == 0  # once
     evening_row(session, unique_user, "23:58", None)
     assert tasks.send_due_evenings(session, today.replace(minute=30)) == 0  # past the 10 minutes of grace
+
+
+def test_the_vapid_subject_comes_from_mealies_base_url(monkeypatch: pytest.MonkeyPatch):
+    """Compose hands the address to this container as BASE_URL only, never as KH_BASE_URL."""
+    monkeypatch.setattr(
+        sender, "get_app_settings", lambda: type("S", (), {"BASE_URL": "https://kochbuch.example.org"})()
+    )
+    sender._subject.cache_clear()
+    try:
+        assert sender._subject() == "https://kochbuch.example.org"
+    finally:
+        sender._subject.cache_clear()

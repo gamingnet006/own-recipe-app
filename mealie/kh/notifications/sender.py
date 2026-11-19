@@ -14,9 +14,9 @@ from pydantic import UUID4
 from pywebpush import WebPushException, webpush
 from sqlalchemy.orm import Session
 
+from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
-from mealie.kh.features.settings import get_kh_settings
 from mealie.kh.notifications.endpoints import is_push_endpoint
 from mealie.kh.notifications.keys import get_vapid
 from mealie.kh.notifications.models import KhPushSubscription
@@ -61,10 +61,11 @@ def vapid_subject(base_url: str) -> tuple[str, bool]:
 
 @lru_cache
 def _subject() -> str:
-    """The subject for this installation; warns once when only the placeholder is possible."""
-    subject, usable = vapid_subject(get_kh_settings().base_url)
+    """The subject for this installation; warns once when only the placeholder is possible. Mealie's BASE_URL, not
+    KH_BASE_URL: compose hands only BASE_URL to this container."""
+    subject, usable = vapid_subject(get_app_settings().BASE_URL)
     if not usable:
-        logger.warning("KH_BASE_URL is not an https address: push messages to iPhones need one")
+        logger.warning("BASE_URL is not an https address: push messages to iPhones need one")
     return subject
 
 

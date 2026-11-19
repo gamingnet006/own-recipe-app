@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.3] - 2026-11-19
+
 - Flows simplified (D76): the bar at the bottom gets a "Week" tab (meal plan, only with the add-on), cook mode uses
   the whole screen, the inbox lists waiting drafts first and folds the add form, no-AI drafts offer "Type it yourself",
   failed drafts leave the inbox count, the draft review keeps "Accept" at the bottom and has one "Makes 12 muffins" row,
