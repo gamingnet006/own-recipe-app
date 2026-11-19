@@ -24,8 +24,16 @@ describe("readSharedImport", () => {
     expect(readSharedImport({ recipe_import_text: "http://a.de" }, 100).link).toBe("http://a.de");
   });
 
-  test("other texts stay texts: a sentence with an address, other schemes, an explicit link", () => {
-    expect(readSharedImport({ recipe_import_text: "Probier das: https://a.de/r" }, 100).link).toBe("");
+  test("a short app message around one address becomes the link (Chefkoch, Rezeptwelt share like this)", () => {
+    expect(readSharedImport({ recipe_import_text: "Schau mal: Grießpudding https://www.chefkoch.de/rezepte/1/x.html." }, 500))
+      .toEqual({ link: "https://www.chefkoch.de/rezepte/1/x.html", text: "" });
+    expect(readSharedImport({ recipe_import_text: "Muffins (https://a.de/r)" }, 500).link).toBe("https://a.de/r");
+  });
+
+  test("other texts stay texts: a recipe with a source address, two addresses, other schemes, an explicit link", () => {
+    const recipe = `Grießpudding\n${"500 ml Milch, 60 g Grieß, 2 Eigelbe. ".repeat(8)}\nQuelle: https://a.de/r`;
+    expect(readSharedImport({ recipe_import_text: recipe }, 1000)).toEqual({ link: "", text: recipe });
+    expect(readSharedImport({ recipe_import_text: "https://a.de/1 oder https://b.de/2" }, 100).link).toBe("");
     expect(readSharedImport({ recipe_import_text: "ftp://a.de/r" }, 100).link).toBe("");
     expect(readSharedImport({ recipe_import_text: "Hallo" }, 100).link).toBe("");
     expect(readSharedImport({ recipe_import_url: "https://a.de/1", recipe_import_text: "https://b.de/2" }, 100))

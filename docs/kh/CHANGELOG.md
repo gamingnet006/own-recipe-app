@@ -21,7 +21,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Share the shopping list (D56): "Teilen" sends the open items, one per line, to WhatsApp, Notes, Reminders or
   Bring! through the phone's share sheet; without one the list is copied.
 - Import from any app's share sheet (D57): `/r/create/url?recipe_import_text=…` puts the text into the intake, also
-  through the sign-in; a text that is only a link is read as a link. The README shows the iOS shortcut.
+  through the sign-in; a link, or a short app message with one link (as Chefkoch or Rezeptwelt share), is read as a
+  link. The README shows the iOS shortcut.
 - Own sidebar (D58): under More each person ticks what their side menu shows; saved per account.
 - First-sign-in tour (D59): the admin ticks "Mit Einführung" when creating an account; six short cards after the first
   steps, "Überspringen" bottom left, and "Einführung ansehen" under More.
