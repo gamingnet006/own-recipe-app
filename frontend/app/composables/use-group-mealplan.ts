@@ -2,6 +2,7 @@ import { addDays, format, startOfWeek } from "date-fns";
 import type { Day } from "date-fns";
 import { useHouseholdSelf } from "./use-households";
 import { useAsyncKey } from "./use-utils";
+import { firstDayOfWeek as khFirstDayOfWeek } from "~~/kh/app/lib/week-start"; // KH: D76
 import { useUserApi } from "~/composables/api";
 import type { PlanEntryCreate, PlanEntryType, PlanEntryOut, RecipeSummary, PlanEntryUpdate } from "~/lib/api/types/meal-plan";
 
@@ -46,11 +47,12 @@ export function getWeekRange(date: Date, firstDayOfWeek: number): DateRange {
  */
 export function useMealPlanEntryDates() {
   const { household } = useHouseholdSelf();
+  const { locale } = useI18n(); // KH: D76
 
   const selectedDate = ref(new Date());
   const isWeekEntry = ref(false);
 
-  const weekRange = computed(() => getWeekRange(selectedDate.value, household.value?.preferences?.firstDayOfWeek || 0));
+  const weekRange = computed(() => getWeekRange(selectedDate.value, khFirstDayOfWeek(household.value?.preferences?.firstDayOfWeek, locale.value))); // KH: same week as the planner (D76)
 
   const entryDates = computed(() => isWeekEntry.value
     ? { date: weekRange.value.start, endDate: weekRange.value.end }

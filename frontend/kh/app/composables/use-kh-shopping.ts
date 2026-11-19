@@ -1,7 +1,7 @@
 // KH: loading and writing for the shopping page (D60): the household's lists, the open list with its items, and every
 // action of the tiles (check off, put back, add, change details, remove, new store) on Mealie's shopping list API.
 // Without network (D63) the last loaded lists are shown from the device and changes wait in a queue until it is back.
-import { useDebounceFn, useOnline } from "@vueuse/core";
+import { until, useDebounceFn, useOnline } from "@vueuse/core";
 import { alert } from "~/composables/use-toast";
 import { useUserApi } from "~/composables/api";
 import { useFoodStore } from "~/composables/store/use-food-store";
@@ -19,7 +19,7 @@ import type {
   ShoppingListOut,
   ShoppingListSummary,
 } from "~/lib/api/types/household";
-import { applyQuantity, foodMatches, pickListId, quantityText, sameAmount, recentItems, sortListItems } from "../lib/shopping-items";
+import { applyQuantity, foodLink, foodMatches, lastList, pickListId, rememberList, quantityText, sameAmount, recentItems, sortListItems } from "../lib/shopping-items";
 import {
   type Fields, type Outcome, type QueuedOp, enqueue, isLocalId, lastUser, newLocalId, noAnswer, readStored, rememberUser, replay, writeStored,
 } from "../lib/shopping-offline";
@@ -27,20 +27,8 @@ import { type StoreKind, labelSettingsFor } from "../lib/shopping-stores";
 import { type Tile, BASICS, catalog, existingFor, isOnHand } from "../lib/shopping-tiles";
 import { khAddons } from "./use-kh-addons";
 
-const LAST_LIST_KEY = "kh-shopping-list";
-
-/** The list used last on this device; localStorage may be blocked or empty, then there is none. */
-function lastList(): string | null {
-  try {
-    return localStorage.getItem(LAST_LIST_KEY);
-  }
-  catch {
-    return null;
-  }
-}
-
 /** What a change of an item may set: the fields the detail sheet edits. */
-export type ItemChanges = Partial<Pick<ShoppingListItemOut, "quantity" | "unit" | "unitId" | "note" | "extras" | "checked">>;
+export type ItemChanges = Partial<Pick<ShoppingListItemOut, "quantity" | "unit" | "unitId" | "note" | "extras" | "checked" | "food" | "foodId">>;
 
 /** The foods the page keeps for offline use: what the tiles and the on-hand state need (not aliases and the like). */
 const trimFood = (food: IngredientFoodOut) => ({
@@ -171,12 +159,7 @@ export function useKhShopping() {
     if (!data && !stored) return fail();
     list.value = data ?? stored;
     saveList();
-    try {
-      localStorage.setItem(LAST_LIST_KEY, id);
-    }
-    catch {
-      // storing the choice is a convenience only
-    }
+    rememberList(id);
   }
 
   async function loadLists() {
@@ -196,6 +179,7 @@ export function useKhShopping() {
     const id = pickListId(lists.value.map(entry => entry.id), fromAddress, lastList());
     if (id) await select(id);
     ready.value = true;
+    void linkFoods();
   }
 
   /** The id the server knows an item by: items made offline get theirs when their add has been sent. */
@@ -231,7 +215,7 @@ export function useKhShopping() {
       : await makeFood(op.name, op.labelId);
     if (!food) return noAnswer(unmade) ? "offline" : "failed";
     const tile: Tile = { name: food.name, emoji: "", foodId: food.id, labelId: food.labelId };
-    const there = existingFor(tile, fresh.listItems, op.fields);
+    const there = existingFor(tile, fresh.listItems, op.fields, units.value);
     if (there) {
       madeIds.set(op.tempId, there.item.id); // later changes of the local item belong to it
       return sendChange(there.item.id, there.changes);
@@ -388,9 +372,10 @@ export function useKhShopping() {
     const unit = units.value.find(entry => entry.id === details.unitId) ?? null;
     const unitId = details.unitId ?? null;
     // an article already on the list (or bought before) takes what was typed instead of a second tile
-    const typed: ItemChanges = details.quantity ? { quantity: details.quantity, unit, unitId } : {};
+    // an amount typed without a unit ("2 Milch") keeps the unit the item has ("1 L" becomes "2 L")
+    const typed: ItemChanges = details.quantity ? { quantity: details.quantity, ...(unitId ? { unit, unitId } : {}) } : {};
     if (details.note) typed.note = details.note;
-    const there = existingFor(tile, current.listItems, typed);
+    const there = existingFor(tile, current.listItems, typed, units.value);
     if (there) {
       if (Object.keys(there.changes).length) await change(there.item, there.changes);
       return there.item;
@@ -451,6 +436,18 @@ export function useKhShopping() {
     await change(item, { quantity, unit, unitId: unit?.id ?? null });
   }
 
+  /**
+   * Links the open items without a food (a recipe's "ml Milch") to the group's food of that name, once the foods are
+   * loaded, so that adding the food again merges with them; a note with an amount or a unit the group lacks stays.
+   */
+  async function linkFoods() {
+    await until(foods).toMatch(known => known.length > 0, { timeout: 5000 });
+    for (const item of open.value) {
+      const link = foods.value.length && !queueing() ? foodLink(item, foods.value, units.value) : null;
+      if (!link || open.value.some(other => other.foodId === link.food.id)) continue;
+      await change(item, { foodId: link.food.id, food: link.food, note: link.note, ...(link.unit && { unit: link.unit, unitId: link.unit.id }) });
+    }
+  }
   /** Whether the household always has the food in the house (D65). */
   const onHand = (foodId: string | null | undefined) => isOnHand(foods.value.find(food => food.id === foodId), householdSlug());
 

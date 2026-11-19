@@ -1,5 +1,5 @@
-<!-- KH: the More page of the bar at the bottom (D38): planning, the collection and the settings, so a phone reaches
-everything the side menu holds on bigger screens. -->
+<!-- KH: the More page of the bar at the bottom (D38, D76): planning, the collection, one row to the settings page, help
+and the account, so a phone reaches everything the side menu holds on bigger screens. -->
 <template>
   <v-container class="narrow-container">
     <BasePageTitle divider>
@@ -24,132 +24,41 @@ everything the side menu holds on bigger screens. -->
     </section>
 
     <section class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.nav.sidebar") }}
-      </h2>
-      <v-list rounded="lg" class="py-2 px-4">
-        <p class="text-body-2 text-medium-emphasis mb-2">
-          {{ $t("kh.nav.sidebar-hint") }}
-        </p>
-        <v-list-item v-for="target in sidebarEntries" :key="target.key" :title="$t(target.title)" class="px-0">
-          <template #append>
-            <v-checkbox
-              :model-value="!khSidebar.hidden.includes(target.key)"
-              color="primary"
-              density="compact"
-              hide-details
-              :label="$t('kh.nav.in-sidebar')"
-              @update:model-value="setInSidebar(target.key, !!$event)"
-            />
-          </template>
-        </v-list-item>
-      </v-list>
-    </section>
-
-    <section v-if="khOn.oven" class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.oven.title") }}
-      </h2>
-      <v-list rounded="lg" class="py-2 px-4">
-        <v-radio-group v-model="oven" color="primary" :hint="$t('kh.oven.hint')" persistent-hint>
-          <v-radio value="conventional" :label="$t('kh.oven.conventional')" />
-          <v-radio value="fan" :label="$t('kh.oven.fan')" />
-        </v-radio-group>
-      </v-list>
-    </section>
-
-    <section v-if="khOn.nutrition" class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.nutrition.title") }}
-      </h2>
-      <v-list rounded="lg" class="py-2 px-4">
-        <v-switch
-          v-model="showNutrition"
-          color="primary"
-          :label="$t('kh.nutrition.show')"
-          :hint="$t('kh.nutrition.show-hint')"
-          persistent-hint
+      <v-list rounded="lg" class="py-0">
+        <v-list-item
+          v-for="target in settingsRow"
+          :key="target.key"
+          :to="target.to"
+          :prepend-icon="icon(target.icon)"
+          :title="$t(target.title)"
         />
-      </v-list>
-    </section>
-
-    <section v-if="khOn.clock" class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.timer.title") }}
-      </h2>
-      <v-list v-if="!clockOffered" rounded="lg" class="py-2 px-4">
-        <p class="text-body-2">
-          {{ $t("kh.timer.clock-ios-only") }}
-        </p>
-      </v-list>
-      <v-list v-else rounded="lg" class="py-2 px-4">
-        <v-switch
-          v-model="clockEnabled"
-          color="primary"
-          :label="$t('kh.timer.clock-switch')"
-          :hint="$t('kh.timer.clock-hint')"
-          persistent-hint
-        />
-        <!-- Optional ready-made shortcut (KH_CLOCK_SHORTCUT_URL); the steps below stay as the fallback -->
-        <v-btn
-          v-if="$khFeatures.clockShortcutUrl"
-          :href="$khFeatures.clockShortcutUrl"
-          target="_blank"
-          rel="noopener"
-          color="primary"
-          class="mt-2"
-          block
-        >
-          {{ $t("kh.timer.clock-add") }}
-        </v-btn>
-        <v-expansion-panels variant="accordion" class="mt-2">
-          <v-expansion-panel :title="$t('kh.timer.clock-setup')">
-            <v-expansion-panel-text>
-              <ol class="pl-4">
-                <li v-for="n in 4" :key="n" class="mb-1">
-                  {{ $t(`kh.timer.clock-step-${n}`) }}
-                </li>
-              </ol>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-        <v-text-field
-          v-if="clockEnabled"
-          v-model="clockName"
-          :label="$t('kh.timer.clock-name')"
-          class="mt-4"
-          @blur="clockName = clockName.trim() || DEFAULT_CLOCK_SHORTCUT"
-        />
-        <v-btn variant="tonal" class="mt-2" block @click="tryClockShortcut">
-          {{ $t("kh.timer.clock-try") }}
-        </v-btn>
       </v-list>
     </section>
 
     <section class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("general.settings") }}
+        {{ $t("kh.nav.help") }}
       </h2>
       <v-list rounded="lg" class="py-0">
-        <v-list-item
-          v-for="target in settings"
-          :key="target.key"
-          :to="target.key === 'switch' ? undefined : target.to"
-          :prepend-icon="icon(target.icon)"
-          :title="$t(target.title)"
-          @click="target.key === 'switch' && (switchDialog = true)"
-        />
-        <v-list-item
-          v-if="user?.canInvite"
-          :prepend-icon="$globals.icons.accountPlusOutline"
-          :title="$t('kh.nav.invite')"
-          @click="inviteDialog = true"
-        />
         <v-list-item :prepend-icon="$globals.icons.wave" :title="$t('kh.tour.view')" @click="tourOpen = true" />
         <!-- KH: setup page and all news (D68, D69) -->
         <v-list-item :prepend-icon="$globals.icons.cellphone" :title="$t('kh.setup.title')" :to="SETUP_PATH" />
         <v-list-item :prepend-icon="$globals.icons.star" :title="$t('kh.news.menu')" @click="newsOpen = true" />
-        <v-list-item :prepend-icon="$globals.icons.bellOutline" :title="$t('kh.notifications.title')" to="/mitteilungen" /> <!-- D75 -->
+        <v-list-item
+          v-for="target in help"
+          :key="target.key"
+          :to="target.to"
+          :prepend-icon="icon(target.icon)"
+          :title="$t(target.title)"
+        />
+      </v-list>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.nav.account") }}
+      </h2>
+      <v-list rounded="lg" class="py-0">
         <v-list-item
           :prepend-icon="$globals.icons.translate"
           :title="$t('sidebar.language')"
@@ -165,6 +74,13 @@ everything the side menu holds on bigger screens. -->
           :title="$t('user.logout')"
           @click="logout"
         />
+        <!-- KH: the recipes stay in the family (D78) -->
+        <v-list-item
+          :prepend-icon="$globals.icons.delete"
+          :title="$t('kh.account-delete.entry')"
+          base-color="error"
+          @click="deleteOpen = true"
+        />
       </v-list>
     </section>
 
@@ -174,26 +90,16 @@ everything the side menu holds on bigger screens. -->
       <a :href="$khFeatures.sourceUrl" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
 
-    <UserInviteDialog v-model="inviteDialog" />
     <LanguageDialog v-model="languageDialog" />
-    <KhAccountSwitch v-model="switchDialog" />
+    <KhDeleteAccountDialog v-model="deleteOpen" />
     <KhTour v-model="tourOpen" />
     <KhNews v-model="newsOpen" :news="allNews" />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import {
-  moreSections,
-  settingsTargets,
-  sidebarChoices,
-} from "~~/kh/app/composables/use-kh-navigation";
-import { khSidebar, saveKhSidebar } from "~~/kh/app/composables/use-kh-sidebar";
-import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
-import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
-import { khAddons, useKhOn } from "~~/kh/app/composables/use-kh-addons";
-import { useKhAccounts } from "~~/kh/app/composables/use-kh-accounts";
-import { useKhOven } from "~~/kh/app/lib/oven";
+import { moreSections } from "~~/kh/app/composables/use-kh-navigation";
+import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { SETUP_PATH } from "~~/kh/app/lib/device-setup";
 import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { alert } from "~/composables/use-toast";
@@ -211,53 +117,22 @@ const { $globals } = useNuxtApp();
 const route = useRoute();
 const auth = useMealieAuth();
 const toggleDark = useToggleDarkMode();
-const oven = useKhOven();
-const khOn = useKhOn();
-const showNutrition = useKhNutritionSetting();
-const { enabled: clockEnabled, name: clockName, offered: clockOffered } = useKhClockSetting();
-
-/** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */
-function tryClockShortcut() {
-  location.href = clockTimerUrl(clockName.value, 60);
-}
 
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 
-const user = computed(() => auth.user.value);
-const inviteDialog = ref(false);
 const languageDialog = ref(false);
-const switchDialog = ref(false);
+const deleteOpen = ref(false);
 const tourOpen = ref(false); // shown again any time, without a call to the server (D59)
 const newsOpen = ref(false); // all versions any time, without a call to the server (D69)
 const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled));
-const { accounts, load: loadAccounts } = useKhAccounts();
-onMounted(loadAccounts);
 
-const sidebarEntries = computed(() => sidebarChoices(route.params.groupSlug as string));
-
-/** Shows or hides one entry of the side menu and saves the choice right away. */
-function setInSidebar(key: string, shown: boolean) {
-  void saveKhSidebar(shown ? khSidebar.hidden.filter(hidden => hidden !== key) : [...khSidebar.hidden, key]);
-}
-
-const sections = computed(() => {
-  const { plan, collection } = moreSections(
-    route.params.groupSlug as string,
-    user.value?.id ?? "",
-    undefined,
-    undefined,
-  );
-  return [
-    { title: "kh.nav.plan", targets: plan },
-    { title: "kh.nav.collection", targets: collection },
-  ];
-});
-const settings = computed(() =>
-  settingsTargets(
-    { canOrganize: user.value?.canOrganize, admin: user.value?.admin, linked: accounts.value.length > 0 },
-    route.params.groupSlug as string,
-  ),
-);
+const lists = computed(() => moreSections(route.params.groupSlug as string, auth.user.value?.id ?? ""));
+const sections = computed(() => [
+  { title: "kh.nav.plan", targets: lists.value.plan },
+  { title: "kh.nav.collection", targets: lists.value.collection },
+]);
+const settingsRow = computed(() => lists.value.settings);
+const help = computed(() => lists.value.help);
 
 /** One of Mealie's icons by its name in the list of destinations. */
 function icon(name: string): string {

@@ -95,7 +95,7 @@ ticked off; the ticks stay on this device. The key is shown once and never store
           </v-text-field>
         </template>
 
-        <v-btn v-if="section.id === 'timer'" :to="morePath" variant="tonal" size="large" class="mt-3">
+        <v-btn v-if="section.id === 'timer'" :to="settingsPath" variant="tonal" size="large" class="mt-3">
           {{ $t("kh.setup.timer.open") }}
         </v-btn>
       </v-card-text>
@@ -171,7 +171,7 @@ const installed = isInstalled(
   (navigator as Navigator & { standalone?: boolean }).standalone,
 );
 const origin = location.origin;
-const morePath = computed(() => `/g/${auth.user.value?.groupSlug ?? ""}/more`);
+const settingsPath = computed(() => `/g/${auth.user.value?.groupSlug ?? ""}/einstellungen`); // KH: the timer switch sits there (D76)
 
 /** The ready-made shortcut's iCloud link for the import or Siri section, null while none is set. */
 function shortcutUrl(id: KhSetupSection): string | null {

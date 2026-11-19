@@ -95,7 +95,7 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 
 Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an. Oder du legst es unter **Admin → Benutzer** selbst an, auch ohne E-Mail; dann wählt die Person beim ersten Anmelden ihr eigenes Passwort. Beides steht in [familienkonten.md](familienkonten.md).
 
-**Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Haushalte freigeben** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
+**Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Einstellungen → Haushalte freigeben** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
 
 ### 6. Automatische Updates
 
@@ -152,7 +152,7 @@ Am Handy und am iPad hochkant steht unten eine Leiste:
 - **Rezepte:** suchen und stöbern. Warten Entwürfe auf Prüfung, steht darüber ein Hinweis.
 - **Eingang:** neue Rezepte hinzufügen und die Entwürfe prüfen; die Zahl zeigt, wie viele warten.
 - **Einkaufsliste:** die Kachel-Seite (siehe „Einkaufsliste mit Kacheln“ unten).
-- **Mehr:** Essensplaner, Kochbücher, „Was kann ich kochen?“, Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Einstellungen, Sprache, Hell/Dunkel, Familie einladen und Abmelden.
+- **Mehr** in fünf Gruppen: **Planen** (Essensplan, Kochbücher, „Was kann ich kochen?“), **Sammlung** (Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Doppelte, Nährwerte, „Ich vertrage nicht“), **Einstellungen** (eine Zeile; darin Profil, Daten, Zusatzfunktionen, Haushalte, Familie einladen, Mitteilungen, Ofen, Nährwerte zeigen, Timer und ab 840 Pixeln die Seitenleiste), **Hilfe** (Einführung, Kochheft einrichten, Neuigkeiten, Über Kochheft) und **Konto** (Sprache, Hell/Dunkel, Abmelden).
 
 Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
 
@@ -214,13 +214,13 @@ Am gespeicherten Rezept zeigt ein Abzeichen, woher es kam, mit **Original ansehe
 
 #### Sprachbefehle (Test)
 
-Unter **Mehr** → **Zusatzfunktionen** gibt es den Schalter **Sprachbefehle (Test)**, standardmäßig aus (nur Admins). Ist er an, zeigt der Kochmodus **Sprachbefehle an**. Nach dem Tipp (und der Erlaubnis fürs Mikrofon) lädt das Gerät einmal das Sprachmodell (etwa 45 MB, von deinem eigenen Kochheft) und hört dann auf vier Wörter: **weiter**, **zurück**, **Timer** (startet den ersten Timer des Schritts) und **stopp** (schaltet klingelnde Timer aus). **Sprachbefehle aus** beendet das Mikrofon. Die Erkennung läuft ganz im Browser; Audio verlässt das Gerät nie.
+Unter **Mehr** → **Einstellungen** → **Zusatzfunktionen** gibt es den Schalter **Sprachbefehle (Test)**, standardmäßig aus (nur Admins). Ist er an, zeigt der Kochmodus **Sprachbefehle an**. Nach dem Tipp (und der Erlaubnis fürs Mikrofon) lädt das Gerät einmal das Sprachmodell (etwa 45 MB, von deinem eigenen Kochheft) und hört dann auf vier Wörter: **weiter**, **zurück**, **Timer** (startet den ersten Timer des Schritts) und **stopp** (schaltet klingelnde Timer aus). **Sprachbefehle aus** beendet das Mikrofon. Die Erkennung läuft ganz im Browser; Audio verlässt das Gerät nie.
 
 Das ist ein Test (T2): Auf manchen iPhones und Browsern klappt es nicht, etwa bei wenig Arbeitsspeicher oder in Küchenlärm. Dann steht ein Hinweis da, und der Schalter bleibt besser aus. Die Tasten und das Wischen gehen immer.
 
 #### Umluft
 
-Die Rezepte nennen meist Ober-/Unterhitze. Unter **Mehr** → **Unser Ofen** stellst du ein, welchen Ofen du hast (gilt nur für dieses Gerät). Temperaturen in den Schritten bekommen dann eine Klammer mit dem Wert für deinen Ofen, zum Beispiel „180 °C (Umluft 160 °C)“.
+Die Rezepte nennen meist Ober-/Unterhitze. Unter **Mehr** → **Einstellungen** → **Unser Ofen** stellst du ein, welchen Ofen du hast (gilt nur für dieses Gerät). Temperaturen in den Schritten bekommen dann eine Klammer mit dem Wert für deinen Ofen, zum Beispiel „180 °C (Umluft 160 °C)“.
 
 - Umluft ist 20 °C kühler als Ober-/Unterhitze; umgekehrt 20 °C wärmer.
 - Unter 100 °C wird nichts umgerechnet.
@@ -233,7 +233,7 @@ Unter den Zutaten steht der Block **Nährwerte pro Portion (ca.)**.
 - Gerechnet wird mit den Zeilen, die eine Menge haben und zu einem bekannten Lebensmittel passen. Darunter steht, wie viele: „aus 7 von 9 Zutaten“, und „ohne: …“ nennt die Zeilen, die fehlen.
 - Solange du die Zuordnung nicht bestätigt hast, steht dort **geschätzt**. Die Werte sind immer ungefähr, nie genau.
 - **Mehr** → **Nährwerte**: Dort bestätigst du einmal pro Zutat, welcher Eintrag der Tabelle passt, und trägst bei Bedarf ein Stückgewicht in Gramm ein (zum Beispiel für „1 Ei“). Das gilt dann für alle Rezepte.
-- **Mehr** → **Nährwerte zeigen**: Schalter, der den Block ein- oder ausblendet. Er wird auf diesem Gerät gespeichert.
+- **Mehr** → **Einstellungen** → **Nährwerte zeigen**: Schalter, der den Block ein- oder ausblendet. Er wird auf diesem Gerät gespeichert.
 - Hast du in Mealie Nährwerte von Hand eingetragen, gehen diese vor.
 - Quelle: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, CC BY 4.0.
 
@@ -345,38 +345,42 @@ Danach funktioniert „Hey Siri, Auf die Einkaufsliste“. Siri liest zum Beispi
 
 Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
 
-> **Nur iPhone und iPad.** Der Uhr-Timer braucht die App Kurzbefehle. Android hat keine, und eine Webseite kann dort den Timer der Uhr-App nicht starten. Auf Android und am Computer zeigt **Mehr → Timer** deshalb nur einen Hinweis; der Timer in Kochheft klingelt dort, solange die App offen ist.
+> **Nur iPhone und iPad.** Der Uhr-Timer braucht die App Kurzbefehle. Android hat keine, und eine Webseite kann dort den Timer der Uhr-App nicht starten. Auf Android und am Computer zeigt **Mehr → Einstellungen → Timer** deshalb nur einen Hinweis; der Timer in Kochheft klingelt dort, solange die App offen ist.
 
-1. **Kurzbefehl einrichten.** Unter **Mehr → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
+1. **Kurzbefehl einrichten.** Unter **Mehr → Einstellungen → Timer** steht die Anleitung gleich beim Schalter („So richtest du den Kurzbefehl ein“); gibt es dort die Taste „Kurzbefehl hinzufügen“, genügt sie. Von Hand:
    - App **Kurzbefehle** öffnen, unten rechts auf **+** tippen.
    - Oben den Namen auf „Kochheft Timer“ ändern (oder den Namen in Kochheft anpassen).
    - Aktion **Zahlen aus Eingabe abrufen** hinzufügen, Quelle **Kurzbefehleingabe**.
    - Aktion **Timer starten** hinzufügen, Dauer = diese Zahl, Einheit **Minuten**.
-2. **Einschalten:** In Kochheft unter **Mehr → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
+2. **Einschalten:** In Kochheft unter **Mehr → Einstellungen → Timer** „Timer auch in der Uhr-App anbieten“ einschalten. Hat der Kurzbefehl einen anderen Namen, trag ihn dort ein. „Ausprobieren (1 Minute)“ startet einen Test; sperre das Handy und prüfe, dass es klingelt.
 
 Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Kochheft läuft weiter.
 
-**Kurzbefehl hinzufügen:** Kochheft bringt den fertigen Kurzbefehl „Kochheft Timer“ als iCloud-Link mit. **Mehr → Timer** zeigt dafür die Taste „Kurzbefehl hinzufügen“; ein Tipp legt ihn auf dem Gerät an. Wer lieber einen eigenen nimmt, teilt ihn (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und trägt den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` ein (nur `https://www.icloud.com/shortcuts/…`; alles andere blendet die Taste aus).
+**Kurzbefehl hinzufügen:** Kochheft bringt den fertigen Kurzbefehl „Kochheft Timer“ als iCloud-Link mit. **Mehr → Einstellungen → Timer** zeigt dafür die Taste „Kurzbefehl hinzufügen“; ein Tipp legt ihn auf dem Gerät an. Wer lieber einen eigenen nimmt, teilt ihn (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und trägt den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` ein (nur `https://www.icloud.com/shortcuts/…`; alles andere blendet die Taste aus).
 
 ### Kochheft einrichten (D68)
 
-Unter **Mehr → Kochheft einrichten** (Adresse `/aufs-handy`) führt eine Seite durch alles, was ein neues Gerät braucht. Sie erkennt iPhone, iPad, Android, Mac und andere Computer und zeigt deren Schritte; über „Gerät“ siehst du auch die Schritte der anderen. Jede Karte hat 2 bis 5 kurze Schritte und einen Haken „Erledigt“ (bleibt auf diesem Gerät):
+Unter **Mehr → Hilfe → Kochheft einrichten** (Adresse `/aufs-handy`) führt eine Seite durch alles, was ein neues Gerät braucht. Sie erkennt iPhone, iPad, Android, Mac und andere Computer und zeigt deren Schritte; über „Gerät“ siehst du auch die Schritte der anderen. Jede Karte hat 2 bis 5 kurze Schritte und einen Haken „Erledigt“ (bleibt auf diesem Gerät):
 
 - **Kochheft auf den Home-Bildschirm oder ins Dock:** iPhone und iPad über Safari → Teilen → „Zum Home-Bildschirm“, Android über das Menü ⋮ → „App installieren“, Mac über Safari (macOS Sonoma oder neuer) Ablage → „Zum Dock hinzufügen“ oder das Installieren-Symbol in Chrome und Edge. Läuft Kochheft schon als App, gilt die Karte als erledigt.
 - **Einkaufsliste als eigenes Symbol:** „Einkaufsliste öffnen“ öffnet `/einkauf` im Browser (nicht in der installierten App), dann dieselben Schritte; auf Android hältst du das Kochheft-Symbol gedrückt und ziehst „Einkaufsliste“ heraus.
 - **Schlüssel für Kurzbefehle:** „Schlüssel für dieses Gerät erstellen“ legt einen API-Token „Kurzbefehle <Gerät> <Datum>“ an und zeigt ihn einmal mit Kopieren-Taste. Er wird nirgends gespeichert; geht das Gerät verloren, löschst du ihn unter Profil → API-Tokens. Am Mac kannst du einen eigenen Schlüssel erstellen.
 - **Rezepte aus anderen Apps importieren** und **„Hey Siri, Auf die Einkaufsliste“** (iPhone, iPad, am Mac über die iCloud-Synchronisierung der Kurzbefehle): mit `KH_IMPORT_SHORTCUT_URL` und `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env` (iCloud-Links geteilter Kurzbefehle, wie `KH_CLOCK_SHORTCUT_URL`) gibt es einen Knopf „Kurzbefehl hinzufügen“; sonst stehen die Schritte der Abschnitte oben da. Auf Android steht Kochheft direkt im Teilen-Menü; für „Auf die Einkaufsliste“ gibt es dort keinen Assistenten.
-- **Uhr-Timer** (nur iPhone und iPad): Verweis auf Mehr → Timer.
+- **Uhr-Timer** (nur iPhone und iPad): Verweis auf Mehr → Einstellungen → Timer.
 
-Auf einem neuen Handy, iPad oder (in Safari, Chrome, Edge) Computer fragt Kochheft nach der Anmeldung einmal „Neues Gerät? Richte Kochheft hier in 2 Minuten ein“: „Ja, zeigen“ öffnet die Seite, „Später“ fragt nach 7 Tagen wieder, „Nein, danke“ nie wieder auf diesem Gerät. Die Einführung (Mehr → Einführung ansehen) endet mit einem Knopf „Jetzt einrichten“.
+Auf einem neuen Handy, iPad oder (in Safari, Chrome, Edge) Computer fragt Kochheft nach der Anmeldung einmal „Neues Gerät? Richte Kochheft hier in 2 Minuten ein“: „Ja, zeigen“ öffnet die Seite, „Später“ fragt nach 7 Tagen wieder, „Nein, danke“ nie wieder auf diesem Gerät. Die Einführung (Mehr → Hilfe → Einführung ansehen) endet mit einem Knopf „Jetzt einrichten“.
 
 ### Neu in Kochheft (D69)
 
-Nach einem Update zeigt die Startseite einmal ein paar Karten mit den Neuerungen (Vollbild am Handy, Karte auf iPad und Computer; „Überspringen“ unten links). Wer neu angelegt wird, sieht stattdessen die Einführung. Unter **Mehr → Neuigkeiten** lassen sich alle Versionen jederzeit ansehen. Die Karten stehen in `frontend/kh/app/lib/whats-new.ts` (Texte unter `kh.news.*`); Entwickler ergänzen sie vor jedem Release mit neuen Funktionen und heben `NEWS_VERSION` in `mealie/kh/onboarding/news.py` an, ein Test prüft, dass beide übereinstimmen.
+Nach einem Update zeigt die Startseite einmal ein paar Karten mit den Neuerungen (Vollbild am Handy, Karte auf iPad und Computer; „Überspringen“ unten links). Wer neu angelegt wird, sieht stattdessen die Einführung. Unter **Mehr → Hilfe → Neuigkeiten** lassen sich alle Versionen jederzeit ansehen. Die Karten stehen in `frontend/kh/app/lib/whats-new.ts` (Texte unter `kh.news.*`); Entwickler ergänzen sie vor jedem Release mit neuen Funktionen und heben `NEWS_VERSION` in `mealie/kh/onboarding/news.py` an, ein Test prüft, dass beide übereinstimmen.
+
+### Konto löschen (D78)
+
+Unter **Mehr → Konto → Konto löschen** löschst du dein eigenes Konto: Du tippst zur Sicherheit deinen Benutzernamen ein. Deine Rezepte, Einkaufslisten, Wochenplan-Einträge, Kommentare und „gekocht“-Einträge bleiben in der Familie und gehören danach einer anderen Person deines Haushalts (zuerst Admins, sonst wer am längsten dabei ist); der Dialog nennt sie vorher. Favoriten, Bewertungen, Einstellungen und Schlüssel werden gelöscht, das lässt sich nicht rückgängig machen. Geht nicht für die letzte Admin-Person und für die letzte Person eines Haushalts; der Dialog sagt dann, warum. Admins löschen andere unter **Admin → Benutzer** und wählen dort, wer die Rezepte übernimmt. Mehr in [familienkonten.md](familienkonten.md).
 
 ### Mitteilungen (D75)
 
-Unter **Mehr → Mitteilungen** entscheidet jede Person, welche Mitteilungen sie bekommt (Web Push, keine Store-App). Der große Schalter „Mitteilungen auf diesem Gerät“ fragt nach der Erlaubnis; auf iPhone und iPad (ab 16.4) geht das nur für Kochheft auf dem Home-Bildschirm (die Seite verweist auf „Kochheft einrichten“). Sechs Schalter: **Essensplan** (jemand plant ein Gericht ein, eng aufeinanderfolgende kommen gesammelt), **Abend-Erinnerung** („Morgen: Lasagne“ zur gewählten Uhrzeit, mit „Denk ans Auftauen: …“ für Zutaten mit dem Label Fleisch, Fleischprodukte, Meeresfrüchte oder Tiefkühlware und „Am Vortag vorbereiten: …“ für Schritte mit „über Nacht“, „am Vortag“, „einweichen“, „marinieren“; nichts geplant, keine Mitteilung), **Einkaufsliste** (höchstens eine Mitteilung je Liste in 15 Minuten), **Wünsche**, **Eingang** (ein Rezept ist zum Prüfen bereit) und **Neuigkeiten** (einmal nach einem Update). Beim ersten Gerät sind Essensplan, Abend und Wünsche an. Niemand bekommt eine Mitteilung für das, was er selbst getan hat (Ausnahme „Eingang“); es gilt immer nur der eigene Haushalt. Mit „Test-Mitteilung senden“ prüfst du die Einrichtung, die Geräte-Liste erlaubt „Entfernen“. Der Server-Schlüssel (VAPID) entsteht beim ersten Gebrauch in `<Daten>/kh/vapid.json` (nur für die App lesbar, im Backup enthalten).
+Unter **Mehr → Einstellungen → Mitteilungen** entscheidet jede Person, welche Mitteilungen sie bekommt (Web Push, keine Store-App). Der große Schalter „Mitteilungen auf diesem Gerät“ fragt nach der Erlaubnis; auf iPhone und iPad (ab 16.4) geht das nur für Kochheft auf dem Home-Bildschirm (die Seite verweist auf „Kochheft einrichten“). Sechs Schalter: **Essensplan** (jemand plant ein Gericht ein, eng aufeinanderfolgende kommen gesammelt), **Abend-Erinnerung** („Morgen: Lasagne“ zur gewählten Uhrzeit, mit „Denk ans Auftauen: …“ für Zutaten mit dem Label Fleisch, Fleischprodukte, Meeresfrüchte oder Tiefkühlware und „Am Vortag vorbereiten: …“ für Schritte mit „über Nacht“, „am Vortag“, „einweichen“, „marinieren“; nichts geplant, keine Mitteilung), **Einkaufsliste** (höchstens eine Mitteilung je Liste in 15 Minuten), **Wünsche**, **Eingang** (ein Rezept ist zum Prüfen bereit) und **Neuigkeiten** (einmal nach einem Update). Beim ersten Gerät sind Essensplan, Abend und Wünsche an. Niemand bekommt eine Mitteilung für das, was er selbst getan hat (Ausnahme „Eingang“); es gilt immer nur der eigene Haushalt. Mit „Test-Mitteilung senden“ prüfst du die Einrichtung, die Geräte-Liste erlaubt „Entfernen“. Der Server-Schlüssel (VAPID) entsteht beim ersten Gebrauch in `<Daten>/kh/vapid.json` (nur für die App lesbar, im Backup enthalten).
 
 ### Telegram-Bot einrichten
 
@@ -454,7 +458,7 @@ Auf dem Mac brauchen eigene Hintergrund-Jobs (cron, launchd) `/usr/local/bin` im
 
 **Nach jedem Update:**
 
-1. Öffne Kochheft und schau unter **Mehr → Über Kochheft**, ob die neue Version steht.
+1. Öffne Kochheft und schau unter **Mehr → Hilfe → Über Kochheft**, ob die neue Version steht.
 2. Öffne ein Rezept und starte den Kochmodus.
 3. Mach ein Backup sofort: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
 4. Läuft etwas nicht, spiel das Backup vor dem Update wieder ein (siehe „Alltag“).
@@ -824,6 +828,10 @@ Under **More → Set up Kochheft** (address `/aufs-handy`) a page walks through 
 ### What's new in Kochheft (D69)
 
 After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
+
+### Delete account (D78)
+
+Under **More → Account → Delete account** you delete your own account: you type your username to confirm. Your recipes, shopping lists, meal-plan entries, comments and "cooked" entries stay in the family and then belong to another person of your household (admins first, otherwise whoever has been there longest); the dialog names them beforehand. Favorites, ratings, settings and keys are deleted, which cannot be undone. Not possible for the last admin or the last person of a household; the dialog says why. Admins delete others under **Admin → Users** and choose there who takes over the recipes. More in [familienkonten.en.md](familienkonten.en.md).
 
 ### Notifications (D75)
 

@@ -18,8 +18,12 @@ recognized (one below the other on a phone, side by side from iPad width), then 
 
       <KhDraftWarnings v-if="draft.status === 'ready' && draft.warnings.length" :warnings="draft.warnings" class="mb-4" />
       <v-alert v-if="draft.status === 'failed'" type="error" variant="tonal" class="mb-4">
-        {{ errorText(draft.error ?? "unknown", i18n.t) }}
+        {{ errorText(draft.error ?? "unknown", i18n.t, canManage) }}
         <template #append>
+          <!-- without an AI provider trying again cannot help: typing the recipe by hand can (D76) -->
+          <v-btn v-if="draft.error === NO_AI_ERROR" variant="text" :to="`/g/${groupSlug}/r/create/new`">
+            {{ $t("kh.drafts.type-yourself-short") }}
+          </v-btn>
           <v-btn variant="text" @click="retry">
             {{ $t("kh.drafts.retry") }}
           </v-btn>
@@ -47,53 +51,43 @@ recognized (one below the other on a phone, side by side from iPad width), then 
             :editable="draft.status === 'ready'"
             :edit="edit"
           />
-          <!-- Like Mealie's editor: servings, yield amount and yield text, saved with the recipe -->
-          <v-row v-if="draft.status === 'ready' && changes" dense class="mt-2">
-            <v-col cols="3">
-              <v-number-input
-                v-model="changes.recipeServings"
-                :min="0"
-                :precision="null"
-                density="compact"
-                :label="$t('recipe.servings')"
-                variant="underlined"
-                control-variant="hidden"
-              />
-            </v-col>
-            <v-col cols="3">
-              <v-number-input
-                v-model="changes.recipeYieldQuantity"
-                :min="0"
-                :precision="null"
-                density="compact"
-                :label="$t('recipe.yield')"
-                variant="underlined"
-                control-variant="hidden"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="changes.recipeYield"
-                density="compact"
-                :label="$t('recipe.yield-text')"
-                variant="underlined"
-              />
-            </v-col>
-          </v-row>
+          <!-- D76: "Ergibt 12 Muffins"; the number is saved as servings and yield amount, the text as yield text -->
+          <div v-if="draft.status === 'ready' && changes" class="d-flex align-center ga-3 mt-2">
+            <span class="text-body-1">{{ $t("kh.drafts.yield") }}</span>
+            <v-number-input
+              v-model="yieldAmount"
+              :min="0"
+              :precision="null"
+              density="compact"
+              hide-details
+              variant="underlined"
+              control-variant="hidden"
+              :aria-label="$t('recipe.servings')"
+              style="max-width: 5rem"
+            />
+            <v-text-field
+              v-model="changes.recipeYield"
+              density="compact"
+              hide-details
+              variant="underlined"
+              :aria-label="$t('recipe.yield-text')"
+            />
+          </div>
         </v-col>
       </v-row>
 
       <KhDraftWhere v-if="draft.status === 'ready' && changes" v-model="categories" class="mt-6" />
 
-      <div v-if="draft.status === 'ready' || draft.status === 'failed'" class="d-flex flex-wrap ga-2 mt-6">
-        <template v-if="draft.status === 'ready'">
-          <v-btn color="success" :loading="busy || editing > 0" @click="approve(false)">
-            {{ $t("kh.drafts.approve") }}
-          </v-btn>
-          <v-btn color="primary" variant="tonal" :loading="busy || editing > 0" @click="approve(true)">
-            {{ $t("kh.drafts.approve-and-edit") }}
-          </v-btn>
-        </template>
+      <!-- D76: the buttons to accept stay at the bottom of the screen above the bar, so a long recipe needs no scrolling -->
+      <div v-if="draft.status === 'ready'" class="kh-actions d-flex ga-2 mt-6">
+        <v-btn color="success" :loading="busy || editing > 0" @click="approve(false)">
+          {{ $t("kh.drafts.approve") }}
+        </v-btn>
+        <v-btn color="primary" variant="tonal" :loading="busy || editing > 0" @click="approve(true)">
+          {{ $t("kh.drafts.approve-and-edit") }}
+        </v-btn>
+      </div>
+      <div v-if="draft.status === 'ready' || draft.status === 'failed'" class="d-flex mt-2">
         <v-spacer />
         <v-btn color="error" variant="text" :prepend-icon="$globals.icons.delete" @click="discarding = true">
           {{ $t("kh.drafts.discard") }}
@@ -125,6 +119,11 @@ recognized (one below the other on a phone, side by side from iPad width), then 
       <v-card-text>
         <KhDraftWarnings :warnings="duplicates.warnings" />
       </v-card-text>
+      <template #custom-card-action>
+        <v-btn color="error" variant="text" @click="discardFromDuplicates">
+          {{ $t("kh.drafts.discard-this") }}
+        </v-btn>
+      </template>
     </BaseDialog>
   </v-container>
 </template>
@@ -137,12 +136,15 @@ import {
   draftTitle,
   errorText,
   draftAmounts,
+  NO_AI_ERROR,
   pollingNeeded,
   recipeChanges,
   requestError,
   reviewLayout,
+  setYieldNumber,
   useKhDraftsApi,
   useKhPolling,
+  yieldNumber,
 } from "~~/kh/app/composables/use-kh-drafts";
 import { alert } from "~/composables/use-toast";
 
@@ -179,6 +181,13 @@ const categories = computed({
     if (changes.value) changes.value.recipeCategory = value;
   },
 });
+const yieldAmount = computed({
+  get: () => (changes.value ? yieldNumber(changes.value) : 0),
+  set: (value: number | null) => {
+    if (changes.value) setYieldNumber(changes.value, value ?? 0);
+  },
+});
+const canManage = !!useMealieAuth().user.value?.canManage;
 const columns = computed(() => (reviewLayout(display.width.value) === "side" ? 6 : 12));
 
 useSeoMeta({ title: () => (draft.value ? draftTitle(draft.value) : i18n.t("kh.drafts.drafts")) });
@@ -193,7 +202,7 @@ const { reload } = useKhPolling(async () => {
 });
 
 function showError(error: unknown) {
-  alert.error(errorText(requestError(error).code, i18n.t));
+  alert.error(errorText(requestError(error).code, i18n.t, canManage));
 }
 
 // edits go one after the other, so the answers come back in order and the newest one is what stays on the page
@@ -256,6 +265,12 @@ async function retry() {
   await reload();
 }
 
+/** The duplicate hint is not worth a recipe: close it and ask whether to discard the draft. */
+function discardFromDuplicates() {
+  duplicates.open = false;
+  discarding.value = true;
+}
+
 async function discard() {
   const { error } = await api.discard(id);
   if (error) {
@@ -265,3 +280,20 @@ async function discard() {
   router.push(`/g/${groupSlug}/drafts`);
 }
 </script>
+
+<style scoped>
+/* above the bar of the bottom navigation (Vuetify's layout variable), on wide screens above the screen's edge */
+.kh-actions {
+  position: sticky;
+  bottom: var(--v-layout-bottom, 0px);
+  z-index: 5;
+  padding: 8px 0;
+  background: rgb(var(--v-theme-background));
+  border-top: 1px solid rgb(var(--v-theme-surface-variant), 0.2);
+}
+@media (min-width: 840px) {
+  .kh-actions {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+}
+</style>

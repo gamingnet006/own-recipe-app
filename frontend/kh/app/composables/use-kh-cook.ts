@@ -16,6 +16,8 @@ export function showsSegments(total: number): boolean {
  * was left on the last one: the dish is done, the next time is a new start. */
 export function useKhCook(total: () => number, isOpen: () => boolean = () => true) {
   const query = useRouteQuery<string>("step", "");
+  const route = useRoute();
+  const router = useRouter();
   const clamp = (index: number) => Math.min(Math.max(index, 0), Math.max(total() - 1, 0));
 
   // The address is read once, at the start; after that the step only goes into it.
@@ -46,7 +48,12 @@ export function useKhCook(total: () => number, isOpen: () => boolean = () => tru
     index.value = clamp(i);
   }
 
-  return { step, allSteps, isFirst, isLast, goTo, next: () => goTo(step.value + 1), back: () => goTo(step.value - 1) };
+  /** Leaves cook mode for good after the dish is noted as cooked: one write of the address that drops `cook` and `step`. */
+  function finish(): void {
+    void router.replace({ query: { ...route.query, cook: undefined, step: undefined } });
+  }
+
+  return { step, allSteps, isFirst, isLast, goTo, finish, next: () => goTo(step.value + 1), back: () => goTo(step.value - 1) };
 }
 
 /** "Weiter" goes on; on the last step "Fertig" calls CLOSE. The next opening starts at the first step again (see

@@ -97,11 +97,31 @@ export function splitLeadingAmount<T extends ShopUnit>(text: string, units: T[])
   return { quantity: amountValue(amount[1]!), unit: unit ?? null, rest: unit ? word![2]!.trim() : rest };
 }
 
-/** The first words of a note-only line (made elsewhere) as article, amount and extra: "2 Liter Milch 3,5 %" has the article Milch, 2 Liter and 3,5 %. */
-function splitOldLine<T extends ShopUnit>(own: string, units: T[]) {
-  const { quantity, unit, rest } = splitLeadingAmount(own, units);
+/** The unit a word names: one of the group's units, else g, kg, l or ml (by abbreviation or name); null for any other word. */
+function unitWord(word: string, units: ShopUnit[]): Pick<ShopUnit, "name" | "abbreviation"> | null {
+  const lower = word.toLowerCase();
+  return findUnit(word, units) ?? STANDARD_UNITS[lower] ?? Object.values(STANDARD_UNITS).find(unit => unit.name.toLowerCase() === lower) ?? null;
+}
+
+/** A leading unit word of TEXT ("ml Milch") and the rest; null when the text does not start with a unit followed by an article. */
+export function splitUnitWord(text: string, units: ShopUnit[] = []): { unit: Pick<ShopUnit, "name" | "abbreviation">; rest: string } | null {
+  const word = text.trim().match(/^(\S+)\s+(.+)$/);
+  const unit = word && unitWord(word[1]!, units);
+  return unit ? { unit, rest: word![2]!.trim() } : null;
+}
+
+/**
+ * The first words of a note-only line (made elsewhere) as article, amount and extra: "2 Liter Milch 3,5 %" has the
+ * article Milch, 2 Liter and 3,5 %. A recipe's ingredient without a food comes as the note "ml Milch" with the amount
+ * in the item's own quantity; its leading unit word is the unit then, not part of the article.
+ */
+function splitOldLine(own: string, units: ShopUnit[]) {
+  const lead = splitLeadingAmount(own, units);
+  const loose = lead.quantity === null ? splitUnitWord(lead.rest, units) : null;
+  const rest = loose?.rest ?? lead.rest;
+  const unit: Pick<ShopUnit, "name" | "abbreviation"> | null = loose?.unit ?? lead.unit;
   const extra = rest.match(/^(.*\S)\s+(\d[\d,.]*)\s?%$/);
-  return { title: extra ? extra[1]! : rest, quantity, unit, extra: extra ? `${extra[2]} %` : "" };
+  return { title: extra ? extra[1]! : rest, quantity: lead.quantity, unit, extra: extra ? `${extra[2]} %` : "" };
 }
 
 const ENDINGS = ["en", "er", "e", "n", "s"];
@@ -203,13 +223,39 @@ export function itemDetail(
 ): string {
   const { properties, own } = splitNote(item.note);
   const old = splitOldLine(own, units);
-  const parts = item.food
-    ? [quantityText(item), ...properties, own]
-    : [quantityText(item) || quantityText({ quantity: old.quantity ?? 0, unit: old.unit }), ...properties, old.extra];
+  const amount = quantityText({ quantity: item.quantity > 0 ? item.quantity : (old.quantity ?? 0), unit: item.unit ?? old.unit });
+  const parts = item.food ? [quantityText(item), ...properties, own] : [amount, ...properties, old.extra];
   const line = parts.filter(Boolean).join(" · ");
   if (line) return line;
   const name = recipes[item.recipeReferences?.[0]?.recipeId ?? ""];
   return name ? fromRecipe(name) : "";
+}
+
+const LAST_LIST_KEY = "kh-shopping-list";
+
+/** The list used last on this device; localStorage may be blocked or empty, then there is none. */
+export function lastList(): string | null {
+  try {
+    return localStorage.getItem(LAST_LIST_KEY);
+  }
+  catch {
+    return null;
+  }
+}
+
+/** Remembers the list used last on this device; a blocked localStorage only loses the convenience. */
+export function rememberList(id: string): void {
+  try {
+    localStorage.setItem(LAST_LIST_KEY, id);
+  }
+  catch {
+    // storing the choice is a convenience only
+  }
+}
+
+/** The lists with the one used last (LAST) first, the others in their order. */
+export function lastUsedFirst<T extends { id: string }>(lists: T[], last: string | null): T[] {
+  return [...lists].sort((a, b) => Number(b.id === last) - Number(a.id === last));
 }
 
 /** The list to open: the one in the address, else the last used on this device, else the first. */
@@ -222,4 +268,22 @@ export function shoppingRedirect(path: string, query: Record<string, unknown>): 
   const match = path.match(/^\/shopping-lists(?:\/([^/]+))?\/?$/);
   if (!match || "klassisch" in query) return null;
   return { path: "/einkauf", query: match[1] ? { liste: match[1] } : {} };
+}
+
+/** What linking an item without a food to the group's food of its name sets (food, unit and a cleaned note), or null. */
+export function foodLink<F extends { id: string; name: string; pluralName?: string | null }, U extends ShopUnit>(
+  item: Pick<ShopItem, "food" | "note" | "unit">,
+  foods: F[],
+  units: U[],
+): { food: F; unit: U | null; note: string } | null {
+  if (item.food) return null;
+  const { properties, own } = splitNote(item.note);
+  const old = splitOldLine(own, units);
+  // exact only: this write runs unattended, so no singular/plural guessing (Eis is not Ei)
+  const wanted = old.title.trim().toLowerCase();
+  const food = foods.find(entry => [entry.name, entry.pluralName].some(text => text?.trim().toLowerCase() === wanted));
+  const word = old.unit && findUnit(old.unit.name, units);
+  // a unit the group lacks (g, l ...) or a typed amount stay in the note: only whole, simple notes are linked
+  if (!food || old.quantity !== null || old.extra || (old.unit && (!word || item.unit))) return null;
+  return { food, unit: word ?? null, note: joinNote(properties, "") };
 }

@@ -6,6 +6,14 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Flows simplified (D76): the bar at the bottom gets a "Week" tab (meal plan, only with the add-on), cook mode uses
+  the whole screen, the inbox lists waiting drafts first and folds the add form, no-AI drafts offer "Type it yourself",
+  failed drafts leave the inbox count, the draft review keeps "Accept" at the bottom and has one "Makes 12 muffins" row,
+  More is sorted into Plan, Collection, Settings (own page), Help and Account, the meal plan starts on Monday and has a
+  button "All to shopping list", the week suggestion fits a phone, and the 1.3 news has six cards instead of eleven.
+- Delete account (D78): deleting an account (by an admin or by yourself under More > Account) keeps the person's recipes,
+  lists, meal-plan entries, comments and cooked entries in the household, handed to another person who is shown in the
+  dialog; favorites, ratings and settings go. Refused for the last admin and the last person of a household.
 - Set up Kochheft (D68): a page under More (`/aufs-handy`) with short steps per device (iPhone, iPad, Android, Mac,
   other computers) for the home screen or Dock, the shopping list as its own icon, a key for shortcuts, the import and
   Siri shortcuts and the Clock timer; a question on each new device after sign-in; the introduction got steps for
@@ -25,6 +33,11 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Share the week (D73): "Share the week" in the planner sends the planned days as text.
 - Cook mode on a landscape iPad or a computer (D74): ingredients on the left with the current step's ones
   highlighted, the step on the right; phones and portrait unchanged.
+- Shopping and cooking made simpler (D77): recipe ingredients without a linked food show their unit under the name and
+  join the matching tile; "2 milk" keeps the unit already on the list and only shows a short note instead of opening
+  the sheet; 2 to 5 stores are chips under the title; "Add to shopping list" lists the store used last first. In cook
+  mode "You need" writes the amount first, the last step has one "Done - cooked" button (and "Just close"), and
+  timers are named "Step 3 · 20 Min".
 - Shopping list without network (D63): `/einkauf` opens from the last loaded state when there is no signal; ticking
   off, adding, amounts, properties, urgency and notes work and are sent in order when the network is back (a banner
   says so). Needs the add-on "Offline recipes"; switching it off or signing out removes the stored lists.

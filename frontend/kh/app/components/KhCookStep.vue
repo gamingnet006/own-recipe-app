@@ -1,7 +1,7 @@
 <!-- KH: cook mode shows one step at a time (D42): progress, what the step needs, its text in big type, the running
 timers and two big buttons. Swiping, the arrow keys and the space bar move between steps; the screen stays on. -->
 <template>
-  <div ref="area" class="kh-cook mx-auto px-4" :class="{ 'kh-cook-wide': wide }">
+  <div ref="area" class="kh-cook mx-auto px-4" :class="{ 'kh-cook-wide': wide, 'kh-cook-extra': asksMade }">
     <!-- wide landscape screens (D74): the ingredients stay in view at the left, the step is at the right -->
     <aside v-if="wide" class="kh-cook-ingredients">
       <RecipeIngredients
@@ -67,32 +67,35 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
       <KhCookVoice class="mt-4" :recipe="recipe" :scale="scale" :cook="cook" @close="emit('close')" />
 
       <div class="kh-cook-buttons d-flex ga-3">
+        <!-- always in view: a small text button above the main buttons, inside the fixed bar -->
+        <v-btn v-if="asksMade" variant="text" size="small" class="kh-close-only" @click="emit('close')">
+          {{ $t("kh.cook.close-only") }}
+        </v-btn>
         <v-btn size="x-large" variant="tonal" :disabled="cook.isFirst.value" @click="cook.back()">
           {{ $t("kh.cook.back") }}
         </v-btn>
-        <v-btn size="x-large" color="primary" class="kh-forward" @click="cookForward(cook, () => emit('close'))">
+        <!-- on the last step the one green button notes the dish as cooked (Mealie's "I made this" dialog) -->
+        <v-btn
+          v-if="asksMade"
+          size="x-large"
+          color="primary"
+          class="kh-forward"
+          :prepend-icon="$globals.icons.chefHat"
+          @click="madeThis = true"
+        >
+          {{ $t("kh.cook.done-made") }}
+        </v-btn>
+        <v-btn v-else size="x-large" color="primary" class="kh-forward" @click="cookForward(cook, () => emit('close'))">
           {{ cook.isLast.value ? $t("kh.cook.done") : $t("kh.cook.next") }}
         </v-btn>
       </div>
-      <!-- on the last step: done and noted as cooked in one go, with Mealie's "I made this" dialog -->
-      <v-btn
-        v-if="cook.isLast.value && isOwnGroup"
-        size="large"
-        variant="tonal"
-        color="success"
-        block
-        class="mt-3"
-        :prepend-icon="$globals.icons.chefHat"
-        @click="madeThis = true"
-      >
-        {{ $t("kh.cook.done-made") }}
-      </v-btn>
       <RecipeLastMade
         v-if="isOwnGroup"
         v-model:dialog="madeThis"
         :recipe="recipe"
+        :submit-text="$t('kh.cook.save-made')"
         class="d-none"
-        @event-created="cookForward(cook, () => emit('close'))"
+        @event-created="cook.finish()"
       />
     </div>
   </div>
@@ -116,6 +119,7 @@ const props = defineProps<{ recipe: RecipeOut; scale: number; cook: KhCook; ingr
 const emit = defineEmits<{ "close": []; "all-steps": [] }>();
 const { isOwnGroup } = useLoggedInState();
 const madeThis = ref(false); // the "I made this" dialog, opened from the last step
+const asksMade = computed(() => props.cook.isLast.value && isOwnGroup.value);
 
 // Two columns on wide landscape screens (iPad lying down, Mac); phones and upright iPads keep the single column.
 const wide = useMediaQuery("(min-width: 1024px) and (orientation: landscape)");
@@ -246,8 +250,21 @@ onBeforeUnmount(() => {
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
+.kh-cook-buttons {
+  flex-wrap: wrap;
+}
+
 .kh-cook-buttons .v-btn {
   flex: 1;
+}
+
+.kh-cook-buttons .kh-close-only {
+  flex: 0 0 100%;
+}
+
+/* the extra row of the bar on the last step */
+.kh-cook-extra {
+  padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
 }
 
 .kh-cook-buttons .kh-forward {

@@ -4,7 +4,7 @@
       "add-recipe": "Add recipe",
       "add-recipe-subtitle": "From a link, a text or a photo",
       "drafts": "Drafts",
-      "intake-description": "A link, a text, a photo or a file: the recipe is recognized and waits in the drafts until someone checks and saves it.",
+      "intake-description": "A link, a text, a photo or a file: Kochheft recognizes the recipe as a draft. It waits here until someone checks and accepts it.",
       "source": {
         "link": "Link",
         "text": "Text",
@@ -85,9 +85,10 @@
         "index": "That line is no longer in the recipe. Please reload the page.",
         "file_too_large": "The file is too large.",
         "zip_too_large": "The ZIP folder is too large once unpacked.",
-        "broken_zip": "This ZIP file cannot be opened."
+        "broken_zip": "This ZIP file cannot be opened.",
+        "ai_not_configured_member": "Ask the admin to set up an AI."
       },
-      "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
+      "shortcut-hint": "Faster from your phone: recipes arrive straight from the share menu.",
       "type-yourself": "Type a recipe in yourself",
       "edit": {
         "title": "Change the title",
@@ -118,7 +119,11 @@
         "text_too_long": "text too long",
         "unsupported": "file type not supported",
         "too_many": "too many files"
-      }
+      },
+      "shortcut-link": "Set up Kochheft",
+      "type-yourself-short": "Type it yourself",
+      "yield": "Makes",
+      "discard-this": "Discard this draft"
     },
     "nav": {
       "intake": "Intake",
@@ -143,7 +148,12 @@
       "households": "Household access",
       "sidebar": "Side menu",
       "in-sidebar": "In the side menu",
-      "sidebar-hint": "Without a tick, the function is only here under More, not in the side menu."
+      "sidebar-hint": "Without a tick, the function is only under More, not in the side menu.",
+      "mealplan": "Meal plan",
+      "week": "Week",
+      "settings": "Settings",
+      "help": "Help",
+      "account": "Account"
     },
     "recipe": {
       "servings": "serving | servings",
@@ -157,7 +167,7 @@
       "time-hint": "With this much more or less, baking and cooking times often change."
     },
     "ai": {
-      "choice-hint": "How it works: below, use “Create provider” to add a provider with your key, for example Google Gemini (free, step-by-step guide right below). For text and recipes Kochheft uses the top provider of the list; photos and screenshots are read by the top one that reads images; change the order with the arrows. Audio and video: Mealie's audio provider only worked with providers that offer OpenAI's speech-to-text interface (in practice only OpenAI/ChatGPT) and only served the video download Kochheft does not do. Your own recordings are transcribed by the Whisper add-on instead; it runs locally and needs no key.",
+      "choice-hint": "How it works: below, use “Create provider” to add a provider with your key, for example Google Gemini (free, step-by-step guide right below). For text and recipes Kochheft uses the top provider of the list; photos and screenshots are read by the top one that reads images; change the order with the arrows. Audio and video: An audio provider only worked with providers that offer OpenAI's speech-to-text interface (in practice only OpenAI/ChatGPT) and only served the video download Kochheft does not do. Your own recordings are transcribed by the Whisper add-on instead; it runs locally and needs no key.",
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
       "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",
@@ -181,10 +191,10 @@
         "free": "free",
         "trial": "trial credits"
       },
-      "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
+      "unavailable-hint": "AI not reachable: only links work.",
       "no-images": "reads no images",
       "order-failed": "The order could not be saved; the list has been reloaded.",
-      "missing-hint": "No AI set up yet: Kochheft reads photos and texts once someone adds an AI provider. Links with recipe data and text files exported from Kochheft already work.",
+      "missing-hint": "No AI set up: only links work.",
       "guide": {
         "title": "Step by step: set up Gemini (free)",
         "key": "Get a key: open the page below, sign in with your Google account, tap \"Create API key\" and copy the key. Do not add a billing account there; then it costs nothing.",
@@ -236,6 +246,7 @@
     },
     "timer": {
       "list": "Running timers",
+      "label": "Step {n} · {time}",
       "done": "done",
       "off": "Off",
       "more": "{n} more min.",
@@ -299,7 +310,9 @@
       "back": "Back",
       "next": "Next",
       "done": "Done",
-      "done-made": "Done, mark as cooked",
+      "done-made": "Done – cooked",
+      "close-only": "Just close",
+      "save-made": "Save as cooked",
       "you-need": "You need:",
       "leave": "Leave cook mode",
       "no-steps": "This recipe has no steps.",
@@ -339,7 +352,7 @@
       "own-photo-hint": "Only for photos you took yourselves",
       "servings": "Servings",
       "print": "Print / Save as PDF",
-      "empty": "This cookbook finds no recipes. Adjust the filter in Mealie's cookbook.",
+      "empty": "This cookbook finds no recipes. Adjust the filter in the cookbook.",
       "forbidden": "Only the own household can change this cookbook",
       "save-failed": "Saving did not work.",
       "load-failed": "The cookbook could not be loaded.",
@@ -543,7 +556,7 @@
     },
     "addons": {
       "description": "Choose which functions Kochheft shows for your household. Switched-off functions disappear from the interface, their data stays.",
-      "off-hint": "{name} is switched off. An admin can switch it on under More → Add-ons.",
+      "off-hint": "{name} is switched off. An admin can switch it on under More → Settings → Add-ons.",
       "unavailable": "Not set up, see the guide.",
       "needs-allergens": "Needs the Allergens function.",
       "presets": {
@@ -634,6 +647,18 @@
       },
       "local-ai": "Local AI (e.g. Ollama) works in principle too – see the guide. Untested.",
       "local-ai-link": "Guide"
+    },
+    "account-delete": {
+      "admin-heir": "Recipes and lists go to:",
+      "admin-note": "This person's favorites and ratings are deleted.",
+      "confirm-label": "Type your username to confirm",
+      "done": "Your account is deleted.",
+      "entry": "Delete account",
+      "keeps": "Your {recipes} and {lists} stay in the family, they will belong to {heir}. Favorites, ratings and your settings are deleted. This cannot be undone.",
+      "lists": "{count} shopping list | {count} shopping lists",
+      "nothing": "Favorites, ratings and your settings are deleted. This cannot be undone.",
+      "recipes": "{count} recipe | {count} recipes",
+      "title": "Delete account"
     },
     "accounts": {
       "switch": "Switch household",
@@ -738,7 +763,7 @@
         },
         "more": {
           "title": "More",
-          "text": "Under More you find all functions, can adjust your own side menu and watch this introduction again."
+          "text": "Under More you find all functions, the settings and this introduction to watch again."
         }
       }
     },
@@ -756,6 +781,8 @@
       "details-title": "Details for {name}",
       "from-recipe": "From the recipe “{name}”",
       "from-recipe-short": "From {name}",
+      "amount-set": "{name}: {amount}",
+      "already-there": "{name} is already on the list",
       "quantity": "Amount",
       "properties": "Properties",
       "urgency": "How urgent?",
@@ -945,10 +972,10 @@
         }
       },
       "timer": {
-        "open": "Open More",
+        "open": "Open settings",
         "ios": {
           "title": "Clock timer",
-          "s1": "Under More → Timer turn on “Put on Clock timer”.",
+          "s1": "Under More → Settings → Timer turn on “Put on Clock timer”.",
           "s2": "The timer then rings even when the device is locked."
         }
       }
@@ -960,39 +987,19 @@
       "v1-3": {
         "tiles": {
           "title": "Shopping list with tiles",
-          "text": "Tap items instead of typing them. Every store has its own list, and details like “2 packs” sit next to the item."
-        },
-        "amount": {
-          "title": "Type the amount",
-          "text": "Just write “2 milk”: Kochheft splits amount and item itself."
-        },
-        "offline": {
-          "title": "Offline and “Always at home”",
-          "text": "The list works even where the supermarket has no signal. Mark salt, flour and oil as “Always at home”, they stay unticked."
+          "text": "Tap items or write “2 milk”. Every store has its own list with details, and it works without a signal. Mark what is always at home as “Always at home”."
         },
         "siri": {
           "title": "Hey Siri, Auf die Einkaufsliste",
           "text": "Tell Siri what is missing and it lands on the list. Setting it up takes two minutes."
         },
         "share": {
-          "title": "Share recipes",
-          "text": "Share a recipe “as text” with any messenger, or export your cookbook as files."
-        },
-        "files": {
-          "title": "Import files",
-          "text": "Drop recipe files or a whole ZIP into the inbox. You check before anything reaches the cookbook."
+          "title": "Share and import recipes",
+          "text": "Share a recipe “as text” or export your cookbook as files. Drop recipe files or a ZIP into the inbox; you check before anything reaches the cookbook."
         },
         "week": {
-          "title": "What do I cook this week?",
-          "text": "In the meal plan “Suggest a week” offers dishes you have not had for a while. You choose, Kochheft plans them."
-        },
-        "wishes": {
-          "title": "Wish list",
-          "text": "Wish for a recipe: the family sees the wishes in the meal plan and plans one with a tap."
-        },
-        "weekshare": {
-          "title": "Share the week",
-          "text": "Send the week's plan as text to the family, right from the meal plan."
+          "title": "Plan the week",
+          "text": "“Suggest a week” in the meal plan picks dishes you have not had for a while. A tap plans a family wish, and you can share the plan as text."
         },
         "setup": {
           "title": "Set up Kochheft",
@@ -1000,7 +1007,7 @@
         },
         "notifications": {
           "title": "Notifications",
-          "text": "If you like, Kochheft speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More."
+          "text": "If you like, Kochheft speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More → Settings."
         }
       }
     },
@@ -1043,6 +1050,10 @@
           "text": "After an update with new functions, once."
         }
       }
+    },
+    "planner": {
+      "all-to-list": "All to shopping list",
+      "sunday-note": "Sunday counts as “not chosen” in Kochheft; the week then starts on Monday."
     }
   }
 }

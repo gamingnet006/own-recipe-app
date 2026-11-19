@@ -33,6 +33,7 @@ const emit = defineEmits<{ close: [] }>();
 
 const khOn = useKhOn();
 const timers = useKhTimers();
+const { t } = useI18n();
 
 /** Does what the heard word says; "timer" starts the first time of the step, like the first tap on it. */
 function run(command: VoiceCommand): void {
@@ -43,7 +44,7 @@ function run(command: VoiceCommand): void {
   else if (command === "stop") timers.timers.value.filter(timers.done).forEach(timer => timers.stop(timer.id));
   else {
     const time = step && khStepTimes(place, step, props.recipe, props.scale)[0];
-    if (time && step) timers.start(time, timerLabel(place, step.text ?? ""), props.recipe.slug ?? "", place);
+    if (time && step) timers.start(time, timerLabel(place, time.seconds, t), props.recipe.slug ?? "", place);
   }
 }
 

@@ -75,3 +75,7 @@ They can use existing tags and categories.
 2. Tick **Benutzer kann Lebensmittel, Tags und Kategorien verwalten** (User can manage foods, tags and categories).
 
 That is not an admin right.
+
+## Deleting an account
+
+Deleting an account does not lose the person's recipes: recipes, shopping lists, meal-plan entries, comments and "cooked" entries go to another person of the same household (admins and household managers first, otherwise the oldest account, never a linked account of the same person). Favorites, ratings, intolerances, wishes, settings, keys and links are deleted. Admins delete under **Admin → Users** and choose the heir; if the person is alone in the household, first move their recipes to another household. Everyone deletes their own account under **More → Account**; the person's linked accounts go with it, each with the heir of its own household.

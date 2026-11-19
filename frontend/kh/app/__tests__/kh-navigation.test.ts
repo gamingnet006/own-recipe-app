@@ -14,6 +14,8 @@ import {
   useKhSidebar,
 } from "../composables/use-kh-navigation";
 import { DEFAULT_ADDONS } from "../lib/addons";
+import { isCookScreen } from "../composables/use-kh-cook-screen";
+import { firstDayOfWeek } from "../lib/week-start";
 import { icons } from "~/lib/icons";
 import mealieTexts from "~/lang/messages/en-US.json";
 import khTexts from "../../lang/en-US.json";
@@ -27,20 +29,21 @@ function text(key: string): unknown {
 }
 
 function everyTarget(): KhNavTarget[] {
-  const { plan, collection } = moreSections("familie", "u1");
+  const { plan, collection, settings, help } = moreSections("familie", "u1");
   const all = [...barTargets("familie"), ...sidebarTargets("familie"), ...plan,
-    ...collection];
+    ...collection, ...settings, ...help];
   all.push(...settingsTargets({ canOrganize: true, admin: true, linked: true }, "familie"));
   return all.flatMap(target => [target, ...(target.children ?? [])]);
 }
 
 describe("destinations", () => {
-  test("the bar has recipes, intake, shopping list and more", () => {
-    expect(barTargets("familie").map(target => [target.key, target.to])).toEqual([
-      ["recipes", "/g/familie"],
-      ["intake", "/g/familie/drafts"],
-      ["shopping", "/einkauf"],
-      ["more", "/g/familie/more"],
+  test("the bar has recipes, intake, shopping list, week and more (D76)", () => {
+    expect(barTargets("familie").map(target => [target.key, target.to, target.title])).toEqual([
+      ["recipes", "/g/familie", "general.recipes"],
+      ["intake", "/g/familie/drafts", "kh.nav.intake"],
+      ["shopping", "/einkauf", "kh.nav.shopping"],
+      ["mealplan", "/household/mealplan/planner/view", "kh.nav.week"],
+      ["more", "/g/familie/more", "kh.nav.more"],
     ]);
   });
 
@@ -54,6 +57,12 @@ describe("destinations", () => {
       .toEqual(["categories", "tags", "tools"]);
   });
 
+  test("More has one row to the settings and About under help (D76)", () => {
+    const { settings, help } = moreSections("familie", "u1");
+    expect(settings.map(target => [target.key, target.to])).toEqual([["settings", "/g/familie/einstellungen"]]);
+    expect(help.map(target => [target.key, target.to])).toEqual([["about", "/g/familie/ueber"]]);
+  });
+
   test("More holds what the bar does not have", () => {
     const { plan, collection } = moreSections("familie", "u1");
     expect(plan.map(target => target.key)).toEqual(["mealplan", "cookbooks", "finder"]);
@@ -62,16 +71,18 @@ describe("destinations", () => {
   });
 
   test("the settings follow the user's rights", () => {
-    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons", "about"]);
+    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons"]);
     expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
-      .toEqual(["profile", "data", "addons", "admin", "households", "system", "about"]);
+      .toEqual(["profile", "data", "addons", "admin", "households", "system"]);
     expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-2))
-      .toEqual(["/g/familie/systempruefung", "/g/familie/ueber"]);
+      .toEqual(["/g/familie/haushalte", "/g/familie/systempruefung"]);
   });
 
   test("switched-off add-ons leave the bar, the side menu and More (D46)", () => {
     const off = { ...DEFAULT_ADDONS, shopping: false, planner: false, duplicates: false, nutrition: false, allergens: false };
     expect(barTargets("familie", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
+    expect(barTargets("familie", { ...DEFAULT_ADDONS, planner: false }).map(target => target.key))
+      .toEqual(["recipes", "intake", "shopping", "more"]); // the planner off leaves the bar at four
     expect(sidebarTargets("familie", off).map(target => target.key))
       .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline", "more"]);
     const { plan, collection } = moreSections("familie", "u1", off);
@@ -168,6 +179,26 @@ test("every path belongs to one tab of the bar", () => {
   expect(activeTab("/shopping-lists/abc", "familie")).toBe("shopping"); // the classic view
   expect(activeTab("/g/familie/more", "familie")).toBe("more");
   expect(activeTab("/g/familie/cookbooks/kuchen", "familie")).toBe("more");
-  expect(activeTab("/household/mealplan/planner/view", "familie")).toBe("more");
+  expect(activeTab("/household/mealplan/planner/view", "familie")).toBe("mealplan");
+  expect(activeTab("/household/mealplan/planner/view", "familie", { ...DEFAULT_ADDONS, planner: false })).toBe("more");
   expect(activeTab("/user/profile", "familie")).toBe("more");
+});
+test("cook mode takes the whole screen only with cook=true in the address (D76)", () => {
+  expect(isCookScreen({ cook: "true" })).toBe(true);
+  expect(isCookScreen({ cook: "false" })).toBe(false);
+  expect(isCookScreen({})).toBe(false);
+});
+test("the week starts on Monday in German homes that never chose a day, else as chosen (D76)", () => {
+  expect(firstDayOfWeek(0, "de-DE")).toBe(1);
+  expect(firstDayOfWeek(undefined, "de-DE")).toBe(1);
+  expect(firstDayOfWeek(3, "de-DE")).toBe(3);
+  expect(firstDayOfWeek(0, "en-US")).toBe(0);
+});
+test("the destinations' new names read the same in both languages (D76)", () => {
+  expect(khTextsDe.kh.nav.mealplan).toBe("Essensplan");
+  for (const texts of [khTexts, khTextsDe]) {
+    for (const key of ["mealplan", "week", "settings", "help", "account"]) {
+      expect((texts.kh.nav as Record<string, string>)[key], key).toBeTruthy();
+    }
+  }
 });

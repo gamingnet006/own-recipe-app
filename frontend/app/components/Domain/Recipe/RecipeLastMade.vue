@@ -7,7 +7,7 @@
         :loading="madeThisFormLoading"
         :icon="$globals.icons.chefHat"
         :title="$t('recipe.made-this')"
-        :submit-text="$t('recipe.add-to-timeline')"
+        :submit-text="submitText ?? $t('recipe.add-to-timeline')"
         can-submit
         disable-submit-on-enter
         @submit="createTimelineEvent"
@@ -16,7 +16,6 @@
           <v-form ref="domMadeThisForm">
             <v-textarea
               v-model="newTimelineEvent.eventMessage"
-              autofocus
               :label="$t('recipe.comment')"
               :hint="$t('recipe.how-did-it-turn-out')"
               persistent-hint
@@ -152,7 +151,8 @@ import { useHouseholdSelf } from "~/composables/use-households";
 import type { RecipeOut, RecipeTimelineEventIn, RecipeTimelineEventOut } from "~/lib/api/types/recipe";
 import type { VForm } from "~/types/auto-forms";
 
-const props = defineProps<{ recipe: RecipeOut }>();
+// KH: no autofocus (it pops the iPhone keyboard up over the dialog) and a submit text of the caller's own
+const props = defineProps<{ recipe: RecipeOut; submitText?: string }>();
 const emit = defineEmits<{
   eventCreated: [event: RecipeTimelineEventOut];
 }>();

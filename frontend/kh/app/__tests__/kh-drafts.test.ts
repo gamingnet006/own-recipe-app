@@ -12,14 +12,18 @@ import {
   fileSummary,
   importRedirectTarget,
   isVideoLink,
+  NO_AI_ERROR,
   originLabel,
   pollingNeeded,
   recipeChanges,
   requestError,
   reviewLayout,
+  setYieldNumber,
   useKhDraftCount,
   useKhPolling,
   warningTarget,
+  waitingCount,
+  yieldNumber,
 } from "../composables/use-kh-drafts";
 import de from "../../lang/de-DE.json";
 import en from "../../lang/en-US.json";
@@ -99,6 +103,21 @@ describe("texts", () => {
     expect(errorText("something_new", t)).toBe(t("kh.drafts.error.unknown"));
   });
 
+  test("without an AI provider, whoever cannot manage it is told to ask the admin (D76)", () => {
+    expect(errorText(NO_AI_ERROR, t)).toBe("kh.drafts.error.ai_not_configured");
+    expect(errorText(NO_AI_ERROR, t, false)).toBe("kh.drafts.error.ai_not_configured_member");
+    expect(errorText("quota_exceeded", t, false)).toBe("kh.drafts.error.quota_exceeded");
+    expect(de.kh.drafts.error.ai_not_configured_member).toBe("Frag den Admin, eine KI einzurichten.");
+  });
+
+  test("the one number of \"Ergibt 12 Muffins\" is the yield amount, else the servings, and is saved as both (D76)", () => {
+    expect(yieldNumber({ recipeServings: 4, recipeYieldQuantity: 12 })).toBe(12);
+    expect(yieldNumber({ recipeServings: 4, recipeYieldQuantity: 0 })).toBe(4);
+    const changes = { recipeServings: 4, recipeYieldQuantity: 12 };
+    setYieldNumber(changes, 6);
+    expect(changes).toEqual({ recipeServings: 6, recipeYieldQuantity: 6 });
+  });
+
   test("the recording errors have their own texts, a recording is titled by its file name", () => {
     for (const code of ["whisper_unreachable", "whisper_timeout", "whisper_failed", "media_too_large", "media_not_configured", "not_audio_video"]) {
       expect(errorText(code, t)).toBe(`kh.drafts.error.${code}`);
@@ -145,6 +164,13 @@ describe("useKhDraftCount", () => {
     getMock.mockResolvedValue({ data: null, error: new Error("offline") });
     await refresh();
     expect(count.value).toBe(2);
+  });
+
+  test("a failed draft is not counted: it needs no review (D76)", async () => {
+    getMock.mockResolvedValue({ data: [{ id: "a", status: "ready" }, { id: "b", status: "failed" }, { id: "c", status: "working" }], error: null });
+    await useKhDraftCount().refresh();
+    expect(useKhDraftCount().count.value).toBe(2);
+    expect(waitingCount([])).toBe(0);
   });
 
   test("is shared by the menu and the pages", async () => {

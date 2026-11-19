@@ -155,6 +155,10 @@ test("the alarm beeps and vibrates until stopped or the limit", async () => {
   expect(beep).toHaveBeenCalledTimes(atLimit);
 });
 
+vi.mock("vue-i18n", () => ({
+  useI18n: () => ({ t: (_key: string, values: { n: number; time: string }) => `Schritt ${values.n} · ${values.time}` }),
+}));
+
 // The step display needs Mealie's i18n set-up; its times are all the handler takes from it (tested in kh-step-text).
 vi.mock("../lib/step-text", async importOriginal => ({
   ...(await importOriginal<typeof import("../lib/step-text")>()),
@@ -191,7 +195,7 @@ test("a tap on a time starts its timer and stops there; a tap elsewhere does not
   expect(useKhTimers(now).timers.value).toEqual([]);
   expect(clickOn(container.querySelector("span")!)).toHaveBeenCalled();
   const [timer] = useKhTimers(now).timers.value;
-  expect(timer).toMatchObject({ label: "1. Teig 10 Min. ruhen", recipeSlug: "kuchen", seconds: 600, step: 0 });
+  expect(timer).toMatchObject({ label: "Schritt 1 · 10 Min", recipeSlug: "kuchen", seconds: 600, step: 0 });
 });
 
 describe("the clock shortcut setting", () => {

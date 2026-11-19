@@ -1,6 +1,6 @@
 // KH: tests for the pure parts of "Woche vorschlagen" (D70).
 import { describe, expect, test } from "vitest";
-import { buildRows, daysWithoutDinner, entriesToCreate } from "../lib/week-suggestion";
+import { buildRows, dayLabel, daysWithoutDinner, entriesToCreate } from "../lib/week-suggestion";
 
 const recipe = (id: string) => ({ id, slug: id, name: id, image: null });
 const today = new Date(2026, 10, 19);
@@ -32,5 +32,12 @@ describe("entriesToCreate", () => {
     const rows = buildRows(["2026-11-19", "2026-11-20"], [recipe("a"), recipe("b")]);
     rows[0]!.checked = false;
     expect(entriesToCreate(rows)).toEqual([{ date: "2026-11-20", entryType: "dinner", recipeId: "b" }]);
+  });
+});
+
+describe("dayLabel", () => {
+  test("is short: weekday, day and month", () => {
+    expect(dayLabel("2026-11-20", "de-DE")).toBe("Fr 20.11.");
+    expect(dayLabel("2026-11-20", "en-US")).toBe("Fri 11/20");
   });
 });

@@ -34,3 +34,9 @@ export function buildRows(dates: string[], recipes: KhSuggestedRecipe[]): Sugges
 export function entriesToCreate(rows: SuggestionRow[]) {
   return rows.filter(row => row.checked).map(row => ({ date: row.date, entryType: "dinner" as const, recipeId: row.recipe.id }));
 }
+
+/** A short day label for a phone, "Do 20.11." (D76): weekday, day and month without the commas and dots of the locale. */
+export function dayLabel(date: string, locale: string): string {
+  const parts = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "numeric" }).format(parseISO(date));
+  return parts.replace(/[.,]+\s/, " ");
+}

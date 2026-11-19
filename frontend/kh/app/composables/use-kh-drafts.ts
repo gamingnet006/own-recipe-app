@@ -44,10 +44,15 @@ export function useKhDraftCount() {
 
   async function refresh() {
     const { data } = await api.list();
-    if (data) count.value = data.length; // if loading fails, the last number stays
+    if (data) count.value = waitingCount(data); // if loading fails, the last number stays
   }
 
   return { count, refresh };
+}
+
+/** The drafts the badge counts: the ones that wait for a review. A failed draft needs no review (D76), so it stays out. */
+export function waitingCount(list: KhDraft[]): number {
+  return list.filter(draft => draft.status !== "failed").length;
 }
 
 /** Runs LOAD now and again every few seconds while it answers true; stops for good when the page is left. */
@@ -91,9 +96,25 @@ export function isVideoLink(url: string): boolean {
   }
 }
 
-/** The sentence for an error code from the API; codes this version does not know get the general one. */
-export function errorText(code: string, t: Translate): string {
+/** The error code of a draft that failed because no AI provider is set up (D76): trying again cannot help, typing can. */
+export const NO_AI_ERROR = "ai_not_configured";
+
+/** The sentence for an error code from the API; codes this version does not know get the general one. Whoever cannot
+ * manage the AI providers (CAN_MANAGE false) is told to ask the admin instead of where to set one up (D76). */
+export function errorText(code: string, t: Translate, canManage = true): string {
+  if (code === NO_AI_ERROR && !canManage) return t("kh.drafts.error.ai_not_configured_member");
   return t(`kh.drafts.error.${ERROR_CODES.has(code) ? code : "unknown"}`);
+}
+
+/** The one number of "Ergibt 12 Muffins" (D76): the yield amount, else the servings. */
+export function yieldNumber(changes: Pick<KhRecipeChanges, "recipeServings" | "recipeYieldQuantity">): number {
+  return changes.recipeYieldQuantity || changes.recipeServings;
+}
+
+/** Sets servings and yield amount to the same number, as the single field of the review writes both. */
+export function setYieldNumber(changes: Pick<KhRecipeChanges, "recipeServings" | "recipeYieldQuantity">, value: number): void {
+  changes.recipeServings = value;
+  changes.recipeYieldQuantity = value;
 }
 
 /** The sentence after a file import (D62): "3 Entwürfe angelegt, 1 übersprungen: Suppe.txt (zu groß)". T writes the

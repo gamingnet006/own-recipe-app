@@ -9,13 +9,16 @@ const SHOPPING_PAGE = "/einkauf";
 const CLASSIC_SHOPPING = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons" | "switch" | "households";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "switch" | "households";
 
 /** The side-menu entries a person may hide (D58), in the menu's order; the server holds the same keys
  * (mealie/kh/navigation/schemas.py). Recipes and More always stay. */
 export const HIDEABLE_ENTRIES = ["intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline"] as const;
 
-export type KhTab = "recipes" | "intake" | "shopping" | "more";
+export type KhTab = "recipes" | "intake" | "shopping" | "mealplan" | "more";
+
+// The planner page (D70, D76: its own tab in the bar)
+const PLANNER_PAGE = "/household/mealplan";
 
 export interface KhNavTarget {
   key: KhNavKey;
@@ -38,7 +41,7 @@ function allTargets(groupSlug: string, userId: string): Targets {
     intake: target("intake", `${group}/drafts`, "import", "kh.nav.intake"),
     shopping: target("shopping", SHOPPING_PAGE, "formatListCheck", "kh.nav.shopping"),
     more: target("more", `${group}/more`, "dotsHorizontal", "kh.nav.more"),
-    mealplan: target("mealplan", "/household/mealplan/planner/view", "calendarMultiselect", "meal-plan.meal-planner"),
+    mealplan: target("mealplan", `${PLANNER_PAGE}/planner/view`, "calendarMultiselect", "kh.nav.mealplan"),
     cookbooks: target("cookbooks", `${group}/cookbooks`, "book", "cookbook.cookbooks"),
     finder: target("finder", `${group}/recipes/finder`, "search", "kh.nav.finder"),
     favorites: target("favorites", `/user/${userId}/favorites`, "heart", "general.favorites"),
@@ -49,25 +52,28 @@ function allTargets(groupSlug: string, userId: string): Targets {
     duplicates: target("duplicates", `${group}/doppelte`, "duplicate", "kh.nav.duplicates"),
     nutrition: target("nutrition", `${group}/naehrwerte`, "foods", "kh.nav.nutrition"),
     tolerance: target("tolerance", `${group}/vertraeglichkeit`, "alertOutline", "kh.nav.tolerance"),
+    settings: target("settings", `${group}/einstellungen`, "cog", "kh.nav.settings"),
     profile: target("profile", "/user/profile", "cog", "profile.user-settings"),
     data: target("data", "/group/data", "manageData", "data-pages.data-management"),
     admin: target("admin", "/admin/site-settings", "wrench", "settings.admin-settings"),
     about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
     system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
     addons: target("addons", `${group}/zusatzfunktionen`, "tools", "kh.nav.addons"),
-    // not a page: the More page opens a dialog for it
+    // not a page: the settings page opens a dialog for it
     switch: target("switch", `${group}/more`, "swapHorizontal", "kh.accounts.switch"),
     households: target("households", `${group}/haushalte`, "household", "kh.nav.households"),
   };
 }
 
 /**
- * The tabs of the bar at the bottom (without the shopping list, while that is switched off, three). ON is the
- * household's add-on switches (D46), by default the shared state; the next functions use it alike.
+ * The tabs of the bar at the bottom: recipes, intake, shopping list, week (the planner, D76) and More; a tab of a
+ * switched-off add-on is missing, so the bar has three to five places. ON is the household's add-on switches (D46), by
+ * default the shared state; the next functions use it alike.
  */
 export function barTargets(groupSlug: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
   const all = allTargets(groupSlug, "");
-  return [all.recipes, all.intake, ...(on.shopping ? [all.shopping] : []), all.more];
+  const week = { ...all.mealplan, icon: "calendar", title: "kh.nav.week" };
+  return [all.recipes, all.intake, ...(on.shopping ? [all.shopping] : []), ...(on.planner ? [week] : []), all.more];
 }
 
 /** Mealie's side menu from 840 px: the bar's destinations and More's, with the organizers grouped as in Mealie; More
@@ -104,14 +110,15 @@ export function sidebarChoices(groupSlug: string, on: KhAddonFlags = khAddons.en
   return sidebarTargets(groupSlug, on, []).filter(target => HIDEABLE_ENTRIES.some(key => key === target.key));
 }
 
-/** What the More page lists besides the settings: planning, and the user's collection. An intake or shopping list
- * hidden from the side menu (D58) is listed under planning, so it stays reachable on a wide screen. */
+/** What the More page lists (D76): planning, the user's collection, the one row to the settings page and the help
+ * pages (the tour, set-up and news rows are dialogs and pages of their own, only About is a destination). An intake or shopping list hidden from
+ * the side menu (D58) is listed under planning, so it stays reachable on a wide screen. */
 export function moreSections(
   groupSlug: string,
   userId: string,
   on: KhAddonFlags = khAddons.enabled,
   hidden: readonly string[] = khSidebar.hidden,
-): { plan: KhNavTarget[]; collection: KhNavTarget[] } {
+): { plan: KhNavTarget[]; collection: KhNavTarget[]; settings: KhNavTarget[]; help: KhNavTarget[] } {
   const all = allTargets(groupSlug, userId);
   return {
     plan: [
@@ -127,11 +134,13 @@ export function moreSections(
       ...(on.nutrition ? [all.nutrition] : []),
       ...(on.allergens ? [all.tolerance] : []),
     ],
+    settings: [all.settings],
+    help: [all.about],
   };
 }
 
-/** The settings pages this user may open, as in Mealie's side menu, plus our add-ons, the household switch (only with
- * linked accounts, D52), households and system check (admins) and About. */
+/** The pages of the settings page (D76) this user may open, as in Mealie's side menu, plus our add-ons, the household
+ * switch (only with linked accounts, D52), households and system check (admins). */
 export function settingsTargets(
   user: { canOrganize?: boolean; admin?: boolean; linked?: boolean },
   groupSlug: string,
@@ -143,17 +152,17 @@ export function settingsTargets(
     all.addons,
     ...(user.linked ? [all.switch] : []),
     ...(user.admin ? [all.admin, all.households, all.system] : []),
-    all.about,
   ];
 }
 
-/** The tab of the bar a page belongs to; whatever is not recipes, intake or shopping list sits under More. */
-export function activeTab(path: string, groupSlug: string): KhTab {
+/** The tab of the bar a page belongs to; whatever is not recipes, intake, shopping list or week sits under More. */
+export function activeTab(path: string, groupSlug: string, on: KhAddonFlags = khAddons.enabled): KhTab {
   const group = `/g/${groupSlug}`;
   const within = (base: string) => path === base || path.startsWith(`${base}/`);
   if (path === group || path === `${group}/` || path.startsWith(`${group}/r/`)) return "recipes";
   if (within(`${group}/drafts`)) return "intake";
   if (within(SHOPPING_PAGE) || within(CLASSIC_SHOPPING)) return "shopping";
+  if (on.planner && within(PLANNER_PAGE)) return "mealplan";
   return "more";
 }
 

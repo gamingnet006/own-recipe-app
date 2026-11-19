@@ -25,7 +25,7 @@ def _primary_id(session: Session, user_id: UUID4) -> UUID4:
     return primary.scalar_one_or_none() or user_id
 
 
-def _person_users(session: Session, primary_id: UUID4) -> list[User]:
+def person_users(session: Session, primary_id: UUID4) -> list[User]:
     """All accounts of the person, the primary one first."""
     linked = sa.select(KhAccountLink.user_id).where(KhAccountLink.primary_user_id == primary_id)
     users = session.execute(sa.select(User).where(sa.or_(User.id == primary_id, User.id.in_(linked)))).scalars().all()
@@ -44,9 +44,14 @@ def _account(user: User, current_id: UUID4 | None = None) -> AccountOut:
     )
 
 
+def person_of(session: Session, user_id: UUID4) -> list[User]:
+    """All accounts of the person USER_ID belongs to, the primary one first (just USER_ID's account for most)."""
+    return person_users(session, _primary_id(session, user_id))
+
+
 def accounts_of(session: Session, user_id: UUID4) -> list[AccountOut]:
     """The accounts of USER's person; empty when the person has only one, which hides the switch."""
-    users = _person_users(session, _primary_id(session, user_id))
+    users = person_of(session, user_id)
     return [_account(user, user_id) for user in users] if len(users) > 1 else []
 
 
@@ -56,7 +61,7 @@ def all_people(session: Session) -> list[PersonOut]:
     primaries = session.execute(sa.select(User).where(User.id.not_in(linked)).order_by(User.full_name)).scalars()
     return [
         PersonOut(
-            user_id=p.id, full_name=p.full_name or "", accounts=[_account(u) for u in _person_users(session, p.id)]
+            user_id=p.id, full_name=p.full_name or "", accounts=[_account(u) for u in person_users(session, p.id)]
         )
         for p in primaries
     ]
@@ -71,7 +76,7 @@ def _strip_rights(user: User) -> None:
 def sync_linked_rights(session: Session, primary_id: UUID4) -> None:
     """Copies the primary's permissions onto all its linked accounts, so they are the same in every household; runs
     when the admin changes the primary and before a switch. Does nothing for an account that is no primary. Commits."""
-    users = _person_users(session, primary_id)
+    users = person_users(session, primary_id)
     for user in users[1:]:
         for name in permission_attrs:
             setattr(user, name, getattr(users[0], name))
@@ -81,7 +86,7 @@ def sync_linked_rights(session: Session, primary_id: UUID4) -> None:
 def delete_links(session: Session, user_id: UUID4) -> None:
     """Deletes the links a deleted user is part of, on either side, and takes the rights from the accounts that were
     linked to it; SQLite in Mealie checks no foreign keys, so the cascade is not enough. Commits."""
-    for user in _person_users(session, user_id):
+    for user in person_users(session, user_id):
         if user.id != user_id:
             _strip_rights(user)
     session.execute(
@@ -111,7 +116,7 @@ def link_account(repos: AllRepositories, primary_id: UUID4, household_id: UUID4)
         raise _fail(status.HTTP_404_NOT_FOUND, "Person or household not found")
     if _primary_id(session, primary_id) != primary_id:
         raise _fail(status.HTTP_400_BAD_REQUEST, "A linked account cannot get linked accounts of its own")
-    if any(user.household_id == household_id for user in _person_users(session, primary_id)):
+    if any(user.household_id == household_id for user in person_users(session, primary_id)):
         raise _fail(status.HTTP_400_BAD_REQUEST, "The person already has an account in this household")
 
     # The e-mail is only a placeholder for the unique column: nobody can sign in with the random password
@@ -150,7 +155,7 @@ def prepare_switch(session: Session, current_id: UUID4, target_id: UUID4) -> Non
     """Checks that TARGET belongs to the current account's person (404 otherwise, which does not reveal whether the
     account exists) and copies the primary's permissions onto it, so they stay the same in every household."""
     primary_id = _primary_id(session, current_id)
-    users = {user.id: user for user in _person_users(session, primary_id)}
+    users = {user.id: user for user in person_users(session, primary_id)}
     if target_id not in users:
         raise _fail(status.HTTP_404_NOT_FOUND, "Account not found")
     sync_linked_rights(session, primary_id)

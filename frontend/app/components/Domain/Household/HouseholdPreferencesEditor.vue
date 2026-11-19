@@ -50,6 +50,10 @@
       variant="underlined"
       flat
     />
+    <!-- KH: Mealie stores Sunday as 0, the same as "never chosen" (D76) -->
+    <p v-if="i18n.locale.value.startsWith('de')" class="text-caption text-medium-emphasis mb-2">
+      {{ $t("kh.planner.sunday-note") }}
+    </p>
 
     <BaseCardSectionTitle class="mt-5" :title="$t('household.household-recipe-preferences')">
       {{ $t("household.default-recipe-preferences-description") }}

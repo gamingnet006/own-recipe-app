@@ -72,7 +72,7 @@ def make_user(api_client: TestClient, admin_token, unique_user: TestUser) -> Gen
 
     yield make
     for user_id in made:
-        api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token)
+        assert api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token).status_code in (200, 404)
 
 
 def sign_in(api_client: TestClient, username: str, password: str) -> dict[str, str]:
@@ -242,7 +242,7 @@ def test_mealie_password_reset_ends_the_first_step(api_client: TestClient, admin
 def test_deleting_a_user_removes_its_rows(api_client: TestClient, smtp, admin_token, make_user, session):
     smtp(True)
     user = make_user(utils.random_email())
-    api_client.delete(api_routes.admin_users_item_id(user["id"]), headers=admin_token)
+    assert api_client.delete(api_routes.admin_users_item_id(user["id"]), headers=admin_token).status_code in (200, 404)
     session.expire_all()
     assert session.execute(sa.select(KhUserOnboarding).where(KhUserOnboarding.user_id == user["id"])).first() is None
     assert session.execute(sa.select(KhAccountToken).where(KhAccountToken.user_id == user["id"])).first() is None

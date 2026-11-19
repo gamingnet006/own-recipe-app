@@ -70,15 +70,16 @@
         >
           {{ $t("general.cancel") }}
         </v-btn>
+        <!-- KH: wraps on phones, so "show all" is no longer broken letter by letter (D76) -->
         <div
-          class="d-flex justify-end align-center"
+          class="d-flex justify-end align-center flex-wrap"
           style="width: 100%;"
         >
           <v-checkbox
             v-model="preferences.viewAllLists"
             hide-details
             :label="$t('general.show-all')"
-            class="my-auto mr-4"
+            class="my-auto mr-4 flex-grow-0 text-no-wrap"
             @click="setShowAllToggled()"
           />
           <v-btn
@@ -191,11 +192,12 @@
                 >
                   <v-container class="pa-0 ma-0">
                     <v-row no-gutters>
+                      <!-- KH: the theme's primary color, not Mealie's red-ish secondary (D76) -->
                       <v-checkbox
                         hide-details
                         :model-value="ingredientData.checked"
                         class="pt-0 my-auto py-auto mr-2"
-                        color="secondary"
+                        color="primary"
                         density="compact"
                       />
                       <div :key="`${ingredientData.ingredient?.quantity || 'no-qty'}-${i}`" class="pa-auto my-auto">
@@ -243,6 +245,7 @@ import { useShoppingListPreferences } from "~/composables/use-users/preferences"
 import type { RecipeIngredient, ShoppingListAddRecipeParamsBulk, ShoppingListSummary } from "~/lib/api/types/household";
 import type { RecipeOut, RecipeDraft, RecipeSummary } from "~/lib/api/types/recipe";
 import RecipeIngredientListItem from "./RecipeIngredientListItem.vue";
+import { lastList, lastUsedFirst } from "~~/kh/app/lib/shopping-items"; // KH: D76
 
 /** Ingredients are fetched on demand when the caller only has a summary. */
 export type RecipeWithScale = RecipeSummary & {
@@ -309,9 +312,10 @@ const selectedShoppingList = ref<ShoppingListSummary | null>(null);
 watch([dialog, () => preferences.value.viewAllLists], () => {
   if (dialog.value) {
     currentHouseholdSlug.value = auth.user.value?.householdSlug || "";
-    filteredShoppingLists.value = props.shoppingLists.filter(
+    // KH: the store used last on this device first (D76)
+    filteredShoppingLists.value = lastUsedFirst(props.shoppingLists.filter(
       list => preferences.value.viewAllLists || list.userId === auth.user.value?.id,
-    );
+    ), lastList());
 
     if (filteredShoppingLists.value.length === 1 && !state.shoppingListShowAllToggled) {
       selectedShoppingList.value = filteredShoppingLists.value[0];

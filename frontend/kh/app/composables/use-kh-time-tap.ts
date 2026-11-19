@@ -7,6 +7,7 @@ import type { RecipeOut, RecipeStep } from "~/lib/api/types/recipe";
  * goes no further (so Mealie's tick-off of the step does not fire); a tap elsewhere is left alone. */
 export function useKhTimeTap() {
   const { start } = useKhTimers();
+  const { t } = useI18n();
 
   return function onStepTextClick(event: MouseEvent, place: number, step: RecipeStep, recipe: RecipeOut, scale: number): void {
     const index = timeIndex(event.target, event.currentTarget as HTMLElement);
@@ -14,6 +15,6 @@ export function useKhTimeTap() {
     event.stopPropagation();
     unlockAudio();
     const time = khStepTimes(place, step, recipe, scale)[index];
-    if (time) start(time, timerLabel(place, step.text ?? ""), recipe.slug ?? "", place);
+    if (time) start(time, timerLabel(place, time.seconds, t), recipe.slug ?? "", place);
   };
 }

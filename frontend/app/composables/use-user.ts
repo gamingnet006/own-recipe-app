@@ -52,9 +52,10 @@ export const useUser = function (refreshFunc: CallableFunction | null = null) {
     return data;
   }
 
-  async function deleteUser(id: string) {
+  async function deleteUser(id: string, transferTo: string | null = null) {
     loading.value = true;
-    const { data } = await api.users.deleteOne(id);
+    // KH: the person who takes over the recipes and lists (D78)
+    const { data } = await api.users.deleteOne(id, transferTo ? { params: { transferTo } } : undefined);
     loading.value = false;
 
     if (refreshFunc) {

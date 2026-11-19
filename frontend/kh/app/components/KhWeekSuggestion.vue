@@ -2,7 +2,7 @@
      Each row can be swapped ("Anderes", which asks for one more recipe with the shown ones left out) or unticked;
      "Übernehmen" creates the ticked dinner entries. -->
 <template>
-  <v-dialog v-model="open" max-width="560" scrollable>
+  <v-dialog v-model="open" max-width="560" scrollable :fullscreen="xs">
     <v-card :title="$t('kh.week-suggestion.title')">
       <v-card-text>
         <p v-if="loading" class="text-medium-emphasis">
@@ -11,21 +11,22 @@
         <p v-else-if="!rows.length" class="text-medium-emphasis" data-testid="week-suggestion-empty">
           {{ $t("kh.week-suggestion.none") }}
         </p>
-        <div v-for="(row, i) in rows" :key="row.date" class="d-flex align-center ga-3 mb-3" data-testid="week-suggestion-row">
+        <div v-for="(row, i) in rows" :key="row.date" class="d-flex align-center ga-2 mb-3" data-testid="week-suggestion-row">
           <v-checkbox-btn v-model="row.checked" :aria-label="$t('kh.week-suggestion.take')" />
           <v-img
+            v-if="row.recipe.image"
             :src="imageOf(row.recipe)"
-            width="64"
-            height="64"
+            width="56"
+            height="56"
             cover
             rounded
             class="flex-grow-0"
           />
-          <div class="flex-grow-1" style="min-width: 0">
+          <div class="flex-grow-1 text-start" style="min-width: 0">
             <div class="text-caption text-medium-emphasis">
-              {{ $d(parseISO(row.date), "short") }}
+              {{ dayLabel(row.date, locale) }}
             </div>
-            <NuxtLink :to="`/g/${groupSlug}/r/${row.recipe.slug}`" target="_blank" class="text-body-1 font-weight-medium">
+            <NuxtLink :to="`/g/${groupSlug}/r/${row.recipe.slug}`" class="text-body-1 font-weight-medium">
               {{ row.recipe.name }}
             </NuxtLink>
           </div>
@@ -49,9 +50,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { parseISO } from "date-fns";
 import { KhWeekSuggestionApi, type KhSuggestedRecipe } from "../lib/api/week-suggestion";
-import { buildRows, daysWithoutDinner, entriesToCreate, type PlannedMeal, type SuggestionRow } from "../lib/week-suggestion";
+import { buildRows, dayLabel, daysWithoutDinner, entriesToCreate, type PlannedMeal, type SuggestionRow } from "../lib/week-suggestion";
 import { useUserApi } from "~/composables/api";
 import { useRequests } from "~/composables/api/api-client";
 import { useStaticRoutes } from "~/composables/api/static-routes";
@@ -66,6 +66,8 @@ const open = defineModel<boolean>({ default: false });
 const { recipeSmallImage } = useStaticRoutes();
 const groupSlug = useMealieAuth().user.value?.groupSlug;
 const i18n = useGlobalI18n();
+const { locale } = useI18n();
+const { xs } = useDisplay(); // a phone shows the dialog on the whole screen (D76)
 const suggestions = new KhWeekSuggestionApi(useRequests());
 const rows = ref<SuggestionRow[]>([]);
 const loading = ref(false);

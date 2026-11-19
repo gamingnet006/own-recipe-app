@@ -1,5 +1,5 @@
 <!-- KH: the bar at the bottom on phones and upright iPads (D38): recipes, the intake with its number of drafts,
-the shopping list and More, from the shared list of destinations. -->
+the shopping list, the week and More, from the shared list of destinations. -->
 <template>
   <v-bottom-navigation
     :model-value="active"
@@ -44,3 +44,14 @@ function icon(name: string): string {
   return ($globals.icons as Record<string, string>)[name] ?? "";
 }
 </script>
+
+<style scoped>
+/* Five tabs must fit a 375 px phone: Vuetify's 80 px minimum would overflow, so the tabs shrink with their labels */
+.v-bottom-navigation :deep(.v-btn) {
+  min-width: 0;
+  padding-inline: 2px;
+}
+.v-bottom-navigation :deep(.v-btn span) {
+  font-size: 0.7rem;
+}
+</style>

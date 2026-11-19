@@ -4,10 +4,12 @@ import { BASICS, catalog, filterCatalog, itemForTile, tileEmoji } from "../lib/s
 import { labelOrderFor, labelSettingsFor, STORE_PRESETS } from "../lib/shopping-stores";
 import {
   applyQuantity,
+  foodLink,
   foodMatches,
   itemDetail,
   itemTitle,
   joinNote,
+  lastUsedFirst,
   pickListId,
   quantityText,
   recentItems,
@@ -16,6 +18,7 @@ import {
   sortListItems,
   splitLeadingAmount,
   splitNote,
+  splitUnitWord,
   toggleProperty,
   urgencyOf,
   withOwnText,
@@ -294,6 +297,67 @@ describe("items", () => {
     expect(itemDetail(item({ note: "Milch 3,5%" }), known, {}, from)).toBe("3,5 %");
     expect(itemDetail(item({ note: "Bio, Brot" }), known, {}, from)).toBe("Bio");
     expect(itemTitle(item({ note: "2 Liter Milch 3,5 %" }), known)).toBe("Milch");
+  });
+});
+
+describe("recipe items without a food", () => {
+  const from = (name: string) => name;
+  const milk = item({ note: "ml Milch", quantity: 200 });
+
+  test("the unit word leaves the title and joins the amount", () => {
+    expect(itemTitle(milk, known)).toBe("Milch");
+    expect(itemDetail(milk, known, {}, from)).toBe("200 ml");
+    expect(itemTitle(item({ note: "g Mehl", quantity: 250 }), [])).toBe("Mehl");
+    expect(itemDetail(item({ note: "g Mehl", quantity: 250 }), [], {}, from)).toBe("250 g");
+    expect(itemTitle(item({ note: "Dose Tomaten", quantity: 1 }), [{ id: "u", name: "Dose" }])).toBe("Tomaten");
+  });
+
+  test("a standard unit name counts even when the group lacks the unit", () => {
+    expect(itemTitle(item({ note: "Liter Milch 3.5%", quantity: 2 }), [])).toBe("Milch");
+    expect(itemDetail(item({ note: "Liter Milch 3.5%", quantity: 2 }), [], {}, from)).toBe("2 l · 3.5 %");
+  });
+
+  test("foodLink links only an exact name or plural, never a fuzzy match", () => {
+    const f = (name: string, pluralName: string | null = null) => ({ id: name, name, pluralName });
+    expect(foodLink(item({ note: "Eis", quantity: 1 }), [f("Ei"), f("Eis")], known)?.food.id).toBe("Eis");
+    expect(foodLink(item({ note: "Eis", quantity: 1 }), [f("Ei")], known)).toBeNull();
+    expect(foodLink(item({ note: "Butter", quantity: 1 }), [f("Butt")], known)).toBeNull();
+    expect(foodLink(item({ note: " milch ", quantity: 1 }), [f("Kuh", "Milch")], known)?.food.id).toBe("Kuh");
+  });
+
+  test("splitUnitWord takes a leading unit word off", () => {
+    expect(splitUnitWord("g Zucker")).toEqual({ unit: { name: "Gramm", abbreviation: "g" }, rest: "Zucker" });
+    expect(splitUnitWord("Zucker")).toBeNull();
+    expect(splitUnitWord("Zucker braun")).toBeNull();
+  });
+
+  test("a lone word that is a unit stays the article", () => {
+    expect(itemTitle(item({ note: "Liter" }), known)).toBe("Liter");
+  });
+
+  test("the item is the one of the Milch tile", () => {
+    const tile = { name: "Milch", emoji: "", labelId: null };
+    expect(itemForTile(tile, [{ foodId: null, note: "ml Milch", food: null }])).toBeDefined();
+    expect(itemForTile(tile, [{ foodId: null, note: "ml Milch", food: null }, { foodId: null, note: "Mehl", food: null }])?.note).toBe("ml Milch");
+  });
+
+  test("foodLink finds the food and cleans the note", () => {
+    const foods = [{ id: "f1", name: "Milch", pluralName: null }];
+    const milliliter = { id: "u-ml", name: "Milliliter", abbreviation: "ml" };
+    expect(foodLink(milk, foods, [...known, milliliter])).toEqual({ food: foods[0], unit: milliliter, note: "" });
+    expect(foodLink(milk, foods, known)).toBeNull(); // the group has no unit ml: the note keeps it
+    expect(foodLink(item({ note: "Milch", quantity: 1 }), foods, known)?.food.id).toBe("f1");
+    expect(foodLink(item({ note: "2 Liter Milch" }), foods, known)).toBeNull();
+    expect(foodLink(item({ note: "ml Käse" }), foods, known)).toBeNull();
+    expect(foodLink(item({ note: "ml Milch", food: { name: "Milch" } }), foods, known)).toBeNull();
+  });
+});
+
+describe("lastUsedFirst", () => {
+  test("puts the list used last first and keeps the order of the rest", () => {
+    const lists = [{ id: "a" }, { id: "b" }, { id: "c" }];
+    expect(lastUsedFirst(lists, "c").map(list => list.id)).toEqual(["c", "a", "b"]);
+    expect(lastUsedFirst(lists, null).map(list => list.id)).toEqual(["a", "b", "c"]);
   });
 });
 

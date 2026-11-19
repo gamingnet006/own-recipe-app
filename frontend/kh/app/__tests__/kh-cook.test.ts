@@ -9,6 +9,7 @@ const query = reactive<Record<string, string>>({});
 
 beforeEach(() => {
   delete query.step;
+  delete query.cook;
   vi.stubGlobal("useRoute", () => ({ query }));
   vi.stubGlobal("useRouter", () => ({ replace: (to: { query: Record<string, string> }) => Object.assign(query, to.query) }));
 });
@@ -59,6 +60,14 @@ describe("useKhCook", () => {
     cook.goTo(3);
     await flushPromises();
     expect(query.step).toBe("4");
+  });
+
+  test("finishing drops cook and step from the address in one write", () => {
+    query.step = "5";
+    query.cook = "true";
+    useKhCook(() => 5).finish();
+    expect(query.step).toBeUndefined();
+    expect(query.cook).toBeUndefined();
   });
 
   test("all steps is off at first", () => {

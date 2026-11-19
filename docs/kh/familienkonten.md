@@ -73,3 +73,7 @@ Vorhandene Schlagwörter und Kategorien können sie verwenden.
 2. Setze den Haken bei **Benutzer kann Lebensmittel, Tags und Kategorien verwalten**.
 
 Das ist kein Admin-Recht.
+
+## Konto löschen
+
+Wird ein Konto gelöscht, verschwinden die Rezepte der Person nicht: Rezepte, Einkaufslisten, Wochenplan-Einträge, Kommentare und „gekocht“-Einträge gehen an eine andere Person desselben Haushalts (Admins und Haushaltsverwalter zuerst, sonst das älteste Konto, nie ein verbundenes Konto derselben Person). Favoriten, Bewertungen, „Ich vertrage nicht“, Wünsche, Einstellungen, Schlüssel und Verbindungen werden gelöscht. Admins löschen unter **Admin → Benutzer** und wählen die Erbin oder den Erben; ist die Person allein im Haushalt, verschiebst du ihre Rezepte zuerst in einen anderen Haushalt. Jede Person löscht ihr eigenes Konto unter **Mehr → Konto**; die verbundenen Konten derselben Person gehen dabei mit, jedes mit der Erbin oder dem Erben seines Haushalts.

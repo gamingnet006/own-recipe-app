@@ -21,3 +21,21 @@ def parse_sse_events(text: str) -> list[dict]:
     if current:
         events.append(current)
     return events
+
+
+def add_household_member(api_client, admin_token, user) -> None:
+    """KH: gives USER someone to inherit their recipes and lists, which deleting an account now needs (D78)."""
+    from tests.utils import api_routes, factories
+
+    group = api_client.get(api_routes.groups_self, headers=user.token).json()
+    household = api_client.get(api_routes.households_self, headers=user.token).json()
+    member = {
+        "fullName": factories.random_string(),
+        "username": factories.random_string(),
+        "email": factories.random_email(),
+        "password": "useruser",
+        "group": group["name"],
+        "household": household["name"],
+        "admin": False,
+    }
+    assert api_client.post(api_routes.admin_users, json=member, headers=admin_token).status_code == 201

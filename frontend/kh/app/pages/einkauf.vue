@@ -17,6 +17,19 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
           @click="shareList(list.name ?? '', items)"
         />
       </div>
+      <!-- 2 to 5 stores: one tap to switch; the menu has them all and "add store" -->
+      <div v-if="lists.length > 1 && lists.length <= MAX_CHIPS" class="kh-shop__stores mt-2">
+        <v-chip
+          v-for="entry in lists"
+          :key="entry.id"
+          :color="entry.id === list?.id ? 'primary' : undefined"
+          :variant="entry.id === list?.id ? 'flat' : 'tonal'"
+          :aria-pressed="entry.id === list?.id"
+          @click="openList(entry.id)"
+        >
+          {{ entry.name }}
+        </v-chip>
+      </div>
       <v-alert
         v-if="offline"
         type="warning"
@@ -181,13 +194,15 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
 <script setup lang="ts">
 import type { ShoppingListItemOut } from "~/lib/api/types/household";
 import { useEventListener, useIntervalFn } from "@vueuse/core";
+import { alert } from "~/composables/use-toast";
 import { useKhShareList } from "../composables/use-kh-share-list";
 import { useKhShopping } from "../composables/use-kh-shopping";
-import { URGENCY, itemDetail, itemTitle, splitLeadingAmount, urgencyOf } from "../lib/shopping-items";
+import { URGENCY, itemDetail, itemTitle, quantityText, splitLeadingAmount, urgencyOf } from "../lib/shopping-items";
 import type { StorePreset } from "../lib/shopping-stores";
 import { type Department, type Tile, filterCatalog, itemForTile, tileEmoji } from "../lib/shopping-tiles";
 
 const TILES_PER_DEPARTMENT = 12;
+const MAX_CHIPS = 5; // more stores than this only fit in the menu
 const REFRESH_MS = 30_000;
 
 const i18n = useI18n();
@@ -221,7 +236,7 @@ const newName = computed(() => {
   return query.value && !known ? name.charAt(0).toUpperCase() + name.slice(1) : "";
 });
 
-const openItemOf = (tile: Tile) => itemForTile(tile, open.value);
+const openItemOf = (tile: Tile) => itemForTile(tile, open.value, units.value);
 const emojiOf = (item: ShoppingListItemOut) => tileEmoji(itemTitle(item, units.value), item.label?.name ?? "");
 const detailOf = (item: ShoppingListItemOut) =>
   itemDetail(item, units.value, recipes.value, name => i18n.t("kh.shopping.from-recipe-short", { name }));
@@ -249,12 +264,30 @@ async function undo() {
   if (undoItem.value) await uncheck(undoItem.value);
 }
 
-/** Writes a tile down with the amount typed in the search, and opens its details; one already on the list just opens. */
+/**
+ * Opens the details of a newly written item. An article that was on the list already (and a typed line) only gets a
+ * short note of what it is now ("Milch: 2 L"), so the typing is not interrupted by a sheet; QUIET is false for a tile
+ * tapped without an amount, which is how its details are opened.
+ */
+async function showWritten(write: () => Promise<ShoppingListItemOut | null>, quiet: boolean) {
+  const before = new Set(items.value.map(entry => entry.id));
+  const item = await write();
+  if (!item) return;
+  if (!quiet || !before.has(item.id)) {
+    sheetId.value = item.id;
+    return;
+  }
+  const now = items.value.find(entry => entry.id === item.id) ?? item;
+  const name = itemTitle(now, units.value);
+  const amount = quantityText(now);
+  alert.info(amount ? i18n.t("kh.shopping.amount-set", { name, amount }) : i18n.t("kh.shopping.already-there", { name }));
+}
+
+/** Writes a tile down with the amount typed in the search. */
 async function tapTile(tile: Tile) {
   const { quantity, unit } = typed.value;
-  const item = await addTile(tile, quantity ? { quantity, unit } : undefined);
+  await showWritten(() => addTile(tile, quantity ? { quantity, unit } : undefined), !!quantity);
   search.value = "";
-  if (item) sheetId.value = item.id;
 }
 
 /** Enter in the search field or the tile "write down": the server reads the line, then it is on the list. */
@@ -262,8 +295,7 @@ async function addFromSearch() {
   const text = search.value.trim();
   if (!text) return;
   search.value = "";
-  const item = await addTyped(text);
-  if (item) sheetId.value = item.id;
+  await showWritten(() => addTyped(text), true);
 }
 
 async function removeItem(item: ShoppingListItemOut) {
@@ -309,6 +341,17 @@ useHead({ link: [{ rel: "manifest", href: "/einkauf.webmanifest", key: "manifest
   z-index: 5;
   padding: 8px 0;
   background: rgb(var(--v-theme-background));
+}
+
+.kh-shop__stores {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.kh-shop__stores .v-chip {
+  flex: none;
 }
 
 .kh-shop__title {

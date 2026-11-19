@@ -2,6 +2,7 @@
 // and every recognized time wrapped in a span that can be tapped. The stored text never changes.
 import { parseTimes, type KhTime } from "./times";
 import { ovenBrackets, type Oven } from "./oven";
+import { splitUnitWord } from "./shopping-items";
 import { khAmounts, khStepText } from "./amounts-store";
 import { useIngredientTextParser } from "~/composables/recipes/use-recipe-ingredients";
 import type { RecipeOut, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
@@ -144,12 +145,17 @@ export function timeIndex(target: EventTarget | null, container: HTMLElement): n
   return [...container.querySelectorAll(".kh-time")].findIndex(span => span.contains(target));
 }
 
-const LABEL_WORDS = 4;
+/** A duration as the timer label writes it: "45 Sek", "20 Min", "1 h 30 Min". */
+function labelDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds} Sek`;
+  const minutes = Math.round(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  return hours ? `${hours} h${minutes % 60 ? ` ${minutes % 60} Min` : ""}` : `${minutes} Min`;
+}
 
-/** The name of a timer started in step PLACE (0-based): its number and the first words of TEXT, Markdown marks removed. */
-export function timerLabel(place: number, text: string): string {
-  const plain = text.replace(/\]\([^)]*\)/g, "").replace(/[*_`#>[\]]/g, "");
-  return `${place + 1}. ${plain.split(/\s+/).filter(Boolean).slice(0, LABEL_WORDS).join(" ")}`;
+/** The name of a timer of SECONDS started in step PLACE (0-based), "Schritt 3 · 20 Min"; T is the translation function. */
+export function timerLabel(place: number, seconds: number, t: (key: string, values: Record<string, string | number>) => string): string {
+  return t("kh.timer.label", { n: place + 1, time: labelDuration(seconds) });
 }
 
 /** An ingredient as the step view lists it under "Du brauchst:". */
@@ -161,18 +167,18 @@ export interface KhNeed {
   shareAmount?: (fraction: number) => string | null;
 }
 
-/** The entries of the "Du brauchst:" line of step PLACE ("Butter 200 g"): the ingredients the step references, with
- * the amount for those no other step uses, or the share the step text names ("Mehl 125 g"); else the name alone
- * (the whole amount would not fit one of several steps). */
+/** The entries of the "Du brauchst:" line of step PLACE ("200 g Butter", amount first like the ingredient list): the
+ * ingredients the step references, with the amount for those no other step uses, or the share the step text names
+ * ("125 g Mehl"); else the name alone (the whole amount would not fit one of several steps). */
 export function stepNeeds(place: number, step: StepReferences, needs: KhNeed[], steps: StepReferences[]): string[] {
   const referenced = new Set(step.ingredientReferences?.map(r => r.referenceId));
   return needs
     .filter(need => referenced.has(need.referenceId))
     .map((need) => {
-      if (onlyStepOf(need.referenceId, steps) === place) return need.amount ? `${need.name} ${need.amount}` : need.name;
+      if (onlyStepOf(need.referenceId, steps) === place) return need.amount ? `${need.amount} ${need.name}` : need.name;
       const share = namedShare(need.referenceId, need.names, place, step.text ?? "", steps);
       const amount = share && need.shareAmount?.(share.fraction);
-      return amount ? `${need.name} ${amount}` : need.name;
+      return amount ? `${amount} ${need.name}` : need.name;
     });
 }
 
@@ -185,9 +191,15 @@ function lineAmount(line: RecipeIngredient, scale: number): string | null {
 /** The "Du brauchst:" entries of step STEP at place PLACE of RECIPE at SCALE. */
 export function khStepNeeds(place: number, step: RecipeStep, recipe: RecipeOut, scale: number): string[] {
   const needs = (recipe.recipeIngredient ?? []).flatMap((line): KhNeed[] => {
-    const name = line.food?.name ?? line.note;
+    // a line without a food may start with its unit ("g Zucker", amount in the quantity): the unit joins the amount
+    const loose = line.food || line.unit || !line.note ? null : splitUnitWord(line.note);
+    const name = line.food?.name ?? loose?.rest ?? line.note;
     if (!line.referenceId || !name) return [];
-    return [{ referenceId: line.referenceId, name, names: [name, line.food?.pluralName ?? ""], amount: lineAmount(line, scale), shareAmount: fraction => lineAmount(line, scale * fraction) }];
+    const amount = (fraction: number) => {
+      const shown = lineAmount(line, scale * fraction);
+      return shown && loose ? `${shown} ${loose.unit.abbreviation || loose.unit.name}` : shown;
+    };
+    return [{ referenceId: line.referenceId, name, names: [name, line.food?.pluralName ?? ""], amount: amount(1), shareAmount: amount }];
   });
   return stepNeeds(place, step, needs, recipe.recipeInstructions ?? []);
 }

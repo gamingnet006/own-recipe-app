@@ -4,7 +4,7 @@
       "add-recipe": "Rezept hinzufügen",
       "add-recipe-subtitle": "Aus Link, Text oder Foto",
       "drafts": "Entwürfe",
-      "intake-description": "Ein Link, ein Text, ein Foto oder eine Datei: Das Rezept wird erkannt und wartet bei den Entwürfen, bis es jemand prüft und übernimmt.",
+      "intake-description": "Ein Link, ein Text, ein Foto oder eine Datei: Kochheft erkennt das Rezept als Entwurf. Er wartet hier, bis jemand ihn prüft und übernimmt.",
       "source": {
         "link": "Link",
         "text": "Text",
@@ -85,9 +85,10 @@
         "index": "Diese Zeile gibt es im Rezept nicht mehr. Bitte lade die Seite neu.",
         "file_too_large": "Die Datei ist zu groß.",
         "zip_too_large": "Der ZIP-Ordner ist entpackt zu groß.",
-        "broken_zip": "Diese ZIP-Datei lässt sich nicht öffnen."
+        "broken_zip": "Diese ZIP-Datei lässt sich nicht öffnen.",
+        "ai_not_configured_member": "Frag den Admin, eine KI einzurichten."
       },
-      "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
+      "shortcut-hint": "Schneller vom Handy: Rezepte kommen direkt aus dem Teilen-Menü.",
       "type-yourself": "Rezept selbst eintippen",
       "edit": {
         "title": "Titel ändern",
@@ -118,7 +119,11 @@
         "text_too_long": "Text zu lang",
         "unsupported": "Dateityp nicht unterstützt",
         "too_many": "zu viele Dateien"
-      }
+      },
+      "shortcut-link": "Kochheft einrichten",
+      "type-yourself-short": "Selbst eintippen",
+      "yield": "Ergibt",
+      "discard-this": "Diesen Entwurf verwerfen"
     },
     "nav": {
       "intake": "Eingang",
@@ -143,7 +148,12 @@
       "households": "Haushalte freigeben",
       "sidebar": "Seitenleiste",
       "in-sidebar": "In der Seitenleiste",
-      "sidebar-hint": "Ohne Haken steht die Funktion nur hier unter Mehr, nicht in der Seitenleiste."
+      "sidebar-hint": "Ohne Haken steht die Funktion nur unter Mehr, nicht in der Seitenleiste.",
+      "mealplan": "Essensplan",
+      "week": "Woche",
+      "settings": "Einstellungen",
+      "help": "Hilfe",
+      "account": "Konto"
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -157,7 +167,7 @@
       "time-hint": "Bei so viel mehr oder weniger ändern sich Back- und Garzeiten oft."
     },
     "ai": {
-      "choice-hint": "So geht's: Unten mit „Anbieter erstellen“ einen Anbieter mit deinem Schlüssel eintragen, zum Beispiel Google Gemini (kostenlos, Schritt-für-Schritt-Anleitung gleich hier drunter). Für Text und Rezepte nimmt Kochheft den obersten Anbieter der Liste, Fotos und Screenshots liest der oberste, der Bilder kann; die Reihenfolge änderst du mit den Pfeilen. Audio und Video: Mealies Audio-Anbieter ging nur mit Anbietern, die OpenAIs Schnittstelle zum Umwandeln von Sprache haben (praktisch nur OpenAI/ChatGPT), und diente nur dem Video-Download, den Kochheft nicht macht. Eigene Aufnahmen wandelt stattdessen das Zusatzmodul Whisper um; es läuft lokal und braucht keinen Schlüssel.",
+      "choice-hint": "So geht's: Unten mit „Anbieter erstellen“ einen Anbieter mit deinem Schlüssel eintragen, zum Beispiel Google Gemini (kostenlos, Schritt-für-Schritt-Anleitung gleich hier drunter). Für Text und Rezepte nimmt Kochheft den obersten Anbieter der Liste, Fotos und Screenshots liest der oberste, der Bilder kann; die Reihenfolge änderst du mit den Pfeilen. Audio und Video: Ein Audio-Anbieter ging nur mit Anbietern, die OpenAIs Schnittstelle zum Umwandeln von Sprache haben (praktisch nur OpenAI/ChatGPT), und diente nur dem Video-Download, den Kochheft nicht macht. Eigene Aufnahmen wandelt stattdessen das Zusatzmodul Whisper um; es läuft lokal und braucht keinen Schlüssel.",
       "order-hint": "Die KI fragt die Anbieter von oben nach unten. Fällt einer aus, nimmt sie den nächsten.",
       "profile-lokal": "Profil \"lokal\": alles bleibt im Haus. Nur lokale KI-Anbieter nutzen (z. B. Ollama), keine Cloud-Schlüssel.",
       "move-up": "Nach oben",
@@ -181,10 +191,10 @@
         "free": "kostenlos",
         "trial": "Probe-Guthaben"
       },
-      "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
+      "unavailable-hint": "KI nicht erreichbar: nur Links gehen.",
       "no-images": "liest keine Bilder",
       "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
-      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten und aus Kochheft exportierte Textdateien gehen schon.",
+      "missing-hint": "Keine KI eingerichtet: nur Links gehen.",
       "guide": {
         "title": "Schritt für Schritt: Gemini einrichten (kostenlos)",
         "key": "Schlüssel holen: Öffne die Seite unten, melde dich mit deinem Google-Konto an, tippe auf „API-Schlüssel erstellen“ und kopiere den Schlüssel. Hinterleg dort kein Bezahlkonto, dann kostet es nichts.",
@@ -236,6 +246,7 @@
     },
     "timer": {
       "list": "Laufende Timer",
+      "label": "Schritt {n} · {time}",
       "done": "fertig",
       "off": "Aus",
       "more": "noch {n} Min.",
@@ -299,7 +310,9 @@
       "back": "Zurück",
       "next": "Weiter",
       "done": "Fertig",
-      "done-made": "Fertig und als gekocht markieren",
+      "done-made": "Fertig – gekocht",
+      "close-only": "Nur schließen",
+      "save-made": "Gekocht speichern",
       "you-need": "Du brauchst:",
       "leave": "Kochmodus verlassen",
       "no-steps": "Dieses Rezept hat keine Schritte.",
@@ -339,7 +352,7 @@
       "own-photo-hint": "Nur für Fotos, die ihr selbst gemacht habt",
       "servings": "Portionen",
       "print": "Drucken / Als PDF sichern",
-      "empty": "Dieses Kochbuch findet keine Rezepte. Passe den Filter in Mealies Kochbuch an.",
+      "empty": "Dieses Kochbuch findet keine Rezepte. Passe den Filter im Kochbuch an.",
       "forbidden": "Nur der eigene Haushalt kann dieses Kochbuch ändern",
       "save-failed": "Speichern hat nicht geklappt.",
       "load-failed": "Das Kochbuch konnte nicht geladen werden.",
@@ -543,7 +556,7 @@
     },
     "addons": {
       "description": "Hier legt ihr fest, welche Funktionen Kochheft in eurem Haushalt zeigt. Ausgeschaltete Funktionen verschwinden aus der Oberfläche, ihre Daten bleiben erhalten.",
-      "off-hint": "{name} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten.",
+      "off-hint": "{name} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Einstellungen → Zusatzfunktionen einschalten.",
       "unavailable": "Nicht eingerichtet, siehe Anleitung.",
       "needs-allergens": "Braucht die Funktion Allergene.",
       "presets": {
@@ -634,6 +647,18 @@
       },
       "local-ai": "Lokale KI (z. B. Ollama) geht grundsätzlich auch – siehe Anleitung. Ungetestet.",
       "local-ai-link": "Anleitung"
+    },
+    "account-delete": {
+      "admin-heir": "Rezepte und Listen übernimmt:",
+      "admin-note": "Favoriten und Bewertungen dieser Person werden gelöscht.",
+      "confirm-label": "Zum Bestätigen deinen Benutzernamen eintippen",
+      "done": "Dein Konto ist gelöscht.",
+      "entry": "Konto löschen",
+      "keeps": "Deine {recipes} und {lists} bleiben in der Familie, sie gehören dann {heir}. Favoriten, Bewertungen und deine Einstellungen werden gelöscht. Das kann man nicht rückgängig machen.",
+      "lists": "{count} Einkaufsliste | {count} Einkaufslisten",
+      "nothing": "Favoriten, Bewertungen und deine Einstellungen werden gelöscht. Das kann man nicht rückgängig machen.",
+      "recipes": "{count} Rezept | {count} Rezepte",
+      "title": "Konto löschen"
     },
     "accounts": {
       "switch": "Haushalt wechseln",
@@ -738,7 +763,7 @@
         },
         "more": {
           "title": "Mehr",
-          "text": "Unter Mehr findest du alle Funktionen, kannst deine eigene Seitenleiste einstellen und diese Einführung wieder ansehen."
+          "text": "Unter Mehr findest du alle Funktionen, die Einstellungen und diese Einführung zum Wiederansehen."
         }
       }
     },
@@ -756,6 +781,8 @@
       "details-title": "Details zu {name}",
       "from-recipe": "Aus dem Rezept „{name}“",
       "from-recipe-short": "Aus {name}",
+      "amount-set": "{name}: {amount}",
+      "already-there": "{name} ist schon auf der Liste",
       "quantity": "Menge",
       "properties": "Eigenschaften",
       "urgency": "Wie eilig?",
@@ -945,10 +972,10 @@
         }
       },
       "timer": {
-        "open": "Mehr öffnen",
+        "open": "Einstellungen öffnen",
         "ios": {
           "title": "Uhr-Timer",
-          "s1": "Unter Mehr → Timer schaltest du „Auf Uhr-Timer legen“ ein.",
+          "s1": "Unter Mehr → Einstellungen → Timer schaltest du „Auf Uhr-Timer legen“ ein.",
           "s2": "Der Timer klingelt dann auch bei gesperrtem Gerät."
         }
       }
@@ -960,39 +987,19 @@
       "v1-3": {
         "tiles": {
           "title": "Einkaufsliste mit Kacheln",
-          "text": "Tippe Artikel an, statt zu tippen. Jeder Laden hat seine eigene Liste, und Details wie „2 Packungen“ stehen dabei."
-        },
-        "amount": {
-          "title": "Menge tippen",
-          "text": "Schreib einfach „2 Milch“: Kochheft trennt Menge und Artikel selbst."
-        },
-        "offline": {
-          "title": "Ohne Netz und „Immer im Haus“",
-          "text": "Die Liste geht auch im Supermarkt-Funkloch. Salz, Mehl und Öl markierst du als „Immer im Haus“, sie bleiben ungehakt."
+          "text": "Tippe Artikel an oder schreib „2 Milch“. Jeder Laden hat seine Liste mit Details, und sie geht auch ohne Netz. Was immer da ist, markierst du als „Immer im Haus“."
         },
         "siri": {
           "title": "Hey Siri, Auf die Einkaufsliste",
           "text": "Sag Siri, was fehlt, und es steht auf der Liste. Die Einrichtung dauert zwei Minuten."
         },
         "share": {
-          "title": "Rezepte teilen",
-          "text": "Teile ein Rezept „Als Text“ mit jedem Messenger, oder exportiere dein Kochbuch als Dateien."
-        },
-        "files": {
-          "title": "Dateien importieren",
-          "text": "Wirf Rezeptdateien oder ein ganzes ZIP in den Eingang. Du prüfst, bevor etwas im Kochbuch landet."
+          "title": "Rezepte teilen und einlesen",
+          "text": "Teile ein Rezept „Als Text“ oder exportiere dein Kochbuch als Dateien. Rezeptdateien oder ein ZIP wirfst du in den Eingang; du prüfst, bevor etwas im Kochbuch landet."
         },
         "week": {
-          "title": "Was koche ich diese Woche?",
-          "text": "Im Essensplan schlägt „Woche vorschlagen“ Gerichte vor, die ihr länger nicht hattet. Du wählst aus, Kochheft plant ein."
-        },
-        "wishes": {
-          "title": "Wunschliste",
-          "text": "Wünsch dir ein Rezept: Im Essensplan sieht die Familie die Wünsche und plant sie mit einem Tipp ein."
-        },
-        "weekshare": {
-          "title": "Woche teilen",
-          "text": "Schick den Wochenplan als Text an die Familie, direkt aus dem Essensplan."
+          "title": "Die Woche planen",
+          "text": "„Woche vorschlagen“ im Essensplan wählt Gerichte, die ihr länger nicht hattet. Wünsche der Familie plant ein Tipp ein, und den Plan teilst du als Text."
         },
         "setup": {
           "title": "Kochheft einrichten",
@@ -1000,7 +1007,7 @@
         },
         "notifications": {
           "title": "Mitteilungen",
-          "text": "Auf Wunsch meldet sich Kochheft: wenn jemand etwas einplant oder auf die Liste setzt, und abends mit dem, was morgen ansteht. Du stellst es unter Mehr ein."
+          "text": "Auf Wunsch meldet sich Kochheft: wenn jemand etwas einplant oder auf die Liste setzt, und abends mit dem, was morgen ansteht. Du stellst es unter Mehr → Einstellungen ein."
         }
       }
     },
@@ -1043,6 +1050,10 @@
           "text": "Nach einem Update mit neuen Funktionen, einmal."
         }
       }
+    },
+    "planner": {
+      "all-to-list": "Alle zur Einkaufsliste",
+      "sunday-note": "Sonntag gilt in Kochheft als „nicht gewählt“; die Woche beginnt dann am Montag."
     }
   }
 }

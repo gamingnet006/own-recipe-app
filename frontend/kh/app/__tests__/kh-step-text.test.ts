@@ -160,9 +160,14 @@ describe("timeIndex", () => {
   });
 });
 
+const t = (_key: string, values: Record<string, string | number>) => `Schritt ${values.n} · ${values.time}`;
+
 describe("timerLabel", () => {
-  test("number and first four words, without Markdown marks", () => {
-    expect(timerLabel(1, "**Den Teig** 10 Min. ruhen lassen, dann [formen](https://x.de)")).toBe("2. Den Teig 10 Min.");
+  test("step number and duration", () => {
+    expect(timerLabel(1, 600, t)).toBe("Schritt 2 · 10 Min");
+    expect(timerLabel(2, 45, t)).toBe("Schritt 3 · 45 Sek");
+    expect(timerLabel(0, 5400, t)).toBe("Schritt 1 · 1 h 30 Min");
+    expect(timerLabel(0, 7200, t)).toBe("Schritt 1 · 2 h");
   });
 });
 
@@ -172,16 +177,20 @@ describe("stepNeeds", () => {
     { referenceId: "m", name: "Mehl", names: ["Mehl"], amount: "300 g", shareAmount: fraction => `${300 * fraction} g` },
     { referenceId: "s", name: "Salz", names: ["Salz"], amount: null },
   ];
+  test("the amount comes first, also for a line whose name starts with its unit", () => {
+    const loose: KhNeed[] = [{ referenceId: "x", name: "ml Milch", names: ["ml Milch"], amount: "200" }];
+    expect(stepNeeds(0, ref("x"), loose, [ref("x")])).toEqual(["200 ml Milch"]);
+  });
   test("name and amount for an ingredient only this step uses", () => {
-    expect(stepNeeds(0, ref("b"), needs, [ref("b"), ref("m")])).toEqual(["Butter 200 g"]);
+    expect(stepNeeds(0, ref("b"), needs, [ref("b"), ref("m")])).toEqual(["200 g Butter"]);
   });
   test("name alone when several steps share it or it has no amount", () => {
     expect(stepNeeds(0, ref("m", "s"), needs, [ref("m", "s"), ref("m")])).toEqual(["Mehl", "Salz"]);
   });
   test("the share the step text names", () => {
     const steps = [refText("die Hälfte vom Mehl", "m"), refText("Rest Mehl", "m")];
-    expect(stepNeeds(0, steps[0]!, needs, steps)).toEqual(["Mehl 150 g"]);
-    expect(stepNeeds(1, steps[1]!, needs, steps)).toEqual(["Mehl 150 g"]);
+    expect(stepNeeds(0, steps[0]!, needs, steps)).toEqual(["150 g Mehl"]);
+    expect(stepNeeds(1, steps[1]!, needs, steps)).toEqual(["150 g Mehl"]);
     expect(stepNeeds(1, refText("Mehl", "m"), needs, [steps[0]!, refText("Mehl", "m")])).toEqual(["Mehl"]);
   });
   test("nothing without references", () => {

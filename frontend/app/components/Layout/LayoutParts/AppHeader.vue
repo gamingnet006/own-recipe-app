@@ -69,7 +69,7 @@
       <!-- KH: on phones signing out sits under More (D38) -->
       <v-btn
         v-if="loggedIn"
-        v-show="mdAndUp"
+        v-show="mdAndUp && !khCookScreen"
         :variant="smAndUp ? 'text' : undefined"
         :icon="xs"
         @click="logout()"
@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { useKhCookScreen } from "~~/kh/app/composables/use-kh-cook-screen"; // KH: D76
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type RecipeDialogSearch from "~/components/Domain/Recipe/RecipeDialogSearch.vue";
 
@@ -109,6 +110,7 @@ const { loggedIn } = useLoggedInState();
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 const { xs, smAndUp, mdAndUp } = useDisplay(); // KH: mdAndUp for signing out (D38)
+const khCookScreen = useKhCookScreen(); // KH: no sign-out in cook mode (D76)
 
 const routerLink = computed(() => groupSlug.value ? `/g/${groupSlug.value}` : "/");
 const domSearchDialog = ref<InstanceType<typeof RecipeDialogSearch> | null>(null);

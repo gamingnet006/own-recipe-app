@@ -20,6 +20,12 @@
           variant="outlined"
         />
         {{ $t("general.confirm-delete-generic") }}
+        <!-- KH: who takes over the recipes and lists (D78) -->
+        <KhAdminDeleteHeir
+          v-model="state.transferTo"
+          :user-id="state.deleteTargetId"
+          :users="users || []"
+        />
       </v-card-text>
     </BaseDialog>
 
@@ -142,6 +148,7 @@ const ACTIONS_OPTIONS = [
 const state = reactive({
   deleteDialog: false,
   deleteTargetId: "",
+  transferTo: null as string | null, // KH: the heir of the recipes (D78)
   search: "",
   groups: [],
   households: [],
@@ -152,7 +159,7 @@ const { users, refreshAllUsers } = useAllUsers();
 const { deleteUser: deleteUserMixin } = useUser(refreshAllUsers);
 
 function deleteUser(id: string) {
-  deleteUserMixin(id);
+  deleteUserMixin(id, state.transferTo); // KH: heir (D78)
 
   if (isUserOwnAccount.value) {
     auth.getSession();

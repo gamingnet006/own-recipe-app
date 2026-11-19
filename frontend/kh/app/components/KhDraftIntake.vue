@@ -1,12 +1,16 @@
 <!-- KH: the form of the intake (phase 2, on the drafts page since D38): a link, a text or photos become a draft,
-which is recognized in the background and then waits in the list below for a review. -->
+which is recognized in the background and then waits in the list above for a review. The page gives it its heading. -->
 <template>
   <section>
-    <h2 class="text-h6 mb-3">
-      {{ $t("kh.drafts.add-recipe") }}
-    </h2>
     <!-- D39: when no AI provider is set up or free, photos and texts would fail; links with recipe data still work -->
-    <v-alert v-if="aiHint" type="info" variant="tonal" density="compact" class="mb-3">
+    <v-alert
+      v-if="aiHint"
+      type="info"
+      variant="tonal"
+      density="compact"
+      :icon="false"
+      class="mb-3 text-body-2"
+    >
       {{ $t(aiHint) }}
     </v-alert>
     <v-alert

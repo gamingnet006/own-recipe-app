@@ -139,18 +139,7 @@
       >
         {{ $t("recipe.instructions") }}
       </h2>
-      <BaseButton
-        v-if="!isEditForm && !isCookMode"
-        minor
-        cancel
-        color="primary"
-        @click="toggleCookMode()"
-      >
-        <template #icon>
-          {{ $globals.icons.primary }}
-        </template>
-        {{ $t("recipe.cook-mode") }}
-      </BaseButton>
+      <!-- KH: Mealie's "Koch-Modus" button is gone; "Kochen starten" of the bar is the one way into cook mode (D76) -->
     </div>
     <v-bottom-sheet
       v-model="linkedNotesSheetOpen"
@@ -562,7 +551,7 @@ const props = defineProps({
 const emit = defineEmits(["click-instruction-field", "update:assets"]);
 
 const i18n = useI18n();
-const { isCookMode, toggleCookMode, isEditForm } = usePageState(props.recipe.slug);
+const { isCookMode, isEditForm } = usePageState(props.recipe.slug);
 const { extractIngredientReferences } = useExtractIngredientReferences();
 const onStepTextClick = useKhTimeTap(); // KH: D42
 const oven = useKhOven(); // KH: D43

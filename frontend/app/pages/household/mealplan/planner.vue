@@ -93,7 +93,9 @@
         </v-menu>
         <v-btn :icon="$globals.icons.chevronRight" flat rounded="md" density="comfortable" @click="() => changeWeek(1)" />
       </div>
+      <!-- KH: Mealie's switch is English only; Kochheft shows weeks (D76) -->
       <v-btn-toggle
+        v-if="!khOn.planner"
         v-model="mealPlanPreferences.mode"
         mandatory
         divided
@@ -128,6 +130,17 @@
       >
         {{ $t("kh.week-suggestion.button") }}
       </v-btn>
+      <!-- KH: the shopping list for the whole range as a button of its own, not under the three dots (D76) -->
+      <v-btn
+        v-if="khOn.shopping"
+        variant="outlined"
+        color="primary"
+        :prepend-icon="$globals.icons.cartCheck"
+        :disabled="!hasRecipes"
+        @click="addAllToList"
+      >
+        {{ $t("kh.planner.all-to-list") }}
+      </v-btn>
       <!-- KH: D73 -->
       <v-btn variant="outlined" :prepend-icon="$globals.icons.shareVariant" @click="shareWeek(mealsByDate)">
         {{ $t("kh.week-share.button") }}
@@ -149,13 +162,6 @@
             text: '',
             event: 'three-dot',
             children: [
-              // KH: no shopping list buttons while that add-on is off (D46)
-              ...(khOn.shopping ? [{
-                icon: $globals.icons.cartCheck,
-                text: $t('meal-plan.add-all-to-list'),
-                event: 'add-to-list',
-                disabled: !hasRecipes,
-              }] : []),
               {
                 icon: $globals.icons.calendar,
                 text: $t('meal-plan.calendar-feed'),
@@ -169,7 +175,6 @@
             ],
           },
         ]"
-        @add-to-list="addAllToList"
         @edit="router.push({ name: TABS.edit, query: route.query })"
         @view="router.push({ name: TABS.view, query: route.query })"
         @settings="router.push('/household/mealplan/settings')"
@@ -205,6 +210,7 @@ import { useHouseholdSelf } from "~/composables/use-households";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import KhWeekSuggestion from "~~/kh/app/components/KhWeekSuggestion.vue"; // KH: D70
 import KhWishes from "~~/kh/app/components/KhWishes.vue"; // KH: D72
+import { firstDayOfWeek as khFirstDayOfWeek } from "~~/kh/app/lib/week-start"; // KH: D76
 import { shareWeek } from "~~/kh/app/composables/use-kh-share-week"; // KH: D73
 import { alert } from "~/composables/use-toast"; // KH: D70
 import { useUserMealPlanPreferences } from "~/composables/use-users/preferences";
@@ -229,7 +235,7 @@ const suggestionDialog = ref(false); // KH: D70
 const wishesPanel = ref<InstanceType<typeof KhWishes>>(); // KH: D72
 
 useSeoMeta({
-  title: i18n.t("meal-plan.dinner-this-week"),
+  title: i18n.t("kh.nav.mealplan"), // KH: the same name as the menu entry (D76)
 });
 
 // useHouseholdSelf() caches data in a module-level singleton for the lifetime of the tab,
@@ -241,6 +247,10 @@ onMounted(() => {
 });
 
 const mealPlanPreferences = useUserMealPlanPreferences();
+// KH: the Weeks/Days switch is hidden, so a device that stored "days" would be stuck in it (D76)
+watchEffect(() => {
+  if (khOn.planner) mealPlanPreferences.value.mode = "weeks";
+});
 const isDaysMode = computed(() => mealPlanPreferences.value.mode === "days");
 const numberOfDaysPast = ref<number>(mealPlanPreferences.value.numberOfDaysPast || 0);
 const numberOfDays = ref<number>(mealPlanPreferences.value.numberOfDays || 7);
@@ -306,7 +316,7 @@ const state = ref({
 });
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return khFirstDayOfWeek(household.value?.preferences?.firstDayOfWeek, i18n.locale.value); // KH: D76
 });
 
 function changeWeek(step: number) {

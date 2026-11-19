@@ -79,6 +79,6 @@ def test_deleting_a_user_removes_the_row(api_client: TestClient, admin_token, un
     assert api_client.put(NAVIGATION, json={"hidden": ["finder"]}, headers=token).status_code == 200
     assert session.execute(sa.select(KhUserNavigation).where(KhUserNavigation.user_id == user_id)).first()
 
-    api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token)
+    assert api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token).status_code in (200, 404)
     session.expire_all()
     assert session.execute(sa.select(KhUserNavigation).where(KhUserNavigation.user_id == user_id)).first() is None

@@ -9,6 +9,7 @@ from tests import utils
 from tests.utils import api_routes
 from tests.utils.factories import random_email, random_string
 from tests.utils.fixture_schemas import TestUser
+from tests.utils.helpers import add_household_member
 
 
 def generate_create_data() -> dict:
@@ -172,6 +173,7 @@ def test_delete_user_with_multiple_mealplans_and_shopping_lists(
         )
         assert response.status_code == 201
 
+    add_household_member(api_client, admin_token, unique_user_fn_scoped)  # KH: an heir is needed (D78)
     response = api_client.delete(api_routes.admin_users_item_id(unique_user_fn_scoped.user_id), headers=admin_token)
     assert response.status_code == 200
 
@@ -199,5 +201,6 @@ def test_delete_user_with_rated_and_favorited_recipe(
     )
     assert response.status_code == 200
 
+    add_household_member(api_client, admin_token, unique_user_fn_scoped)  # KH: an heir is needed (D78)
     response = api_client.delete(api_routes.admin_users_item_id(unique_user_fn_scoped.user_id), headers=admin_token)
     assert response.status_code == 200

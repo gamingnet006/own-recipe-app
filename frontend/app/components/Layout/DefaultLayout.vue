@@ -5,7 +5,7 @@
     <AppHeader>
       <!-- KH: below 840 px the bar at the bottom replaces menu button and side menu (D38) -->
       <v-btn
-        v-if="khWide"
+        v-if="khWide && !khCookScreen"
         icon
         @click.stop="sidebar = !sidebar"
       >
@@ -13,11 +13,11 @@
       </v-btn>
     </AppHeader>
 
-    <KhBottomNav v-if="!khWide" />
+    <KhBottomNav v-if="!khWide && !khCookScreen" />
     <!-- KH: the running timers and their alarm on every page (D42) -->
     <KhTimers compact />
     <AppSidebar
-      v-if="khWide"
+      v-if="khWide && !khCookScreen"
       v-model="sidebar"
       mobile-breakpoint="md"
       :top-link="topLinks"
@@ -107,6 +107,7 @@ import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { CookBookOut } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
+import { useKhCookScreen } from "~~/kh/app/composables/use-kh-cook-screen"; // KH: D76
 import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 // KH: shared destinations (D38)
 import {
@@ -156,6 +157,7 @@ const cookbooks = computed(() => {
 // bottom (D38); mobile-breakpoint="md" above keeps the menu from covering the page up to Vuetify's 1145 px
 const khWide = computed(() => display.mdAndUp.value);
 const sidebar = useKhSidebar(khWide);
+const khCookScreen = useKhCookScreen(); // KH: cook mode hides bar, side menu and sign-out (D76)
 useKhAddonsLoader(); // KH: D46
 
 function cookbookAsLink(cookbook: CookBookOut): SideBarLink {

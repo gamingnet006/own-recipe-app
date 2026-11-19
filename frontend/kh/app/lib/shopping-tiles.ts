@@ -1,6 +1,6 @@
 // KH: the tiles of the shopping page (D60): which emoji a food gets, the everyday items Mealie's recipe foods lack, and
 // the catalog of tiles grouped by department in the order of the list.
-import { splitNote } from "./shopping-items";
+import { itemTitle, type ShopUnit } from "./shopping-items";
 
 export interface TileFood {
   id: string;
@@ -206,11 +206,12 @@ export function filterCatalog(departments: Department[], query: string): Departm
 export function itemForTile<T extends { foodId: string | null; note: string | null; food?: { name: string } | null }>(
   tile: Tile,
   items: T[],
+  units: ShopUnit[] = [],
 ): T | undefined {
   const name = tile.name.trim().toLowerCase();
   return items.find(item =>
     (tile.foodId && item.foodId === tile.foodId)
-    || (item.food ? item.food.name.toLowerCase() === name : splitNote(item.note).own.toLowerCase() === name),
+    || (item.food ? item.food.name.toLowerCase() === name : itemTitle(item, units).toLowerCase() === name),
   );
 }
 
@@ -222,9 +223,10 @@ export function existingFor<T extends { checked: boolean; foodId: string | null;
   tile: Tile,
   items: T[],
   typed: Record<string, unknown>,
+  units: ShopUnit[] = [],
 ): { item: T; changes: Record<string, unknown> } | undefined {
-  const open = itemForTile(tile, items.filter(item => !item.checked));
+  const open = itemForTile(tile, items.filter(item => !item.checked), units);
   if (open) return { item: open, changes: typed };
-  const bought = itemForTile(tile, items.filter(item => item.checked));
+  const bought = itemForTile(tile, items.filter(item => item.checked), units);
   return bought ? { item: bought, changes: { ...typed, checked: false } } : undefined;
 }

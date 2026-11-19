@@ -47,7 +47,7 @@ def make_user(api_client: TestClient, admin_token, unique_user: TestUser) -> Gen
 
     yield make
     for user_id in made:
-        api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token)
+        assert api_client.delete(api_routes.admin_users_item_id(user_id), headers=admin_token).status_code in (200, 404)
 
 
 def test_no_tour_by_default(api_client: TestClient, unique_user: TestUser):

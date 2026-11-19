@@ -34,3 +34,25 @@ class LinkIn(MealieModel):
 
     user_id: UUID4
     household_id: UUID4
+
+
+class HeirOut(MealieModel):
+    """The person who takes over the recipes and lists of a deleted account."""
+
+    id: UUID4
+    name: str
+
+
+class DeletePreviewOut(MealieModel):
+    """What deleting the own account would do; BLOCKED is the German reason it is not possible, else None."""
+
+    heir: HeirOut | None
+    recipes: int
+    lists: int
+    blocked: str | None
+
+
+class DeleteIn(MealieModel):
+    """CONFIRM must be the username, so the account is not deleted by a stray click."""
+
+    confirm: str

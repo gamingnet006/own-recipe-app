@@ -12,7 +12,11 @@ const api = vi.hoisted(() => ({
 }));
 const parseLine = vi.hoisted(() => vi.fn());
 const ensure = vi.hoisted(() => ({ food: vi.fn(), unit: vi.fn() }));
-const foods = vi.hoisted(() => ({ value: [] as { id: string; name: string; pluralName: string | null; labelId: string | null }[] }));
+// a real ref: the page waits for the foods to load
+const foods = await vi.hoisted(async () => {
+  const { ref } = await import("vue");
+  return ref<{ id: string; name: string; pluralName: string | null; labelId: string | null }[]>([]);
+});
 const units = vi.hoisted(() => ({ value: [] as { id: string; name: string; abbreviation: string }[] }));
 const toast = vi.hoisted(() => ({ error: vi.fn() }));
 
@@ -123,6 +127,30 @@ describe("typed line details", () => {
     await shopping.addTyped("3 Milch");
     expect(api.shopping.items.createMany).not.toHaveBeenCalled();
     expect(api.shopping.items.updateOne.mock.calls[0]![1]).toMatchObject({ quantity: 3 });
+  });
+});
+
+describe("typed amount without a unit", () => {
+  test("keeps the unit of an article already on the list", async () => {
+    const liter = { id: "u-l", name: "Liter", abbreviation: "l" };
+    const there = item({ id: "m1", food: foods.value[0], quantity: 1, unit: liter, unitId: "u-l" });
+    const shopping = await opened([there]);
+    parseLine.mockResolvedValue({ data: { quantity: 2, unitId: null, foodId: "f1", name: "Milch", note: "" } });
+    api.foods.getOne.mockResolvedValue({ data: foods.value[0] });
+    api.shopping.items.getOne.mockResolvedValue({ data: there });
+    await shopping.addTyped("2 Milch");
+    expect(api.shopping.items.updateOne.mock.calls[0]![1]).toMatchObject({ quantity: 2, unit: liter, unitId: "u-l" });
+  });
+});
+
+describe("linking recipe items to foods", () => {
+  test("an item 'ml Milch' gets the food Milch and a clean note", async () => {
+    units.value.push({ id: "u-ml", name: "Milliliter", abbreviation: "ml" });
+    const loose = item({ id: "r1", foodId: null, food: null, note: "ml Milch", quantity: 200 });
+    api.shopping.items.getOne.mockResolvedValue({ data: loose });
+    await opened([loose]);
+    await vi.waitFor(() => expect(api.shopping.items.updateOne).toHaveBeenCalled());
+    expect(api.shopping.items.updateOne.mock.calls[0]![1]).toMatchObject({ foodId: "f1", note: "", quantity: 200, unitId: "u-ml" });
   });
 });
 

@@ -1,16 +1,13 @@
 from functools import cached_property
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import UUID4
 
 from mealie.core import security
-from mealie.kh.accounts.service import delete_links, sync_linked_rights  # KH: a user's account links (D52)
-from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
-from mealie.kh.navigation.service import delete_user_navigation  # KH: a user's own side menu (D58)
-from mealie.kh.notifications.service import delete_user_notifications  # KH: a user's push devices (D75)
+from mealie.kh.accounts.removal import admin_heir, transfer_and_delete  # KH: recipes stay when a user goes (D78)
+from mealie.kh.accounts.service import sync_linked_rights  # KH: a user's account links (D52)
 from mealie.kh.onboarding.service import (  # KH: accounts without e-mail (D53)
     after_admin_create,
-    delete_user_rows,
     email_or_stored,
     placeholder_email,
 )
@@ -88,14 +85,11 @@ class AdminUserManagementRoutes(BaseAdminController):
         return updated
 
     @router.delete("/{item_id}", response_model=UserOut)
-    def delete_one(self, item_id: UUID4):
-        deleted = self.mixins.delete_one(item_id)
-        # KH: the user's allergy list goes too; SQLite in Mealie skips cascades (D44)
-        delete_user_allergies(self.session, item_id)
-        delete_links(self.session, item_id)  # KH: same for the account links (D52)
-        delete_user_rows(self.session, item_id)  # KH: and the onboarding row and mailed links (D53)
-        delete_user_navigation(self.session, item_id)  # KH: and the own side menu (D58)
-        delete_user_notifications(self.session, item_id)  # KH: and the devices and choices of "Mitteilungen" (D75)
+    def delete_one(self, item_id: UUID4, transfer_to: UUID4 | None = Query(None, alias="transferTo")):
+        deleted = self.mixins.get_one(item_id)
+        # KH: the recipes, lists and plans go to a person of the household and the person's own rows are cleaned up
+        # (D78, which holds the former D44/D52/D53/D58/D75 clean-up); SQLite in Mealie skips cascades
+        transfer_and_delete(self.session, item_id, admin_heir(self.session, item_id, transfer_to))
         return deleted
 
     @router.post("/password-reset-token", response_model=PasswordResetToken, status_code=201)
