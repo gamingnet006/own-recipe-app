@@ -9,7 +9,7 @@ tried again. -->
       </template>
       {{ $t("kh.drafts.intake-description") }}
     </BasePageTitle>
-    <KhDraftIntake :shared-link="sharedLink" @submitted="onSubmitted" />
+    <KhDraftIntake :shared-link="shared.link" :shared-text="shared.text" @submitted="onSubmitted" />
     <p class="text-body-2 text-medium-emphasis mt-4 mb-8">
       {{ $t("kh.drafts.shortcut-hint") }}
       <NuxtLink :to="`/g/${groupSlug}/r/create/new`">
@@ -66,6 +66,7 @@ import {
   useKhDraftsApi,
   useKhPolling,
 } from "~~/kh/app/composables/use-kh-drafts";
+import { hasSharedImport, readSharedImport } from "~~/kh/app/lib/shared-import";
 import { useStaticRoutes } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 
@@ -84,8 +85,8 @@ useSeoMeta({ title: i18n.t("kh.nav.intake") });
 
 const { refresh: refreshCount } = useKhDraftCount();
 const groupSlug = computed(() => route.params.groupSlug as string);
-// A link shared to the app arrives through Mealie's import page, which leads here with this query
-const sharedLink = typeof route.query.recipe_import_url === "string" ? route.query.recipe_import_url : "";
+// A link or text shared to the app arrives through Mealie's import page, which leads here with this query (D57)
+const shared = readSharedImport(route.query, useNuxtApp().$khFeatures.draftMaxText);
 const drafts = ref<KhDraft[]>([]);
 const loaded = ref(false);
 const loadError = ref<string | null>(null);
@@ -114,8 +115,8 @@ function byline(draft: KhDraft): string {
 
 /** A new draft shows in the list right away, and the number in the menu follows. */
 async function onSubmitted() {
-  // the shared link is handed in: a reload, or iOS reopening the home-screen app, must not fill it in again
-  if (route.query.recipe_import_url) await router.replace({ query: {} });
+  // the shared link or text is handed in: a reload, or iOS reopening the home-screen app, must not fill it in again
+  if (hasSharedImport(route.query)) await router.replace({ query: {} });
   await Promise.all([reload(), refreshCount()]);
 }
 

@@ -5,6 +5,7 @@ import { failureText } from "../lib/onboarding";
 import { type KhOnboardingStatus, KhOnboardingApi } from "../lib/api/onboarding";
 import { useRequests } from "~/composables/api/api-client";
 import { useAuthBackend } from "~/composables/use-auth-backend";
+import { alert } from "~/composables/use-toast";
 import type { Composer } from "vue-i18n";
 
 export const khOnboarding = reactive({ status: null as KhOnboardingStatus | null, userId: "" });
@@ -50,5 +51,13 @@ export function useKhOnboarding(i18n?: Composer) {
     return null;
   }
 
-  return { refresh, loadFor, reset, setPassword, requestEmail };
+  /** The tour was finished or skipped: tells the server and takes the flag out of the cached status, so it does
+   * not come back on the next visit of the start page. A failed request is reported. */
+  async function finishTour(fallback: string): Promise<void> {
+    if (khOnboarding.status) khOnboarding.status = { ...khOnboarding.status, tour: false };
+    const { error } = await api().tourDone();
+    if (error) alert.error(failureText(error, fallback));
+  }
+
+  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour };
 }

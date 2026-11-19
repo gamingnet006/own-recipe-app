@@ -54,6 +54,13 @@
             :items="userForm"
             :disabled-fields="disabledFields"
           />
+          <!-- KH: show the new person the first-sign-in tour (D59) -->
+          <v-checkbox
+            v-model="withTour"
+            color="primary"
+            hide-details
+            :label="$t('kh.tour.with-tour')"
+          />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">
@@ -71,6 +78,9 @@ import { useAdminApi } from "~/composables/api";
 import { useGroups } from "~/composables/use-groups";
 import { useUserForm } from "~/composables/use-users";
 import { validators } from "~/composables/use-validators";
+import { KhOnboardingApi } from "~~/kh/app/lib/api/onboarding"; // KH: first-sign-in tour (D59)
+import { useRequests } from "~/composables/api/api-client"; // KH: D59
+import { alert } from "~/composables/use-toast"; // KH: D59
 import type { GroupOut, UserIn } from "~/lib/api/types/user";
 import type { VForm } from "~/types/auto-forms";
 
@@ -80,7 +90,9 @@ definePageMeta({
 const { userForm } = useUserForm();
 const { groups } = useGroups();
 const router = useRouter();
+const i18n = useI18n(); // KH: D59
 
+const withTour = ref(true); // KH: D59, on by default
 const refNewUserForm = ref<VForm | null>(null);
 const adminApi = useAdminApi();
 
@@ -140,11 +152,17 @@ async function handleSubmit() {
 
   if (!valid) return;
 
-  const { response } = await adminApi.users.createOne(
+  // KH: data carries the new user's id for the tour (D59)
+  const { response, data } = await adminApi.users.createOne(
     newUserData.value as UserIn,
   );
 
   if (response?.status === 201) {
+    // KH: the tour is a flag of the new user (D59)
+    if (withTour.value && data) {
+      const { error } = await new KhOnboardingApi(useRequests()).setTour(data.id, true);
+      if (error) alert.error(i18n.t("kh.tour.failed"));
+    }
     router.push("/admin/manage/users");
   }
 }

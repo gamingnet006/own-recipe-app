@@ -32,6 +32,7 @@ describe("kh-features plugin", () => {
       media: false,
       profile: "leicht",
       emailReady: false,
+      draftMaxText: 20000,
     });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features", { timeout: 5000 });
   });
@@ -48,6 +49,7 @@ describe("kh-features plugin", () => {
       media: false,
       profile: "leicht",
       emailReady: false,
+      draftMaxText: 20000,
     });
     expect(errorSpy).toHaveBeenCalled();
   });

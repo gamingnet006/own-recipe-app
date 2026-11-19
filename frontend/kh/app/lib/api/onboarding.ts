@@ -7,6 +7,8 @@ export interface KhOnboardingStatus {
   mustChangePassword: boolean;
   needsEmail: boolean;
   pendingEmail: string | null;
+  /** The first-sign-in tour is still to be shown (D59). */
+  tour: boolean;
 }
 
 export interface KhWelcomeInfo {
@@ -49,6 +51,16 @@ export class KhOnboardingApi extends BaseAPI {
   /** Public: sets the first password with the token from the welcome mail. */
   async acceptWelcome(token: string, password: string) {
     return await this.requests.post<unknown>(`${prefix}/welcome`, { token, password }, OWN_ERRORS);
+  }
+
+  /** The person finished or skipped the first-sign-in tour. */
+  async tourDone() {
+    return await this.requests.post<unknown>(`${prefix}/tour-done`, {}, OWN_ERRORS);
+  }
+
+  /** Admin: shows or hides the first-sign-in tour of a user. */
+  async setTour(userId: string, tour: boolean) {
+    return await this.requests.post<unknown>(`/api/kh/admin/onboarding/${userId}/tour`, { tour }, OWN_ERRORS);
   }
 
   /** Admin: the account settings. */

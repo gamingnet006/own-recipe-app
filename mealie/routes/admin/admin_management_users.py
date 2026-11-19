@@ -6,6 +6,7 @@ from pydantic import UUID4
 from mealie.core import security
 from mealie.kh.accounts.service import delete_links, sync_linked_rights  # KH: a user's account links (D52)
 from mealie.kh.allergens.service import delete_user_allergies  # KH: a user's allergy list (D44)
+from mealie.kh.navigation.service import delete_user_navigation  # KH: a user's own side menu (D58)
 from mealie.kh.onboarding.service import (  # KH: accounts without e-mail (D53)
     after_admin_create,
     delete_user_rows,
@@ -92,6 +93,7 @@ class AdminUserManagementRoutes(BaseAdminController):
         delete_user_allergies(self.session, item_id)
         delete_links(self.session, item_id)  # KH: same for the account links (D52)
         delete_user_rows(self.session, item_id)  # KH: and the onboarding row and mailed links (D53)
+        delete_user_navigation(self.session, item_id)  # KH: and the own side menu (D58)
         return deleted
 
     @router.post("/password-reset-token", response_model=PasswordResetToken, status_code=201)

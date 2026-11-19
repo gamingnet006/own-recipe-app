@@ -124,7 +124,10 @@
       "about": "About Kochheft",
       "system": "System check",
       "addons": "Add-ons",
-      "households": "Household access"
+      "households": "Household access",
+      "sidebar": "Side menu",
+      "in-sidebar": "In the side menu",
+      "sidebar-hint": "Without a tick, the function is only here under More, not in the side menu."
     },
     "recipe": {
       "servings": "serving | servings",
@@ -637,6 +640,47 @@
         "email-required": "E-mail address required",
         "email-required-hint": "People who sign in must give a confirmed e-mail address.",
         "needs-mail": "Only works once mail sending is set up"
+      }
+    },
+    "share": {
+      "menu": "Share (e.g. to WhatsApp, Notes or Bring!)",
+      "copied": "Copied to the clipboard – paste it in the other app",
+      "failed": "Sharing did not work",
+      "empty": "Nothing left to share: every item is checked"
+    },
+    "tour": {
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip",
+      "start": "Let's go",
+      "view": "View the introduction",
+      "with-tour": "With an introduction at the first sign-in",
+      "failed": "The introduction could not be switched on for this person",
+      "steps": {
+        "welcome": {
+          "title": "Welcome to Kochheft",
+          "text": "Here the family collects recipes, plans and cooks. A short tour shows you the most important things."
+        },
+        "recipes": {
+          "title": "Recipes",
+          "text": "Search for a recipe, set the servings and start the cooking mode."
+        },
+        "intake": {
+          "title": "Intake",
+          "text": "Send a link, a photo or a text. You check the result and then keep it."
+        },
+        "shopping": {
+          "title": "Shopping list",
+          "text": "Put the ingredients of a recipe on the list and share it with other apps."
+        },
+        "cook": {
+          "title": "Cooking mode",
+          "text": "Cook step by step, with timers. At the end, mark the recipe as cooked."
+        },
+        "more": {
+          "title": "More",
+          "text": "Under More you find all functions, can adjust your own side menu and watch this introduction again."
+        }
       }
     }
   }

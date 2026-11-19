@@ -111,6 +111,12 @@
                       text: $t('shopping-list.copy-as-markdown'),
                       event: 'copy-markdown',
                     },
+                    // KH: share the open items with other apps (D56)
+                    {
+                      icon: $globals.icons.contentCopy,
+                      text: $t('kh.share.menu'),
+                      event: 'share',
+                    },
                   ],
                 },
                 {
@@ -143,6 +149,7 @@
               @check="openCheckAll"
               @copy-plain="copyListItems('plain')"
               @copy-markdown="copyListItems('markdown')"
+              @share="shareList(shoppingList.name, shoppingList.listItems ?? []) /* KH: share sheet (D56) */"
               @reorder-labels="toggleReorderLabelsDialog()"
               @manage-labels="$router.push(`/group/data/labels`)"
             />
@@ -391,6 +398,7 @@ import ShoppingListItem from "~/components/Domain/ShoppingList/ShoppingListItem.
 import { useShoppingListPage } from "~/composables/shopping-list-page/use-shopping-list-page";
 import { useLabelStore, useUnitStore, useFoodStore } from "~/composables/store";
 import { alert } from "~/composables/use-toast";
+import { useKhShareList } from "~~/kh/app/composables/use-kh-share-list"; // KH: share the open items (D56)
 import type { ShoppingListItemOut } from "~/lib/api/types/household";
 
 definePageMeta({
@@ -409,6 +417,7 @@ const id = route.params.id as string;
 
 const editingItem = ref<string | undefined>(undefined);
 const shoppingListPage = useShoppingListPage(id);
+const { shareList } = useKhShareList();
 const { store: allLabels } = useLabelStore();
 const { store: allUnits } = useUnitStore();
 const { store: allFoods } = useFoodStore();

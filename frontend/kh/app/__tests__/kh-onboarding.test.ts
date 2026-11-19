@@ -10,7 +10,7 @@ const setToken = vi.hoisted(() => vi.fn());
 vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ get: getMock, post: postMock }) }));
 vi.mock("~/composables/use-auth-backend", () => ({ useAuthBackend: () => ({ setToken }) }));
 
-const status = (mustChangePassword: boolean, needsEmail: boolean) => ({ mustChangePassword, needsEmail, pendingEmail: null });
+const status = (mustChangePassword: boolean, needsEmail: boolean) => ({ mustChangePassword, needsEmail, pendingEmail: null, tour: false });
 
 beforeEach(() => {
   getMock.mockReset();
@@ -94,5 +94,20 @@ describe("useKhOnboarding", () => {
     postMock.mockResolvedValue({ data: null, error: { response: { data: { detail: "too short" } } } });
     expect(await useKhOnboarding().setPassword("short", "fb")).toBe("too short");
     expect(setToken).not.toHaveBeenCalled();
+  });
+});
+
+describe("route guard", () => {
+  test("forgets the status when nobody is signed in any more", async () => {
+    vi.stubGlobal("defineNuxtRouteMiddleware", (fn: unknown) => fn);
+    vi.stubGlobal("useMealieAuth", () => ({ user: { value: null } }));
+    vi.stubGlobal("useNuxtApp", () => ({ $i18n: {} }));
+    khOnboarding.status = status(false, false);
+    khOnboarding.userId = "u1";
+    const { default: guard } = await import("../middleware/kh-onboarding.global");
+    await (guard as (to: { path: string }) => Promise<unknown>)({ path: "/login" });
+    expect(khOnboarding.status).toBeNull();
+    expect(khOnboarding.userId).toBe("");
+    expect(getMock).not.toHaveBeenCalled();
   });
 });

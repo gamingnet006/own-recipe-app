@@ -19,6 +19,7 @@ class KhFeatures(MealieModel):
     profile: str  # leicht, normal, stark or lokal (P7.4)
     clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
     email_ready: bool  # Mealie can send mail, so reset and welcome links work (D53)
+    draft_max_text: int  # longest recipe text one draft takes; a text shared into the app is cut here (D57)
 
 
 @router.get("", response_model=KhFeatures)
@@ -33,4 +34,5 @@ def get_features() -> KhFeatures:
         profile=settings.profile,
         clock_shortcut_url=settings.clock_shortcut_url,
         email_ready=get_app_settings().SMTP_ENABLE,
+        draft_max_text=settings.draft_max_text,
     )

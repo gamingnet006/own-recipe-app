@@ -10,6 +10,7 @@ import {
   moreSections,
   settingsTargets,
   shoppingTarget,
+  sidebarChoices,
   sidebarTargets,
   useKhShoppingTarget,
   useKhSidebar,
@@ -95,6 +96,34 @@ describe("destinations", () => {
     const off = { ...DEFAULT_ADDONS, shopping: false };
     expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key)).toContain("mealplan");
     expect(moreSections("familie", "u1", off).plan.map(target => target.key)).toContain("mealplan");
+  });
+
+  test("hidden entries leave the side menu, recipes and More stay (D58)", () => {
+    const keys = (hidden: string[]) => sidebarTargets("familie", "/shopping-lists", DEFAULT_ADDONS, hidden).map(target => target.key);
+    expect(keys([])).toHaveLength(9);
+    expect(keys(["finder", "organizers", "timeline"])).toEqual(["recipes", "intake", "shopping", "mealplan", "cookbooks", "more"]);
+    expect(keys(["recipes", "more"])).toHaveLength(7); // hidden keys are filtered as given; the server never stores these two
+  });
+
+  test("the choices are the entries the side menu can show, also the ones hidden now", () => {
+    expect(sidebarChoices("familie", DEFAULT_ADDONS).map(target => target.key))
+      .toEqual(["intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline"]);
+    const off = { ...DEFAULT_ADDONS, shopping: false, planner: false };
+    expect(sidebarChoices("familie", off).map(target => target.key))
+      .toEqual(["intake", "cookbooks", "finder", "organizers", "timeline"]);
+  });
+
+  test("an intake or shopping list hidden from the side menu is listed under More", () => {
+    const { plan } = moreSections("familie", "u1", DEFAULT_ADDONS, ["intake", "shopping", "finder"], "/shopping-lists/abc");
+    expect(plan.map(target => [target.key, target.to])).toEqual([
+      ["intake", "/g/familie/drafts"],
+      ["shopping", "/shopping-lists/abc"],
+      ["mealplan", "/household/mealplan/planner/view"],
+      ["cookbooks", "/g/familie/cookbooks"],
+      ["finder", "/g/familie/recipes/finder"],
+    ]);
+    expect(moreSections("familie", "u1", { ...DEFAULT_ADDONS, shopping: false }, ["shopping"]).plan.map(target => target.key))
+      .not.toContain("shopping");
   });
 
   test("every destination has one of Mealie's icons and a text", () => {

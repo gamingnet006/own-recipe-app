@@ -2,6 +2,7 @@
 // side menu from 840 px and the More page all read from here, so a destination is added or renamed in one place.
 import type { KhAddonFlags } from "../lib/addons";
 import { khAddons } from "./use-kh-addons";
+import { khSidebar } from "./use-kh-sidebar";
 import { useUserApi } from "~/composables/api";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 
@@ -9,6 +10,10 @@ const SHOPPING_LISTS = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
   | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons" | "switch" | "households";
+
+/** The side-menu entries a person may hide (D58), in the menu's order; the server holds the same keys
+ * (mealie/kh/navigation/schemas.py). Recipes and More always stay. */
+export const HIDEABLE_ENTRIES = ["intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline"] as const;
 
 export type KhTab = "recipes" | "intake" | "shopping" | "more";
 
@@ -66,8 +71,14 @@ export function barTargets(groupSlug: string, shoppingTo: string, on: KhAddonFla
 }
 
 /** Mealie's side menu from 840 px: the bar's destinations and More's, with the organizers grouped as in Mealie; More
- * itself comes last, because only there are the add-on pages and the oven, nutrition and clock settings (D51). */
-export function sidebarTargets(groupSlug: string, shoppingTo: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
+ * itself comes last, because only there are the add-on pages and the oven, nutrition and clock settings (D51).
+ * HIDDEN are the entries the person hid (D58). */
+export function sidebarTargets(
+  groupSlug: string,
+  shoppingTo: string,
+  on: KhAddonFlags = khAddons.enabled,
+  hidden: readonly string[] = khSidebar.hidden,
+): KhNavTarget[] {
   const all = allTargets(groupSlug, "", shoppingTo);
   const organizers: KhNavTarget = {
     key: "organizers",
@@ -86,18 +97,32 @@ export function sidebarTargets(groupSlug: string, shoppingTo: string, on: KhAddo
     organizers,
     all.timeline,
     all.more,
-  ];
+  ].filter(target => !hidden.includes(target.key));
 }
 
-/** What the More page lists besides the settings: planning, and the user's collection. */
+/** The entries of the side menu a person can hide or show again, which the add-on switches leave in the menu. */
+export function sidebarChoices(groupSlug: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
+  return sidebarTargets(groupSlug, SHOPPING_LISTS, on, []).filter(target => HIDEABLE_ENTRIES.some(key => key === target.key));
+}
+
+/** What the More page lists besides the settings: planning, and the user's collection. An intake or shopping list
+ * hidden from the side menu (D58) is listed under planning, so it stays reachable on a wide screen. */
 export function moreSections(
   groupSlug: string,
   userId: string,
   on: KhAddonFlags = khAddons.enabled,
+  hidden: readonly string[] = khSidebar.hidden,
+  shoppingTo = SHOPPING_LISTS,
 ): { plan: KhNavTarget[]; collection: KhNavTarget[] } {
-  const all = allTargets(groupSlug, userId);
+  const all = allTargets(groupSlug, userId, shoppingTo);
   return {
-    plan: [...(on.planner ? [all.mealplan] : []), all.cookbooks, all.finder],
+    plan: [
+      ...(hidden.includes("intake") ? [all.intake] : []),
+      ...(on.shopping && hidden.includes("shopping") ? [all.shopping] : []),
+      ...(on.planner ? [all.mealplan] : []),
+      all.cookbooks,
+      all.finder,
+    ],
     collection: [
       all.favorites, all.categories, all.tags, all.tools, all.timeline,
       ...(on.duplicates ? [all.duplicates] : []),

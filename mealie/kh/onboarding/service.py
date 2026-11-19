@@ -127,7 +127,10 @@ def status_of(session: Session, user: User) -> OnboardingStatus:
         sa.select(KhAccountToken.email).where(KhAccountToken.user_id == user.id, KhAccountToken.kind == "verify")
     ).scalar_one_or_none()
     return OnboardingStatus(
-        must_change_password=bool(row and row.must_change_password), needs_email=needs_email, pending_email=pending
+        must_change_password=bool(row and row.must_change_password),
+        needs_email=needs_email,
+        pending_email=pending,
+        tour=bool(row and row.tour),
     )
 
 
@@ -226,6 +229,14 @@ def after_password_reset(session: Session, user_id: UUID4) -> None:
     if row is not None and row.must_change_password:
         row.must_change_password = False
     _drop_tokens(session, user_id, "welcome")
+    session.commit()
+
+
+def set_tour(session: Session, user_id: UUID4, tour: bool) -> None:
+    """Sets or clears the first-sign-in tour of a user (D59); 404 for an unknown user. Commits."""
+    if session.get(User, user_id) is None:
+        raise _fail(status.HTTP_404_NOT_FOUND, "User not found")
+    _row_for(session, user_id).tour = tour
     session.commit()
 
 

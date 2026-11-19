@@ -10,7 +10,8 @@ from mealie.db.models._model_utils.guid import GUID
 
 
 class KhUserOnboarding(SqlAlchemyBase, BaseMixins):
-    """Per user: must the person still choose a password, and which e-mail address has been confirmed."""
+    """Per user: must the person still choose a password, which e-mail address has been confirmed, and whether the
+    first-sign-in tour is still to be shown (D59)."""
 
     __tablename__ = "kh_user_onboarding"
 
@@ -19,6 +20,7 @@ class KhUserOnboarding(SqlAlchemyBase, BaseMixins):
     user_id: Mapped[GUID] = mapped_column(GUID, sa.ForeignKey("users.id", ondelete="CASCADE"), unique=True)
     must_change_password: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
     verified_email: Mapped[str | None] = mapped_column(sa.String, nullable=True)
+    tour: Mapped[bool] = mapped_column(sa.Boolean, default=False, server_default=sa.false(), nullable=False)  # D59
 
     @auto_init()
     def __init__(self, **_) -> None:

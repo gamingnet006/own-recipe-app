@@ -7,8 +7,9 @@ import type { Composer } from "vue-i18n";
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const user = useMealieAuth().user.value;
-  if (!user) return;
-  await useKhOnboarding(useNuxtApp().$i18n as unknown as Composer).loadFor(user.id);
+  const onboarding = useKhOnboarding(useNuxtApp().$i18n as unknown as Composer);
+  if (!user) return onboarding.reset(); // signed out without a reload: the next person starts without this status
+  await onboarding.loadFor(user.id);
   const redirect = onboardingRedirect(to.path, khOnboarding.status);
   if (redirect) return navigateTo(redirect);
 });

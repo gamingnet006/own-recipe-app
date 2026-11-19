@@ -1,6 +1,7 @@
 """KH: /api/kh/onboarding (first sign-in, welcome and confirm-e-mail links) and /api/kh/admin/account-settings (D53)."""
 
 from fastapi import APIRouter, Depends, Header, Request, Response
+from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.core.dependencies import get_auth_token
@@ -14,6 +15,7 @@ from mealie.kh.onboarding.schemas import (
     OnboardingStatus,
     PasswordIn,
     TokenIn,
+    TourIn,
     WelcomeIn,
     WelcomeInfo,
 )
@@ -23,6 +25,7 @@ from mealie.routes._base.routers import AdminAPIRouter, UserAPIRouter
 router = UserAPIRouter(prefix="/onboarding")
 public_router = APIRouter(prefix="/onboarding")  # the links in the mails are opened before anyone is signed in
 admin_router = AdminAPIRouter(prefix="/admin/account-settings")
+admin_tour_router = AdminAPIRouter(prefix="/admin/onboarding")
 
 
 @controller(router)
@@ -43,6 +46,11 @@ class KhOnboardingController(BaseUserController):
         session_payload(token)  # an API token is refused before the password changes
         service.set_own_password(self.session, self.user, data.password)  # type: ignore[arg-type]
         return new_session(request, response, token, self.user.id)
+
+    @router.post("/tour-done")
+    def tour_done(self) -> None:
+        """The person finished or skipped the first-sign-in tour (D59)."""
+        service.set_tour(self.session, self.user.id, False)
 
     @router.post("/email")
     def request_email(self, data: EmailIn, accept_language: str | None = Header(None)) -> None:
@@ -81,3 +89,14 @@ class KhAccountSettingsController(BaseAdminController):
         """Saves the switch; 400 when it is turned on without mail sending."""
         service.set_email_required(self.session, data.email_required)
         return AccountSettingsOut(email_required=data.email_required)
+
+
+@controller(admin_tour_router)
+class KhTourController(BaseAdminController):
+    """The admin's choice of showing a new person the tour at the first sign-in (D59)."""
+
+    @admin_tour_router.post("/{user_id}/tour")
+    def put_tour(self, user_id: UUID4, data: TourIn) -> TourIn:
+        """Sets or clears the tour of the user."""
+        service.set_tour(self.session, user_id, data.tour)
+        return data

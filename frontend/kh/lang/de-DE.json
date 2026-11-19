@@ -124,7 +124,10 @@
       "about": "Über Kochheft",
       "system": "Systemprüfung",
       "addons": "Zusatzfunktionen",
-      "households": "Haushalte freigeben"
+      "households": "Haushalte freigeben",
+      "sidebar": "Seitenleiste",
+      "in-sidebar": "In der Seitenleiste",
+      "sidebar-hint": "Ohne Haken steht die Funktion nur hier unter Mehr, nicht in der Seitenleiste."
     },
     "recipe": {
       "servings": "Portion | Portionen",
@@ -637,6 +640,47 @@
         "email-required": "E-Mail-Adresse Pflicht",
         "email-required-hint": "Wer sich anmeldet, muss eine bestätigte E-Mail-Adresse angeben.",
         "needs-mail": "Geht erst mit eingerichtetem Mail-Versand"
+      }
+    },
+    "share": {
+      "menu": "Teilen (z. B. an WhatsApp, Notizen oder Bring!)",
+      "copied": "In die Zwischenablage kopiert – in der anderen App einfügen",
+      "failed": "Teilen hat nicht geklappt",
+      "empty": "Nichts zu teilen: alles ist abgehakt"
+    },
+    "tour": {
+      "next": "Weiter",
+      "back": "Zurück",
+      "skip": "Überspringen",
+      "start": "Los geht's",
+      "view": "Einführung ansehen",
+      "with-tour": "Mit Einführung beim ersten Anmelden",
+      "failed": "Die Einführung ließ sich für diese Person nicht einschalten",
+      "steps": {
+        "welcome": {
+          "title": "Willkommen bei Kochheft",
+          "text": "Hier sammelt die Familie Rezepte, plant und kocht. Eine kurze Tour zeigt dir das Wichtigste."
+        },
+        "recipes": {
+          "title": "Rezepte",
+          "text": "Such ein Rezept, stell die Portionen ein und starte den Kochmodus."
+        },
+        "intake": {
+          "title": "Eingang",
+          "text": "Schick einen Link, ein Foto oder einen Text. Du prüfst das Ergebnis und übernimmst es."
+        },
+        "shopping": {
+          "title": "Einkaufsliste",
+          "text": "Setz die Zutaten eines Rezepts auf die Liste und teile sie mit anderen Apps."
+        },
+        "cook": {
+          "title": "Kochmodus",
+          "text": "Du kochst Schritt für Schritt, mit Timern. Am Ende markierst du das Rezept als gekocht."
+        },
+        "more": {
+          "title": "Mehr",
+          "text": "Unter Mehr findest du alle Funktionen, kannst deine eigene Seitenleiste einstellen und diese Einführung wieder ansehen."
+        }
       }
     }
   }

@@ -105,8 +105,8 @@ import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
 
-// A link shared to the app arrives through Mealie's import page, which leads to the intake with it
-const props = defineProps<{ sharedLink: string }>();
+// A link or text shared to the app arrives through Mealie's import page, which leads to the intake with it (D57)
+const props = defineProps<{ sharedLink: string; sharedText: string }>();
 const emit = defineEmits<{ submitted: [] }>();
 
 const i18n = useI18n();
@@ -129,9 +129,9 @@ const sources: { source: IntakeSource; icon: string }[] = [
   ...($khFeatures.media && khAddons.enabled.whisper ? [{ source: "media" as const, icon: $globals.icons.microphone }] : []),
 ];
 
-const source = ref<IntakeSource | null>(props.sharedLink ? "link" : null);
+const source = ref<IntakeSource | null>(props.sharedLink ? "link" : props.sharedText ? "text" : null);
 const link = ref(props.sharedLink);
-const text = ref("");
+const text = ref(props.sharedText);
 // The chosen photos with a preview address each, given back to the browser when a photo goes or the page is left
 const photos = ref<{ file: File; url: string }[]>([]);
 const picker = ref<HTMLInputElement | null>(null);

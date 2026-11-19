@@ -9,6 +9,7 @@ class OnboardingStatus(MealieModel):
     must_change_password: bool
     needs_email: bool
     pending_email: str | None = None  # address a confirm link was sent to and that is not yet confirmed
+    tour: bool = False  # the first-sign-in tour is still to be shown (D59)
 
 
 class PasswordIn(MealieModel):
@@ -40,3 +41,7 @@ class AccountSettingsOut(MealieModel):
 
 class AccountSettingsIn(MealieModel):
     email_required: bool
+
+
+class TourIn(MealieModel):
+    tour: bool

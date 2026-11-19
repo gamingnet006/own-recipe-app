@@ -13,6 +13,7 @@ from mealie.kh.books import routes as books
 from mealie.kh.drafts import routes as drafts
 from mealie.kh.duplicates import routes as duplicates
 from mealie.kh.features import routes as features
+from mealie.kh.navigation import routes as navigation
 from mealie.kh.notices import routes as notices
 from mealie.kh.nutrition import routes as nutrition
 from mealie.kh.onboarding import routes as onboarding
@@ -28,9 +29,11 @@ router.include_router(accounts.admin_router, tags=["KH: Accounts"])
 router.include_router(onboarding.router, tags=["KH: Onboarding"])
 router.include_router(onboarding.public_router, tags=["KH: Onboarding"])
 router.include_router(onboarding.admin_router, tags=["KH: Onboarding"])
+router.include_router(onboarding.admin_tour_router, tags=["KH: Onboarding"])
 router.include_router(drafts.router, tags=["KH: Drafts"])
 router.include_router(drafts.origin_router, tags=["KH: Drafts"])
 router.include_router(ai.router, tags=["KH: AI"])
+router.include_router(navigation.router, tags=["KH: Navigation"])
 router.include_router(notices.router, tags=["KH: Notices"])
 router.include_router(amounts.router, tags=["KH: Amounts"])
 router.include_router(books.router, tags=["KH: Books"], dependencies=[Depends(require_addon("books"))])

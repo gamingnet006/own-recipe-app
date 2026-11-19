@@ -23,6 +23,29 @@ everything the side menu holds on bigger screens. -->
       </v-list>
     </section>
 
+    <section class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.nav.sidebar") }}
+      </h2>
+      <v-list rounded="lg" class="py-2 px-4">
+        <p class="text-body-2 text-medium-emphasis mb-2">
+          {{ $t("kh.nav.sidebar-hint") }}
+        </p>
+        <v-list-item v-for="target in sidebarEntries" :key="target.key" :title="$t(target.title)" class="px-0">
+          <template #append>
+            <v-checkbox
+              :model-value="!khSidebar.hidden.includes(target.key)"
+              color="primary"
+              density="compact"
+              hide-details
+              :label="$t('kh.nav.in-sidebar')"
+              @update:model-value="setInSidebar(target.key, !!$event)"
+            />
+          </template>
+        </v-list-item>
+      </v-list>
+    </section>
+
     <section v-if="khOn.oven" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.oven.title") }}
@@ -122,6 +145,7 @@ everything the side menu holds on bigger screens. -->
           :title="$t('kh.nav.invite')"
           @click="inviteDialog = true"
         />
+        <v-list-item :prepend-icon="$globals.icons.wave" :title="$t('kh.tour.view')" @click="tourOpen = true" />
         <v-list-item
           :prepend-icon="$globals.icons.translate"
           :title="$t('sidebar.language')"
@@ -149,11 +173,18 @@ everything the side menu holds on bigger screens. -->
     <UserInviteDialog v-model="inviteDialog" />
     <LanguageDialog v-model="languageDialog" />
     <KhAccountSwitch v-model="switchDialog" />
+    <KhTour v-model="tourOpen" />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { moreSections, settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
+import {
+  moreSections,
+  settingsTargets,
+  sidebarChoices,
+  useKhShoppingTarget,
+} from "~~/kh/app/composables/use-kh-navigation";
+import { khSidebar, saveKhSidebar } from "~~/kh/app/composables/use-kh-sidebar";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
@@ -190,11 +221,26 @@ const user = computed(() => auth.user.value);
 const inviteDialog = ref(false);
 const languageDialog = ref(false);
 const switchDialog = ref(false);
+const tourOpen = ref(false); // shown again any time, without a call to the server (D59)
 const { accounts, load: loadAccounts } = useKhAccounts();
 onMounted(loadAccounts);
 
+const shoppingTo = useKhShoppingTarget();
+const sidebarEntries = computed(() => sidebarChoices(route.params.groupSlug as string));
+
+/** Shows or hides one entry of the side menu and saves the choice right away. */
+function setInSidebar(key: string, shown: boolean) {
+  void saveKhSidebar(shown ? khSidebar.hidden.filter(hidden => hidden !== key) : [...khSidebar.hidden, key]);
+}
+
 const sections = computed(() => {
-  const { plan, collection } = moreSections(route.params.groupSlug as string, user.value?.id ?? "");
+  const { plan, collection } = moreSections(
+    route.params.groupSlug as string,
+    user.value?.id ?? "",
+    undefined,
+    undefined,
+    shoppingTo.value,
+  );
   return [
     { title: "kh.nav.plan", targets: plan },
     { title: "kh.nav.collection", targets: collection },

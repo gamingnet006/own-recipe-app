@@ -18,6 +18,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
   right. Recipes imported before stay as they are; import them again to get this.
 - Reviewing a new recipe (D55): tap the title, an ingredient or a step in the preview and change it right there; below
   it, "Wohin kommt das Rezept?" sets categories and a cookbook, or makes a new one.
+- Share the shopping list (D56): "Teilen" sends the open items, one per line, to WhatsApp, Notes, Reminders or
+  Bring! through the phone's share sheet; without one the list is copied.
+- Import from any app's share sheet (D57): `/r/create/url?recipe_import_text=…` puts the text into the intake, also
+  through the sign-in; a text that is only a link is read as a link. The README shows the iOS shortcut.
+- Own sidebar (D58): under More each person ticks what their side menu shows; saved per account.
+- First-sign-in tour (D59): the admin ticks "Mit Einführung" when creating an account; six short cards after the first
+  steps, "Überspringen" bottom left, and "Einführung ansehen" under More.
 - Drafts and the first-steps pages no longer show Mealie's extra English "request failed with status 409" message next
   to their own (e.g. next to the duplicates warning).
 - Cook mode starts at the first step again after it was finished, and the last step offers "Fertig und als gekocht

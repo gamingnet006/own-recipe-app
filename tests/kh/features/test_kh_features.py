@@ -54,6 +54,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "sourceUrl": get_kh_settings().source_url,
             "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
             "emailReady": False,
+            "draftMaxText": get_kh_settings().draft_max_text,
             "media": False,
             "profile": "leicht",
         }

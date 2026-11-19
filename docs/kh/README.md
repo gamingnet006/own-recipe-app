@@ -278,6 +278,14 @@ Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, I
 
 Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
 
+**Ohne Schlüssel, nur mit Anmeldung (D57):** Wer den Schlüssel nicht auf jedem Gerät pflegen will, baut den Kurzbefehl „In Kochheft importieren“. Er öffnet Kochheft mit dem geteilten Inhalt, und du prüfst und tippst **Hinzufügen** (ohne Anmeldung kommt zuerst die Anmeldung, dann der Eingang):
+
+1. Neuer Kurzbefehl in der App **Kurzbefehle**, unter **ⓘ** „Im Share-Sheet anzeigen“ mit den Typen **Text** und **URLs**.
+2. **Wenn** die Kurzbefehleingabe eine URL ist: Aktion **URL** mit `https://<eure-adresse>/r/create/url?recipe_import_url=` und dahinter die **URL-codierte** Eingabe (Aktion **URL-codieren**), dann **URLs öffnen**.
+3. **Sonst:** die Eingabe **URL-codieren** und **URLs öffnen** mit `https://<eure-adresse>/r/create/url?recipe_import_text=` und dahinter dem codierten Text.
+
+Sehr lange Texte (mehr als ein paar tausend Zeichen) fügst du besser mit dem Kurzbefehl mit Schlüssel (oben) hinzu oder fügst sie im **Eingang** ein; Kochheft kürzt sie auf die Höchstlänge eines Entwurfs.
+
 ### Uhr-Timer per Kurzbefehl (iPhone und iPad)
 
 Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei gesperrtem Handy klingelt, legt die Taste „Auf Uhr-Timer legen“ ihn in die Uhr-App (D42). Dafür braucht jedes Gerät einmal einen Kurzbefehl:
@@ -652,6 +660,14 @@ With a shortcut in the share menu, links, texts and photos from Safari, Instagra
 3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Kochheft key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
 Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
+
+**Without a key, just signing in (D57):** If you would rather not keep the key on every device, build the shortcut "Import into Kochheft". It opens Kochheft with the shared content, and you check it and tap **Add** (when signed out, the sign-in comes first, then the Intake):
+
+1. A new shortcut in the **Shortcuts** app, under **ⓘ** "Show in Share Sheet" with the types **Text** and **URLs**.
+2. **If** the shortcut input is a URL: a **URL** action with `https://<your-address>/r/create/url?recipe_import_url=` followed by the **URL-encoded** input (action **URL Encode**), then **Open URLs**.
+3. **Otherwise:** **URL Encode** the input and **Open URLs** with `https://<your-address>/r/create/url?recipe_import_text=` followed by the encoded text.
+
+Very long texts (more than a few thousand characters) are better added with the shortcut with a key (above) or pasted in the **Intake**; Kochheft cuts them at the longest length a draft takes.
 
 ### Clock timer via shortcut (iPhone and iPad)
 

@@ -10,6 +10,7 @@ export interface KhFeatures {
   media: boolean; // own audio and video files are accepted, because a Whisper server is set (P7.3)
   profile: string; // leicht, normal, stark or lokal (P7.4)
   emailReady: boolean; // mail sending is set up, so reset links and verification mails work (D53)
+  draftMaxText: number; // longest recipe text one draft takes; a text shared into the app is cut here (D57)
 }
 
 // A slow server must not hold the whole app start: without an answer the hidden parts stay hidden.
@@ -23,6 +24,7 @@ const ALL_HIDDEN: KhFeatures = {
   media: false,
   profile: "leicht",
   emailReady: false,
+  draftMaxText: 20000,
 };
 
 export default defineNuxtPlugin({

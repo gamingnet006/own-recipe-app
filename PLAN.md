@@ -84,6 +84,10 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D53 | Konten ohne E-Mail (18.11.2026): Der Admin legt Konten auch ohne E-Mail an; Kochheft trägt dann eine Platzhalter-Adresse `<hex>@no-email.invalid` ein, die die Oberfläche als „keine E-Mail“ zeigt, damit Mealies Kern unverändert bleibt. „Passwort zurücksetzen“ erscheint nur mit eingerichtetem Mail-Versand, sonst der Hinweis auf den Admin. Wer vom Admin angelegt wird, legt beim ersten Anmelden ein eigenes Passwort fest. Mit E-Mail und Mail-Versand kommt eine Willkommens-Mail mit einem Link zum Festlegen des Passworts, ohne Passwort im Klartext. Der Admin-Schalter „E-Mail-Adresse Pflicht“ (nur mit Mail-Versand) verlangt von Personen ohne bestätigte Adresse eine, die per Link bestätigt wird. Links gelten `KH_ACCOUNT_LINK_HOURS` (72) Stunden. Die Sperre beim ersten Anmelden sitzt nur in der Oberfläche. | beschlossen |
 | D54 | Kommentare zurück (18.11.2026): Die Rezeptseite zeigt wieder Mealies Kommentare (D38 hatte sie ausgeblendet). Jede Person kann beliebig viele Kommentare schreiben, alle sehen sie. Abschalten lassen sie sich mit Mealies eigenen Schaltern pro Haushalt und pro Rezept, eine eigene Zusatzfunktion braucht es nicht. Nur in der eigenen Gruppe, nicht im Bearbeiten- und Kochmodus. | beschlossen |
 | D55 | Neues Rezept direkt prüfen (18.11.2026): In der Vorschau eines Entwurfs tippt man auf Titel, Zutat oder Schritt und ändert ihn dort; eine Zutat wird neu gelesen, Schritt-Verknüpfungen folgen dem Text oder fallen weg. Darunter fragt „Wohin kommt das Rezept?“ nach Kategorien und Kochbuch; ein Kochbuch zählt, wenn sein Filter genau eine Kategorie ist, „+ Neu“ legt Kategorie oder Kochbuch an (nur mit Recht zum Organisieren). Ein Knopf „Übernehmen“ wie bisher. | beschlossen |
+| D56 | Einkaufsliste weitergeben (19.11.2026): „Teilen“ öffnet das Teilen-Menü des Geräts mit den offenen Artikeln, eine Zeile pro Artikel, ohne Etiketten-Überschriften; ohne Teilen-Menü wird kopiert. Bring!s eigener Import liest nur öffentliche Rezeptseiten (schema.org) und nimmt keine Liste, deshalb keine eigene Bring!-Anbindung; ob Bring! geteilten Text annimmt, entscheidet Bring!. | beschlossen |
+| D57 | Import aus dem Teilen-Menü (19.11.2026): Neben `recipe_import_url` nimmt `/r/create/url` auch `recipe_import_text`; der Text steht danach im Eingang bereit. Wer nicht angemeldet ist, meldet sich an und landet danach dort (Mealies Weiterleitung mit der ganzen Adresse). Kein Schlüssel nötig; der Kurzbefehl mit Geräteschlüssel (D37) bleibt für lange Texte. | beschlossen |
+| D58 | Eigene Seitenleiste (19.11.2026): Jede Person blendet unter Mehr per Haken aus, was in ihrer Seitenleiste steht (nicht Rezepte und Mehr). Gespeichert pro Konto in `kh_user_navigation`, also auf allen Geräten gleich. Die Leiste unten am Handy bleibt. | beschlossen |
+| D59 | Einführung beim ersten Anmelden (19.11.2026): Der Admin setzt beim Anlegen den Haken „Mit Einführung“ (Standard an). Nach den ersten Schritten zeigt die Startseite sechs kurze Karten; „Überspringen“ unten links. Unter Mehr jederzeit „Einführung ansehen“. Eine Karten-Folge statt eines Rundgangs mit Hervorhebungen, ohne neue Bibliothek. | beschlossen |
 | D51 | Seitenmenü ab 840 px (15.11.2026): Am Ende steht „Mehr“. Nur dort liegen die Zusatzfunktionen, Systemprüfung, Über und die Einstellungen für Umluft, Nährwerte und Uhr; ohne den Eintrag waren sie auf iPad quer und Computer nicht erreichbar. Ergänzt D38. | beschlossen |
 
 ---
@@ -283,12 +287,12 @@ Erste Antwort auf „Was muss noch gemacht werden?“. In Arbeit für v1.3:
 - [x] Kochmodus: nach dem letzten Schritt beginnt er beim nächsten Mal wieder vorn statt am Ende.
 - [x] Kochmodus: am Ende „Fertig“ und „Fertig, als gekocht markieren“, statt über das Drei-Punkte-Menü.
 
-Ideen, noch nicht geplant:
+Ideen, umgesetzt am 19.11.2026 (D56–D59):
 
-- [ ] Einkaufsliste an eine andere App schicken (wie Bring!): wie das geht, ohne Abo und ohne fremde Konten, erst prüfen.
-- [ ] Teilen-Kurzbefehl „In Kochheft importieren“ aus jeder App (z. B. Notizen): öffnet Kochheft mit dem Text; wer nicht angemeldet ist, meldet sich an und landet danach automatisch beim Import.
-- [ ] Kurze Einführung beim ersten Anmelden: Der Admin setzt beim Anlegen eines Kontos den Haken „Mit Einführung“; die Person wird dann Schritt für Schritt durch die App geführt, unten links „Überspringen“.
-- [ ] Eigene Seitenleiste pro Person: unter Mehr bei jeder Funktion ein Haken „in der Seitenleiste“. Standard wie heute; ohne Haken steht die Funktion nur unter Mehr.
+- [x] Einkaufsliste an eine andere App schicken (wie Bring!): wie das geht, ohne Abo und ohne fremde Konten, erst prüfen.
+- [x] Teilen-Kurzbefehl „In Kochheft importieren“ aus jeder App (z. B. Notizen): öffnet Kochheft mit dem Text; wer nicht angemeldet ist, meldet sich an und landet danach automatisch beim Import.
+- [x] Kurze Einführung beim ersten Anmelden: Der Admin setzt beim Anlegen eines Kontos den Haken „Mit Einführung“; die Person wird dann Schritt für Schritt durch die App geführt, unten links „Überspringen“.
+- [x] Eigene Seitenleiste pro Person: unter Mehr bei jeder Funktion ein Haken „in der Seitenleiste“. Standard wie heute; ohne Haken steht die Funktion nur unter Mehr.
 
 ---
 
