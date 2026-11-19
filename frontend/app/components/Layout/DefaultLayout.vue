@@ -112,7 +112,6 @@ import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: 
 import {
   type KhNavTarget,
   sidebarTargets,
-  useKhShoppingTarget,
   useKhSidebar,
 } from "~~/kh/app/composables/use-kh-navigation";
 
@@ -157,7 +156,6 @@ const cookbooks = computed(() => {
 // bottom (D38); mobile-breakpoint="md" above keeps the menu from covering the page up to Vuetify's 1145 px
 const khWide = computed(() => display.mdAndUp.value);
 const sidebar = useKhSidebar(khWide);
-const khShoppingTo = useKhShoppingTarget();
 useKhAddonsLoader(); // KH: D46
 
 function cookbookAsLink(cookbook: CookBookOut): SideBarLink {
@@ -239,7 +237,7 @@ const createLinks = computed(() => [
 // KH: the side menu shows the shared destinations (D38), the intake with its number of drafts; as in Mealie, only
 // the recipes and the finder show for visitors of a public group
 const KH_PUBLIC_TARGETS = ["recipes", "finder"];
-const topLinks = computed<SideBarLink[]>(() => sidebarTargets(groupSlug.value, khShoppingTo.value).map(khSideBarLink));
+const topLinks = computed<SideBarLink[]>(() => sidebarTargets(groupSlug.value).map(khSideBarLink));
 
 /** KH: one destination of the shared list as an entry of Mealie's side menu. */
 function khSideBarLink(target: KhNavTarget): SideBarLink {

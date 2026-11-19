@@ -151,7 +151,7 @@ Am Handy und am iPad hochkant steht unten eine Leiste:
 
 - **Rezepte:** suchen und stöbern. Warten Entwürfe auf Prüfung, steht darüber ein Hinweis.
 - **Eingang:** neue Rezepte hinzufügen und die Entwürfe prüfen; die Zahl zeigt, wie viele warten.
-- **Einkaufsliste:** Gibt es nur eine, öffnet sie direkt.
+- **Einkaufsliste:** die Kachel-Seite (siehe „Einkaufsliste mit Kacheln“ unten).
 - **Mehr:** Essensplaner, Kochbücher, „Was kann ich kochen?“, Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Einstellungen, Sprache, Hell/Dunkel, Familie einladen und Abmelden.
 
 Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
@@ -167,6 +167,7 @@ Neue Rezepte kommen über den **Eingang**; auch Mealies Import-Seiten führen do
 - **Link:** Adresse einfügen. Hat die Seite Rezeptdaten, liest Kochheft sie ohne KI, sonst liest die KI die Seite.
 - **Text:** Rezepttext einfügen, zum Beispiel aus einer Nachricht.
 - **Foto oder Screenshot:** Kamera oder Mediathek. Ein Rezept auf mehreren Seiten bekommt alle Fotos zusammen, bis zu fünf.
+- **Datei:** eine Textdatei (`.txt`, `.md`) oder ein ZIP-Ordner, auf dem iPhone aus der Dateien-App. Jede Textdatei wird ein Entwurf; im ZIP wird jedes Foto (jpg, png, webp, heic) ohne Textdatei gleichen Namens ein Foto-Entwurf, und ein Foto mit dem Namen einer Textdatei wird deren Titelbild. Ordner und versteckte Dateien (`__MACOSX`, `._*`) sind egal. Grenzen: höchstens 100 Entwürfe pro ZIP und 50 MB entpackt (`KH_IMPORT_MAX_DRAFTS`, `KH_IMPORT_MAX_UNZIPPED_MB`); was nicht passt, nennt die Antwort mit Grund („3 Entwürfe angelegt, 1 übersprungen“). PDF geht nicht. Texte im Kochheft-Format (siehe unten) liest Kochheft ohne KI.
 
 Danach wartet das Rezept als Entwurf unten im **Eingang** und ist nach ein paar Sekunden erkannt. Jeder im Haushalt sieht alle Entwürfe und darf sie übernehmen. In der Prüfansicht steht das Original neben dem Ergebnis, am Handy untereinander:
 
@@ -255,6 +256,12 @@ Aus den Zutaten erkennt Kochheft die 14 Allergen-Gruppen der EU. Das ist immer �
 - Ein einzelnes Rezept druckst du als Rezeptkarte: Rezeptmenü **⋯** → **Drucken**.
 - Fotos kommen nur ins Buch, wenn du **Foto ist von uns** anhakst. Hake das nur bei Fotos an, die ihr selbst gemacht habt.
 
+### Rezepte als Text teilen und exportieren
+
+- **Ein Rezept:** Rezeptmenü **⋯** → **Als Text teilen**. Du stellst die Portionen ein (vorbelegt mit den gerade gewählten), siehst die Vorschau und wählst **Teilen** (Teilen-Menü des Geräts, sonst Kopieren), **Kopieren** oder **Als Datei** (`<Rezeptname>.txt`). Mengen in Zutaten, Überschriften und Schritten rechnen mit.
+- **Ein Kochbuch:** in der Kochbuch-Ansicht **Als Textdateien exportieren**. Portionen „wie im Rezept“ oder „für alle: N“, mit Haken **Mit Fotos** liegt das Foto neben dem Text. Du bekommst `<Kochbuch>.zip` mit dem Ordner `<Kochbuch>/` und je Rezept `<Rezeptname>.txt` (gleiche Namen bekommen „(2)“). Rezepte, die nicht gehen, nennt das Fenster am Ende.
+- **Wieder hinein:** Diese Texte (die letzte Zeile heißt „Exportiert aus Kochheft“) und ZIP-Ordner davon liest der Eingang über **Datei** ohne KI wieder ein; Zutaten, Schritte, Zeiten, Notizen und Quelle bleiben erhalten. Was Kochheft verlässt, hat sich nicht geändert: nur andere Texte und Fotos liest weiter die KI.
+
 ### Umzug aus einer anderen App
 
 1. Unter `/group/migrations` (in Mealie: Gruppe → Migrationen) bietet Mealie Importe aus diesen Apps an: Nextcloud Cookbook, Paprika, Chowdown, Copy Me That, My Recipe Box, Plan to Eat, Recipe Keeper, Tandoor, Cook'n und Mealie (alt). Lade die Exportdatei der alten App dort hoch.
@@ -262,6 +269,17 @@ Aus den Zutaten erkennt Kochheft die 14 Allergen-Gruppen der EU. Das ist immer �
 3. Öffne **Mehr** → **Doppelte Rezepte**, filtere nach dem Tag und entscheide bei jedem Paar: **Beide behalten** oder eines löschen (Löschen lässt sich nicht rückgängig machen).
 
 Rezepte aus Kitchen Stories und Chefkoch holst du über den Link im **Eingang**, Rezepte auf Papier über ein Foto.
+
+### Einkaufsliste mit Kacheln
+
+Die Einkaufsliste (`/einkauf`) arbeitet mit Kacheln, ähnlich wie Bring!, nur ohne fremdes Konto. **Pro Laden eine Liste:** ☰ oben links wechselt den Laden; „Laden hinzufügen“ fragt „Welcher Laden?“ und stellt die Abteilungen in die passende Reihenfolge (Supermarkt, Discounter, Drogerie, Markt).
+
+- **Rote Kacheln** sind, was fehlt (Dringendes zuerst). Antippen heißt „gekauft“ (mit „Rückgängig“), langes Drücken oder Rechtsklick öffnet die **Details**: Menge, Eigenschaften (Bio, laktosefrei …), Dringend/Angebot/Wenn's passt und eine eigene Notiz.
+- **Zuletzt gekauft:** Antippen setzt es wieder auf die Liste.
+- Darunter stehen alle Artikel nach Abteilung des Ladens; Antippen schreibt auf und öffnet gleich die Details. Die Suche filtert; Enter schreibt einen unbekannten Namen neu auf.
+- **Rezepte:** „Auf die Einkaufsliste“ funktioniert wie bisher; die Zutaten erscheinen als Kacheln („Aus <Rezept>“).
+- **Klassische Ansicht:** der Link unten öffnet Mealies Listenseite (Abteilungen sortieren, Aufräumen).
+- **Direkt auf den Home-Bildschirm:** Android: Kochheft-Symbol lange drücken → „Einkaufsliste“ (oder herausziehen). iPhone: `/einkauf` in Safari öffnen → Teilen → „Zum Home-Bildschirm“; beim ersten Öffnen einmal anmelden.
 
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
@@ -533,7 +551,7 @@ On a phone and an upright iPad there is a bar at the bottom:
 
 - **Recipes:** search and browse. When drafts wait for a review, a hint shows above.
 - **Intake:** add new recipes and review the drafts; the number shows how many wait.
-- **Shopping list:** if there is only one, it opens right away.
+- **Shopping list:** the tile page (see "Shopping list with tiles" below).
 - **More:** meal planner, cookbooks, "What can I cook?", favorites, categories, tags, tools, timeline, settings, language, light/dark, invite family and log out.
 
 On an iPad in landscape and on a computer, the same destinations are in the side menu on the left.
@@ -549,6 +567,7 @@ New recipes come in through the **Intake**; Mealie's import pages lead there too
 - **Link:** paste the address. If the page has recipe data, Kochheft reads it without AI, otherwise the AI reads the page.
 - **Text:** paste the recipe text, for example from a message.
 - **Photo or screenshot:** camera or photo library. A recipe on several pages gets all its photos together, up to five.
+- **File:** a text file (`.txt`, `.md`) or a ZIP folder, on the iPhone from the Files app. Each text file becomes a draft; in a ZIP each photo (jpg, png, webp, heic) without a text file of the same name becomes a photo draft, and a photo with a text file's name becomes its cover. Folders and hidden files (`__MACOSX`, `._*`) do not matter. Limits: at most 100 drafts per ZIP and 50 MB unpacked (`KH_IMPORT_MAX_DRAFTS`, `KH_IMPORT_MAX_UNZIPPED_MB`); what does not fit is named with its reason ("3 drafts created, 1 skipped"). No PDF. Texts in Kochheft's own format (see below) are read without AI.
 
 The recipe then waits as a draft at the bottom of the **Intake** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
 
@@ -638,6 +657,12 @@ Kochheft detects the 14 EU allergen groups from the ingredients. This is always 
 - To print a single recipe as a recipe card, use the recipe menu **⋯** → **Print**.
 - Photos go into the book only if you tick **The photo is ours**. Tick it only for photos you took yourselves.
 
+### Share and export recipes as text
+
+- **One recipe:** recipe menu **⋯** → **Share as text**. Set the servings (preset to the ones chosen now), check the preview and pick **Share** (the device's share menu, otherwise copy), **Copy** or **As file** (`<recipe name>.txt`). Amounts in ingredients, headings and steps scale with it.
+- **A cookbook:** in the cookbook view **Export as text files**. Servings "as in the recipe" or "same for all: N"; with **With photos** ticked each photo lies beside its text. You get `<cookbook>.zip` with the folder `<cookbook>/` and one `<recipe name>.txt` per recipe (equal names get "(2)"). Recipes that fail are named at the end.
+- **Back in again:** these texts (the last line reads "Exportiert aus Kochheft") and ZIP folders of them are read by the intake under **File** without AI; ingredients, steps, times, notes and source are kept. What leaves the house has not changed: only other texts and photos are still read by the AI.
+
 ### Moving from another app
 
 1. Under `/group/migrations` (in Mealie: group → migrations), Mealie offers imports from these apps: Nextcloud Cookbook, Paprika, Chowdown, Copy Me That, My Recipe Box, Plan to Eat, Recipe Keeper, Tandoor, Cook'n and Mealie (old). Upload the old app's export file there.
@@ -645,6 +670,17 @@ Kochheft detects the 14 EU allergen groups from the ingredients. This is always 
 3. Open **More** → **Duplicate recipes**, filter by the tag and decide for each pair: **Keep both** or delete one (deleting cannot be undone).
 
 Recipes from Kitchen Stories and Chefkoch come in by link through the **Inbox**, paper recipes by photo.
+
+### Shopping list with tiles
+
+The shopping list (`/einkauf`) works with tiles, much like Bring!, but without a third-party account. **One list per store:** ☰ at the top left switches the store; "Add store" asks "Which store?" and puts the departments in a fitting order (supermarket, discounter, drugstore, market).
+
+- **Red tiles** are what is missing (urgent first). Tap = bought (with "Undo"); long press or right click opens the **details**: amount, properties (organic, lactose-free …), urgent/offer/whenever and an own note.
+- **Recently bought:** tap to put it back on the list.
+- Below are all items by the store's departments; a tap writes it down and opens the details. Search filters; Enter writes an unknown name down.
+- **Recipes:** "Add to shopping list" works as before; the ingredients show as tiles ("From <recipe>").
+- **Classic view:** the link at the bottom opens Mealie's list page (sort departments, tidy up).
+- **Straight to the home screen:** Android: long-press the Kochheft icon → "Einkaufsliste" (or drag it out). iPhone: open `/einkauf` in Safari → Share → "Add to Home Screen"; sign in once at the first start.
 
 ### Share shortcut (iPhone and iPad)
 

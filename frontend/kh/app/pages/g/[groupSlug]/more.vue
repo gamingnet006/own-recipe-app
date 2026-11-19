@@ -182,7 +182,6 @@ import {
   moreSections,
   settingsTargets,
   sidebarChoices,
-  useKhShoppingTarget,
 } from "~~/kh/app/composables/use-kh-navigation";
 import { khSidebar, saveKhSidebar } from "~~/kh/app/composables/use-kh-sidebar";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
@@ -225,7 +224,6 @@ const tourOpen = ref(false); // shown again any time, without a call to the serv
 const { accounts, load: loadAccounts } = useKhAccounts();
 onMounted(loadAccounts);
 
-const shoppingTo = useKhShoppingTarget();
 const sidebarEntries = computed(() => sidebarChoices(route.params.groupSlug as string));
 
 /** Shows or hides one entry of the side menu and saves the choice right away. */
@@ -239,7 +237,6 @@ const sections = computed(() => {
     user.value?.id ?? "",
     undefined,
     undefined,
-    shoppingTo.value,
   );
   return [
     { title: "kh.nav.plan", targets: plan },

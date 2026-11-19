@@ -41,6 +41,9 @@ class KhSettings(BaseSettings):
     draft_max_image_mb: int = 20
     draft_max_text: int = 20000
     draft_stale_minutes: int = 15
+    # File import (D62): drafts one ZIP may create, and the size of an uploaded file and of a ZIP's unpacked content
+    import_max_drafts: int = Field(100, ge=1)
+    import_max_unzipped_mb: int = Field(50, ge=1)
     # Duplicate check: similarity from 0 to 1 from which a draft gets a hint
     duplicate_title: float = 0.85
     duplicate_ingredients: float = 0.7

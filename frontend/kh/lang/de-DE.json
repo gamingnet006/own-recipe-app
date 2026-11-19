@@ -4,12 +4,13 @@
       "add-recipe": "Rezept hinzufügen",
       "add-recipe-subtitle": "Aus Link, Text oder Foto",
       "drafts": "Entwürfe",
-      "intake-description": "Ein Link, ein Text oder ein Foto: Das Rezept wird erkannt und wartet bei den Entwürfen, bis es jemand prüft und übernimmt.",
+      "intake-description": "Ein Link, ein Text, ein Foto oder eine Datei: Das Rezept wird erkannt und wartet bei den Entwürfen, bis es jemand prüft und übernimmt.",
       "source": {
         "link": "Link",
         "text": "Text",
         "image": "Foto oder Screenshot",
-        "media": "Audio- oder Videodatei (eigene Aufnahme)"
+        "media": "Audio- oder Videodatei (eigene Aufnahme)",
+        "file": "Datei"
       },
       "link-label": "Link zum Rezept",
       "text-label": "Rezepttext",
@@ -81,7 +82,10 @@
         "media_too_large": "Die Aufnahme ist zu groß.",
         "media_not_configured": "Aufnahmen sind nicht eingeschaltet (Whisper).",
         "not_audio_video": "Diese Datei ist keine Audio- oder Videoaufnahme.",
-        "index": "Diese Zeile gibt es im Rezept nicht mehr. Bitte lade die Seite neu."
+        "index": "Diese Zeile gibt es im Rezept nicht mehr. Bitte lade die Seite neu.",
+        "file_too_large": "Die Datei ist zu groß.",
+        "zip_too_large": "Der ZIP-Ordner ist entpackt zu groß.",
+        "broken_zip": "Diese ZIP-Datei lässt sich nicht öffnen."
       },
       "shortcut-hint": "Schneller vom Handy: Mit dem Kurzbefehl aus der Anleitung kommen Rezepte direkt aus dem Teilen-Menü.",
       "type-yourself": "Rezept selbst eintippen",
@@ -102,6 +106,18 @@
         "name": "Name",
         "create": "Anlegen",
         "create-failed": "Das hat nicht geklappt. Bitte versuche es noch einmal."
+      },
+      "choose-file": "Datei wählen",
+      "file-created": "{n} Entwurf angelegt | {n} Entwürfe angelegt",
+      "file-skipped": "{n} übersprungen: {list}",
+      "skip": {
+        "too_large": "zu groß",
+        "not_an_image": "kein Foto",
+        "unreadable": "nicht lesbar",
+        "empty": "leer",
+        "text_too_long": "Text zu lang",
+        "unsupported": "Dateityp nicht unterstützt",
+        "too_many": "zu viele Dateien"
       }
     },
     "nav": {
@@ -168,7 +184,7 @@
       "unavailable-hint": "Die KI ist gerade nicht erreichbar. Links mit Rezeptdaten gehen weiter, Fotos und Texte bitte später erneut versuchen.",
       "no-images": "liest keine Bilder",
       "order-failed": "Die Reihenfolge ließ sich nicht speichern; die Liste ist neu geladen.",
-      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten gehen schon.",
+      "missing-hint": "Noch keine KI eingerichtet: Fotos und Texte liest Kochheft erst, wenn jemand einen KI-Anbieter anlegt. Links mit Rezeptdaten und aus Kochheft exportierte Textdateien gehen schon.",
       "guide": {
         "title": "Schritt für Schritt: Gemini einrichten (kostenlos)",
         "key": "Schlüssel holen: Öffne die Seite unten, melde dich mit deinem Google-Konto an, tippe auf „API-Schlüssel erstellen“ und kopiere den Schlüssel. Hinterleg dort kein Bezahlkonto, dann kostet es nichts.",
@@ -682,6 +698,62 @@
           "text": "Unter Mehr findest du alle Funktionen, kannst deine eigene Seitenleiste einstellen und diese Einführung wieder ansehen."
         }
       }
+    },
+    "shopping": {
+      "search": "Artikel suchen oder hinzufügen …",
+      "stores": "Läden",
+      "add-store": "Laden hinzufügen",
+      "to-buy": "Einkaufen",
+      "recent": "Zuletzt gekauft",
+      "empty": "Alles da. Tippe unten auf eine Kachel, um etwas aufzuschreiben.",
+      "show-all": "Alle zeigen ({n})",
+      "show-fewer": "Weniger zeigen",
+      "new": "Neu",
+      "write-down": "neu aufschreiben",
+      "details-title": "Details zu {name}",
+      "from-recipe": "Aus dem Rezept „{name}“",
+      "from-recipe-short": "Aus {name}",
+      "quantity": "Menge",
+      "properties": "Eigenschaften",
+      "urgency": "Wie eilig?",
+      "urgent": "Dringend",
+      "offer": "Angebot",
+      "whenever": "Wenn's passt",
+      "own-note": "Eigene Notiz, z. B. „die große Packung“",
+      "remove": "Von der Liste",
+      "done": "Fertig",
+      "bought": "{name} gekauft",
+      "undo": "Rückgängig",
+      "classic": "Klassische Ansicht",
+      "which-store": "Welcher Laden?",
+      "other-store": "Anderer Laden",
+      "kinds": {
+        "supermarket": "Supermarkt",
+        "discounter": "Discounter",
+        "drugstore": "Drogerie",
+        "market": "Markt"
+      },
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
+    },
+    "export": {
+      "menu": "Als Text teilen",
+      "title": "Rezept als Text",
+      "servings": "Für wie viele Portionen?",
+      "factor": "Für wie viel Mal das Rezept?",
+      "share": "Teilen",
+      "copy": "Kopieren",
+      "save": "Als Datei",
+      "copied": "Rezept kopiert",
+      "copy-failed": "Kopieren hat nicht geklappt.",
+      "book-button": "Als Textdateien exportieren",
+      "book-title": "Kochbuch als Textdateien",
+      "as-recipe": "Portionen wie im Rezept",
+      "for-all": "Für alle Rezepte gleich",
+      "servings-all": "Portionen",
+      "with-photos": "Mit Fotos",
+      "run": "Exportieren",
+      "failed": "Nicht exportiert: {names}",
+      "done": "Fertig, die ZIP-Datei wurde gespeichert."
     }
   }
 }

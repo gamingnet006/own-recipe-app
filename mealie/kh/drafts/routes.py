@@ -9,8 +9,8 @@ from fastapi.responses import FileResponse
 from pydantic import UUID4
 
 from mealie.kh.addons.service import ensure_addon
-from mealie.kh.drafts.recognize import recognize
-from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, OriginOut
+from mealie.kh.drafts.recognize import recognize, recognize_all
+from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut
 from mealie.kh.drafts.service import DraftService
 from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
@@ -57,6 +57,19 @@ class KhDraftsController(_DraftsBase):
         draft = self.service.create(url, text, images, media)
         self._recognize_later(tasks, draft)
         return draft
+
+    @router.post("/file", status_code=status.HTTP_201_CREATED, response_model=FileImportOut)
+    def create_from_file(self, tasks: BackgroundTasks, file: UploadFile = File(...)) -> FileImportOut:
+        """New drafts from one uploaded .txt, .md or .zip file (D62); what made no draft is named in the answer."""
+        result = self.service.create_from_file(file.filename or "", file)
+        tasks.add_task(
+            recognize_all,
+            [draft.id for draft in result.created],
+            user=self.user,
+            household=self.household,
+            translator=self.translator,
+        )
+        return result
 
     @router.get("", response_model=list[DraftOut])
     def list_open(self) -> list[DraftOut]:

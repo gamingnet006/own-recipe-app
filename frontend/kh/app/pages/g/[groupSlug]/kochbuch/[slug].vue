@@ -2,9 +2,15 @@
 to print. The settings belong to the cookbook and are saved by themselves. -->
 <template>
   <v-container>
-    <h1 class="text-h5 mb-4 d-print-none">
-      {{ $t("kh.book.page-title") }}
-    </h1>
+    <div class="d-flex align-center flex-wrap ga-2 mb-4 d-print-none">
+      <h1 class="text-h5 flex-grow-1">
+        {{ $t("kh.book.page-title") }}
+      </h1>
+      <!-- D61: the cookbook's recipes as text files in a ZIP -->
+      <v-btn v-if="book && book !== 'error'" variant="tonal" :prepend-icon="$globals.icons.zip" @click="exportDialog = true">
+        {{ $t("kh.export.book-button") }}
+      </v-btn>
+    </div>
     <v-progress-linear v-if="loading" indeterminate class="d-print-none" />
     <v-alert v-else-if="!book" type="error" variant="tonal" class="d-print-none">
       {{ $t("kh.book.not-found") }}
@@ -18,6 +24,7 @@ to print. The settings belong to the cookbook and are saved by themselves. -->
       </template>
     </v-alert>
     <template v-else>
+      <KhBookExportDialog v-model="exportDialog" :recipes="book.recipes" :cookbook-name="book.cookbook.name" />
       <v-alert v-if="book.failedRecipes" type="warning" variant="tonal" class="mb-4 d-print-none">
         {{ $t("kh.book.recipes-failed", { n: book.failedRecipes }) }}
         <template #append>
@@ -48,7 +55,9 @@ definePageMeta({
 const route = useRoute();
 const auth = useMealieAuth();
 
+const { $globals } = useNuxtApp();
 const loading = ref(true);
+const exportDialog = ref(false);
 const book = ref<Awaited<ReturnType<typeof loadCookbookBook>>>(null);
 
 /** Loads the book; also the retry after an error. The editor is mounted anew, so its saving starts from what was read. */

@@ -71,6 +71,7 @@ describe("redirect guard", () => {
   test("sends the pages of a switched-off add-on to the recipes with the add-on's name", () => {
     const go = (path: string, changes: Partial<KhAddonFlags>) => addonRedirect(path, on(changes), "familie");
     expect(go("/shopping-lists/abc", { shopping: false })).toEqual({ to: "/g/familie", addon: "shopping" });
+    expect(go("/einkauf", { shopping: false })).toEqual({ to: "/g/familie", addon: "shopping" });
     expect(go("/household/mealplan/planner/view", { planner: false })).toEqual({ to: "/g/familie", addon: "planner" });
     expect(go("/g/familie/doppelte", { duplicates: false })).toEqual({ to: "/g/familie", addon: "duplicates" });
     expect(go("/g/familie/naehrwerte", { nutrition: false })?.addon).toBe("nutrition");

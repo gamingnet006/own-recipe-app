@@ -27,17 +27,16 @@ the shopping list and More, from the shared list of destinations. -->
 </template>
 
 <script setup lang="ts">
-import { activeTab, barTargets, useKhShoppingTarget } from "../composables/use-kh-navigation";
+import { activeTab, barTargets } from "../composables/use-kh-navigation";
 import { useKhDraftCount } from "../composables/use-kh-drafts";
 
 const { $globals } = useNuxtApp();
 const route = useRoute();
 const auth = useMealieAuth();
 const { count } = useKhDraftCount();
-const shoppingTo = useKhShoppingTarget();
 
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
-const targets = computed(() => barTargets(groupSlug.value, shoppingTo.value));
+const targets = computed(() => barTargets(groupSlug.value));
 const active = computed(() => activeTab(route.path, groupSlug.value));
 
 /** One of Mealie's icons by its name in the list of destinations. */

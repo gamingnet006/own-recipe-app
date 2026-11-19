@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from mealie.core.exceptions import RateLimitError
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
+from mealie.db.models._model_utils.datetime import get_utc_now
 from mealie.kh.ai.chain import used_providers
 from mealie.kh.ai.errors import AIUnavailableError
 from mealie.kh.amounts.plausibility import plausibility_warnings
@@ -21,6 +22,7 @@ from mealie.kh.drafts.files import original_path
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.drafts.repository import drafts_repo
 from mealie.kh.drafts.schemas import DraftError, DraftOut, DraftSource, DraftStatus
+from mealie.kh.drafts.text_format import parse_kochheft_text
 from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import WhisperError, media_path, transcribe
 from mealie.kh.features.settings import get_kh_settings
@@ -34,7 +36,7 @@ from mealie.schema.user.user import PrivateUser
 from mealie.services.openai.openai import OpenAINotEnabledException, OpenAIService
 from mealie.services.recipe.ai_recipe_service import AIProviderNotEnabledError, AIRecipeService
 from mealie.services.recipe.import_workflow.exceptions import NoRecipeDataError
-from mealie.services.scraper.scraper import create_from_html
+from mealie.services.scraper.scraper import create_from_html, finalize_scraped_recipe
 
 logger = get_logger()
 
@@ -120,6 +122,9 @@ async def build(
         except NO_AI as ex:
             raise NoRecipeDataError() from ex  # no recipe data on the page and no AI to read it
     if draft.source_type == DraftSource.text:
+        own = parse_kochheft_text(draft.source_text or "")  # Kochheft's own export format needs no AI (D62)
+        if own:
+            return await finalize_scraped_recipe(own, translator), False
         return await ai.build_recipe(content=draft.source_text, translate_language=language), True
     images = [original_path(draft.id, name) for name in draft.original_files]
     return await ai.build_recipe(images=images, translate_language=language), True
@@ -183,3 +188,19 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdO
             ai_model=ai_model,
             warnings=[warning.model_dump(mode="json", by_alias=True) for warning in warnings],
         )
+
+
+async def recognize_all(
+    draft_ids: list[UUID4], *, user: PrivateUser, household: HouseholdOut, translator: Translator
+) -> None:
+    """Recognizes the drafts of one file import one after the other (D62). Before each, the drafts still waiting get
+    a fresh update time, so a long queue is not taken for interrupted recognitions by the stale check."""
+    for n, draft_id in enumerate(draft_ids):
+        with session_context() as session:
+            session.execute(
+                sa.update(KhDraft)
+                .where(KhDraft.id.in_(draft_ids[n:]), KhDraft.status == DraftStatus.working)
+                .values(update_at=get_utc_now())
+            )
+            session.commit()
+        await recognize(draft_id, user=user, household=household, translator=translator)

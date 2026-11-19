@@ -4,12 +4,15 @@ every member of its group."""
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from mealie.kh.amounts.schemas import AmountsOut
+from mealie.kh.amounts.line import parse_shopping_line
+from mealie.kh.amounts.parse import ensure_german_units
+from mealie.kh.amounts.schemas import AmountsOut, ShoppingLineIn, ShoppingLineOut
 from mealie.kh.amounts.service import load_amounts
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
 from mealie.schema.response import ErrorResponse
+from mealie.services.parser_services._base import DataMatcher
 
 router = UserAPIRouter(prefix="/amounts")
 
@@ -17,6 +20,27 @@ router = UserAPIRouter(prefix="/amounts")
 @controller(router)
 class KhAmountsController(BaseUserController):
     """The amounts of the group's recipes."""
+
+    @router.post("/parse-line", response_model=ShoppingLineOut)
+    def parse_line(self, data: ShoppingLineIn) -> ShoppingLineOut:
+        """A line typed on the shopping page read with the group's units and foods (D60)."""
+        repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
+        ensure_german_units(repos)
+        matcher = DataMatcher(repos)
+        try:
+            line = parse_shopping_line(data.text, matcher.units_by_alias, matcher.foods_by_alias)
+        except ValueError:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("No article in the line")
+            ) from None
+        return ShoppingLineOut(
+            quantity=line.quantity,
+            unit_id=line.unit.id if line.unit else None,
+            unit_abbreviation=line.unit_abbreviation,
+            food_id=line.food.id if line.food else None,
+            name=line.name,
+            note=line.note,
+        )
 
     @router.get("/{recipe_id}", response_model=AmountsOut)
     def amounts(self, recipe_id: UUID4) -> AmountsOut:

@@ -6,6 +6,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Recipes as text (D61): "Share as text" in the recipe menu (share, copy or save as `.txt`, for the servings you choose)
+  and "Export as text files" in the cookbook view (ZIP with one text per recipe, photos optional).
+- File import (D62): the intake takes `.txt`, `.md` and ZIP files (texts and photos, up to 100 drafts and 50 MB
+  unpacked); texts exported by Kochheft are read without AI.
+- Shopping list with tiles (D60): own page `/einkauf` with one list per store, red tiles for what is missing, details
+  (amount, properties, urgency) when writing down, own home-screen icon and an Android shortcut; Mealie's page stays
+  as the classic view (`?klassisch=1`).
 - Accounts without e-mail (D53): the admin can leave the e-mail empty; the person signs in with the user name.
   Everyone the admin creates chooses their own password at the first sign-in. "Reset password" on the sign-in page
   shows only with mail sending set up, otherwise "ask the admin". With mail sending (new `KH_SMTP_*` settings):

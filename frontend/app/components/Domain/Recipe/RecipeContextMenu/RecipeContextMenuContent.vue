@@ -37,6 +37,7 @@
       />
     </v-card-text>
   </BaseDialog>
+  <KhRecipeTextDialog v-if="recipeRef" v-model="textDialog" :recipe="recipeRef" :scale="recipeScale" /> <!-- KH: recipe as text (D61) -->
   <MealPlanAddRecipeDialog v-model="mealplannerDialog" :recipe-id="recipeId" :recipe-scale="recipeScale" />
   <RecipeDialogAddToShoppingList
     v-if="shoppingLists && recipeRefWithScale"
@@ -166,6 +167,7 @@ const { open: shoppingListDialog, shoppingLists, getShoppingLists, addShoppingLi
 
 const printPreferencesDialog = ref(false);
 const shareDialog = ref(false);
+const textDialog = ref(false); // KH: recipe as text (D61)
 const recipeDeleteDialog = ref(false);
 const mealplannerDialog = ref(false);
 const recipeDuplicateDialog = ref(false);
@@ -351,6 +353,11 @@ for (const [key, value] of Object.entries(props.useItems)) {
   }
 }
 
+// KH: "Als Text teilen" (D61)
+if (isOwnGroup.value) {
+  menuItems.value.push({ title: i18n.t("kh.export.menu"), icon: $globals.icons.shareVariant, color: undefined, event: "khText", isPublic: false });
+}
+
 async function refreshRecipe() {
   const { data } = await api.recipes.getOne(props.slug);
   if (data) {
@@ -428,6 +435,12 @@ const eventHandlers: { [key: string]: () => void | Promise<any> } = {
   },
   mealplanner: () => {
     mealplannerDialog.value = true;
+  },
+  khText: async () => { // KH: recipe as text (D61)
+    if (!recipeRef.value) {
+      await refreshRecipe();
+    }
+    textDialog.value = true;
   },
   printPreferences: async () => {
     if (!recipeRef.value) {

@@ -9,6 +9,7 @@ from typing import Any
 
 import sqlalchemy as sa
 from fastapi import HTTPException, UploadFile, status
+from PIL import Image
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ from mealie.kh.amounts.schemas import DraftAmounts
 from mealie.kh.amounts.service import save_amounts
 from mealie.kh.drafts.duplicates import candidates, find_duplicates, normalize_url
 from mealie.kh.drafts.edit import edit_ingredient, edit_name, edit_step
+from mealie.kh.drafts.file_import import read_file
 from mealie.kh.drafts.files import (
     original_path,
     prepare_original,
@@ -36,7 +38,9 @@ from mealie.kh.drafts.schemas import (
     DraftSource,
     DraftStatus,
     DraftWarning,
+    FileImportOut,
     OriginOut,
+    SkippedFile,
 )
 from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import RECORDING_STALE_AFTER, media_path, store_media
@@ -116,7 +120,15 @@ class DraftService:
             prepared = [prepare_original(upload.file.read(), self.settings.draft_max_image_mb) for upload in images]
         except ValueError as error:
             raise bad_request(str(error)) from error
-        draft = self.repo.create(
+        note = Path(media.filename or "").name[:MAX_NOTE] if media else None
+        draft = self._insert(source, url, text, note)
+        if media:
+            self._keep_recording(draft.id, media)
+        return self._keep_originals(draft, prepared)
+
+    def _insert(self, source: DraftSource, url: str | None, text: str | None, note: str | None) -> DraftOut:
+        """The new working draft's row, without originals."""
+        return self.repo.create(
             {
                 "group_id": self.user.group_id,
                 "household_id": self.user.household_id,
@@ -126,11 +138,12 @@ class DraftService:
                 "source_url": url,
                 "source_url_normalized": normalize_url(url) if url else None,
                 "source_text": text,
-                "source_note": Path(media.filename or "").name[:MAX_NOTE] if media else None,
+                "source_note": note,
             }
         )
-        if media:
-            self._keep_recording(draft.id, media)
+
+    def _keep_originals(self, draft: DraftOut, prepared: list[Image.Image]) -> DraftOut:
+        """Stores the prepared images with the draft; unwritable removes the draft again."""
         if not prepared:
             return draft
         try:
@@ -141,6 +154,32 @@ class DraftService:
             raise
         set_fields(self.session, draft.id, original_files=names)
         return self.get(draft.id)
+
+    def create_from_file(self, filename: str, upload: UploadFile) -> FileImportOut:
+        """New working drafts from an uploaded .txt, .md or .zip file (D62): each text one draft, each photo without
+        a text of its own name one photo draft; a photo with a text's name is that draft's cover. The route starts
+        the recognitions."""
+        limit = self.settings.import_max_unzipped_mb * 1024 * 1024
+        data = upload.file.read(limit + 1)
+        if len(data) > limit:
+            raise bad_request("file_too_large")
+        try:
+            content = read_file(filename, data, self.settings)
+        except ValueError as error:
+            raise bad_request(str(error)) from error
+        created: list[DraftOut] = []
+        for item in content.items:
+            try:
+                photo = prepare_original(item.photo, self.settings.draft_max_image_mb) if item.photo else None
+            except ValueError as error:
+                content.skipped.append(SkippedFile(name=item.name, reason=str(error)))
+                if item.text is None:
+                    continue
+                photo = None
+            source = DraftSource.text if item.text else DraftSource.image
+            draft = self._insert(source, None, item.text, Path(item.name).name[:MAX_NOTE])
+            created.append(self._keep_originals(draft, [photo] if photo else []))
+        return FileImportOut(created=created, skipped=content.skipped)
 
     def _keep_recording(self, draft_id: UUID4, media: UploadFile) -> None:
         """Stores the recording with the draft; too big or unwritable removes the draft again."""
@@ -261,13 +300,14 @@ class DraftService:
         return [warning for warning in found if (warning.recipe_slug, warning.draft_id) not in known]
 
     def _save_recipe(self, draft: DraftOut, changes: dict[str, Any], linked: list[int] | None) -> RecipeOut:
-        """Saves the recognized recipe with the review's changes the way Mealie's import does; an image
-        draft's first original becomes the cover, like in Mealie's create_from_ai."""
+        """Saves the recognized recipe with the review's changes the way Mealie's import does; a draft's
+        first original (a photo draft's, or the photo that came with an imported text, D62) becomes the cover, like in
+        Mealie's create_from_ai."""
         recipes = RecipeService(self._household_repos(), self.user, self.household, self.translator)
         recipe = recipes.create_one(RecipeDraft.model_validate({**(draft.recipe or {}), **changes}))
         try:
             save_amounts(self.session, draft.recipe or {}, recipe, linked)  # range ends, fixed lines, step links (D39)
-            if draft.source_type == DraftSource.image and draft.original_files:
+            if draft.original_files:
                 cover = original_path(draft.id, draft.original_files[0]).read_bytes()
                 recipes.update_recipe_image(recipe.slug, cover, "webp")
         except Exception:

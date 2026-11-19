@@ -17,6 +17,7 @@ from mealie.kh.navigation import routes as navigation
 from mealie.kh.notices import routes as notices
 from mealie.kh.nutrition import routes as nutrition
 from mealie.kh.onboarding import routes as onboarding
+from mealie.kh.shopping import routes as shopping
 from mealie.kh.system import routes as system
 
 router = APIRouter(prefix="/kh")
@@ -40,4 +41,5 @@ router.include_router(books.router, tags=["KH: Books"], dependencies=[Depends(re
 router.include_router(duplicates.router, tags=["KH: Duplicates"], dependencies=[Depends(require_addon("duplicates"))])
 router.include_router(nutrition.router, tags=["KH: Nutrition"], dependencies=[Depends(require_addon("nutrition"))])
 router.include_router(allergens.router, tags=["KH: Allergens"], dependencies=[Depends(require_addon("allergens"))])
+router.include_router(shopping.router, tags=["KH: Shopping"], dependencies=[Depends(require_addon("shopping"))])
 router.include_router(system.router, tags=["KH: System"])

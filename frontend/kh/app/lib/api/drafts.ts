@@ -51,6 +51,12 @@ export interface KhDraft {
   updateAt: string;
 }
 
+/** What a file import made (D62): the drafts, and the entries left out with a code (see kh.drafts.skip). */
+export interface KhFileImport {
+  created: KhDraft[];
+  skipped: { name: string; reason: string }[];
+}
+
 export interface KhOrigin {
   draftId: string;
   sourceType: KhDraftSource;
@@ -89,6 +95,16 @@ export class KhDraftsApi extends BaseAPI {
   /** Hands in a link, a text or photos (form fields url, text, images); the recognition runs afterwards. */
   async create(form: FormData) {
     return await this.requests.post<KhDraft, FormData>(drafts, form, OWN_ERRORS);
+  }
+
+  /** Hands in a .txt, .md or .zip file (D62); PROGRESS gets the share uploaded so far, from 0 to 1. */
+  async createFromFile(file: File, progress: (share: number) => void) {
+    const form = new FormData();
+    form.append("file", file);
+    return await this.requests.post<KhFileImport, FormData>(`${drafts}/file`, form, {
+      ...OWN_ERRORS,
+      onUploadProgress: event => progress(event.total ? event.loaded / event.total : 0),
+    });
   }
 
   /** The household's drafts that are not approved yet, newest first. */

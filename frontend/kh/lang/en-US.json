@@ -4,12 +4,13 @@
       "add-recipe": "Add recipe",
       "add-recipe-subtitle": "From a link, a text or a photo",
       "drafts": "Drafts",
-      "intake-description": "A link, a text or a photo: the recipe is recognized and waits in the drafts until someone checks and saves it.",
+      "intake-description": "A link, a text, a photo or a file: the recipe is recognized and waits in the drafts until someone checks and saves it.",
       "source": {
         "link": "Link",
         "text": "Text",
         "image": "Photo or screenshot",
-        "media": "Audio or video file (own recording)"
+        "media": "Audio or video file (own recording)",
+        "file": "File"
       },
       "link-label": "Link to the recipe",
       "text-label": "Recipe text",
@@ -81,7 +82,10 @@
         "media_too_large": "The recording is too large.",
         "media_not_configured": "Recordings are not switched on (Whisper).",
         "not_audio_video": "This file is not an audio or video recording.",
-        "index": "That line is no longer in the recipe. Please reload the page."
+        "index": "That line is no longer in the recipe. Please reload the page.",
+        "file_too_large": "The file is too large.",
+        "zip_too_large": "The ZIP folder is too large once unpacked.",
+        "broken_zip": "This ZIP file cannot be opened."
       },
       "shortcut-hint": "Quicker on the phone: with the shortcut from the guide, recipes come straight from the share menu.",
       "type-yourself": "Type a recipe in yourself",
@@ -102,6 +106,18 @@
         "name": "Name",
         "create": "Create",
         "create-failed": "Could not create it. Please try again."
+      },
+      "choose-file": "Choose file",
+      "file-created": "{n} draft created | {n} drafts created",
+      "file-skipped": "{n} skipped: {list}",
+      "skip": {
+        "too_large": "too large",
+        "not_an_image": "not a photo",
+        "unreadable": "unreadable",
+        "empty": "empty",
+        "text_too_long": "text too long",
+        "unsupported": "file type not supported",
+        "too_many": "too many files"
       }
     },
     "nav": {
@@ -168,7 +184,7 @@
       "unavailable-hint": "The AI can't be reached right now. Links with recipe data still work; please try photos and texts again later.",
       "no-images": "reads no images",
       "order-failed": "The order could not be saved; the list has been reloaded.",
-      "missing-hint": "No AI set up yet: Kochheft reads photos and texts once someone adds an AI provider. Links with recipe data already work.",
+      "missing-hint": "No AI set up yet: Kochheft reads photos and texts once someone adds an AI provider. Links with recipe data and text files exported from Kochheft already work.",
       "guide": {
         "title": "Step by step: set up Gemini (free)",
         "key": "Get a key: open the page below, sign in with your Google account, tap \"Create API key\" and copy the key. Do not add a billing account there; then it costs nothing.",
@@ -682,6 +698,62 @@
           "text": "Under More you find all functions, can adjust your own side menu and watch this introduction again."
         }
       }
+    },
+    "shopping": {
+      "search": "Search or add an item …",
+      "stores": "Stores",
+      "add-store": "Add store",
+      "to-buy": "To buy",
+      "recent": "Recently bought",
+      "empty": "All there. Tap a tile below to write something down.",
+      "show-all": "Show all ({n})",
+      "show-fewer": "Show fewer",
+      "new": "New",
+      "write-down": "write down",
+      "details-title": "Details for {name}",
+      "from-recipe": "From the recipe “{name}”",
+      "from-recipe-short": "From {name}",
+      "quantity": "Amount",
+      "properties": "Properties",
+      "urgency": "How urgent?",
+      "urgent": "Urgent",
+      "offer": "On offer",
+      "whenever": "Whenever",
+      "own-note": "Own note, e.g. “the big pack”",
+      "remove": "Remove from list",
+      "done": "Done",
+      "bought": "{name} bought",
+      "undo": "Undo",
+      "classic": "Classic view",
+      "which-store": "Which store?",
+      "other-store": "Another store",
+      "kinds": {
+        "supermarket": "Supermarket",
+        "discounter": "Discounter",
+        "drugstore": "Drugstore",
+        "market": "Market"
+      },
+      "failed": "That did not work. Please try again."
+    },
+    "export": {
+      "menu": "Share as text",
+      "title": "Recipe as text",
+      "servings": "For how many servings?",
+      "factor": "How many times the recipe?",
+      "share": "Share",
+      "copy": "Copy",
+      "save": "As file",
+      "copied": "Recipe copied",
+      "copy-failed": "Copying did not work.",
+      "book-button": "Export as text files",
+      "book-title": "Cookbook as text files",
+      "as-recipe": "Servings as in the recipe",
+      "for-all": "Same for all recipes",
+      "servings-all": "Servings",
+      "with-photos": "With photos",
+      "run": "Export",
+      "failed": "Not exported: {names}",
+      "done": "Done, the ZIP file was saved."
     }
   }
 }

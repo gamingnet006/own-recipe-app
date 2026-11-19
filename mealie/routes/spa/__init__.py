@@ -17,6 +17,7 @@ from mealie.core.dependencies.dependencies import try_get_current_user
 from mealie.db.db_setup import generate_session
 from mealie.kh.addons.service import addon_enabled
 from mealie.kh.features.settings import require_share_links
+from mealie.kh.shopping.manifest import serve_shopping_manifest  # KH: own home-screen app for the shopping page (D60)
 from mealie.repos.public_visibility import is_recipe_publicly_visible
 from mealie.repos.repository_factory import AllRepositories
 from mealie.routes.spa.manifest import serve_manifest
@@ -292,4 +293,5 @@ def mount_spa(app: FastAPI):
     app.get("/g/{group_slug}/r/{recipe_slug}", include_in_schema=False)(serve_recipe_with_meta)
     app.get("/g/{group_slug}/shared/r/{token_id}", include_in_schema=False)(serve_shared_recipe_with_meta)
     app.get("/manifest.webmanifest", include_in_schema=False)(serve_manifest)
+    app.get("/einkauf.webmanifest", include_in_schema=False)(serve_shopping_manifest)  # KH: D60
     app.mount("/", SPAStaticFiles(directory=__app_settings.STATIC_FILES, html=True), name="spa")

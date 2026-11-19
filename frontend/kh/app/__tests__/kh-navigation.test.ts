@@ -1,7 +1,7 @@
 // KH: tests for the shared list of destinations (D38): the bar at the bottom, Mealie's side menu and the More
 // page read from one list, every destination has a real icon and text, and every path belongs to one tab.
-import { flushPromises, mount } from "@vue/test-utils";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref, type Ref } from "vue";
 import {
   activeTab,
@@ -9,10 +9,8 @@ import {
   type KhNavTarget,
   moreSections,
   settingsTargets,
-  shoppingTarget,
   sidebarChoices,
   sidebarTargets,
-  useKhShoppingTarget,
   useKhSidebar,
 } from "../composables/use-kh-navigation";
 import { DEFAULT_ADDONS } from "../lib/addons";
@@ -20,17 +18,6 @@ import { icons } from "~/lib/icons";
 import mealieTexts from "~/lang/messages/en-US.json";
 import khTexts from "../../lang/en-US.json";
 import khTextsDe from "../../lang/de-DE.json";
-
-const getAllListsMock = vi.hoisted(() => vi.fn());
-const loggedIn = vi.hoisted(() => ({ value: true }));
-
-vi.mock("~/composables/api", () => ({ useUserApi: () => ({ shopping: { lists: { getAll: getAllListsMock } } }) }));
-vi.mock("~/composables/use-logged-in-state", () => ({ useLoggedInState: () => ({ loggedIn }) }));
-
-afterEach(() => {
-  getAllListsMock.mockReset();
-  loggedIn.value = true;
-});
 
 /** A text by its dotted key, from our texts or Mealie's. */
 function text(key: string): unknown {
@@ -41,7 +28,7 @@ function text(key: string): unknown {
 
 function everyTarget(): KhNavTarget[] {
   const { plan, collection } = moreSections("familie", "u1");
-  const all = [...barTargets("familie", "/shopping-lists"), ...sidebarTargets("familie", "/shopping-lists"), ...plan,
+  const all = [...barTargets("familie"), ...sidebarTargets("familie"), ...plan,
     ...collection];
   all.push(...settingsTargets({ canOrganize: true, admin: true, linked: true }, "familie"));
   return all.flatMap(target => [target, ...(target.children ?? [])]);
@@ -49,17 +36,17 @@ function everyTarget(): KhNavTarget[] {
 
 describe("destinations", () => {
   test("the bar has recipes, intake, shopping list and more", () => {
-    expect(barTargets("familie", "/shopping-lists/abc").map(target => [target.key, target.to])).toEqual([
+    expect(barTargets("familie").map(target => [target.key, target.to])).toEqual([
       ["recipes", "/g/familie"],
       ["intake", "/g/familie/drafts"],
-      ["shopping", "/shopping-lists/abc"],
+      ["shopping", "/einkauf"],
       ["more", "/g/familie/more"],
     ]);
   });
 
   test("the side menu shows the same destinations, and More last for the rest (D51)", () => {
-    const targets = sidebarTargets("familie", "/shopping-lists/abc");
-    expect(targets.find(target => target.key === "shopping")?.to).toBe("/shopping-lists/abc");
+    const targets = sidebarTargets("familie");
+    expect(targets.find(target => target.key === "shopping")?.to).toBe("/einkauf");
     expect(targets.map(target => target.key)).toEqual(
       ["recipes", "intake", "shopping", "mealplan", "cookbooks", "finder", "organizers", "timeline", "more"],
     );
@@ -84,8 +71,8 @@ describe("destinations", () => {
 
   test("switched-off add-ons leave the bar, the side menu and More (D46)", () => {
     const off = { ...DEFAULT_ADDONS, shopping: false, planner: false, duplicates: false, nutrition: false, allergens: false };
-    expect(barTargets("familie", "/shopping-lists", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
-    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key))
+    expect(barTargets("familie", off).map(target => target.key)).toEqual(["recipes", "intake", "more"]);
+    expect(sidebarTargets("familie", off).map(target => target.key))
       .toEqual(["recipes", "intake", "cookbooks", "finder", "organizers", "timeline", "more"]);
     const { plan, collection } = moreSections("familie", "u1", off);
     expect(plan.map(target => target.key)).toEqual(["cookbooks", "finder"]);
@@ -94,12 +81,12 @@ describe("destinations", () => {
 
   test("the planner stays without the shopping list", () => {
     const off = { ...DEFAULT_ADDONS, shopping: false };
-    expect(sidebarTargets("familie", "/shopping-lists", off).map(target => target.key)).toContain("mealplan");
+    expect(sidebarTargets("familie", off).map(target => target.key)).toContain("mealplan");
     expect(moreSections("familie", "u1", off).plan.map(target => target.key)).toContain("mealplan");
   });
 
   test("hidden entries leave the side menu, recipes and More stay (D58)", () => {
-    const keys = (hidden: string[]) => sidebarTargets("familie", "/shopping-lists", DEFAULT_ADDONS, hidden).map(target => target.key);
+    const keys = (hidden: string[]) => sidebarTargets("familie", DEFAULT_ADDONS, hidden).map(target => target.key);
     expect(keys([])).toHaveLength(9);
     expect(keys(["finder", "organizers", "timeline"])).toEqual(["recipes", "intake", "shopping", "mealplan", "cookbooks", "more"]);
     expect(keys(["recipes", "more"])).toHaveLength(7); // hidden keys are filtered as given; the server never stores these two
@@ -114,10 +101,10 @@ describe("destinations", () => {
   });
 
   test("an intake or shopping list hidden from the side menu is listed under More", () => {
-    const { plan } = moreSections("familie", "u1", DEFAULT_ADDONS, ["intake", "shopping", "finder"], "/shopping-lists/abc");
+    const { plan } = moreSections("familie", "u1", DEFAULT_ADDONS, ["intake", "shopping", "finder"]);
     expect(plan.map(target => [target.key, target.to])).toEqual([
       ["intake", "/g/familie/drafts"],
-      ["shopping", "/shopping-lists/abc"],
+      ["shopping", "/einkauf"],
       ["mealplan", "/household/mealplan/planner/view"],
       ["cookbooks", "/g/familie/cookbooks"],
       ["finder", "/g/familie/recipes/finder"],
@@ -144,38 +131,6 @@ test("the More page names no Mealie version, which reads \"develop\" in Kochheft
   for (const texts of [khTexts, khTextsDe]) {
     expect(texts.kh.nav["based-on-mealie"]).not.toContain("{");
   }
-});
-
-describe("shopping list tab", () => {
-  test("opens the household's only list directly, else Mealie's overview", () => {
-    expect(shoppingTarget([])).toBe("/shopping-lists");
-    expect(shoppingTarget(["abc"])).toBe("/shopping-lists/abc");
-    expect(shoppingTarget(["abc", "def"])).toBe("/shopping-lists");
-  });
-
-  test("counts every list of the household, whoever made it", async () => {
-    getAllListsMock.mockResolvedValue({ data: { items: [{ id: "abc", userId: "someone-else" }] }, error: null });
-    const target = useKhShoppingTarget();
-    expect(target.value).toBe("/shopping-lists");
-    await flushPromises();
-    expect(target.value).toBe("/shopping-lists/abc");
-    expect(getAllListsMock).toHaveBeenCalledWith(1, -1);
-  });
-
-  test("asks for no lists while nobody is logged in", async () => {
-    loggedIn.value = false;
-    const target = useKhShoppingTarget();
-    await flushPromises();
-    expect(getAllListsMock).not.toHaveBeenCalled();
-    expect(target.value).toBe("/shopping-lists");
-  });
-
-  test("stays on the overview when the lists can't be loaded", async () => {
-    getAllListsMock.mockResolvedValue({ data: null, error: new Error("offline") });
-    const target = useKhShoppingTarget();
-    await flushPromises();
-    expect(target.value).toBe("/shopping-lists");
-  });
 });
 
 describe("side menu", () => {
@@ -209,7 +164,8 @@ test("every path belongs to one tab of the bar", () => {
   expect(activeTab("/g/familie/r/apfelkuchen", "familie")).toBe("recipes");
   expect(activeTab("/g/familie/drafts", "familie")).toBe("intake");
   expect(activeTab("/g/familie/drafts/123", "familie")).toBe("intake");
-  expect(activeTab("/shopping-lists/abc", "familie")).toBe("shopping");
+  expect(activeTab("/einkauf", "familie")).toBe("shopping");
+  expect(activeTab("/shopping-lists/abc", "familie")).toBe("shopping"); // the classic view
   expect(activeTab("/g/familie/more", "familie")).toBe("more");
   expect(activeTab("/g/familie/cookbooks/kuchen", "familie")).toBe("more");
   expect(activeTab("/household/mealplan/planner/view", "familie")).toBe("more");

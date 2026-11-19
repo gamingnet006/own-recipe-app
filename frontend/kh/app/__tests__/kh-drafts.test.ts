@@ -3,12 +3,13 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
-import type { KhDraft, KhDraftWarning, KhOrigin } from "../lib/api/drafts";
+import type { KhDraft, KhDraftWarning, KhFileImport, KhOrigin } from "../lib/api/drafts";
 import type { RecipeOut } from "~/lib/api/types/recipe";
 import {
   approveTarget,
   draftTitle,
   errorText,
+  fileSummary,
   importRedirectTarget,
   isVideoLink,
   originLabel,
@@ -103,6 +104,17 @@ describe("texts", () => {
       expect(errorText(code, t)).toBe(`kh.drafts.error.${code}`);
     }
     expect(draftTitle({ recipe: null, sourceUrl: null, sourceNote: "oma.m4a", sourceText: null } as KhDraft)).toBe("oma.m4a");
+  });
+
+  test("the file import errors have their own texts and the summary names what was left out", () => {
+    for (const code of ["file_too_large", "zip_too_large", "broken_zip"]) expect(errorText(code, t)).toBe(`kh.drafts.error.${code}`);
+    const word = (key: string, arg?: number | Record<string, unknown>) => `${key}:${typeof arg === "object" ? JSON.stringify(arg) : arg ?? ""}`;
+    const made = { created: [{}, {}, {}], skipped: [] } as unknown as KhFileImport;
+    expect(fileSummary(made, word)).toBe("kh.drafts.file-created:3");
+    const some = { ...made, skipped: [{ name: "Suppe.txt", reason: "too_large" }] };
+    expect(fileSummary(some, word)).toBe(
+      "kh.drafts.file-created:3, kh.drafts.file-skipped:{\"n\":1,\"list\":\"Suppe.txt (kh.drafts.skip.too_large:)\"}",
+    );
   });
 
   test("the origin names the source, the day and who added it", () => {

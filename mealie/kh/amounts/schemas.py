@@ -1,7 +1,7 @@
 """KH: what the amounts send and keep (D39), in camelCase like every Mealie answer; the draft keeps the same shapes
 under "khAmounts" in its recipe JSON until the approval saves them."""
 
-from pydantic import UUID4, ConfigDict
+from pydantic import UUID4, ConfigDict, Field
 
 from mealie.schema._mealie import MealieModel
 
@@ -47,3 +47,20 @@ class AmountsOut(MealieModel):
 
     extras: list[IngredientExtraOut] = []
     step_amounts: list[StepAmountOut] = []
+
+
+class ShoppingLineIn(MealieModel):
+    """A line typed on the shopping page."""
+
+    text: str = Field(min_length=1, max_length=200)
+
+
+class ShoppingLineOut(MealieModel):
+    """What the line says: amount, unit and food of the group (ids), the article's name and the rest as note."""
+
+    quantity: float | None = None
+    unit_id: UUID4 | None = None
+    unit_abbreviation: str | None = None  # a standard unit the group lacks: the client has it ensured
+    food_id: UUID4 | None = None
+    name: str
+    note: str = ""

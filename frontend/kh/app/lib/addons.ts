@@ -60,7 +60,7 @@ const GROUP_PAGES: [RegExp, KhAddonName][] = [
   [/^\/g\/[^/]+\/doppelte(\/|$)/, "duplicates"],
   [/^\/g\/[^/]+\/naehrwerte(\/|$)/, "nutrition"],
   [/^\/g\/[^/]+\/vertraeglichkeit(\/|$)/, "allergens"],
-  [/^\/shopping-lists(\/|$)/, "shopping"],
+  [/^\/(shopping-lists|einkauf)(\/|$)/, "shopping"], // KH: the tile page (D60) and Mealie's classic view
   [/^\/household\/mealplan(\/|$)/, "planner"],
 ];
 

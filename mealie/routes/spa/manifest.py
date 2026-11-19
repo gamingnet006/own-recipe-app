@@ -6,7 +6,7 @@ from fastapi import Response
 from mealie.core.config import get_app_settings
 
 
-def serve_manifest():
+def build_manifest() -> dict:  # KH: a function of its own, so the shopping page's manifest reuses it (D60)
     settings = get_app_settings()
     sub_path = urlparse(settings.BASE_URL).path or "/"
 
@@ -102,10 +102,11 @@ def serve_manifest():
         ],
         "shortcuts": [
             {
-                "name": "Shopping Lists",
-                "short_name": "Shopping Lists",
-                "description": "Open the shopping lists",
-                "url": "/shopping-lists",
+                # KH: Kochheft's tile shopping page instead of Mealie's list overview (D60)
+                "name": "Einkaufsliste",
+                "short_name": "Einkauf",
+                "description": "Open the shopping list",
+                "url": "/einkauf",
                 "icons": [
                     {"src": "/icons/mdiFormatListChecks-192x192.png", "sizes": "192x192"},
                     {"src": "/icons/mdiFormatListChecks-96x96.png", "sizes": "96x96"},
@@ -123,9 +124,16 @@ def serve_manifest():
             },
         ],
     }
+    return manifest
 
+
+def manifest_response(manifest: dict) -> Response:  # KH: shared by both manifests (D60)
     return Response(
         content=json.dumps(manifest),
         media_type="application/manifest+json",
         headers={"Cache-Control": "no-cache"},
     )
+
+
+def serve_manifest():
+    return manifest_response(build_manifest())  # KH: split up for D60

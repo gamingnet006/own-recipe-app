@@ -9,8 +9,19 @@ which is recognized in the background and then waits in the list below for a rev
     <v-alert v-if="aiHint" type="info" variant="tonal" density="compact" class="mb-3">
       {{ $t(aiHint) }}
     </v-alert>
+    <v-alert
+      v-if="summary"
+      type="info"
+      variant="tonal"
+      density="compact"
+      closable
+      class="mb-3"
+      @click:close="summary = ''"
+    >
+      {{ summary }}
+    </v-alert>
     <v-row dense>
-      <v-col v-for="option in sources" :key="option.source" :cols="12 / sources.length">
+      <v-col v-for="option in sources" :key="option.source" :cols="columns">
         <v-btn
           block
           height="72"
@@ -74,10 +85,27 @@ which is recognized in the background and then waits in the list below for a rev
           {{ $t("kh.drafts.choose-media") }}
         </v-btn>
       </div>
+      <!-- D62: a text file or a ZIP of texts and photos -->
+      <div v-if="source === 'file'">
+        <div v-if="file" class="mb-3">
+          {{ file.name }}
+        </div>
+        <v-btn variant="tonal" :prepend-icon="$globals.icons.createAlt" @click="filePicker?.click()">
+          {{ $t("kh.drafts.choose-file") }}
+        </v-btn>
+        <v-progress-linear v-if="sending && source === 'file'" :model-value="uploaded * 100" class="mt-3" />
+      </div>
       <v-btn type="submit" color="success" class="mt-4" :loading="sending" :disabled="!complete">
         {{ $t("general.submit") }}
       </v-btn>
     </v-form>
+    <input
+      ref="filePicker"
+      type="file"
+      accept=".txt,.md,.zip,text/plain,application/zip"
+      hidden
+      @change="chooseFile"
+    >
     <input
       ref="mediaPicker"
       type="file"
@@ -99,7 +127,7 @@ which is recognized in the background and then waits in the list below for a rev
 
 <script setup lang="ts">
 import type { KhDraftSource } from "~~/kh/app/lib/api/drafts";
-import { errorText, isVideoLink, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
+import { errorText, fileSummary, isVideoLink, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
 import { aiHintKey, useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { alert } from "~/composables/use-toast";
@@ -120,15 +148,17 @@ onMounted(async () => {
   aiHint.value = aiHintKey(data);
 });
 
-// "media" is only an option of the form: the draft it makes is a text draft (P7.3)
-type IntakeSource = KhDraftSource | "media";
+// "media" and "file" are only options of the form: the drafts they make are text or photo drafts (P7.3, D62)
+type IntakeSource = KhDraftSource | "media" | "file";
 const sources: { source: IntakeSource; icon: string }[] = [
   { source: "link", icon: $globals.icons.link },
   { source: "text", icon: $globals.icons.textBox },
   { source: "image", icon: $globals.icons.fileImage },
+  { source: "file", icon: $globals.icons.file },
   ...($khFeatures.media && khAddons.enabled.whisper ? [{ source: "media" as const, icon: $globals.icons.microphone }] : []),
 ];
 
+const columns = sources.length > 4 ? 4 : 12 / sources.length; // five buttons would not divide the 12 columns
 const source = ref<IntakeSource | null>(props.sharedLink ? "link" : props.sharedText ? "text" : null);
 const link = ref(props.sharedLink);
 const text = ref(props.sharedText);
@@ -137,6 +167,10 @@ const photos = ref<{ file: File; url: string }[]>([]);
 const picker = ref<HTMLInputElement | null>(null);
 const mediaPicker = ref<HTMLInputElement | null>(null);
 const recording = ref<File | null>(null);
+const filePicker = ref<HTMLInputElement | null>(null);
+const file = ref<File | null>(null);
+const uploaded = ref(0); // share of the file sent so far, 0 to 1
+const summary = ref(""); // what the last file import made and left out
 const sending = ref(false);
 
 // A video link asks for text or photos too (D5)
@@ -147,6 +181,7 @@ const complete = computed(() => {
   if (source.value === "link") return validators.url(link.value) === true;
   if (source.value === "text") return text.value.trim() !== "";
   if (source.value === "media") return recording.value !== null;
+  if (source.value === "file") return file.value !== null;
   return photos.value.length > 0;
 });
 
@@ -155,6 +190,14 @@ function choose(kind: IntakeSource) {
   source.value = kind;
   if (kind === "image" && !photos.value.length) picker.value?.click();
   if (kind === "media" && !recording.value) mediaPicker.value?.click();
+  if (kind === "file" && !file.value) filePicker.value?.click();
+}
+
+/** Takes the one chosen file. */
+function chooseFile(event: Event) {
+  const input = event.target as HTMLInputElement;
+  file.value = input.files?.[0] ?? null;
+  input.value = "";
 }
 
 /** Takes the one chosen recording. */
@@ -185,6 +228,7 @@ function clear() {
   link.value = "";
   text.value = "";
   recording.value = null;
+  file.value = null;
   source.value = null;
 }
 
@@ -193,6 +237,7 @@ onBeforeUnmount(() => photos.value.forEach(photo => URL.revokeObjectURL(photo.ur
 /** Hands in the chosen source only; the list below then shows the new draft while it is recognized. */
 async function submit() {
   if (sending.value) return; // Enter in the link field while sending would make a second draft
+  if (source.value === "file") return await submitFile();
   const form = new FormData();
   if (source.value === "link") form.append("url", link.value.trim());
   if (source.value === "text" || (videoLink.value && text.value.trim())) form.append("text", text.value.trim());
@@ -206,6 +251,22 @@ async function submit() {
     alert.error(errorText(requestError(error).code, i18n.t));
     return;
   }
+  clear();
+  emit("submitted");
+}
+
+/** Hands in the chosen file; the answer says how many drafts it made and what it left out (D62). */
+async function submitFile() {
+  if (!file.value) return;
+  sending.value = true;
+  uploaded.value = 0;
+  const { data, error } = await api.createFromFile(file.value, share => (uploaded.value = share));
+  sending.value = false;
+  if (error || !data) {
+    alert.error(errorText(requestError(error).code, i18n.t));
+    return;
+  }
+  summary.value = fileSummary(data, i18n.t);
   clear();
   emit("submitted");
 }

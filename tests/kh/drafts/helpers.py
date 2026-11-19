@@ -2,6 +2,7 @@
 
 import io
 import os
+import zipfile
 
 import pillow_heif
 from fastapi.testclient import TestClient
@@ -44,3 +45,17 @@ def get_draft(api_client: TestClient, user: TestUser, draft_id: str) -> Response
 def open_ids(api_client: TestClient, user: TestUser) -> list[str]:
     """IDs of the drafts the user's household has not approved yet."""
     return [draft["id"] for draft in api_client.get(DRAFTS, headers=user.token).json()]
+
+
+def zip_bytes(files: dict[str, bytes]) -> bytes:
+    """A ZIP of the given files (name to content), as the Files app or Finder would make one."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, content in files.items():
+            archive.writestr(name, content)
+    return buffer.getvalue()
+
+
+def post_file(api_client: TestClient, user: TestUser, name: str, content: bytes) -> Response:
+    """POST /api/kh/drafts/file with one uploaded file, as the intake page sends it."""
+    return api_client.post(f"{DRAFTS}/file", headers=user.token, files={"file": (name, content)})

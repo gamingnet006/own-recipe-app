@@ -30,9 +30,25 @@ export interface KhDraftAmounts {
   stepAmounts: (KhStepAmount & { linked: boolean })[];
 }
 
+/** A line typed on the shopping page, read: amount, unit and food of the group (ids), the article's name and the rest. */
+export interface KhShoppingLine {
+  quantity: number | null;
+  unitId: string | null;
+  /** a standard unit (g, kg, ml, l) the group lacks: have it made with ensureUnit */
+  unitAbbreviation: string | null;
+  foodId: string | null;
+  name: string;
+  note: string;
+}
+
 export class KhAmountsApi extends BaseAPI {
   /** The amounts of a recipe of the user's group. */
   async get(recipeId: string) {
     return await this.requests.get<KhAmounts>(`/api/kh/amounts/${recipeId}`);
+  }
+
+  /** Reads a typed shopping line (D60) with the group's units and foods. */
+  async parseLine(text: string) {
+    return await this.requests.post<KhShoppingLine, { text: string }>("/api/kh/amounts/parse-line", { text });
   }
 }

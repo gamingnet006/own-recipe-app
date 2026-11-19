@@ -95,6 +95,21 @@ class DraftOut(MealieModel):
     update_at: datetime | None = None
 
 
+class SkippedFile(MealieModel):
+    """A file or ZIP entry of a file import that made no draft; REASON is a code the intake page turns into words
+    (too_large, not_an_image, unreadable, empty, text_too_long, unsupported, too_many)."""
+
+    name: str
+    reason: str
+
+
+class FileImportOut(MealieModel):
+    """The answer to a file import: the drafts it made, and what it left out."""
+
+    created: list[DraftOut]
+    skipped: list[SkippedFile]
+
+
 class OriginOut(MealieModel):
     """Where an approved recipe came from, for the badge on the recipe page."""
 

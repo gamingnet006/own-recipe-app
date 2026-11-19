@@ -5,6 +5,7 @@ import {
   KhDraftsApi,
   type KhDraft,
   type KhDraftWarning,
+  type KhFileImport,
   type KhOrigin,
   type KhRecipeChanges,
   type KhRequestError,
@@ -93,6 +94,15 @@ export function isVideoLink(url: string): boolean {
 /** The sentence for an error code from the API; codes this version does not know get the general one. */
 export function errorText(code: string, t: Translate): string {
   return t(`kh.drafts.error.${ERROR_CODES.has(code) ? code : "unknown"}`);
+}
+
+/** The sentence after a file import (D62): "3 Entwürfe angelegt, 1 übersprungen: Suppe.txt (zu groß)". T writes the
+ * keys of kh.drafts; a number as its second argument picks the plural form. */
+export function fileSummary(result: KhFileImport, t: (key: string, arg?: number | Record<string, unknown>) => string): string {
+  const made = t("kh.drafts.file-created", result.created.length);
+  if (!result.skipped.length) return made;
+  const left = result.skipped.map(file => `${file.name} (${t(`kh.drafts.skip.${file.reason}`)})`).join(", ");
+  return `${made}, ${t("kh.drafts.file-skipped", { n: result.skipped.length, list: left })}`;
 }
 
 /** The name of a draft in lists and headings: its recipe, else its link, else the start of its text. */

@@ -3,10 +3,10 @@
 import type { KhAddonFlags } from "../lib/addons";
 import { khAddons } from "./use-kh-addons";
 import { khSidebar } from "./use-kh-sidebar";
-import { useUserApi } from "~/composables/api";
-import { useLoggedInState } from "~/composables/use-logged-in-state";
 
-const SHOPPING_LISTS = "/shopping-lists";
+// The tile shopping page (D60); Mealie's own list pages stay as the classic view
+const SHOPPING_PAGE = "/einkauf";
+const CLASSIC_SHOPPING = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
   | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "system" | "addons" | "switch" | "households";
@@ -29,14 +29,14 @@ export interface KhNavTarget {
 
 type Targets = Record<Exclude<KhNavKey, "organizers">, KhNavTarget>;
 
-/** Every destination, with the group's and the user's part of the path and the shopping list filled in. */
-function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LISTS): Targets {
+/** Every destination, with the group's and the user's part of the path filled in. */
+function allTargets(groupSlug: string, userId: string): Targets {
   const group = `/g/${groupSlug}`;
   const target = (key: KhNavKey, to: string, icon: string, title: string): KhNavTarget => ({ key, to, icon, title });
   return {
     recipes: target("recipes", group, "silverwareForkKnife", "general.recipes"),
     intake: target("intake", `${group}/drafts`, "import", "kh.nav.intake"),
-    shopping: target("shopping", shoppingTo, "formatListCheck", "kh.nav.shopping"),
+    shopping: target("shopping", SHOPPING_PAGE, "formatListCheck", "kh.nav.shopping"),
     more: target("more", `${group}/more`, "dotsHorizontal", "kh.nav.more"),
     mealplan: target("mealplan", "/household/mealplan/planner/view", "calendarMultiselect", "meal-plan.meal-planner"),
     cookbooks: target("cookbooks", `${group}/cookbooks`, "book", "cookbook.cookbooks"),
@@ -62,11 +62,11 @@ function allTargets(groupSlug: string, userId: string, shoppingTo = SHOPPING_LIS
 }
 
 /**
- * The tabs of the bar at the bottom (without the shopping list, while that is switched off, three); SHOPPING_TO from
- * useKhShoppingTarget. ON is the household's add-on switches (D46), by default the shared state; the next functions use it alike.
+ * The tabs of the bar at the bottom (without the shopping list, while that is switched off, three). ON is the
+ * household's add-on switches (D46), by default the shared state; the next functions use it alike.
  */
-export function barTargets(groupSlug: string, shoppingTo: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
-  const all = allTargets(groupSlug, "", shoppingTo);
+export function barTargets(groupSlug: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
+  const all = allTargets(groupSlug, "");
   return [all.recipes, all.intake, ...(on.shopping ? [all.shopping] : []), all.more];
 }
 
@@ -75,11 +75,10 @@ export function barTargets(groupSlug: string, shoppingTo: string, on: KhAddonFla
  * HIDDEN are the entries the person hid (D58). */
 export function sidebarTargets(
   groupSlug: string,
-  shoppingTo: string,
   on: KhAddonFlags = khAddons.enabled,
   hidden: readonly string[] = khSidebar.hidden,
 ): KhNavTarget[] {
-  const all = allTargets(groupSlug, "", shoppingTo);
+  const all = allTargets(groupSlug, "");
   const organizers: KhNavTarget = {
     key: "organizers",
     to: all.categories.to,
@@ -102,7 +101,7 @@ export function sidebarTargets(
 
 /** The entries of the side menu a person can hide or show again, which the add-on switches leave in the menu. */
 export function sidebarChoices(groupSlug: string, on: KhAddonFlags = khAddons.enabled): KhNavTarget[] {
-  return sidebarTargets(groupSlug, SHOPPING_LISTS, on, []).filter(target => HIDEABLE_ENTRIES.some(key => key === target.key));
+  return sidebarTargets(groupSlug, on, []).filter(target => HIDEABLE_ENTRIES.some(key => key === target.key));
 }
 
 /** What the More page lists besides the settings: planning, and the user's collection. An intake or shopping list
@@ -112,9 +111,8 @@ export function moreSections(
   userId: string,
   on: KhAddonFlags = khAddons.enabled,
   hidden: readonly string[] = khSidebar.hidden,
-  shoppingTo = SHOPPING_LISTS,
 ): { plan: KhNavTarget[]; collection: KhNavTarget[] } {
-  const all = allTargets(groupSlug, userId, shoppingTo);
+  const all = allTargets(groupSlug, userId);
   return {
     plan: [
       ...(hidden.includes("intake") ? [all.intake] : []),
@@ -155,28 +153,8 @@ export function activeTab(path: string, groupSlug: string): KhTab {
   const within = (base: string) => path === base || path.startsWith(`${base}/`);
   if (path === group || path === `${group}/` || path.startsWith(`${group}/r/`)) return "recipes";
   if (within(`${group}/drafts`)) return "intake";
-  if (within(SHOPPING_LISTS)) return "shopping";
+  if (within(SHOPPING_PAGE) || within(CLASSIC_SHOPPING)) return "shopping";
   return "more";
-}
-
-/** The household's only shopping list, else Mealie's overview of all lists. */
-export function shoppingTarget(listIds: string[]): string {
-  return listIds.length === 1 ? `${SHOPPING_LISTS}/${listIds[0]}` : SHOPPING_LISTS;
-}
-
-/**
- * Where the shopping list tab leads, from every list of the household; Mealie's overview until they are loaded, when
- * they can't be and for visitors. Mealie's own redirect counts only the user's lists, so the others would land on
- * "no lists".
- */
-export function useKhShoppingTarget(): Ref<string> {
-  const target = ref(SHOPPING_LISTS);
-  if (!useLoggedInState().loggedIn.value) return target;
-  // ponytail: loaded once per mount of the bar or side menu; a list made or deleted later counts after a reload
-  useUserApi().shopping.lists.getAll(1, -1).then(({ data }) => {
-    if (data) target.value = shoppingTarget(data.items.map(list => list.id));
-  });
-  return target;
 }
 
 /** Mealie's side menu: open while the screen is wide, also after an iPad is turned to landscape. */
