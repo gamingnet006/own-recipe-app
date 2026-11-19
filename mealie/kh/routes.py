@@ -10,6 +10,7 @@ from mealie.kh.ai import routes as ai
 from mealie.kh.allergens import routes as allergens
 from mealie.kh.amounts import routes as amounts
 from mealie.kh.books import routes as books
+from mealie.kh.cooked import routes as cooked
 from mealie.kh.drafts import routes as drafts
 from mealie.kh.duplicates import routes as duplicates
 from mealie.kh.features import routes as features
@@ -37,6 +38,7 @@ router.include_router(ai.router, tags=["KH: AI"])
 router.include_router(navigation.router, tags=["KH: Navigation"])
 router.include_router(notices.router, tags=["KH: Notices"])
 router.include_router(amounts.router, tags=["KH: Amounts"])
+router.include_router(cooked.router, tags=["KH: Cooked"])
 router.include_router(books.router, tags=["KH: Books"], dependencies=[Depends(require_addon("books"))])
 router.include_router(duplicates.router, tags=["KH: Duplicates"], dependencies=[Depends(require_addon("duplicates"))])
 router.include_router(nutrition.router, tags=["KH: Nutrition"], dependencies=[Depends(require_addon("nutrition"))])

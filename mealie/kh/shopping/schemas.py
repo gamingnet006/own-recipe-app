@@ -18,3 +18,23 @@ class EnsureUnitIn(MealieModel):
     """The abbreviation of one of the units the amount chips use."""
 
     abbreviation: Literal["g", "kg", "ml", "l"]
+
+
+class AddByVoiceIn(MealieModel):
+    """What was said or typed ("Milch und 2 Butter") and, optionally, the name of the list to put it on."""
+
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=300)]
+    list: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)] | None = None
+
+
+class AddByVoiceOut(MealieModel):
+    """The sentence to read out, saying what stands on which list now."""
+
+    message: str
+
+
+class OnHandIn(MealieModel):
+    """A food of the group and whether the household always has it in the house."""
+
+    food_id: UUID4
+    on_hand: bool

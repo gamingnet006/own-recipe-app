@@ -1,5 +1,6 @@
 <!-- KH: one tile of the shopping page (D60): emoji or first letter, name, small detail line and an urgency badge.
-Tap emits "press"; a long press (450 ms) or the right mouse button emits "hold". -->
+Tap emits "press"; a long press (450 ms) or the right mouse button emits "hold". A house badge (top left) marks a
+food that is always in the house (D65). -->
 <template>
   <button
     type="button"
@@ -16,10 +17,13 @@ Tap emits "press"; a long press (450 ms) or the right mouse button emits "hold".
     <span class="kh-tile__name">{{ name }}</span>
     <span v-if="detail" class="kh-tile__detail">{{ detail }}</span>
     <v-icon v-if="badge" :icon="badge" size="14" class="kh-tile__badge" />
+    <v-icon v-if="onHand" :icon="mdiHome" size="14" class="kh-tile__house" />
   </button>
 </template>
 
 <script setup lang="ts">
+import { mdiHome } from "@mdi/js";
+
 const HOLD_MS = 450;
 
 defineProps<{
@@ -28,6 +32,8 @@ defineProps<{
   detail?: string;
   /** An mdi icon for the urgency, top right */
   badge?: string;
+  /** Always in the house: a house badge, top left */
+  onHand?: boolean;
   /** list: still to buy; done: bought; catalog: not on the list; new: write down a new name */
   variant: "list" | "done" | "catalog" | "new";
 }>();
@@ -127,6 +133,12 @@ function onContextMenu() {
   right: 6px;
 }
 
+.kh-tile__house {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  opacity: 0.6;
+}
 @media (prefers-reduced-motion: reduce) {
   .kh-tile {
     transition: none;

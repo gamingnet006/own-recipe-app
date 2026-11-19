@@ -13,4 +13,9 @@ export class KhShoppingApi extends BaseAPI {
   async ensureUnit(abbreviation: string) {
     return await this.requests.post<IngredientUnitOut, { abbreviation: string }>("/api/kh/shopping/ensure-unit", { abbreviation });
   }
+
+  /** Marks the food as always in the house for the household (or clears it), also for members who may not organize. */
+  async setOnHand(foodId: string, onHand: boolean) {
+    return await this.requests.post<IngredientFoodOut, { foodId: string; onHand: boolean }>("/api/kh/shopping/on-hand", { foodId, onHand });
+  }
 }

@@ -256,6 +256,10 @@
       "clock-try": "Ausprobieren (1 Minute)",
       "clock-ios-only": "Den Uhr-Timer gibt es nur auf iPhone und iPad, weil er die App Kurzbefehle braucht. Hier klingelt der Timer, solange Kochheft offen ist."
     },
+    "cooked": {
+      "often": "Oft gekocht",
+      "long-ago": "Lange nicht gekocht"
+    },
     "cook": {
       "step-of": "Schritt {n} von {total}",
       "step": "Schritt {n}",
@@ -733,7 +737,9 @@
         "drugstore": "Drogerie",
         "market": "Markt"
       },
-      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen.",
+      "offline": "Offline – Änderungen werden nachgeschickt",
+      "on-hand": "Immer im Haus"
     },
     "export": {
       "menu": "Als Text teilen",

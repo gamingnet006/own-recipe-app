@@ -1,5 +1,6 @@
 <!-- KH: the detail sheet of the shopping page (D60), opened when something is written down or held: amount,
-properties, urgency and an own note. Every tap saves at once; the note is saved a moment after typing. -->
+properties, urgency, "always in the house" (D65) and an own note. Every tap saves at once; the note is saved a moment
+after typing. -->
 <template>
   <v-bottom-sheet :model-value="!!item" @update:model-value="onToggle">
     <v-card v-if="item" class="kh-sheet pa-4" rounded="t-xl">
@@ -56,6 +57,17 @@ properties, urgency and an own note. Every tap saves at once; the note is saved 
         </v-chip>
       </div>
 
+      <v-switch
+        v-if="item.food"
+        :model-value="onHand"
+        :label="$t('kh.shopping.on-hand')"
+        color="primary"
+        density="compact"
+        hide-details
+        class="mt-2"
+        @update:model-value="emit('onHand', item.food.id, !!$event)"
+      />
+
       <v-text-field
         v-model="ownText"
         :placeholder="$t('kh.shopping.own-note')"
@@ -103,11 +115,14 @@ const props = defineProps<{
   item: ShoppingListItemOut | null;
   units: IngredientUnitOut[];
   recipes: Record<string, string>;
+  /** Whether the item's food is always in the house (D65) */
+  onHand: boolean;
 }>();
 const emit = defineEmits<{
   change: [item: ShoppingListItemOut, changes: ItemChanges];
   quantity: [item: ShoppingListItemOut, chip: string];
   remove: [item: ShoppingListItemOut];
+  onHand: [foodId: string, value: boolean];
   close: [];
 }>();
 

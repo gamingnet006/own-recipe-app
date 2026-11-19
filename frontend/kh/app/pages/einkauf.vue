@@ -1,5 +1,6 @@
 <!-- KH: the shopping page with tiles (D60): a Mealie shopping list per store; red tiles for what is missing, bought
-items to put back, and all foods by department of the store. Tap a red tile = bought, hold = details. -->
+items to put back, and all foods by department of the store. Tap a red tile = bought, hold = details. Without network
+(D63) it shows the last loaded lists and sends changes later; hold on a food tile = "always in the house" (D65). -->
 <template>
   <v-container class="kh-shop pb-12">
     <div class="kh-shop__head">
@@ -16,6 +17,14 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
           @click="shareList(list.name ?? '', items)"
         />
       </div>
+      <v-alert
+        v-if="offline"
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mt-2"
+        :text="$t('kh.shopping.offline')"
+      />
       <v-text-field
         v-if="list"
         v-model="search"
@@ -77,7 +86,9 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
             :variant="openItemOf(tile) ? 'list' : 'catalog'"
             :name="tile.name"
             :emoji="tile.emoji"
+            :on-hand="tile.onHand"
             @press="tapTile(tile)"
+            @hold="tile.foodId && (menuTile = tile)"
           />
         </div>
         <v-btn
@@ -135,11 +146,27 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
       :item="sheetItem"
       :units="units"
       :recipes="recipes"
+      :on-hand="onHand(sheetItem?.foodId)"
       @change="change"
+      @on-hand="setOnHand"
       @quantity="setQuantity"
       @remove="removeItem"
       @close="sheetId = null"
     />
+    <v-dialog :model-value="!!menuTile" max-width="320" @update:model-value="menuTile = null">
+      <v-card v-if="menuTile" class="pa-4">
+        <h3 class="text-subtitle-1 font-weight-bold">
+          {{ menuTile.name }}
+        </h3>
+        <v-switch
+          :model-value="onHand(menuTile.foodId)"
+          :label="$t('kh.shopping.on-hand')"
+          color="primary"
+          hide-details
+          @update:model-value="setOnHand(menuTile.foodId!, !!$event)"
+        />
+      </v-card>
+    </v-dialog>
     <v-snackbar v-model="undoOpen" :timeout="4000">
       {{ $t("kh.shopping.bought", { name: undoName }) }}
       <template #actions>
@@ -167,8 +194,8 @@ const i18n = useI18n();
 const route = useRoute();
 const { shareList } = useKhShareList();
 const {
-  lists, list, ready, items, open, recent, recipes, departments, units,
-  start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore: makeStore,
+  lists, list, ready, items, open, recent, recipes, departments, units, offline,
+  start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore: makeStore, onHand, setOnHand,
 } = useKhShopping();
 
 const search = ref("");
@@ -178,6 +205,7 @@ const sheetId = ref<string | null>(null);
 const expanded = ref(new Set<string>());
 const undoOpen = ref(false);
 const undoItem = ref<ShoppingListItemOut | null>(null);
+const menuTile = ref<Tile | null>(null);
 
 const sheetItem = computed(() => items.value.find(item => item.id === sheetId.value) ?? null);
 const undoName = computed(() => (undoItem.value ? itemTitle(undoItem.value, units.value) : ""));

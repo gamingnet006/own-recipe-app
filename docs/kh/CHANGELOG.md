@@ -6,6 +6,19 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Shopping list without network (D63): `/einkauf` opens from the last loaded state when there is no signal; ticking
+  off, adding, amounts, properties, urgency and notes work and are sent in order when the network is back (a banner
+  says so). Needs the add-on "Offline recipes"; switching it off or signing out removes the stored lists.
+- "Always in the house" (D65): a switch in the shopping detail sheet, or long-press on a tile, marks a food as
+  always in stock for the household (new `POST /api/kh/shopping/on-hand`, also for members who may not organize);
+  such tiles show a small house and sit at the end of their department, and "Add to shopping list" on a recipe
+  leaves those ingredients unticked.
+- "Hey Siri, add milk to the shopping list" (D64): a Shortcut sends what you say to `POST /api/kh/shopping/add`
+  (with your API token); "milk and 2 butter" become two items on the list you name or the one used last, and Siri
+  reads back what stands on which list.
+- Whole week onto the shopping list (D66): described in the README; Mealie's meal planner already adds the shown
+  days with their servings to a store list of your choice and leaves out what is always in the house.
+- Start page rows "Often cooked" and "Not cooked for a while" (D67), from the recipes you marked as cooked.
 - Recipes as text (D61): "Share as text" in the recipe menu (share, copy or save as `.txt`, for the servings you choose)
   and "Export as text files" in the cookbook view (ZIP with one text per recipe, photos optional).
 - File import (D62): the intake takes `.txt`, `.md` and ZIP files (texts and photos, up to 100 drafts and 50 MB

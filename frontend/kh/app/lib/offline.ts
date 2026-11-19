@@ -1,6 +1,7 @@
 // KH: offline recipes (D42): the Workbox caching rules for the last recipes and their photos, and the cleanup that
-// removes them again when someone signs out (a shared device keeps no recipes).
+// removes them (and the offline shopping lists, D63) again when someone signs out (a shared device keeps no recipes).
 import type { ModuleOptions } from "@vite-pwa/nuxt";
+import { clearStored } from "./shopping-offline";
 
 type RuntimeCaching = NonNullable<NonNullable<ModuleOptions["workbox"]>["runtimeCaching"]>[number];
 
@@ -19,8 +20,9 @@ export const OFFLINE = {
 export function offlineCaching(): RuntimeCaching[] {
   return [
     {
-      // One recipe and its amounts: the network wins, the saved copy answers when there is none.
-      urlPattern: /\/api\/(?:recipes\/[^/?]+|kh\/amounts\/.*)$/,
+      // One recipe and its amounts, and the signed-in user (D63: without it a cold start with no network has no user, so
+      // the shopping page could not open its stored lists): the network wins, the saved copy answers when there is none.
+      urlPattern: /\/api\/(?:recipes\/[^/?]+|kh\/amounts\/.*|users\/self)$/,
       handler: "NetworkFirst",
       options: {
         cacheName: OFFLINE.recipes.name,
@@ -42,9 +44,10 @@ export function offlineCaching(): RuntimeCaching[] {
   ];
 }
 
-/** Deletes both offline caches; does nothing where the browser has no cache storage. A failure is only logged, so
- * it can never stop a sign-out. */
+/** Deletes both offline caches and what the shopping page kept for offline use (D63); does nothing more where the
+ * browser has no cache storage. A failure is only logged, so it can never stop a sign-out. */
 export async function clearOfflineCaches(): Promise<void> {
+  clearStored();
   if (typeof caches === "undefined") return;
   try {
     await Promise.all([caches.delete(OFFLINE.recipes.name), caches.delete(OFFLINE.images.name)]);

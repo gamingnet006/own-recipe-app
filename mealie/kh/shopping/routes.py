@@ -4,8 +4,10 @@ write down an item, and only ever make a food or one of four standard units."""
 
 from fastapi import HTTPException, status
 
-from mealie.kh.shopping.schemas import EnsureFoodIn, EnsureUnitIn
+from mealie.kh.shopping.on_hand import set_on_hand
+from mealie.kh.shopping.schemas import AddByVoiceIn, AddByVoiceOut, EnsureFoodIn, EnsureUnitIn, OnHandIn
 from mealie.kh.shopping.service import ensure_food, ensure_unit
+from mealie.kh.shopping.voice import add_to_list, pick_list, spoken_confirmation
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -34,3 +36,31 @@ class KhShoppingController(BaseUserController):
         any member, also without the permission to organize; any other abbreviation is refused with 422."""
         repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
         return ensure_unit(repos, data.abbreviation)
+
+    @router.post("/add", response_model=AddByVoiceOut)
+    def add(self, data: AddByVoiceIn) -> AddByVoiceOut:
+        """Puts the articles in a said or typed text ("Milch und 2 Butter") on the named list or the household list
+        updated last (D64, for the Siri Shortcut, which signs in with an API key). An open article gets the amount,
+        a ticked-off one is put back. 404 without a list, 422 when no article is understood."""
+        shopping_list = pick_list(self.repos.group_shopping_lists.get_all(), data.list)
+        if shopping_list is None:
+            message = "Es gibt noch keine Einkaufsliste." if not data.list else f"Die Liste {data.list} gibt es nicht."
+            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(message))
+        group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
+        try:
+            names = add_to_list(self.repos, group_repos, shopping_list, data.text)
+        except ValueError:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("Ich habe keinen Artikel verstanden.")
+            ) from None
+        return AddByVoiceOut(message=spoken_confirmation(names, shopping_list.name or "Einkaufsliste"))
+
+    @router.post("/on-hand", response_model=IngredientFoodOut)
+    def on_hand(self, data: OnHandIn) -> IngredientFoodOut:
+        """Marks a food of the group as always in the house for the user's household, or clears it (D65), for any
+        member, also without the permission to organize. Other households keep their own state; a food of another
+        group is 404."""
+        if not set_on_hand(self.session, self.group_id, self.household_id, data.food_id, data.on_hand):
+            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Unknown food"))
+        group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
+        return group_repos.ingredient_foods.get_one(data.food_id)  # type: ignore[return-value]  # found just above

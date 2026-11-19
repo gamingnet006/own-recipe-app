@@ -280,6 +280,16 @@ Die Einkaufsliste (`/einkauf`) arbeitet mit Kacheln, ähnlich wie Bring!, nur oh
 - **Rezepte:** „Auf die Einkaufsliste“ funktioniert wie bisher; die Zutaten erscheinen als Kacheln („Aus <Rezept>“).
 - **Klassische Ansicht:** der Link unten öffnet Mealies Listenseite (Abteilungen sortieren, Aufräumen).
 - **Direkt auf den Home-Bildschirm:** Android: Kochheft-Symbol lange drücken → „Einkaufsliste“ (oder herausziehen). iPhone: `/einkauf` in Safari öffnen → Teilen → „Zum Home-Bildschirm“; beim ersten Öffnen einmal anmelden.
+- **Ohne Netz:** Im Laden ist der Empfang oft schlecht. Die Seite zeigt sofort den zuletzt geladenen Stand und lädt dann neu. Ohne Netz kannst du abhaken, zurücklegen, Kacheln aufschreiben und Menge, Eigenschaften, Dringlichkeit und Notiz ändern; oben steht „Offline – Änderungen werden nachgeschickt“, und sobald wieder Netz da ist, werden die Änderungen der Reihe nach gesendet (was inzwischen gelöscht wurde, wird übersprungen). Nicht ohne Netz gehen neue Artikelnamen tippen, „Immer im Haus“ und neue Läden. Das gilt nur bei eingeschaltetem Zusatz „Offline-Rezepte“; beim Abmelden werden die gespeicherten Listen vom Gerät gelöscht.
+- **Immer im Haus:** Salz, Mehl, Öl – was ihr immer vorrätig habt. Im Detailblatt gibt es den Schalter „Immer im Haus“; langes Drücken auf eine Kachel aus dem Katalog öffnet ihn ebenfalls. Solche Kacheln tragen ein kleines Haus und stehen am Ende ihrer Abteilung, und „Auf die Einkaufsliste“ am Rezept lässt sie ungehakt. Die Einstellung gilt pro Haushalt und geht für jedes Mitglied, auch ohne Organisieren-Recht.
+
+### Ganze Woche auf die Einkaufsliste
+
+Im **Wochenplan** („Essen diese Woche“) steht oben rechts das Menü **⋮ → „Alle zur Einkaufsliste hinzufügen“** (nur sichtbar, wenn die Einkaufsliste an ist). Es nimmt alle Rezepte der angezeigten Tage, jedes mit seinen geplanten Portionen; kommt ein Rezept mehrmals vor, werden die Mengen addiert. Du wählst die Liste, also den **Laden**, und kannst Zutaten vorher abwählen. Was im Haushalt als „immer im Haus“ geführt wird, ist schon abgewählt. Die Zutaten erscheinen auf `/einkauf` als Kacheln („Aus <Rezept>“). Welche Tage gezählt werden, bestimmst du über die Ansicht (Woche oder Tage) im Wochenplan.
+
+### „Oft gekocht“ und „Lange nicht gekocht“
+
+Auf der Startseite zeigen zwei Reihen über der Rezeptliste, was ihr oft kocht (mindestens zweimal in den letzten 365 Tagen) und was ihr lange nicht gekocht habt (zuletzt vor über 30 Tagen). Grundlage sind die Einträge, die „Fertig und als gekocht markieren“ im Kochmodus oder **Ich hab's gemacht** am Rezept anlegen, und die des Tagesplans. Ohne solche Einträge fehlen die Reihen.
 
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
@@ -303,6 +313,17 @@ Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Ei
 3. **Sonst:** die Eingabe **URL-codieren** und **URLs öffnen** mit `https://<eure-adresse>/r/create/url?recipe_import_text=` und dahinter dem codierten Text.
 
 Sehr lange Texte (mehr als ein paar tausend Zeichen) fügst du besser mit dem Kurzbefehl mit Schlüssel (oben) hinzu oder fügst sie im **Eingang** ein; Kochheft kürzt sie auf die Höchstlänge eines Entwurfs.
+
+### „Hey Siri, Auf die Einkaufsliste“
+
+Mit einem Kurzbefehl sagst du Siri, was auf die Einkaufsliste soll, zum Beispiel „Milch und 2 Butter“ (D64). Du brauchst denselben Schlüssel wie beim [Teilen-Kurzbefehl](#teilen-per-kurzbefehl-iphone-und-ipad) (Profil → API-Tokens).
+
+1. Neuer Kurzbefehl in der App **Kurzbefehle**, Name „Auf die Einkaufsliste“.
+2. **Nach Eingabe fragen** (Typ Text) mit der Frage „Was soll auf die Liste?“; sie lässt sich diktieren.
+3. **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/shopping/add`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Schlüssel, Anfragetext **JSON** mit dem Feld `text` (Text) = Antwort auf die Frage.
+4. **Wert für Schlüssel abrufen** mit `message` aus dem Ergebnis, dann **Text sprechen**.
+
+Danach funktioniert „Hey Siri, Auf die Einkaufsliste“. Siri liest zum Beispiel vor: „Milch und Butter stehen auf der Liste Rewe.“ Mehrere Artikel trennst du mit „und“ oder einer Sprechpause (Komma). Ein Artikel, der schon offen ist, bekommt die Menge dazu; ein abgehakter kommt zurück auf die Liste. Ohne Angabe landet alles auf der Liste, die zuletzt geändert wurde. Für einen bestimmten Laden legst du einen zweiten Kurzbefehl an, etwa „Auf die Rewe-Liste“, und fügst dem JSON das Feld `list` (Text) mit dem Namen des Ladens hinzu.
 
 ### Uhr-Timer per Kurzbefehl (iPhone und iPad)
 
@@ -681,6 +702,16 @@ The shopping list (`/einkauf`) works with tiles, much like Bring!, but without a
 - **Recipes:** "Add to shopping list" works as before; the ingredients show as tiles ("From <recipe>").
 - **Classic view:** the link at the bottom opens Mealie's list page (sort departments, tidy up).
 - **Straight to the home screen:** Android: long-press the Kochheft icon → "Einkaufsliste" (or drag it out). iPhone: open `/einkauf` in Safari → Share → "Add to Home Screen"; sign in once at the first start.
+- **Without network:** Reception in the store is often bad. The page shows the last loaded state at once and then refreshes. Without network you can tick off, put back, write down tiles and change amount, properties, urgency and note; "Offline – changes will be sent later" shows at the top, and when the network is back the changes are sent in order (anything deleted meanwhile is skipped). Typing a new article name, "Always in the house" and new stores need the network. This only applies while the add-on "Offline recipes" is on; signing out removes the stored lists from the device.
+- **Always in the house:** salt, flour, oil - what you always have in stock. The detail sheet has the switch "Always in the house"; a long press on a catalog tile opens it too. Such tiles carry a small house and sit at the end of their department, and "Add to shopping list" on a recipe leaves them unticked. The setting is per household and every member can change it, also without the permission to organize.
+
+### Whole week onto the shopping list
+
+In the **meal plan** ("Dinner this week") the menu **⋮ → "Add all to list"** at the top right (only shown while the shopping list is on) takes all recipes of the days shown, each with its planned servings; a recipe that appears several times has its amounts added. You pick the list, that is, the **store**, and can untick ingredients first. What the household keeps "always in the house" is already unticked. The ingredients show on `/einkauf` as tiles ("From <recipe>"). Which days count follows the view (weeks or days) of the meal plan.
+
+### "Often cooked" and "Not cooked for a while"
+
+On the start page two rows above the recipe list show what you cook often (at least twice in the last 365 days) and what you have not cooked for long (last cooked over 30 days ago). They come from the entries that "Done and mark as cooked" in cooking mode or **I made this** on a recipe create, and from the daily meal plan. Without such entries the rows are left out.
 
 ### Share shortcut (iPhone and iPad)
 
@@ -704,6 +735,17 @@ Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake
 3. **Otherwise:** **URL Encode** the input and **Open URLs** with `https://<your-address>/r/create/url?recipe_import_text=` followed by the encoded text.
 
 Very long texts (more than a few thousand characters) are better added with the shortcut with a key (above) or pasted in the **Intake**; Kochheft cuts them at the longest length a draft takes.
+
+### "Hey Siri, Add to the shopping list"
+
+With a shortcut you tell Siri what goes on the shopping list, for example "milk and 2 butter" (D64). You need the same key as for the [share shortcut](#share-shortcut-iphone-and-ipad) (Profile → API Tokens).
+
+1. A new shortcut in the **Shortcuts** app, named "Add to the shopping list".
+2. **Ask for Input** (type Text) with the question "What goes on the list?"; it can be dictated.
+3. **Get Contents of URL** with `https://<your-address>/api/kh/shopping/add`, method **POST**, header `Authorization` with `Bearer ` followed by the key, request body **JSON** with the field `text` (Text) = the answer.
+4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**.
+
+Then "Hey Siri, Add to the shopping list" works. Siri reads out, for example: "Milch und Butter stehen auf der Liste Rewe." (German). Separate several articles with "und" or a comma (a pause). An article that is already open gets the amount added; a ticked-off one goes back on the list. Without a name everything lands on the list changed last. For one particular store make a second shortcut, say "Add to the Rewe list", and add the field `list` (Text) with the store's name to the JSON.
 
 ### Clock timer via shortcut (iPhone and iPad)
 

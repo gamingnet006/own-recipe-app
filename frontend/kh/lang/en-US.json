@@ -256,6 +256,10 @@
       "clock-try": "Try it (1 minute)",
       "clock-ios-only": "The clock timer works on iPhone and iPad only, because it needs the Shortcuts app. Here the timer rings while Kochheft is open."
     },
+    "cooked": {
+      "often": "Often cooked",
+      "long-ago": "Not cooked for a while"
+    },
     "cook": {
       "step-of": "Step {n} of {total}",
       "step": "Step {n}",
@@ -733,7 +737,9 @@
         "drugstore": "Drugstore",
         "market": "Market"
       },
-      "failed": "That did not work. Please try again."
+      "failed": "That did not work. Please try again.",
+      "offline": "Offline – changes will be sent later",
+      "on-hand": "Always in the house"
     },
     "export": {
       "menu": "Share as text",

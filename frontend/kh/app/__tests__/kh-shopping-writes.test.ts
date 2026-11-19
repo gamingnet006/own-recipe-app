@@ -25,6 +25,7 @@ vi.mock("~/composables/store/use-label-store", () => ({ useLabelStore: () => ({ 
 vi.mock("~/composables/store/use-unit-store", () => ({ useUnitStore: () => ({ store: units }) }));
 vi.mock("~/composables/use-toast", () => ({ alert: toast }));
 vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key }) }));
+vi.stubGlobal("useMealieAuth", () => ({ user: { value: { id: "u1", householdSlug: "home" } } }));
 
 const item = (over = {}) => ({
   id: "i1", checked: false, quantity: 0, unit: null, unitId: null, note: "", extras: null, position: 1,

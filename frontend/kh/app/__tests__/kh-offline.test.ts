@@ -17,6 +17,12 @@ describe("offlineCaching", () => {
     expect(matches(recipeRule, "/api/recipes/x/comments")).toBe(false);
   });
 
+  test("saves the signed-in user, so that a start without network still has one (D63), but not his other parts", () => {
+    expect(matches(recipeRule, "/api/users/self")).toBe(true);
+    expect(matches(recipeRule, "/api/users/self/favorites")).toBe(false);
+    expect(matches(recipeRule, "/api/users/abc")).toBe(false);
+  });
+
   test("saves recipe photos", () => {
     expect(matches(imageRule, "/api/media/recipes/1/images/original.webp")).toBe(true);
     expect(matches(imageRule, "/api/media/users/1/profile.webp")).toBe(false);

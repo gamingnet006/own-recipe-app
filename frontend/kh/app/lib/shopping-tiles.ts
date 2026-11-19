@@ -6,6 +6,8 @@ export interface TileFood {
   id: string;
   name: string;
   labelId: string | null;
+  /** The slugs of the households that always have this food in the house (D65) */
+  householdsWithIngredientFood?: string[];
 }
 
 export interface TileLabel {
@@ -25,6 +27,8 @@ export interface Tile {
   emoji: string;
   foodId?: string;
   labelId: string | null;
+  /** Always in the house for this household (D65): a house badge, at the end of its department */
+  onHand?: boolean;
 }
 
 export interface Department {
@@ -32,6 +36,10 @@ export interface Department {
   name: string;
   tiles: Tile[];
 }
+
+/** Whether the household (by slug) always has the food in the house. */
+export const isOnHand = (food: Pick<TileFood, "householdsWithIngredientFood"> | undefined, householdSlug: string): boolean =>
+  !!householdSlug && !!food?.householdsWithIngredientFood?.includes(householdSlug);
 
 /** The department that takes every item without a label, as in Mealie's seed. */
 export const OTHER_DEPARTMENT = "Sonstiges";
@@ -147,9 +155,16 @@ export const BASICS: Basic[] = [
 /**
  * The tiles by department: departments in the list's order (LABEL_ORDER holds label ids; labels without a position
  * follow, items without a label go to "Sonstiges"), foods and basics merged without duplicates (by name, ignoring
- * case; a food wins over a basic), tiles by name. Departments without a tile are left out.
+ * case; a food wins over a basic), tiles by name, the ones always in the house (for HOUSEHOLD-SLUG) after the others.
+ * Departments without a tile are left out.
  */
-export function catalog(foods: TileFood[], labels: TileLabel[], basics: Basic[], labelOrder: string[]): Department[] {
+export function catalog(
+  foods: TileFood[],
+  labels: TileLabel[],
+  basics: Basic[],
+  labelOrder: string[],
+  householdSlug = "",
+): Department[] {
   const position = (id: string) => (labelOrder.includes(id) ? labelOrder.indexOf(id) : labelOrder.length);
   const ordered = [...labels].sort((a, b) => position(a.id) - position(b.id)); // stable: the rest keeps its order
   const other = labels.find(label => label.name.toLowerCase() === OTHER_DEPARTMENT.toLowerCase());
@@ -167,14 +182,14 @@ export function catalog(foods: TileFood[], labels: TileLabel[], basics: Basic[],
   };
   for (const food of foods) {
     const label = labels.find(candidate => candidate.id === food.labelId);
-    add({ name: food.name, emoji: tileEmoji(food.name, label?.name), foodId: food.id, labelId: food.labelId });
+    add({ name: food.name, emoji: tileEmoji(food.name, label?.name), foodId: food.id, labelId: food.labelId, onHand: isOnHand(food, householdSlug) });
   }
   for (const basic of basics) {
     const label = labels.find(candidate => candidate.name.toLowerCase() === basic.department.toLowerCase());
     add({ name: basic.name, emoji: basic.emoji, labelId: label?.id ?? null });
   }
   const departments = [...byId.values()].filter(department => department.tiles.length);
-  departments.forEach(department => department.tiles.sort((a, b) => a.name.localeCompare(b.name, "de")));
+  departments.forEach(department => department.tiles.sort((a, b) => Number(!!a.onHand) - Number(!!b.onHand) || a.name.localeCompare(b.name, "de")));
   return departments;
 }
 
@@ -197,4 +212,19 @@ export function itemForTile<T extends { foodId: string | null; note: string | nu
     (tile.foodId && item.foodId === tile.foodId)
     || (item.food ? item.food.name.toLowerCase() === name : splitNote(item.note).own.toLowerCase() === name),
   );
+}
+
+/**
+ * What a tile written down again meets on the list: an open item of that article (it takes TYPED, what was typed
+ * with it), else a bought one (it is put back, with TYPED too); undefined when the article is not there at all.
+ */
+export function existingFor<T extends { checked: boolean; foodId: string | null; note: string | null; food?: { name: string } | null }>(
+  tile: Tile,
+  items: T[],
+  typed: Record<string, unknown>,
+): { item: T; changes: Record<string, unknown> } | undefined {
+  const open = itemForTile(tile, items.filter(item => !item.checked));
+  if (open) return { item: open, changes: typed };
+  const bought = itemForTile(tile, items.filter(item => item.checked));
+  return bought ? { item: bought, changes: { ...typed, checked: false } } : undefined;
 }
