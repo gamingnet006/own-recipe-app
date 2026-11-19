@@ -18,6 +18,7 @@ from mealie.kh.accounts.service import delete_links, person_of
 from mealie.kh.allergens.service import delete_user_allergies
 from mealie.kh.drafts.models import KhDraft
 from mealie.kh.navigation.service import delete_user_navigation
+from mealie.kh.notes.models import KhRecipeNote
 from mealie.kh.notices.models import KhNoticeRead
 from mealie.kh.notifications.service import delete_user_notifications
 from mealie.kh.onboarding.service import delete_user_rows
@@ -34,6 +35,7 @@ _HANDED_OVER = (
     RecipeTimelineEvent.user_id,
     KhDraft.user_id,
     KhDraft.approved_by,
+    KhRecipeNote.updated_by,
 )
 
 # What belongs to recipes of the whole group, not to the household: it may go to someone in another household.

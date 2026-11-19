@@ -40,6 +40,7 @@
           @delete="deleteRecipe"
           @close="closeEditor"
         />
+        <KhRecipeNote v-if="!isEditMode && recipe.id" :recipe-id="recipe.id" /> <!-- KH: the household's note (D82) -->
         <RecipeJsonEditor
           v-if="isEditJSON"
           v-model="recipe"

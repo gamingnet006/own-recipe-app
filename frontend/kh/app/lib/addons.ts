@@ -3,7 +3,7 @@
 
 export const ADDON_NAMES = [
   "shopping", "planner", "books", "duplicates", "oven", "nutrition", "allergens", "substitutions", "offline", "clock",
-  "shareLinks", "telegram", "whisper", "voice",
+  "shareLinks", "telegram", "whisper", "voice", "season",
 ] as const;
 export type KhAddonName = typeof ADDON_NAMES[number];
 export type KhAddonFlags = Record<KhAddonName, boolean>;
@@ -18,7 +18,7 @@ export interface KhAddonsAnswer {
 /** The fresh-install defaults (mealie/kh/addons/schemas.py); they also apply until the answer has arrived. */
 export const DEFAULT_ADDONS: KhAddonFlags = {
   shopping: true, planner: true, books: true, duplicates: true, oven: true, nutrition: true, allergens: true,
-  substitutions: true, offline: true, clock: true, shareLinks: false, telegram: false, whisper: false, voice: false,
+  substitutions: true, offline: true, clock: true, shareLinks: false, telegram: false, whisper: false, voice: false, season: false,
 };
 
 /** The two big areas, which the presets and the first-start question set. */

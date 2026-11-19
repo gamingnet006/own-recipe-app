@@ -627,6 +627,10 @@
         "voice": {
           "title": "Sprachbefehle (Test)",
           "text": "Sprachbefehle im Kochmodus. Noch im Test."
+        },
+        "season": {
+          "title": "Saison",
+          "text": "Zeigt auf der Startseite, was gerade Saison hat."
         }
       },
       "names": {
@@ -643,7 +647,8 @@
         "shareLinks": "Teilen-Links",
         "telegram": "Der Telegram-Bot",
         "whisper": "Audio und Video",
-        "voice": "Sprachbefehle"
+        "voice": "Sprachbefehle",
+        "season": "Die Saison"
       },
       "local-ai": "Lokale KI (z. B. Ollama) geht grundsätzlich auch – siehe Anleitung. Ungetestet.",
       "local-ai-link": "Anleitung"
@@ -978,6 +983,34 @@
           "s1": "Unter Mehr → Einstellungen → Timer schaltest du „Auf Uhr-Timer legen“ ein.",
           "s2": "Der Timer klingelt dann auch bei gesperrtem Gerät."
         }
+      },
+      "kitchen": {
+        "qr-alt": "QR-Code der Einkaufsliste",
+        "print": "QR-Code drucken",
+        "nfc": "Auf NFC-Sticker schreiben",
+        "nfc-done": "Fertig. Der Sticker öffnet jetzt die Einkaufsliste.",
+        "nfc-failed": "Das Schreiben hat nicht geklappt. Halte den Sticker direkt an die Rückseite und versuch es noch einmal.",
+        "sticker-note": "NFC-Sticker sind freiwillig und kosten etwa 1 € pro Stück.",
+        "caption": "Einkaufsliste – scannen mit der Kamera",
+        "ios": {
+          "title": "Für die Küche: QR-Code und NFC",
+          "s1": "Drucke den QR-Code aus und häng ihn an den Kühlschrank. Wer ihn mit der Kamera scannt, landet auf der Einkaufsliste.",
+          "s2": "Leeren NFC-Sticker (NTAG213 oder NTAG215) mit der kostenlosen App „NFC Tools“ beschreiben: Daten schreiben → URL → die Adresse oben.",
+          "s3": "Oder in Kurzbefehle → Automation → NFC: Sticker scannen → URL öffnen."
+        },
+        "android": {
+          "title": "Für die Küche: QR-Code und NFC",
+          "s1": "Drucke den QR-Code aus und häng ihn an den Kühlschrank. Wer ihn mit der Kamera scannt, landet auf der Einkaufsliste.",
+          "s2": "Mit Chrome kannst du einen leeren NFC-Sticker beschreiben: Tippe auf „Auf NFC-Sticker schreiben“ und halte den Sticker an die Rückseite des Handys."
+        },
+        "mac": {
+          "title": "Für die Küche: QR-Code",
+          "s1": "Drucke den QR-Code aus und häng ihn an den Kühlschrank. Wer ihn mit der Kamera scannt, landet auf der Einkaufsliste."
+        },
+        "computer": {
+          "title": "Für die Küche: QR-Code",
+          "s1": "Drucke den QR-Code aus und häng ihn an den Kühlschrank. Wer ihn mit der Kamera scannt, landet auf der Einkaufsliste."
+        }
       }
     },
     "news": {
@@ -1008,6 +1041,24 @@
         "notifications": {
           "title": "Mitteilungen",
           "text": "Auf Wunsch meldet sich Kochheft: wenn jemand etwas einplant oder auf die Liste setzt, und abends mit dem, was morgen ansteht. Du stellst es unter Mehr → Einstellungen ein."
+        }
+      },
+      "v1-4": {
+        "simple": {
+          "title": "Einfache Ansicht",
+          "text": "Größere Schrift und weniger Knöpfe, für jede Person einzeln. Unter Mehr → Konto, oder vom Admin eingestellt."
+        },
+        "season": {
+          "title": "Saison",
+          "text": "Die Startseite zeigt, was gerade Saison hat, und passende Rezepte dazu."
+        },
+        "qr": {
+          "title": "QR-Code und NFC für die Küche",
+          "text": "Einkaufsliste per Kamera oder NFC-Sticker öffnen. Drucken und an den Kühlschrank hängen."
+        },
+        "note": {
+          "title": "Unsere Notiz am Rezept",
+          "text": "Schreib die Familienweisheit direkt an das Rezept, zum Beispiel „weniger Zucker“."
         }
       }
     },
@@ -1054,6 +1105,22 @@
     "planner": {
       "all-to-list": "Alle zur Einkaufsliste",
       "sunday-note": "Sonntag gilt in Kochheft als „nicht gewählt“; die Woche beginnt dann am Montag."
+    },
+    "simple": {
+      "title": "Einfache Ansicht",
+      "text": "Größere Schrift, weniger Knöpfe",
+      "show-more": "Mehr anzeigen",
+      "admin-label": "Einfache Ansicht für diese Person"
+    },
+    "season": {
+      "title": "Jetzt Saison",
+      "recipes": "Dazu passen deine Rezepte"
+    },
+    "note": {
+      "title": "Unsere Notiz",
+      "add": "Notiz hinzufügen",
+      "edit": "Notiz bearbeiten",
+      "placeholder": "z. B. Weniger Zucker, so mögen es die Kinder"
     }
   }
 }

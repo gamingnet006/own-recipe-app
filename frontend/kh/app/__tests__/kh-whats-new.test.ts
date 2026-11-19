@@ -39,10 +39,10 @@ describe("unseenNews", () => {
   });
 });
 
-test("the first list entry has 6 to 8 cards and the first card names a text key", () => {
-  expect(WHATS_NEW[0]!.cards.length).toBeGreaterThanOrEqual(6);
+test("the first list entry has 3 to 12 cards and the first card names a text key", () => {
+  expect(WHATS_NEW[0]!.cards.length).toBeGreaterThanOrEqual(3);
   expect(WHATS_NEW[0]!.cards.length).toBeLessThanOrEqual(12);
-  expect(newsTextKey("1.3", card("tiles"))).toBe("kh.news.v1-3.tiles");
+  expect(newsTextKey("1.4", card("simple"))).toBe("kh.news.v1-4.simple");
 });
 
 test("every card has a title and a text in both languages", () => {

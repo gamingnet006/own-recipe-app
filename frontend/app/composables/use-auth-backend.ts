@@ -4,6 +4,7 @@ import { clearAllStores } from "~/composables/store";
 import { clearComposableCaches } from "~/composables/use-clear-composable-caches";
 import { clearOfflineCaches } from "~~/kh/app/lib/offline"; // KH: offline recipes (D42)
 import { clearKhTimers } from "~~/kh/app/composables/use-kh-timers"; // KH: running timers (D42)
+import { resetKhNotes } from "~~/kh/app/composables/use-kh-note"; // KH: household notes (D82)
 import { getTokenCookieOptions, getTokenExpiry, nextRefreshDelay, readTokenCookie } from "~/composables/use-token-cookie";
 
 interface AuthData {
@@ -172,6 +173,7 @@ export const useAuthBackend = function (): AuthState {
       clearAllStores();
       await clearOfflineCaches(); // KH: no recipes stay on a shared device (D42)
       clearKhTimers(); // KH: nor timers (D42)
+      resetKhNotes(); // KH: nor the household notes (D82)
 
       // Clear cached composable refs to prevent data leakage between users
       clearComposableCaches();

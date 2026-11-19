@@ -1,4 +1,4 @@
-"""KH: the answer and request of a person's own side menu (D58)."""
+"""KH: the answer and request of a person's own side menu (D58) and simple view (D79)."""
 
 from pydantic import field_validator
 
@@ -10,9 +10,11 @@ HIDEABLE_ENTRIES = ("intake", "shopping", "mealplan", "cookbooks", "finder", "or
 
 
 class NavigationSettings(MealieModel):
-    """The hidden side-menu entries; stored without duplicates, in the menu's order."""
+    """The hidden side-menu entries; stored without duplicates, in the menu's order. In a request, simple None keeps
+    the stored switch, so a client that only knows the hidden list stays compatible."""
 
     hidden: list[str]
+    simple: bool | None = None
 
     @field_validator("hidden")
     @classmethod
@@ -21,3 +23,9 @@ class NavigationSettings(MealieModel):
         if unknown:
             raise ValueError(f"Unknown side menu entry: {', '.join(unknown)}")
         return [key for key in HIDEABLE_ENTRIES if key in value]
+
+
+class SimpleView(MealieModel):
+    """The simple-view switch alone, as the admin sets it for another person."""
+
+    simple: bool

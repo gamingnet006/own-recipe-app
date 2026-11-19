@@ -18,6 +18,7 @@ from mealie.kh.allergens.service import delete_recipe_allergens  # KH: a recipe'
 from mealie.kh.amounts.service import delete_amounts, recheck_amounts  # KH: a recipe's amounts (D39)
 from mealie.kh.books.service import delete_flags  # KH: a recipe's book flags (D43)
 from mealie.kh.duplicates.service import delete_ignored  # KH: a recipe's ignored duplicate pairs (D43)
+from mealie.kh.notes.service import delete_recipe_notes  # KH: a recipe's household notes (D82)
 from mealie.lang.providers import Translator
 from mealie.pkgs import cache
 from mealie.pkgs.archive import ArchiveBudget
@@ -808,6 +809,8 @@ class RecipeService(RecipeServiceBase):
         delete_ignored(self.repos.session, [r.id for r in data])
         # KH: and their allergen corrections (D44)
         delete_recipe_allergens(self.repos.session, [r.id for r in data])
+        # KH: and their household notes (D82)
+        delete_recipe_notes(self.repos.session, [r.id for r in data])
         for r in data:
             try:
                 self.delete_assets(r)

@@ -63,7 +63,7 @@ describe("rows", () => {
 
   test("the defaults are those of a fresh install", () => {
     const off = Object.entries(DEFAULT_ADDONS).filter(([, value]) => !value).map(([key]) => key);
-    expect(off).toEqual(["shareLinks", "telegram", "whisper", "voice"]);
+    expect(off).toEqual(["shareLinks", "telegram", "whisper", "voice", "season"]);
   });
 });
 

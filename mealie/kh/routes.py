@@ -15,10 +15,12 @@ from mealie.kh.drafts import routes as drafts
 from mealie.kh.duplicates import routes as duplicates
 from mealie.kh.features import routes as features
 from mealie.kh.navigation import routes as navigation
+from mealie.kh.notes import routes as notes
 from mealie.kh.notices import routes as notices
 from mealie.kh.notifications import routes as notifications
 from mealie.kh.nutrition import routes as nutrition
 from mealie.kh.onboarding import routes as onboarding
+from mealie.kh.season import routes as season
 from mealie.kh.shopping import routes as shopping
 from mealie.kh.system import routes as system
 from mealie.kh.weeksuggestion import routes as weeksuggestion
@@ -40,7 +42,9 @@ router.include_router(drafts.router, tags=["KH: Drafts"])
 router.include_router(drafts.origin_router, tags=["KH: Drafts"])
 router.include_router(ai.router, tags=["KH: AI"])
 router.include_router(navigation.router, tags=["KH: Navigation"])
+router.include_router(navigation.admin_router, tags=["KH: Navigation"])
 router.include_router(notices.router, tags=["KH: Notices"])
+router.include_router(notes.router, tags=["KH: Notes"])
 router.include_router(notifications.router, tags=["KH: Notifications"])
 router.include_router(amounts.router, tags=["KH: Amounts"])
 router.include_router(cooked.router, tags=["KH: Cooked"])
@@ -49,6 +53,7 @@ router.include_router(duplicates.router, tags=["KH: Duplicates"], dependencies=[
 router.include_router(nutrition.router, tags=["KH: Nutrition"], dependencies=[Depends(require_addon("nutrition"))])
 router.include_router(allergens.router, tags=["KH: Allergens"], dependencies=[Depends(require_addon("allergens"))])
 router.include_router(shopping.router, tags=["KH: Shopping"], dependencies=[Depends(require_addon("shopping"))])
+router.include_router(season.router, tags=["KH: Season"], dependencies=[Depends(require_addon("season"))])
 router.include_router(system.router, tags=["KH: System"])
 router.include_router(wishes.router, tags=["KH: Wishes"], dependencies=[Depends(require_addon("planner"))])
 router.include_router(

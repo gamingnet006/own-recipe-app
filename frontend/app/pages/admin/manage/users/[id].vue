@@ -116,6 +116,8 @@
               </v-card-actions>
             </div>
 
+            <KhAdminSimpleView :user-id="user.id" /> <!-- KH: simple view for this person (D79) -->
+
             <AutoForm
               v-model="user"
               :items="userForm"

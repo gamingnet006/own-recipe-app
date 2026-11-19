@@ -13,6 +13,7 @@ INGREDIENTS = "Zutaten:"
 STEPS = "Zubereitung:"
 NOTES = "Notizen:"
 SOURCE = "Quelle: "
+FAMILY_NOTE = "Unsere Notiz: "  # the household's note (D82); read back as a Mealie note line
 TIME_LABELS = {"Vorbereitung": "prep_time", "Zubereitung": "perform_time", "Gesamt": "total_time"}
 SERVINGS = re.compile(r"^(\d+(?:[.,]\d+)?)\s*(.*)$")
 STEP_LINE = re.compile(r"^\d+\.\s+(\S.*)$")
@@ -67,7 +68,8 @@ def _steps(lines: list[str]) -> list[RecipeStep]:
 
 def parse_kochheft_text(text: str) -> RecipeDraft | None:
     """The recipe in TEXT if it is Kochheft's own format, else None (the AI reads it then). The format is the
-    title, an info line, "Zutaten:", "Zubereitung:", optional "Notizen:" and "Quelle: ", and the signature line last."""
+    title, an info line, "Zutaten:", "Zubereitung:", optional "Notizen:", "Unsere Notiz: " and "Quelle: ", and the
+    signature line last."""
     lines = text.strip().splitlines()
     if not lines or lines[-1].strip() != SIGNATURE:
         return None
@@ -91,7 +93,9 @@ def parse_kochheft_text(text: str) -> RecipeDraft | None:
     note_lines: list[str] = []
     target = step_lines
     for line in tail:
-        if line.strip() == NOTES:
+        if line.startswith(FAMILY_NOTE):
+            note_lines.append(line[len(FAMILY_NOTE) :].strip())
+        elif line.strip() == NOTES:
             target = note_lines
         else:
             target.append(line)

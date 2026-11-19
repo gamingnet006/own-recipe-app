@@ -33,9 +33,9 @@ function infoLine(recipe: RecipeOut, scale: number, locale: string): string {
 }
 
 /** RECIPE at SCALE as text: title, info line, "Zutaten:" with "- " lines, "Zubereitung:" with numbered steps, optional
- * "Notizen:" and "Quelle:", then the signature. Section titles stand on a line of their own; amounts in the ingredients,
+ * "Notizen:", "Unsere Notiz:" (the household's note, D82, FAMILY_NOTE) and "Quelle:", then the signature. Section titles stand on a line of their own; amounts in the ingredients,
  * the titles and the steps scale. LOCALE writes the numbers and times. */
-export function recipeText(recipe: RecipeOut, scale: number, locale: string, read: TextReaders): string {
+export function recipeText(recipe: RecipeOut, scale: number, locale: string, read: TextReaders, familyNote = ""): string {
   const ingredients = (recipe.recipeIngredient ?? []).flatMap((line) => {
     const text = oneLine(read.ingredient(line, scale));
     return [...(line.title ? [oneLine(scaleTitle(line.title, scale, locale))] : []), ...(text ? [`- ${text}`] : [])];
@@ -51,6 +51,7 @@ export function recipeText(recipe: RecipeOut, scale: number, locale: string, rea
     ["Zutaten:", ...ingredients].join("\n"),
     ["Zubereitung:", ...steps].join("\n"),
     notes.length ? `Notizen:\n${notes.join("\n\n")}` : "",
+    familyNote.trim() ? `Unsere Notiz: ${oneLine(familyNote)}` : "",
     recipe.orgURL ? `Quelle: ${oneLine(recipe.orgURL)}` : "",
     TEXT_SIGNATURE,
   ].filter(Boolean).join("\n\n") + "\n";

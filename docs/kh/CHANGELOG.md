@@ -6,6 +6,17 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Simple view (D79): per person (More > Account, or the admin on the user page) larger text, a short bar and side menu
+  (Recipes, Shopping list, Week, More), no filters on the start page, More with Show more; new column `simple`
+  (migration kh0014), `PUT /api/kh/admin/navigation/{user_id}`.
+- Season (D80): add-on `season` (off) with a start page row of what is in season in Germany and matching recipes
+  (`GET /api/kh/recipes/season`).
+- Shopping list by QR code and NFC (D81): on the setup page a printable QR code of `/einkauf`, writing NFC stickers in
+  Chrome on Android, steps for iPhone.
+- Our note on a recipe (D82): one note per recipe and household under the recipe head and in cook mode, in the text
+  export ("Unsere Notiz:") and the import; new table `kh_recipe_notes` (migration kh0015); handed to the heir on
+  account deletion. The 1.4 news has four cards.
+
 ## [v1.3] - 2026-11-19
 
 - Flows simplified (D76): the bar at the bottom gets a "Week" tab (meal plan, only with the add-on), cook mode uses

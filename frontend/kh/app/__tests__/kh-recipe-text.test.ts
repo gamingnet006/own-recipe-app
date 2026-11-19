@@ -68,6 +68,12 @@ Exportiert aus Kochheft
 `);
   });
 
+  test("the household's note stands before the source, on one line (D82)", () => {
+    const text = recipeText(recipe, 1, "de-DE", read, "  Weniger Zucker,\ndie Kinder mögen es so. ");
+    expect(text).toContain("Schmeckt auch kalt.\n\nUnsere Notiz: Weniger Zucker, die Kinder mögen es so.\n\nQuelle: https://example.org/testkuchen");
+    expect(recipeText(recipe, 1, "de-DE", read, "  ")).not.toContain("Unsere Notiz");
+  });
+
   test("scale 2 doubles servings, amounts, section titles and linked step amounts", () => {
     const text = recipeText(recipe, 2, "de-DE", read);
     expect(text).toContain("Portionen: 8 ·");

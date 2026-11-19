@@ -8,7 +8,7 @@ export const SETUP_PATH = "/aufs-handy";
 export type KhDevice = "iphone" | "ipad" | "android" | "mac" | "computer";
 /** Devices that share one set of texts: iPhone and iPad work alike. */
 export type KhFamily = "ios" | "android" | "mac" | "computer";
-export type KhSetupSection = "home" | "list" | "key" | "import" | "siri" | "timer";
+export type KhSetupSection = "home" | "list" | "kitchen" | "key" | "import" | "siri" | "timer";
 
 export const DEVICES: KhDevice[] = ["iphone", "ipad", "android", "mac", "computer"];
 
@@ -34,14 +34,15 @@ export function canInstallHere(userAgent: string): boolean {
 const STEPS: Record<KhSetupSection, Partial<Record<KhFamily, number>>> = {
   home: { ios: 3, android: 3, mac: 3, computer: 3 },
   list: { ios: 4, android: 3, mac: 3, computer: 3 },
+  kitchen: { ios: 3, android: 2, mac: 1, computer: 1 },
   key: { ios: 3, android: 3, mac: 3, computer: 3 },
   import: { ios: 3, mac: 3, android: 1 },
   siri: { ios: 3, mac: 2 },
   timer: { ios: 2 },
 };
 
-/** The add-on a section needs, if any: the list and Siri need the shopping list, the timer the Clock timer. */
-const SECTION_ADDON: Partial<Record<KhSetupSection, keyof KhAddonFlags>> = { list: "shopping", siri: "shopping", timer: "clock" };
+/** The add-on a section needs, if any: the list, the kitchen code and Siri need the shopping list, the timer the Clock timer. */
+const SECTION_ADDON: Partial<Record<KhSetupSection, keyof KhAddonFlags>> = { list: "shopping", kitchen: "shopping", siri: "shopping", timer: "clock" };
 
 export interface KhSectionPlan {
   id: KhSetupSection;
@@ -122,4 +123,26 @@ export function shouldAskDevice(answer: KhDeviceAnswer | null, device: KhDevice,
   if ((device === "mac" || device === "computer") && !canInstallHere(userAgent)) return false;
   if (!answer) return true;
   return answer.answer === "later" && now - answer.at >= ASK_AGAIN_DAYS * DAY_MS;
+}
+
+/** The address of the shopping list on this server: what the QR code and the NFC sticker hold (D81). */
+export function shoppingUrl(origin: string): string {
+  return `${origin}/einkauf`;
+}
+
+/** Whether this browser can write NFC stickers (Web NFC: Chrome on Android only); never on iPhone, Mac or computers. */
+export function canWriteNfc(scope: object): boolean {
+  return "NDEFReader" in scope;
+}
+
+/** Class on the page's root element while the QR sheet prints; the page's print style hides everything else only then,
+ * so no other print (recipe, cookbook) is touched. */
+export const PRINT_QR_CLASS = "kh-print-qr";
+
+/** Prints the QR sheet: sets the class, opens the print dialog and removes the class when printing is over (afterprint). */
+export function printQrSheet(root: { classList: DOMTokenList }, win: Pick<Window, "print" | "addEventListener">): void {
+  const done = () => root.classList.remove(PRINT_QR_CLASS);
+  root.classList.add(PRINT_QR_CLASS);
+  win.addEventListener("afterprint", done, { once: true });
+  win.print();
 }

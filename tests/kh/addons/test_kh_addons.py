@@ -51,7 +51,7 @@ def test_defaults(api_client: TestClient, unique_user: TestUser, host, addons):
     assert body["flags"]["shopping"] and body["flags"]["planner"] and body["flags"]["books"]
     assert body["flags"]["substitutions"] and body["flags"]["offline"] and body["flags"]["oven"]
     assert body["flags"]["clock"]  # as before v1.0: the button shows wherever the device's own switch is on
-    assert not any(body["flags"][name] for name in ("shareLinks", "telegram", "whisper", "voice"))
+    assert not any(body["flags"][name] for name in ("shareLinks", "telegram", "whisper", "voice", "season"))
     assert body["unavailable"] == ["shareLinks", "telegram", "whisper"]
 
 

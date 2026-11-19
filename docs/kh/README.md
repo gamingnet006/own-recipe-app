@@ -374,6 +374,22 @@ Auf einem neuen Handy, iPad oder (in Safari, Chrome, Edge) Computer fragt Kochhe
 
 Nach einem Update zeigt die Startseite einmal ein paar Karten mit den Neuerungen (Vollbild am Handy, Karte auf iPad und Computer; „Überspringen“ unten links). Wer neu angelegt wird, sieht stattdessen die Einführung. Unter **Mehr → Hilfe → Neuigkeiten** lassen sich alle Versionen jederzeit ansehen. Die Karten stehen in `frontend/kh/app/lib/whats-new.ts` (Texte unter `kh.news.*`); Entwickler ergänzen sie vor jedem Release mit neuen Funktionen und heben `NEWS_VERSION` in `mealie/kh/onboarding/news.py` an, ein Test prüft, dass beide übereinstimmen.
 
+### Einfache Ansicht (D79)
+
+Für Menschen, die mit Apps nicht zu Hause sind: Unter **Mehr → Konto → Einfache Ansicht** wird die Schrift größer und es gibt weniger Knöpfe. Die Leiste unten zeigt nur Rezepte, Einkaufsliste, Woche und Mehr (der Eingang steckt unter Mehr), die Startseite zeigt Suche, die Reihen „Oft gekocht“ und „Lange nicht gekocht“ und die Rezepte, aber keine Filter. **Mehr** zeigt zuerst Planen, Hilfe und Konto; Sammlung und Einstellungen stehen hinter „Mehr anzeigen“. Die Wahl gilt pro Person auf allen Geräten. Admins stellen sie für jemand anderen unter **Admin → Benutzer → (Person)** ein.
+
+### Saison (D80)
+
+Ein Zusatz (aus; **Mehr → Einstellungen → Zusatzfunktionen → Saison**): Die Startseite zeigt „Jetzt Saison“ mit dem, was in Deutschland gerade Saison hat (Freiland und Lager, eine selbst gepflegte Liste, `frontend/kh/app/lib/season.ts`), und darunter bis zu acht Rezepte der Familie, deren Zutaten ein solches Lebensmittel enthalten (Name oder Mehrzahl des Lebensmittels, ganzes Wort). Ein Tipp auf einen Namen sucht danach.
+
+### Einkaufsliste per QR-Code und NFC (D81)
+
+Auf **Mehr → Kochheft einrichten** gibt es „Für die Küche“: einen QR-Code der Adresse `…/einkauf` zum Ausdrucken (Kühlschrank; Kamera scannen, Liste öffnet sich) und für NFC-Sticker. In Chrome auf Android schreibt „Auf NFC-Sticker schreiben“ die Adresse auf einen leeren Sticker. iPhone kann Sticker lesen, aber nicht von einer Website beschreiben: Dort die kostenlose App „NFC Tools“ nutzen oder in Kurzbefehle → Automation → NFC einen Sticker auf „URL öffnen“ legen. Sticker sind freiwillig und kosten etwa 1 € pro Stück.
+
+### Unsere Notiz am Rezept (D82)
+
+Unter dem Kopf jedes Rezepts steht „Unsere Notiz“, eine Notiz pro Rezept und Haushalt („weniger Zucker, so mögen es die Kinder“, bis 2000 Zeichen). Alle im Haushalt sehen und ändern sie, andere Haushalte sehen sie nicht. Mit dem Stift bearbeiten, ohne Notiz gibt es „Notiz hinzufügen“. Im Kochmodus steht sie als kleines, einklappbares Banner über dem Schritt. „Als Text teilen“ schreibt sie als Zeile „Unsere Notiz: …“ vor „Quelle:“; beim Import landet sie bei den Rezeptnotizen. Beim Löschen eines Kontos geht die Notiz an die Erbin oder den Erben. Neue Tabelle `kh_recipe_notes` (Migration kh0015).
+
 ### Konto löschen (D78)
 
 Unter **Mehr → Konto → Konto löschen** löschst du dein eigenes Konto: Du tippst zur Sicherheit deinen Benutzernamen ein. Deine Rezepte, Einkaufslisten, Wochenplan-Einträge, Kommentare und „gekocht“-Einträge bleiben in der Familie und gehören danach einer anderen Person deines Haushalts (zuerst Admins, sonst wer am längsten dabei ist); der Dialog nennt sie vorher. Favoriten, Bewertungen, Einstellungen und Schlüssel werden gelöscht, das lässt sich nicht rückgängig machen. Geht nicht für die letzte Admin-Person und für die letzte Person eines Haushalts; der Dialog sagt dann, warum. Admins löschen andere unter **Admin → Benutzer** und wählen dort, wer die Rezepte übernimmt. Mehr in [familienkonten.md](familienkonten.md).
@@ -828,6 +844,22 @@ Under **More → Set up Kochheft** (address `/aufs-handy`) a page walks through 
 ### What's new in Kochheft (D69)
 
 After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
+
+### Simple view (D79)
+
+For people who are not at home with apps: under **More → Account → Simple view** the text gets larger and there are fewer buttons. The bar at the bottom shows only Recipes, Shopping list, Week and More (the inbox sits under More), the start page shows the search, the "Often cooked" and "Not cooked for a while" rows and the recipes, but no filters. **More** shows Plan, Help and Account first; Collection and Settings are behind "Show more". The choice is per person on all devices. Admins set it for someone else under **Admin → Users → (person)**.
+
+### Season (D80)
+
+An add-on (off; **More → Settings → More functions → Season**): the start page shows "In season now" with what is in season in Germany (outdoor and storage, a hand-kept list, `frontend/kh/app/lib/season.ts`) and below it up to eight recipes of the family whose ingredients contain such a food (the food's name or plural, as a whole word). Tapping a name searches for it.
+
+### Shopping list by QR code and NFC (D81)
+
+**More → Set up Kochheft** has "For the kitchen": a QR code of the address `…/einkauf` to print (fridge; scan with the camera and the list opens) and for NFC stickers. In Chrome on Android "Write to NFC sticker" writes the address onto an empty sticker. An iPhone can read stickers but a website cannot write them: use the free app "NFC Tools" there, or in Shortcuts → Automation → NFC set a sticker to "Open URL". Stickers are optional and cost about 1 € each.
+
+### Our note on a recipe (D82)
+
+Under the head of every recipe there is "Our note", one note per recipe and household ("less sugar, the kids like it so", up to 2000 characters). Everyone in the household sees and changes it, other households do not see it. Edit it with the pencil; without a note there is "Add note". In cook mode it shows as a small, collapsible banner above the step. "Share as text" writes it as a line "Unsere Notiz: …" before "Quelle:"; on import it lands in the recipe notes. When an account is deleted the note goes to the heir. New table `kh_recipe_notes` (migration kh0015).
 
 ### Delete account (D78)
 

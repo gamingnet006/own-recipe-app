@@ -2,7 +2,7 @@
 // retried at once, a save is taken over at once and keeps quick changes in order, a failed save brings the old list back,
 // and the route guard loads with the app's i18n and forgets everything when nobody is signed in.
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { khSidebar, loadKhSidebarFor, resetKhSidebar, saveKhSidebar } from "../composables/use-kh-sidebar";
+import { khSidebar, loadKhSidebarFor, resetKhSidebar, saveKhSidebar, saveKhSimple } from "../composables/use-kh-sidebar";
 
 const get = vi.hoisted(() => vi.fn());
 const put = vi.hoisted(() => vi.fn());
@@ -78,6 +78,30 @@ describe("saveKhSidebar", () => {
     await saveKhSidebar(["finder", "timeline"]);
     expect(khSidebar.hidden).toEqual(["finder"]);
     expect(error).toHaveBeenCalled();
+  });
+});
+
+describe("saveKhSimple", () => {
+  test("shows the switch at once and stores it with the current list", async () => {
+    khSidebar.hidden = ["finder"];
+    put.mockResolvedValue({ data: { hidden: ["finder"], simple: true } });
+    const saved = saveKhSimple(true);
+    expect(khSidebar.simple).toBe(true);
+    await saved;
+    expect(put).toHaveBeenCalledWith(["finder"], true);
+  });
+
+  test("a failed save switches back and tells the person", async () => {
+    put.mockResolvedValue({ data: null });
+    await saveKhSimple(true);
+    expect(khSidebar.simple).toBe(false);
+    expect(error).toHaveBeenCalled();
+  });
+
+  test("is loaded with the list", async () => {
+    get.mockResolvedValue({ data: { hidden: [], simple: true } });
+    await loadKhSidebarFor("u1");
+    expect(khSidebar.simple).toBe(true);
   });
 });
 

@@ -23,6 +23,7 @@ LABELS = {
     "whisper": "Audio und Video mit Whisper",
     "telegram": "Telegram-Bot",
     "share_links": "Öffentliche Teilen-Links",
+    "season": "Saison",
 }
 
 

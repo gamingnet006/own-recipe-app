@@ -1,12 +1,13 @@
-// KH: the side-menu entries a person hid (D58) as one shared state, loaded once per user like the add-on switches.
-// The side menu and the More page read khSidebar.hidden; it is empty (all shown) until the answer has arrived.
+// KH: the side-menu entries a person hid (D58) and their simple view switch (D79) as one shared state, loaded once per
+// user like the add-on switches. The menus read khSidebar.hidden and .simple; nothing hidden and simple off until the
+// answer has arrived.
 import type { Composer } from "vue-i18n";
 import { KhNavigationApi } from "../lib/api/navigation";
 import { useRequests } from "~/composables/api/api-client";
 import { useGlobalI18n } from "~/composables/use-global-i18n";
 import { alert } from "~/composables/use-toast";
 
-export const khSidebar = reactive({ hidden: [] as string[], userId: null as string | null });
+export const khSidebar = reactive({ hidden: [] as string[], simple: false, userId: null as string | null });
 
 // When the last load failed, and for whom: every navigation runs the route guard, and a down server should not be
 // asked on each of them.
@@ -20,6 +21,7 @@ let newest = 0; // the number of the latest save, to tell whether a finished one
 /** Back to nothing hidden, for a signed-out browser or another user. */
 export function resetKhSidebar(): void {
   khSidebar.hidden = [];
+  khSidebar.simple = false;
   khSidebar.userId = null;
   failedLoad = null;
 }
@@ -34,6 +36,7 @@ export async function loadKhSidebarFor(userId: string, i18n?: Composer): Promise
   const { data } = await new KhNavigationApi(useRequests(i18n)).get();
   if (data) {
     khSidebar.hidden = data.hidden;
+    khSidebar.simple = data.simple;
     khSidebar.userId = userId;
   }
   else {
@@ -56,6 +59,21 @@ export function saveKhSidebar(hidden: string[]): Promise<void> {
     else if (!data) {
       alert.error(useGlobalI18n().t("events.something-went-wrong"));
       if (current) khSidebar.hidden = previous;
+    }
+  });
+  return saves;
+}
+
+/** Switches the simple view on or off: shown at once, stored with the current list; a failure is reported and the
+ * switch goes back. */
+export function saveKhSimple(simple: boolean): Promise<void> {
+  const previous = khSidebar.simple;
+  khSidebar.simple = simple;
+  saves = saves.then(async () => {
+    const { data } = await new KhNavigationApi(useRequests()).put(khSidebar.hidden, simple);
+    if (!data) {
+      alert.error(useGlobalI18n().t("events.something-went-wrong"));
+      khSidebar.simple = previous;
     }
   });
   return saves;

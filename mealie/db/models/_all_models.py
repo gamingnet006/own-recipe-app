@@ -14,6 +14,7 @@ from mealie.kh.books.models import KhCookbookPrint, KhRecipeFlags  # noqa: F401
 from mealie.kh.drafts.models import KhDraft  # noqa: F401
 from mealie.kh.duplicates.models import KhDuplicateIgnored  # noqa: F401
 from mealie.kh.navigation.models import KhUserNavigation  # noqa: F401
+from mealie.kh.notes.models import KhRecipeNote  # noqa: F401
 from mealie.kh.notices.models import KhNotice, KhNoticeRead  # noqa: F401
 from mealie.kh.notifications.models import KhNotificationSettings, KhPushSubscription  # noqa: F401
 from mealie.kh.nutrition.models import KhFoodNutrition  # noqa: F401

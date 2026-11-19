@@ -627,6 +627,10 @@
         "voice": {
           "title": "Voice commands (test)",
           "text": "Voice commands in cooking mode. Still in testing."
+        },
+        "season": {
+          "title": "Season",
+          "text": "Shows what is in season on the start page."
         }
       },
       "names": {
@@ -643,7 +647,8 @@
         "shareLinks": "Share links",
         "telegram": "The Telegram bot",
         "whisper": "Audio and video",
-        "voice": "Voice commands"
+        "voice": "Voice commands",
+        "season": "Season"
       },
       "local-ai": "Local AI (e.g. Ollama) works in principle too – see the guide. Untested.",
       "local-ai-link": "Guide"
@@ -978,6 +983,34 @@
           "s1": "Under More → Settings → Timer turn on “Put on Clock timer”.",
           "s2": "The timer then rings even when the device is locked."
         }
+      },
+      "kitchen": {
+        "qr-alt": "QR code of the shopping list",
+        "print": "Print QR code",
+        "nfc": "Write to NFC sticker",
+        "nfc-done": "Done. The sticker now opens the shopping list.",
+        "nfc-failed": "Writing did not work. Hold the sticker right against the back of the phone and try again.",
+        "sticker-note": "NFC stickers are optional and cost about 1 € each.",
+        "caption": "Shopping list – scan with the camera",
+        "ios": {
+          "title": "For the kitchen: QR code and NFC",
+          "s1": "Print the QR code and hang it on the fridge. Whoever scans it with the camera lands on the shopping list.",
+          "s2": "Write an empty NFC sticker (NTAG213 or NTAG215) with the free app “NFC Tools”: write data → URL → the address above.",
+          "s3": "Or in Shortcuts → Automation → NFC: scan sticker → open URL."
+        },
+        "android": {
+          "title": "For the kitchen: QR code and NFC",
+          "s1": "Print the QR code and hang it on the fridge. Whoever scans it with the camera lands on the shopping list.",
+          "s2": "With Chrome you can write an empty NFC sticker: tap “Write to NFC sticker” and hold the sticker to the back of the phone."
+        },
+        "mac": {
+          "title": "For the kitchen: QR code",
+          "s1": "Print the QR code and hang it on the fridge. Whoever scans it with the camera lands on the shopping list."
+        },
+        "computer": {
+          "title": "For the kitchen: QR code",
+          "s1": "Print the QR code and hang it on the fridge. Whoever scans it with the camera lands on the shopping list."
+        }
       }
     },
     "news": {
@@ -1008,6 +1041,24 @@
         "notifications": {
           "title": "Notifications",
           "text": "If you like, Kochheft speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More → Settings."
+        }
+      },
+      "v1-4": {
+        "simple": {
+          "title": "Simple view",
+          "text": "Larger text and fewer buttons, set for each person. Under More → Account, or set by the admin."
+        },
+        "season": {
+          "title": "Season",
+          "text": "The start page shows what is in season and recipes that fit."
+        },
+        "qr": {
+          "title": "QR code and NFC for the kitchen",
+          "text": "Open the shopping list with the camera or an NFC sticker. Print it and hang it on the fridge."
+        },
+        "note": {
+          "title": "Our note on a recipe",
+          "text": "Write the family's wisdom right on the recipe, for example “less sugar”."
         }
       }
     },
@@ -1054,6 +1105,22 @@
     "planner": {
       "all-to-list": "All to shopping list",
       "sunday-note": "Sunday counts as “not chosen” in Kochheft; the week then starts on Monday."
+    },
+    "simple": {
+      "title": "Simple view",
+      "text": "Larger text, fewer buttons",
+      "show-more": "Show more",
+      "admin-label": "Simple view for this person"
+    },
+    "season": {
+      "title": "In season now",
+      "recipes": "Your recipes that fit"
+    },
+    "note": {
+      "title": "Our note",
+      "add": "Add note",
+      "edit": "Edit note",
+      "placeholder": "e.g. Less sugar, the kids like it so"
     }
   }
 }

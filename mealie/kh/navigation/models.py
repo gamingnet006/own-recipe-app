@@ -1,4 +1,4 @@
-"""KH: the table of each person's own side menu (D58): which entries they hid."""
+"""KH: the table of each person's own side menu (D58): which entries they hid, and the simple view switch (D79)."""
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -17,6 +17,7 @@ class KhUserNavigation(SqlAlchemyBase, BaseMixins):
     # CASCADE: Mealie deletes users through the ORM, which does not know this table
     user_id: Mapped[GUID] = mapped_column(GUID, sa.ForeignKey("users.id", ondelete="CASCADE"), unique=True)
     hidden: Mapped[list[str]] = mapped_column(sa.JSON)
+    simple: Mapped[bool] = mapped_column(sa.Boolean, default=False, server_default=sa.false())
 
     @auto_init()
     def __init__(self, **_) -> None:

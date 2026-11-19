@@ -21,6 +21,7 @@ class AddonFlags(MealieModel):
     substitutions: bool = True  # exchange and variants; only usable with allergens
     offline: bool = True
     clock: bool = True  # "put on the Clock" timer button
+    season: bool = False  # start page row: what is in season now
     share_links: bool = False
     telegram: bool = False
     whisper: bool = False  # own audio and video recordings

@@ -17,7 +17,8 @@
           @keyup.enter="hideKeyboard"
         />
       </div>
-      <div class="search-row">
+      <!-- KH: the simple view keeps only the search field (D79) -->
+      <div v-if="!khSidebar.simple" class="search-row">
         <RecipeExplorerPageSearchFilters />
         <!-- Sort Options -->
         <v-menu
@@ -136,6 +137,7 @@
 <script setup lang="ts">
 import RecipeExplorerPageSearchFilters from "./RecipeExplorerPageSearchFilters.vue";
 import { useRecipeExplorerSearch, clearRecipeExplorerSearchState } from "~/composables/use-recipe-explorer-search";
+import { khSidebar } from "~~/kh/app/composables/use-kh-sidebar"; // KH: simple view (D79)
 
 const emit = defineEmits<{
   ready: [];

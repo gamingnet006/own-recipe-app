@@ -1,6 +1,7 @@
 // KH: what the text export dialogs need from the running app (D61): Mealie's own ingredient display and the amounts
 // of the recipe, made during setup (the display needs Vuetify's locale), plus sharing, copying and saving a file.
 import { KhAmountsApi } from "../lib/api/amounts";
+import { KhNotesApi } from "../lib/api/notes";
 import { khAmounts, khStepText } from "../lib/amounts-store";
 import { recipeText } from "../lib/recipe-text";
 import { useRequests } from "~/composables/api/api-client";
@@ -10,26 +11,31 @@ import type { RecipeOut } from "~/lib/api/types/recipe";
 
 /** Reads recipes as text the way their page shows them. Call it while a component is set up. */
 export function useRecipeText() {
-  const api = new KhAmountsApi(useRequests());
+  const requests = useRequests();
+  const api = new KhAmountsApi(requests);
+  const notes = new KhNotesApi(requests);
+  let familyNote = ""; // the household's note of the recipe loaded last (D82)
   const { parseIngredientText } = useIngredientTextParser();
   const locale = useGlobalI18n().locale;
 
-  /** Makes the store hold RECIPE's amounts (ranges, fixed lines, step links), as its page does; a failed request
+  /** Makes the store hold RECIPE's amounts (ranges, fixed lines, step links), as its page does, and loads the household's
+   * note for text() (none after a failed request); a failed request
    * leaves it empty, never the amounts of another recipe. Returns what the store held before, so a caller that must
    * not change the open recipe's view can put it back. */
   async function loadAmounts(recipe: RecipeOut) {
     const before = khAmounts.value;
     const { data } = recipe.id ? await api.get(recipe.id) : { data: null };
     khAmounts.value = data ?? { extras: [], stepAmounts: [] };
+    familyNote = recipe.id ? ((await notes.get(recipe.id)).data?.text ?? "") : "";
     return before;
   }
 
-  /** RECIPE at SCALE as text; the store must hold its amounts (loadAmounts). */
+  /** RECIPE at SCALE as text; the store must hold its amounts and note (loadAmounts). */
   function text(recipe: RecipeOut, scale: number): string {
     return recipeText(recipe, scale, locale.value, {
       ingredient: (line, factor) => parseIngredientText(line, factor, false),
       step: (place, step, factor) => khStepText(place, step.text ?? "", recipe.recipeIngredient ?? [], factor),
-    });
+    }, familyNote);
   }
 
   return { loadAmounts, text };

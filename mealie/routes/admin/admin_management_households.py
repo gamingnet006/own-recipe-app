@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 
 from mealie.db.models.users.users import User
 from mealie.kh.allergens.service import delete_household_substitutions  # KH: a household's own rules (D44)
+from mealie.kh.notes.service import delete_household_notes  # KH: a household's notes (D82)
 from mealie.schema.household.household import (
     HouseholdAdminUpdate,
     HouseholdCreate,
@@ -92,4 +93,5 @@ class AdminHouseholdManagementRoutes(BaseAdminController):
         deleted = self.mixins.delete_one(item_id)
         # KH: its own substitution rules go too; SQLite in Mealie skips cascades (D44)
         delete_household_substitutions(self.session, item_id)
+        delete_household_notes(self.session, item_id)  # KH: and its recipe notes (D82)
         return deleted

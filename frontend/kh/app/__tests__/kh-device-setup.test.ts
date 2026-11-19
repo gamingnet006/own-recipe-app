@@ -6,10 +6,14 @@ import {
   allStepKeys,
   ASK_AGAIN_DAYS,
   canInstallHere,
+  canWriteNfc,
   detectDevice,
   isInstalled,
   keyName,
   parseAnswer,
+  PRINT_QR_CLASS,
+  printQrSheet,
+  shoppingUrl,
   parseDone,
   setupSections,
   shouldAskDevice,
@@ -42,20 +46,39 @@ describe("setupSections", () => {
   const ids = (device: Parameters<typeof setupSections>[0], on = DEFAULT_ADDONS) => setupSections(device, on).map(s => s.id);
 
   test("iPhone and iPad get everything", () => {
-    expect(ids("iphone")).toEqual(["home", "list", "key", "import", "siri", "timer"]);
+    expect(ids("iphone")).toEqual(["home", "list", "kitchen", "key", "import", "siri", "timer"]);
     expect(ids("ipad")).toEqual(ids("iphone"));
   });
 
   test("Android has no Siri and no Clock timer, Mac no timer, computers only install and key", () => {
-    expect(ids("android")).toEqual(["home", "list", "key", "import"]);
-    expect(ids("mac")).toEqual(["home", "list", "key", "import", "siri"]);
-    expect(ids("computer")).toEqual(["home", "list", "key"]);
+    expect(ids("android")).toEqual(["home", "list", "kitchen", "key", "import"]);
+    expect(ids("mac")).toEqual(["home", "list", "kitchen", "key", "import", "siri"]);
+    expect(ids("computer")).toEqual(["home", "list", "kitchen", "key"]);
   });
 
   test("leaves out sections of switched-off add-ons", () => {
     expect(ids("iphone", { ...DEFAULT_ADDONS, shopping: false })).toEqual(["home", "key", "import", "timer"]);
     expect(ids("iphone", { ...DEFAULT_ADDONS, clock: false })).not.toContain("timer");
   });
+});
+
+test("the kitchen code points to the shopping list, and only Chrome on Android writes NFC (D81)", () => {
+  expect(shoppingUrl("https://kochheft.example")).toBe("https://kochheft.example/einkauf");
+  expect(canWriteNfc({ NDEFReader: () => undefined })).toBe(true);
+  expect(canWriteNfc({})).toBe(false);
+});
+
+test("the QR print style is on only while printing (D81)", () => {
+  const root = document.createElement("html");
+  const listeners: Record<string, () => void> = {};
+  const win = {
+    print: () => expect(root.classList.contains(PRINT_QR_CLASS)).toBe(true),
+    addEventListener: (name: string, fn: () => void) => { listeners[name] = fn; },
+  };
+  printQrSheet(root, win as unknown as Window);
+  expect(root.classList.contains(PRINT_QR_CLASS)).toBe(true);
+  listeners.afterprint!();
+  expect(root.classList.contains(PRINT_QR_CLASS)).toBe(false);
 });
 
 test("every step and every section title has its text in both languages", () => {

@@ -55,6 +55,38 @@ ticked off; the ticks stay on this device. The key is shown once and never store
           {{ $t("kh.setup.list.open") }}
         </v-btn>
 
+        <!-- D81: QR code for the fridge and NFC sticker -->
+        <template v-if="section.id === 'kitchen'">
+          <div class="text-center mt-3">
+            <img :src="qrSrc" :alt="$t('kh.setup.kitchen.qr-alt')" width="200" height="200">
+            <p class="text-body-2 text-break">
+              {{ listUrl }}
+            </p>
+          </div>
+          <v-btn
+            color="primary"
+            size="large"
+            :prepend-icon="$globals.icons.printer"
+            class="mt-2 mr-2"
+            @click="printQr"
+          >
+            {{ $t("kh.setup.kitchen.print") }}
+          </v-btn>
+          <v-btn
+            v-if="nfcWritable"
+            color="primary"
+            variant="tonal"
+            size="large"
+            class="mt-2"
+            @click="writeNfc"
+          >
+            {{ $t("kh.setup.kitchen.nfc") }}
+          </v-btn>
+          <p class="text-body-2 text-medium-emphasis mt-3">
+            {{ $t("kh.setup.kitchen.sticker-note") }}
+          </p>
+        </template>
+
         <template v-if="section.id === 'key'">
           <v-btn color="primary" size="large" :loading="making" class="mt-3" @click="makeKey">
             {{ $t("kh.setup.key.make") }}
@@ -111,6 +143,17 @@ ticked off; the ticks stay on this device. The key is shown once and never store
       </v-card-actions>
     </v-card>
 
+    <!-- D81: what the browser prints while the QR is printed: only the code with its caption (see the style below) -->
+    <Teleport to="body">
+      <div class="kh-qr-sheet" aria-hidden="true">
+        <img :src="qrSrc" alt="" width="600" height="600">
+        <p class="kh-qr-caption">
+          {{ $t("kh.setup.kitchen.caption") }}
+        </p>
+        <p>{{ listUrl }}</p>
+      </div>
+    </Teleport>
+
     <p v-if="family === 'android' && khOn.shopping" class="text-body-2 text-medium-emphasis">
       {{ $t("kh.setup.siri.android-note") }}
     </p>
@@ -118,15 +161,19 @@ ticked off; the ticks stay on this device. The key is shown once and never store
 </template>
 
 <script setup lang="ts">
+import { renderSVG } from "uqr";
 import { khAddons, useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import {
   DEVICES,
   detectDevice,
   familyOf,
   isInstalled,
+  canWriteNfc,
   keyName,
   parseDone,
+  printQrSheet,
   setupSections,
+  shoppingUrl,
   withDone,
   type KhDevice,
   type KhSetupSection,
@@ -150,6 +197,7 @@ useSeoMeta({ title: i18n.t("kh.setup.title") });
 const SECTION_ICON: Record<KhSetupSection, string> = {
   home: "cellphone",
   list: "cartCheck",
+  kitchen: "qrCode",
   key: "keyVariant",
   import: "import",
   siri: "microphone",
@@ -202,6 +250,26 @@ function setDone(id: KhSetupSection, ticked: boolean) {
   }
 }
 
+// The QR code and the NFC sticker hold the address of the shopping list (D81)
+const listUrl = shoppingUrl(origin);
+const qrSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(renderSVG(listUrl))}`;
+const nfcWritable = canWriteNfc(window);
+
+/** Opens the browser's print dialog; the style below makes it print only the code sheet. */
+const printQr = () => printQrSheet(document.documentElement, window);
+
+/** Writes the address to an NFC sticker held to the phone (Android Chrome); a refusal is told, not hidden. */
+async function writeNfc() {
+  try {
+    const reader = new (window as unknown as { NDEFReader: new () => { write: (message: object) => Promise<void> } }).NDEFReader();
+    await reader.write({ records: [{ recordType: "url", data: listUrl }] });
+    alert.success(i18n.t("kh.setup.kitchen.nfc-done"));
+  }
+  catch {
+    alert.error(i18n.t("kh.setup.kitchen.nfc-failed"));
+  }
+}
+
 // The key lives only in this variable: shown once, never stored
 const madeKey = ref("");
 const making = ref(false);
@@ -222,5 +290,31 @@ onBeforeUnmount(() => {
 <style scoped>
 .kh-done {
   opacity: 0.75;
+}
+</style>
+
+<style>
+/* D81: the code sheet exists only for printing the QR: html.kh-print-qr is set while it prints (printQrSheet), so
+   recipe and cookbook prints are not touched; everything else is taken out of the page then, no blank extra pages */
+.kh-qr-sheet {
+  display: none;
+}
+@media print {
+  html.kh-print-qr body > *:not(.kh-qr-sheet) {
+    display: none !important;
+  }
+  html.kh-print-qr .kh-qr-sheet {
+    display: block;
+    text-align: center;
+    padding-top: 2cm;
+  }
+  html.kh-print-qr .kh-qr-sheet img {
+    width: 14cm;
+    height: 14cm;
+  }
+  html.kh-print-qr .kh-qr-caption {
+    font-size: 28pt;
+    font-weight: 600;
+  }
 }
 </style>

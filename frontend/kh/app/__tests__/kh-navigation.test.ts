@@ -7,6 +7,7 @@ import {
   activeTab,
   barTargets,
   type KhNavTarget,
+  moreLayout,
   moreSections,
   settingsTargets,
   sidebarChoices,
@@ -122,6 +123,28 @@ describe("destinations", () => {
     ]);
     expect(moreSections("familie", "u1", { ...DEFAULT_ADDONS, shopping: false }, ["shopping"]).plan.map(target => target.key))
       .not.toContain("shopping");
+  });
+
+  test("the simple view keeps recipes, shopping list, week and More, and nothing becomes unreachable (D79)", () => {
+    const keys = (targets: KhNavTarget[]) => targets.map(target => target.key);
+    expect(keys(barTargets("familie", DEFAULT_ADDONS, true))).toEqual(["recipes", "shopping", "mealplan", "more"]);
+    expect(keys(sidebarTargets("familie", DEFAULT_ADDONS, ["shopping"], true))).toEqual(["recipes", "shopping", "mealplan", "more"]);
+    const off = { ...DEFAULT_ADDONS, shopping: false, planner: false };
+    expect(keys(barTargets("familie", off, true))).toEqual(["recipes", "more"]);
+    const more = moreSections("familie", "u1", DEFAULT_ADDONS, ["shopping"], true);
+    expect(keys(more.plan)).toEqual(["intake", "mealplan", "cookbooks", "finder"]); // the intake moves here
+    expect(keys(more.collection)).toContain("timeline");
+  });
+
+  test("the simple view's More shows planning, help and account first and folds the rest (D79)", () => {
+    expect(moreLayout(true)).toEqual({ first: ["plan", "help", "account"], folded: ["collection", "settings"] });
+    expect(moreLayout(false).folded).toEqual([]);
+    expect(moreLayout(false).first).toHaveLength(5);
+  });
+
+  test("no intake tab in the simple view: its pages count as More (D79)", () => {
+    expect(activeTab("/g/familie/drafts", "familie", DEFAULT_ADDONS, false)).toBe("intake");
+    expect(activeTab("/g/familie/drafts", "familie", DEFAULT_ADDONS, true)).toBe("more");
   });
 
   test("every destination has one of Mealie's icons and a text", () => {

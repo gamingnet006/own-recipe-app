@@ -95,6 +95,20 @@ def test_only_the_last_line_is_the_source():
     assert no_source and no_source.org_url is None  # the note line stays a note
 
 
+def test_the_family_note_is_read_back_as_a_note_line():
+    ours = "Unsere Notiz: Weniger Zucker, die Kinder mögen es so."
+    with_notes = parse_kochheft_text(EXPORT.replace("Quelle:", f"{ours}\n\nQuelle:"))
+    assert with_notes
+    assert [note.text for note in with_notes.notes] == [
+        "Schmeckt auch kalt.\n\nWeniger Zucker, die Kinder mögen es so."
+    ]
+    assert with_notes.org_url == "https://example.org/testkuchen"
+    alone = parse_kochheft_text(EXPORT.replace("Notizen:\nSchmeckt auch kalt.\n\n", f"{ours}\n\n"))
+    assert alone
+    assert [note.text for note in alone.notes] == ["Weniger Zucker, die Kinder mögen es so."]
+    assert [step.text for step in alone.recipe_instructions] == ["Ofen auf 180 Grad vorheizen.", "30 Minuten backen."]
+
+
 def test_servings_with_a_yield_word():
     # recipeText() writes "Portionen: 13 Muffins" for a recipe whose yield is "12 Muffins" scaled to 13
     recipe = parse_kochheft_text(EXPORT.replace("Portionen: 4", "Portionen: 13 Muffins"))

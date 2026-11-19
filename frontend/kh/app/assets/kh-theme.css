@@ -21,3 +21,17 @@
   padding: 0 4px;
   white-space: nowrap;
 }
+
+/* KH: the simple view (D79): larger writing everywhere (Vuetify sizes in rem) and one size bigger buttons and chips */
+html.kh-simple {
+  font-size: 112%;
+}
+
+html.kh-simple .v-btn--size-small {
+  --v-btn-size: 0.875rem;
+  min-height: 40px;
+}
+
+html.kh-simple .v-chip--size-default {
+  --v-chip-height: 36px;
+}

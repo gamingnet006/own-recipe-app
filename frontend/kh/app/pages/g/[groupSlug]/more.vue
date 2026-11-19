@@ -8,81 +8,101 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
       </template>
     </BasePageTitle>
 
-    <section v-for="section in sections" :key="section.title" class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t(section.title) }}
-      </h2>
-      <v-list rounded="lg" class="py-0">
-        <v-list-item
-          v-for="target in section.targets"
-          :key="target.key"
-          :to="target.to"
-          :prepend-icon="icon(target.icon)"
-          :title="$t(target.title)"
-        />
-      </v-list>
-    </section>
+    <!-- KH: the order and the fold of the sections follow the simple view (D79) -->
+    <template v-for="key in shown" :key="key">
+      <section v-if="key === 'plan' || key === 'collection'" class="mb-4">
+        <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+          {{ $t(key === "plan" ? "kh.nav.plan" : "kh.nav.collection") }}
+        </h2>
+        <v-list rounded="lg" class="py-0">
+          <v-list-item
+            v-for="target in lists[key]"
+            :key="target.key"
+            :to="target.to"
+            :prepend-icon="icon(target.icon)"
+            :title="$t(target.title)"
+          />
+        </v-list>
+      </section>
 
-    <section class="mb-4">
-      <v-list rounded="lg" class="py-0">
-        <v-list-item
-          v-for="target in settingsRow"
-          :key="target.key"
-          :to="target.to"
-          :prepend-icon="icon(target.icon)"
-          :title="$t(target.title)"
-        />
-      </v-list>
-    </section>
+      <section v-else-if="key === 'settings'" class="mb-4">
+        <v-list rounded="lg" class="py-0">
+          <v-list-item
+            v-for="target in lists.settings"
+            :key="target.key"
+            :to="target.to"
+            :prepend-icon="icon(target.icon)"
+            :title="$t(target.title)"
+          />
+        </v-list>
+      </section>
 
-    <section class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.nav.help") }}
-      </h2>
-      <v-list rounded="lg" class="py-0">
-        <v-list-item :prepend-icon="$globals.icons.wave" :title="$t('kh.tour.view')" @click="tourOpen = true" />
-        <!-- KH: setup page and all news (D68, D69) -->
-        <v-list-item :prepend-icon="$globals.icons.cellphone" :title="$t('kh.setup.title')" :to="SETUP_PATH" />
-        <v-list-item :prepend-icon="$globals.icons.star" :title="$t('kh.news.menu')" @click="newsOpen = true" />
-        <v-list-item
-          v-for="target in help"
-          :key="target.key"
-          :to="target.to"
-          :prepend-icon="icon(target.icon)"
-          :title="$t(target.title)"
-        />
-      </v-list>
-    </section>
+      <section v-else-if="key === 'help'" class="mb-4">
+        <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+          {{ $t("kh.nav.help") }}
+        </h2>
+        <v-list rounded="lg" class="py-0">
+          <v-list-item :prepend-icon="$globals.icons.wave" :title="$t('kh.tour.view')" @click="tourOpen = true" />
+          <!-- KH: setup page and all news (D68, D69) -->
+          <v-list-item :prepend-icon="$globals.icons.cellphone" :title="$t('kh.setup.title')" :to="SETUP_PATH" />
+          <v-list-item :prepend-icon="$globals.icons.star" :title="$t('kh.news.menu')" @click="newsOpen = true" />
+          <v-list-item
+            v-for="target in lists.help"
+            :key="target.key"
+            :to="target.to"
+            :prepend-icon="icon(target.icon)"
+            :title="$t(target.title)"
+          />
+        </v-list>
+      </section>
 
-    <section class="mb-4">
-      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
-        {{ $t("kh.nav.account") }}
-      </h2>
-      <v-list rounded="lg" class="py-0">
-        <v-list-item
-          :prepend-icon="$globals.icons.translate"
-          :title="$t('sidebar.language')"
-          @click="languageDialog = true"
-        />
-        <v-list-item
-          :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight"
-          :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')"
-          @click="toggleDark"
-        />
-        <v-list-item
-          :prepend-icon="$globals.icons.logout"
-          :title="$t('user.logout')"
-          @click="logout"
-        />
-        <!-- KH: the recipes stay in the family (D78) -->
-        <v-list-item
-          :prepend-icon="$globals.icons.delete"
-          :title="$t('kh.account-delete.entry')"
-          base-color="error"
-          @click="deleteOpen = true"
-        />
-      </v-list>
-    </section>
+      <section v-else class="mb-4">
+        <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+          {{ $t("kh.nav.account") }}
+        </h2>
+        <v-list rounded="lg" class="py-0">
+          <!-- KH: the simple view (D79) -->
+          <v-list-item :title="$t('kh.simple.title')" :subtitle="$t('kh.simple.text')">
+            <template #append>
+              <v-switch
+                :model-value="khSidebar.simple"
+                :aria-label="$t('kh.simple.title')"
+                color="primary"
+                hide-details
+                density="compact"
+                @update:model-value="saveKhSimple(!!$event)"
+              />
+            </template>
+          </v-list-item>
+          <v-list-item
+            :prepend-icon="$globals.icons.translate"
+            :title="$t('sidebar.language')"
+            @click="languageDialog = true"
+          />
+          <v-list-item
+            :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight"
+            :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')"
+            @click="toggleDark"
+          />
+          <v-list-item
+            :prepend-icon="$globals.icons.logout"
+            :title="$t('user.logout')"
+            @click="logout"
+          />
+          <!-- KH: the recipes stay in the family (D78) -->
+          <v-list-item
+            :prepend-icon="$globals.icons.delete"
+            :title="$t('kh.account-delete.entry')"
+            base-color="error"
+            @click="deleteOpen = true"
+          />
+        </v-list>
+      </section>
+    </template>
+
+    <v-btn v-if="layout.folded.length && !showFolded" block variant="tonal" class="mb-4" @click="showFolded = true">
+      {{ $t("kh.simple.show-more") }}
+    </v-btn>
 
     <p class="text-center text-body-2 text-medium-emphasis">
       {{ $appInfo.brandingName }} ·
@@ -98,8 +118,9 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
 </template>
 
 <script setup lang="ts">
-import { moreSections } from "~~/kh/app/composables/use-kh-navigation";
+import { moreLayout, moreSections } from "~~/kh/app/composables/use-kh-navigation";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
+import { khSidebar, saveKhSimple } from "~~/kh/app/composables/use-kh-sidebar";
 import { SETUP_PATH } from "~~/kh/app/lib/device-setup";
 import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { alert } from "~/composables/use-toast";
@@ -127,12 +148,9 @@ const newsOpen = ref(false); // all versions any time, without a call to the ser
 const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled));
 
 const lists = computed(() => moreSections(route.params.groupSlug as string, auth.user.value?.id ?? ""));
-const sections = computed(() => [
-  { title: "kh.nav.plan", targets: lists.value.plan },
-  { title: "kh.nav.collection", targets: lists.value.collection },
-]);
-const settingsRow = computed(() => lists.value.settings);
-const help = computed(() => lists.value.help);
+const layout = computed(() => moreLayout(khSidebar.simple));
+const showFolded = ref(false); // "Show more" in the simple view
+const shown = computed(() => [...layout.value.first, ...(showFolded.value ? layout.value.folded : [])]);
 
 /** One of Mealie's icons by its name in the list of destinations. */
 function icon(name: string): string {

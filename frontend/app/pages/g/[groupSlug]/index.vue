@@ -3,6 +3,7 @@
     <KhHouseholdBadge /> <!-- KH: current household, only with linked accounts (D52) -->
     <KhStartDialogs /> <!-- KH: first-sign-in tour (D59), news (D69) or the new-device question (D68), at most one -->
     <KhCookedRows v-if="isOwnGroup" /> <!-- KH: often cooked and not cooked for long (D67), only on the own group's page; above the list, which scrolls on and on -->
+    <KhSeason v-if="isOwnGroup" /> <!-- KH: what is in season now, add-on "season" (D80) -->
     <RecipeExplorerPage />
   </div>
 </template>

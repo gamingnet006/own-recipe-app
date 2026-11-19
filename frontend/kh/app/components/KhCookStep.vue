@@ -26,6 +26,8 @@ timers and two big buttons. Swiping, the arrow keys and the space bar move betwe
         {{ $t("kh.cook.lock-hint") }}
       </v-alert>
 
+      <KhCookNote :recipe-id="recipe.id ?? ''" />
+
       <p v-if="!total" class="text-h6 my-6">
         {{ $t("kh.cook.no-steps") }}
       </p>

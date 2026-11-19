@@ -17,6 +17,7 @@ from mealie.db.models.users.user_to_recipe import UserToRecipe
 from mealie.db.models.users.users import User
 from mealie.kh.accounts.models import KhAccountLink
 from mealie.kh.accounts.removal import ALONE_IN_HOUSEHOLD, LAST_ADMIN, LAST_PERSON, default_heir
+from mealie.kh.notes.models import KhRecipeNote
 from mealie.kh.wishes.models import KhRecipeWish
 from mealie.repos.all_repositories import get_repositories
 from tests import utils
@@ -129,6 +130,16 @@ def fill_account(api_client: TestClient, session: Session, owner: TestUser) -> d
             recipe_id=recipe_id,
         )
     )
+    session.add(
+        KhRecipeNote(
+            session=session,
+            group_id=owner.group_id,
+            household_id=owner._household_id,
+            recipe_id=recipe_id,
+            text="weniger Zucker",
+            updated_by=owner.user_id,
+        )
+    )
     session.commit()
     return {"slug": slug, "recipe_id": recipe_id, "list_id": shopping.json()["id"]}
 
@@ -148,6 +159,7 @@ def rows_of(session: Session, user_id: UUID) -> dict[str, int]:
         "events": count(RecipeTimelineEvent.user_id),
         "favorites": count(UserToRecipe.user_id),
         "wishes": count(KhRecipeWish.user_id),
+        "notes": count(KhRecipeNote.updated_by),
         "user": count(User.id),
     }
 
@@ -174,6 +186,7 @@ def test_admin_delete_hands_everything_to_the_default_heir(
     after = rows_of(session, heir.id)
     gained = {kind: after[kind] - before[kind] for kind in after}
     assert gained | {"favorites": 0, "wishes": 0, "user": 0} == {
+        "notes": 1,
         "recipes": 1,
         "lists": 1,
         "plans": 1,
