@@ -157,6 +157,7 @@ import {
   detectDevice,
   asksForAddressAndKey,
   familyOf,
+  shortcutLink,
   isInstalled,
   canWriteNfc,
   keyName,
@@ -211,9 +212,9 @@ const origin = location.origin;
 const shortcutAddress = welcomeAddress($khFeatures.baseUrl, origin); // KH: the configured address, which the shortcuts ask for (D85)
 const settingsPath = computed(() => `/g/${auth.user.value?.groupSlug ?? ""}/einstellungen`); // KH: the timer switch sits there (D76)
 
-/** The ready-made shortcut's iCloud link for the import or Siri section, null while none is set. */
+/** The ready-made shortcut's iCloud link for this section on this device, null where there is none. */
 function shortcutUrl(id: KhSetupSection): string | null {
-  return id === "import" ? $khFeatures.importShortcutUrl : id === "siri" ? $khFeatures.siriShortcutUrl : null;
+  return shortcutLink(id, family.value, $khFeatures);
 }
 
 // Ticks stay on this device, per person; storage that is blocked or broken just means nothing is ticked

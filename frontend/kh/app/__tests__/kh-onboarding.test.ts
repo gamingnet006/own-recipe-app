@@ -97,6 +97,32 @@ describe("useKhOnboarding", () => {
   });
 });
 
+describe("introduceFirstAdmin", () => {
+  test("the admin of a new installation gets the tour and no news, and the cached status is read again", async () => {
+    postMock.mockResolvedValue({ data: null });
+    getMock.mockResolvedValue({ data: { ...status(false, false), tour: true, newsSeen: "1.4" } });
+    khOnboarding.status = status(false, false);
+    await useKhOnboarding().introduceFirstAdmin("admin-id", "1.4", "fb");
+    expect(postMock).toHaveBeenCalledWith("/api/kh/admin/onboarding/admin-id/tour", { tour: true }, { suppressAlert: true });
+    expect(postMock).toHaveBeenCalledWith("/api/kh/onboarding/news-seen", { version: "1.4" }, { suppressAlert: true });
+    expect(khOnboarding.status?.tour).toBe(true);
+  });
+
+  test("the two writes go one after the other, because both may create the person's first onboarding row", async () => {
+    let open = 0;
+    let most = 0;
+    postMock.mockImplementation(async () => {
+      most = Math.max(most, ++open);
+      await new Promise(resolve => setTimeout(resolve, 1));
+      open--;
+      return { data: null };
+    });
+    getMock.mockResolvedValue({ data: status(false, false) });
+    await useKhOnboarding().introduceFirstAdmin("admin-id", "1.4", "fb");
+    expect(most).toBe(1);
+  });
+});
+
 describe("route guard", () => {
   test("forgets the status when nobody is signed in any more", async () => {
     vi.stubGlobal("defineNuxtRouteMiddleware", (fn: unknown) => fn);

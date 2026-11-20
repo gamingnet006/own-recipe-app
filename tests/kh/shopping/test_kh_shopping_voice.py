@@ -127,11 +127,19 @@ def test_an_api_token_may_add(api_client: TestClient, unique_user: TestUser, lis
     assert response.json()["message"] == "Quark steht auf der Liste Aldi."
 
 
-def test_without_a_list_the_answer_is_404(api_client: TestClient, g2_user: TestUser):
-    response = api_client.post(ADD, json={"text": "Quark"}, headers=g2_user.token)
-    body = response.json()
-    assert (response.status_code, body["detail"]["message"]) == (404, "Es gibt noch keine Einkaufsliste.")
-    assert body["message"] == "Es gibt noch keine Einkaufsliste."
+def test_without_any_list_one_is_made(api_client: TestClient, unique_user: TestUser):
+    """A new family says "Hey Siri" before anyone made a list: Kochheft makes "Einkaufsliste" instead of failing."""
+    response = api_client.post(ADD, json={"text": "Quark"}, headers=unique_user.token)
+    assert (response.status_code, response.json()["message"]) == (200, "Quark steht auf der Liste Einkaufsliste.")
+    made = api_client.get(api_routes.households_shopping_lists, headers=unique_user.token).json()["items"]
+    assert [entry["name"] for entry in made] == ["Einkaufsliste"]
+    assert [item["food"]["name"] for item in items_of(api_client, unique_user, made[0]["id"])] == ["Quark"]
+
+
+def test_a_named_list_is_not_made(api_client: TestClient, unique_user: TestUser):
+    """Only the plain "Auf die Einkaufsliste" makes the first list; a list asked for by name must exist."""
+    response = api_client.post(ADD, json={"text": "Quark", "list": "Lidl"}, headers=unique_user.token)
+    assert (response.status_code, response.json()["message"]) == (404, "Die Liste Lidl gibt es nicht.")
 
 
 def test_a_text_without_an_article_is_422(api_client: TestClient, unique_user: TestUser, lists):

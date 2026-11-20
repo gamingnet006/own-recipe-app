@@ -16,6 +16,7 @@ import {
   shoppingUrl,
   parseDone,
   asksForAddressAndKey,
+  shortcutLink,
   setupSections,
   shouldAskDevice,
   withDone,
@@ -160,5 +161,27 @@ describe("asksForAddressAndKey", () => {
     expect(asksForAddressAndKey("siri", "mac")).toBe(true);
     expect(asksForAddressAndKey("import", "android")).toBe(false);
     expect(asksForAddressAndKey("key", "ios")).toBe(false);
+  });
+});
+
+describe("shortcutLink", () => {
+  const links = { importShortcutUrl: "https://www.icloud.com/shortcuts/i", siriShortcutUrl: "https://www.icloud.com/shortcuts/s" };
+  it("gives the ready-made link on Apple devices only: Android imports through its own share menu", () => {
+    expect(shortcutLink("import", "ios", links)).toBe(links.importShortcutUrl);
+    expect(shortcutLink("siri", "mac", links)).toBe(links.siriShortcutUrl);
+    expect(shortcutLink("import", "android", links)).toBeNull();
+    expect(shortcutLink("key", "ios", links)).toBeNull();
+    expect(shortcutLink("import", "ios", { importShortcutUrl: null, siriShortcutUrl: null })).toBeNull();
+  });
+});
+
+describe("the key step names the key button", () => {
+  it("quotes the button text where a step tells you to tap it", () => {
+    for (const texts of [khTexts, khTextsDe]) {
+      const key = texts.kh.setup.key as Record<string, unknown> & { create: string };
+      for (const family of ["ios", "android", "computer"]) {
+        expect((key[family] as { s1: string }).s1).toContain(key.create);
+      }
+    }
   });
 });

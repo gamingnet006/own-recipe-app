@@ -12,10 +12,13 @@ from mealie.kh.shopping.voice import add_to_list, pick_list, split_store, spoken
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
+from mealie.schema.household.group_shopping_list import ShoppingListCreate
 from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut, IngredientUnitOut
 from mealie.schema.response import ErrorResponse
+from mealie.services.household_services.shopping_lists import ShoppingListService
 
 router = UserAPIRouter(prefix="/shopping")
+FIRST_LIST_NAME = "Einkaufsliste"
 
 
 @controller(router)
@@ -43,15 +46,21 @@ class KhShoppingController(BaseUserController):
         """Puts the articles in a said or typed text ("Milch und 2 Butter") on the named list or the household list
         updated last (D64, for the Siri Shortcut, which signs in with an API key); a store at the end of the text
         ("... bei Rewe") picks the list when it matches one (D87). An open article gets the amount,
-        a ticked-off one is put back. 404 without a list, 422 when no article is understood."""
+        a ticked-off one is put back. Without any list the first one is made; 404 for an unknown list name, 422
+        when no article is understood."""
         lists = self.repos.group_shopping_lists.get_all()
         text, list_name = data.text, data.list
         if not list_name:  # D87: the store said ("bei Rewe") picks the list; a list given explicitly wins
             text, list_name = split_store(text, [entry.name or "" for entry in lists])
         shopping_list = pick_list(lists, list_name)
+        if shopping_list is None and not lists and not data.list:  # a new family's first "Hey Siri" makes the list
+            shopping_list = ShoppingListService(self.repos).create_one_list(
+                ShoppingListCreate(name=FIRST_LIST_NAME), self.user.id
+            )
         if shopping_list is None:
-            message = "Es gibt noch keine Einkaufsliste." if not data.list else f"Die Liste {data.list} gibt es nicht."
-            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(message))
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND, ErrorResponse.respond(f"Die Liste {data.list} gibt es nicht.")
+            )
         group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
         try:
             names = add_to_list(self.repos, group_repos, shopping_list, text)

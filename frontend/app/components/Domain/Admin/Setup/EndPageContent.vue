@@ -6,7 +6,7 @@
           {{ $t('admin.setup.setup-complete') }}
         </v-card-title>
         <v-card-subtitle class="justify-center">
-          {{ $t('admin.setup.here-are-a-few-things-to-help-you-get-started') }}
+          {{ $t('kh.wizard.end.intro') }} <!-- KH: own name (D83) -->
         </v-card-subtitle>
       </div>
       <KhSetupEnd /> <!-- KH: set up this device, notifications (D83) -->
@@ -77,7 +77,7 @@ const sections = ref([
         icon: $globals.icons.link,
         to: computed(() => `/g/${groupSlug.value || ""}/r/create/url`),
         text: i18n.t("recipe.import-with-url"),
-        description: i18n.t("recipe.scrape-recipe-description"),
+        description: i18n.t("kh.wizard.end.import-url"), // KH: own name (D83)
       },
     ],
   },

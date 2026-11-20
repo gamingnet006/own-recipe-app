@@ -14,13 +14,13 @@
         dark
       >
         <v-toolbar-title class="headline text-h4 text-center mx-0">
-          Mealie
+          Kochheft <!-- KH: own name (D83) -->
         </v-toolbar-title>
       </v-toolbar>
 
       <!-- Stepper Wizard -->
-      <!-- KH: nine steps need the short header up to 960 px (D83) -->
-      <v-stepper v-model="currentPage" mobile-breakpoint="md" alt-labels>
+      <!-- KH: nine steps need the short header up to 1280 px (D83) -->
+      <v-stepper v-model="currentPage" mobile-breakpoint="lg" alt-labels>
         <v-stepper-header>
           <v-stepper-item
             :value="Pages.LANDING"
@@ -95,10 +95,10 @@
             <v-container class="mb-12">
               <AppLogo />
               <v-card-title class="text-headline-medium my-5 justify-center text-center text-break text-pre-wrap">
-                {{ $t('admin.setup.welcome-to-mealie-get-started') }}
+                {{ $t('kh.wizard.welcome') }} <!-- KH: own name (D83) -->
               </v-card-title>
               <p class="text-body-1 text-center">
-                {{ $t('admin.setup.previous-mealie-instance') }}
+                {{ $t('kh.wizard.previous') }} <!-- KH: own name (D83) -->
               </p>
               <v-btn
                 to="backups"
@@ -354,6 +354,8 @@ import { khFamily, pendingCount, resetKhFamily } from "~~/kh/app/composables/use
 import { useKhSetupSummary } from "~~/kh/app/composables/use-kh-setup-summary"; // KH: D83
 import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: D83
 import { isRerun, seedTasks } from "~~/kh/app/lib/setup-wizard"; // KH: D83
+import { useKhOnboarding } from "~~/kh/app/composables/use-kh-onboarding"; // KH: D83
+import { WHATS_NEW } from "~~/kh/app/lib/whats-new"; // KH: D83
 
 definePageMeta({
   layout: "blank",
@@ -657,6 +659,8 @@ async function submitAll() {
   // Not part of the parallel batch: changing the password invalidates the session and establishes a
   // new one, and any request landing in that window would 401 and bounce the admin out of setup.
   if (!rerun) await submitRegistration(); // KH: the account stays as it is when the wizard is opened again (D83)
+  // KH: after the new token is set; the first admin gets the tour instead of the news (D83)
+  if (!rerun && auth.user.value) await useKhOnboarding().introduceFirstAdmin(auth.user.value.id, WHATS_NEW[0]!.version, i18n.t("events.something-went-wrong"));
 
   const tasks = [
     submitCommonSettings(),

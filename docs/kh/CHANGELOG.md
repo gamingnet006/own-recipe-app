@@ -6,6 +6,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- First run checked on a fresh install: the admin gets the tour after the setup wizard instead of the "New in
+  Kochheft" cards; the wizard says Kochheft instead of Mealie and keeps its short header up to 1280 px.
+- Siri: the first "Auf die Einkaufsliste" of a new family makes the list "Einkaufsliste" instead of answering
+  "Es gibt noch keine Einkaufsliste"; a list asked for by name still has to exist.
+- Phone setup: Android no longer shows the Apple share shortcut (Kochheft is in Android's own share menu), and the
+  key step names the button as it is labelled ("Schlüssel erstellen").
+
 ## [v1.4.2] - 2026-11-20
 
 - The share-import and Siri shortcuts are built in like the clock timer: "Add shortcut" works on every install;

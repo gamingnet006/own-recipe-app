@@ -66,5 +66,16 @@ export function useKhOnboarding(i18n?: Composer) {
     if (error) alert.error(failureText(error, fallback));
   }
 
-  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour, finishNews };
+  /** The admin who just finished the first setup is new to Kochheft too: the tour at the start page instead of news
+   * about versions they never knew (D83). Failures are reported; the status is read again either way. */
+  async function introduceFirstAdmin(userId: string, newsVersion: string, fallback: string): Promise<void> {
+    // one after the other: each may create the person's first onboarding row, and two at once collide
+    const tour = await api().setTour(userId, true);
+    const news = await api().newsSeen(newsVersion);
+    const error = tour.error ?? news.error;
+    if (error) alert.error(failureText(error, fallback));
+    await refresh();
+  }
+
+  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour, finishNews, introduceFirstAdmin };
 }

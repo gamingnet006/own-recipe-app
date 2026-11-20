@@ -941,13 +941,13 @@
         "one-each": "Du kannst für jeden Kurzbefehl einen eigenen Schlüssel nehmen; dann kannst du einen einzeln löschen, ohne die anderen zu ändern.",
         "ios": {
           "title": "Schlüssel für Kurzbefehle",
-          "s1": "Tippe auf „Schlüssel für dieses Gerät erstellen“.",
+          "s1": "Tippe auf „Schlüssel erstellen“.",
           "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
           "s3": "Füg ihn beim Hinzufügen eines Kurzbefehls ein, wenn das Gerät danach fragt."
         },
         "android": {
           "title": "Schlüssel für Kurzbefehle",
-          "s1": "Tippe auf „Schlüssel für dieses Gerät erstellen“.",
+          "s1": "Tippe auf „Schlüssel erstellen“.",
           "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
           "s3": "Du brauchst ihn nur für Apps und Automationen, die auf Kochheft zugreifen."
         },
@@ -959,7 +959,7 @@
         },
         "computer": {
           "title": "Schlüssel für Kurzbefehle",
-          "s1": "Klick auf „Schlüssel für dieses Gerät erstellen“.",
+          "s1": "Klick auf „Schlüssel erstellen“.",
           "s2": "Kopiere den Schlüssel gleich, er ist nur jetzt sichtbar.",
           "s3": "Du brauchst ihn nur für Programme und Automationen, die auf Kochheft zugreifen."
         }
@@ -1204,8 +1204,13 @@
       },
       "end": {
         "device": "Dieses Gerät einrichten",
-        "notifications": "Mitteilungen"
-      }
+        "notifications": "Mitteilungen",
+        "intro": "Damit kommst du gut mit Kochheft los",
+        "import-url": "Gib die Adresse einer Rezeptseite an. Kochheft liest das Rezept dort ein und legt es in eure Sammlung."
+      },
+      "welcome": "Willkommen bei Kochheft! Lass uns loslegen",
+      "previous": "Hast du schon ein Backup von Kochheft oder Mealie?",
+      "seed-hint": "Kochheft legt deutsche Lebensmittel, Einheiten und Abteilungen an, damit die Einkaufsliste nach Abteilungen sortiert. Du kannst sie später jederzeit ändern oder ergänzen."
     }
   }
 }

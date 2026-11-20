@@ -73,6 +73,17 @@ export function allStepKeys(): string[] {
 export function asksForAddressAndKey(id: KhSetupSection, family: KhFamily): boolean {
   return (id === "import" || id === "siri") && family !== "android";
 }
+/** The ready-made shortcut's iCloud link for the import or Siri section, null where there is none: on Android the import
+ * is the app's own share target, so the Apple shortcut would only mislead. */
+export function shortcutLink(
+  id: KhSetupSection,
+  family: KhFamily,
+  links: { importShortcutUrl: string | null; siriShortcutUrl: string | null },
+): string | null {
+  if (family === "android") return null;
+  return id === "import" ? links.importShortcutUrl : id === "siri" ? links.siriShortcutUrl : null;
+}
+
 /** Whether the app runs installed (home screen or Dock) and not in a browser tab. */
 export function isInstalled(standaloneMedia: boolean, navigatorStandalone: boolean | undefined): boolean {
   return standaloneMedia || navigatorStandalone === true;

@@ -941,13 +941,13 @@
         "one-each": "You can use a separate key for each shortcut; then you can delete one without touching the others.",
         "ios": {
           "title": "Key for shortcuts",
-          "s1": "Tap “Create a key for this device”.",
+          "s1": "Tap “Create key”.",
           "s2": "Copy the key right away, it is only visible now.",
           "s3": "Paste it when you add a shortcut and the device asks for it."
         },
         "android": {
           "title": "Key for shortcuts",
-          "s1": "Tap “Create a key for this device”.",
+          "s1": "Tap “Create key”.",
           "s2": "Copy the key right away, it is only visible now.",
           "s3": "You only need it for apps and automations that reach Kochheft."
         },
@@ -959,7 +959,7 @@
         },
         "computer": {
           "title": "Key for shortcuts",
-          "s1": "Click “Create a key for this device”.",
+          "s1": "Click “Create key”.",
           "s2": "Copy the key right away, it is only visible now.",
           "s3": "You only need it for programs and automations that reach Kochheft."
         }
@@ -1204,8 +1204,13 @@
       },
       "end": {
         "device": "Set up this device",
-        "notifications": "Notifications"
-      }
+        "notifications": "Notifications",
+        "intro": "These help you get going with Kochheft",
+        "import-url": "Enter the address of a recipe page. Kochheft reads the recipe there and adds it to your collection."
+      },
+      "welcome": "Welcome to Kochheft! Let’s get started",
+      "previous": "Do you already have a backup of Kochheft or Mealie?",
+      "seed-hint": "Kochheft adds foods, units and departments, so the shopping list is sorted by department. You can change or add to them at any time."
     }
   }
 }
