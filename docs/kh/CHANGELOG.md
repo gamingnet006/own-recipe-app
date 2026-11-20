@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.4.2] - 2026-11-20
+
 - The share-import and Siri shortcuts are built in like the clock timer: "Add shortcut" works on every install;
   both ask for address and key when added.
 
