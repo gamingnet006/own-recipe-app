@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.4.3] - 2026-11-20
+
 - First run checked on a fresh install: the admin gets the tour after the setup wizard instead of the "New in
   Kochheft" cards; the wizard says Kochheft instead of Mealie and keeps its short header up to 1280 px.
 - Siri: the first "Auf die Einkaufsliste" of a new family makes the list "Einkaufsliste" instead of answering
