@@ -860,8 +860,9 @@
       "start": "Set up now",
       "done": "Done",
       "add-shortcut": "Add shortcut",
-      "asks-for": "While adding it, the device asks once for the address and the key. The address of your Kochheft is:",
-      "address": "Address of Kochheft",
+      "asks-for": "While adding it, the device asks for two things:",
+      "address": "Address",
+      "copy": "Copy",
       "devices": {
         "iphone": "iPhone",
         "ipad": "iPad",
@@ -933,9 +934,11 @@
         }
       },
       "key": {
-        "make": "Create a key for this device",
-        "copy": "Copy key",
-        "once": "Only visible now. If the phone is lost, delete the key under Profile → API tokens.",
+        "label": "Your key",
+        "create": "Create key",
+        "once": "The key is only visible while this page is open. Kochheft deliberately does not store it in readable form, so nobody can read it from the server. If you need it again later, just create a new one; delete old ones under Profile → API tokens.",
+        "another": "Create another key",
+        "one-each": "You can use a separate key for each shortcut; then you can delete one without touching the others.",
         "ios": {
           "title": "Key for shortcuts",
           "s1": "Tap “Create a key for this device”.",

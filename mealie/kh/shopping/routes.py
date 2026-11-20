@@ -8,7 +8,7 @@ from mealie.kh.notifications.events import notify_items_added
 from mealie.kh.shopping.on_hand import set_on_hand
 from mealie.kh.shopping.schemas import AddByVoiceIn, AddByVoiceOut, EnsureFoodIn, EnsureUnitIn, OnHandIn
 from mealie.kh.shopping.service import ensure_food, ensure_unit
-from mealie.kh.shopping.voice import add_to_list, pick_list, spoken_confirmation
+from mealie.kh.shopping.voice import add_to_list, pick_list, split_store, spoken_confirmation
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -41,15 +41,20 @@ class KhShoppingController(BaseUserController):
     @router.post("/add", response_model=AddByVoiceOut)
     def add(self, data: AddByVoiceIn) -> AddByVoiceOut:
         """Puts the articles in a said or typed text ("Milch und 2 Butter") on the named list or the household list
-        updated last (D64, for the Siri Shortcut, which signs in with an API key). An open article gets the amount,
+        updated last (D64, for the Siri Shortcut, which signs in with an API key); a store at the end of the text
+        ("... bei Rewe") picks the list when it matches one (D87). An open article gets the amount,
         a ticked-off one is put back. 404 without a list, 422 when no article is understood."""
-        shopping_list = pick_list(self.repos.group_shopping_lists.get_all(), data.list)
+        lists = self.repos.group_shopping_lists.get_all()
+        text, list_name = data.text, data.list
+        if not list_name:  # D87: the store said ("bei Rewe") picks the list; a list given explicitly wins
+            text, list_name = split_store(text, [entry.name or "" for entry in lists])
+        shopping_list = pick_list(lists, list_name)
         if shopping_list is None:
             message = "Es gibt noch keine Einkaufsliste." if not data.list else f"Die Liste {data.list} gibt es nicht."
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(message))
         group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
         try:
-            names = add_to_list(self.repos, group_repos, shopping_list, data.text)
+            names = add_to_list(self.repos, group_repos, shopping_list, text)
         except ValueError:
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("Ich habe keinen Artikel verstanden.")

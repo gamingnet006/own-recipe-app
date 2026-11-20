@@ -68,15 +68,20 @@ export function allStepKeys(): string[] {
       Array.from({ length: count }, (_, i) => `${id}.${family}.s${i + 1}`)));
 }
 
+/** Whether the shortcut of this section asks for the address and the key (D86): import and Siri on Apple devices, with or
+ * without a ready-made link; the Android import is a share target and asks for nothing. */
+export function asksForAddressAndKey(id: KhSetupSection, family: KhFamily): boolean {
+  return (id === "import" || id === "siri") && family !== "android";
+}
 /** Whether the app runs installed (home screen or Dock) and not in a browser tab. */
 export function isInstalled(standaloneMedia: boolean, navigatorStandalone: boolean | undefined): boolean {
   return standaloneMedia || navigatorStandalone === true;
 }
 
-/** Name of the API key made on this device, e.g. "Kurzbefehle iPhone 2026-11-19". */
-export function keyName(device: KhDevice, date: Date): string {
+/** Name of the API key made on this device, e.g. "Kurzbefehle iPhone 2026-11-19"; the 2nd and later get " (2)" and so on. */
+export function keyName(device: KhDevice, date: Date, count = 1): string {
   const label = { iphone: "iPhone", ipad: "iPad", android: "Android", mac: "Mac", computer: "Computer" }[device];
-  return `Kurzbefehle ${label} ${date.toISOString().slice(0, 10)}`;
+  return `Kurzbefehle ${label} ${date.toISOString().slice(0, 10)}${count > 1 ? ` (${count})` : ""}`;
 }
 
 /** The sections ticked off, from the stored text; anything broken counts as nothing ticked. */

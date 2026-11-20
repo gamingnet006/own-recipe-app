@@ -29,6 +29,34 @@ def split_articles(text: str) -> list[str]:
     return [part.strip() for part in ARTICLE_SEPARATOR.split(text) if part.strip()]
 
 
+# "bei Rewe", "für Aldi", "auf die dm-Liste" at the end; trailing punctuation is ignored
+STORE_TAIL = re.compile(
+    r"\s+(?:bei|für|auf|in|zu)(?:\s+(?:die|der|den|dem))?\s+(?P<name>.+?)(?:\s+Liste|-Liste)?[\s.!?,;]*$", re.IGNORECASE
+)
+
+
+def _list_key(name: str) -> str:
+    """A list name for comparing: lower case, without a "Liste" or "-Liste" at the end."""
+    return re.sub(r"[\s-]*liste$", "", name.strip().casefold())
+
+
+def split_store(text: str, list_names: list[str]) -> tuple[str, str | None]:
+    """Finds the store said at the end of TEXT ("Milch bei Rewe") when it names one of LIST_NAMES: returns the text
+    without that tail and the list's name. The exact name wins over a longer one ("Rewe" before "Rewe City"), else a
+    unique prefix is taken ("Rossmann" for "Rossmann Innenstadt"). Anything else ("Kaffee für Gäste") stays as said."""
+    position = 0
+    while match := STORE_TAIL.search(text, position):
+        rest, spoken = text[: match.start()].strip(), _list_key(match["name"])
+        keys = {name: _list_key(name) for name in list_names}
+        found = [name for name, key in keys.items() if key == spoken] or [
+            name for name, key in keys.items() if spoken and key.startswith(f"{spoken} ")
+        ]
+        if rest and len(found) == 1:
+            return rest, found[0]
+        position = match.start() + 1  # the tail may start at a later preposition ("Milch für Oma bei Rewe")
+    return text, None
+
+
 def pick_list(lists: list[ShoppingListOut], name: str | None) -> ShoppingListOut | None:
     """The list called NAME (ignoring case), else the one updated most recently; None when there is none (or when
     NAME is given and no list has it)."""

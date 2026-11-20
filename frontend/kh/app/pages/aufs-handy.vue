@@ -1,6 +1,6 @@
 <!-- KH: "Kochheft einrichten" (D68): per device a few cards with short steps to get the app onto the home screen or
 the Dock, the shopping list as an own icon, a key for the shortcuts, and the shortcuts themselves. Each card can be
-ticked off; the ticks stay on this device. The key is shown once and never stored. -->
+ticked off; the ticks stay on this device. The key is shown once and never stored; it is shared by every section of the page (D86). -->
 <template>
   <v-container class="narrow-container">
     <BasePageTitle divider>
@@ -87,44 +87,33 @@ ticked off; the ticks stay on this device. The key is shown once and never store
           </p>
         </template>
 
-        <template v-if="section.id === 'key'">
-          <v-btn color="primary" size="large" :loading="making" class="mt-3" @click="makeKey">
-            {{ $t("kh.setup.key.make") }}
-          </v-btn>
-          <v-alert v-if="madeKey" type="warning" variant="tonal" class="mt-3">
-            <p class="font-weight-bold text-break">
-              {{ madeKey }}
-            </p>
-            <v-btn variant="tonal" size="large" :prepend-icon="$globals.icons.contentCopy" class="my-2" @click="copyText(madeKey)">
-              {{ $t("kh.setup.key.copy") }}
-            </v-btn>
-            <p class="text-body-2">
-              {{ $t("kh.setup.key.once") }}
-            </p>
-          </v-alert>
-        </template>
+        <KhSetupKeys
+          v-if="section.id === 'key'"
+          primary
+          :keys="madeKeys"
+          :making="making"
+          class="mt-3"
+          @make="makeKey"
+        />
 
-        <template v-if="(section.id === 'import' || section.id === 'siri') && shortcutUrl(section.id)">
-          <v-btn
-            :href="shortcutUrl(section.id)!"
-            target="_blank"
-            rel="noopener"
-            color="primary"
-            size="large"
-            class="mt-3"
-          >
-            {{ $t("kh.setup.add-shortcut") }}
-          </v-btn>
-          <p class="text-body-2 mt-3 mb-1">
+        <v-btn
+          v-if="(section.id === 'import' || section.id === 'siri') && shortcutUrl(section.id)"
+          :href="shortcutUrl(section.id)!"
+          target="_blank"
+          rel="noopener"
+          color="primary"
+          size="large"
+          class="mt-3"
+        >
+          {{ $t("kh.setup.add-shortcut") }}
+        </v-btn>
+        <!-- D86: what the shortcut asks for, with or without the ready-made link; the keys made anywhere on this page show here too -->
+        <template v-if="asksForAddressAndKey(section.id, family)">
+          <p class="text-body-2 mt-3 mb-2">
             {{ $t("kh.setup.asks-for") }}
           </p>
-          <v-text-field :model-value="shortcutAddress" readonly density="compact" hide-details :label="$t('kh.setup.address')">
-            <template #append-inner>
-              <v-btn icon variant="text" :aria-label="$t('kh.setup.key.copy')" @click="copyText(shortcutAddress)">
-                <v-icon :icon="$globals.icons.contentCopy" />
-              </v-btn>
-            </template>
-          </v-text-field>
+          <KhCopyField :label="$t('kh.setup.address')" :value="shortcutAddress" class="mb-3" />
+          <KhSetupKeys :keys="madeKeys" :making="making" @make="makeKey" />
         </template>
 
         <v-btn v-if="section.id === 'timer'" :to="settingsPath" variant="tonal" size="large" class="mt-3">
@@ -166,6 +155,7 @@ import { khAddons, useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import {
   DEVICES,
   detectDevice,
+  asksForAddressAndKey,
   familyOf,
   isInstalled,
   canWriteNfc,
@@ -179,7 +169,6 @@ import {
   type KhSetupSection,
 } from "~~/kh/app/lib/device-setup";
 import { welcomeAddress } from "~~/kh/app/lib/setup-wizard";
-import { useCopy } from "~/composables/use-copy";
 import { useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 
@@ -191,7 +180,6 @@ const i18n = useI18n();
 const { $globals, $khFeatures } = useNuxtApp();
 const auth = useMealieAuth();
 const api = useUserApi();
-const { copyText } = useCopy();
 const khOn = useKhOn();
 useSeoMeta({ title: i18n.t("kh.setup.title") });
 
@@ -272,20 +260,20 @@ async function writeNfc() {
   }
 }
 
-// The key lives only in this variable: shown once, never stored
-const madeKey = ref("");
+// The keys live only in this variable: shown while the page is open, never stored
+const madeKeys = ref<string[]>([]);
 const making = ref(false);
 
-/** Makes a Mealie API token for this person and device and shows it. */
+/** Makes one more Mealie API token for this person and device and shows it; each gets its own name. */
 async function makeKey() {
   making.value = true;
-  const { data } = await api.users.createAPIToken({ name: keyName(device.value, new Date()) });
+  const { data } = await api.users.createAPIToken({ name: keyName(device.value, new Date(), madeKeys.value.length + 1) });
   making.value = false;
-  if (data) madeKey.value = data.token;
+  if (data) madeKeys.value.push(data.token);
   else alert.error(i18n.t("events.something-went-wrong"));
 }
 onBeforeUnmount(() => {
-  madeKey.value = "";
+  madeKeys.value = [];
 });
 </script>
 

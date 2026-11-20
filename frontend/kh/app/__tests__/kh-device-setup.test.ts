@@ -15,6 +15,7 @@ import {
   printQrSheet,
   shoppingUrl,
   parseDone,
+  asksForAddressAndKey,
   setupSections,
   shouldAskDevice,
   withDone,
@@ -146,4 +147,18 @@ test("isInstalled is true for either way of running as an app", () => {
 
 test("keyName names the device and the day", () => {
   expect(keyName("iphone", new Date("2026-11-19T10:00:00Z"))).toBe("Kurzbefehle iPhone 2026-11-19");
+  expect(keyName("iphone", new Date("2026-11-19T10:00:00Z"), 1)).toBe("Kurzbefehle iPhone 2026-11-19");
+});
+
+test("keyName tells further keys of the same day apart", () => {
+  expect(keyName("mac", new Date("2026-11-19T10:00:00Z"), 2)).toBe("Kurzbefehle Mac 2026-11-19 (2)");
+});
+
+describe("asksForAddressAndKey", () => {
+  it("is true for import and Siri on Apple devices, never on Android or other sections", () => {
+    expect(asksForAddressAndKey("import", "ios")).toBe(true);
+    expect(asksForAddressAndKey("siri", "mac")).toBe(true);
+    expect(asksForAddressAndKey("import", "android")).toBe(false);
+    expect(asksForAddressAndKey("key", "ios")).toBe(false);
+  });
 });

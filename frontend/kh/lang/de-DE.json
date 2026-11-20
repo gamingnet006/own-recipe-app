@@ -860,8 +860,9 @@
       "start": "Jetzt einrichten",
       "done": "Erledigt",
       "add-shortcut": "Kurzbefehl hinzufügen",
-      "asks-for": "Beim Hinzufügen fragt das iPhone einmal nach der Adresse und dem Schlüssel. Die Adresse deines Kochhefts ist:",
-      "address": "Adresse von Kochheft",
+      "asks-for": "Beim Hinzufügen fragt das Gerät nach zwei Dingen:",
+      "address": "Adresse",
+      "copy": "Kopieren",
       "devices": {
         "iphone": "iPhone",
         "ipad": "iPad",
@@ -933,9 +934,11 @@
         }
       },
       "key": {
-        "make": "Schlüssel für dieses Gerät erstellen",
-        "copy": "Schlüssel kopieren",
-        "once": "Nur jetzt sichtbar. Geht das Handy verloren, löschst du den Schlüssel unter Profil → API-Tokens.",
+        "label": "Dein Schlüssel",
+        "create": "Schlüssel erstellen",
+        "once": "Der Schlüssel ist nur sichtbar, solange diese Seite offen ist. Kochheft speichert ihn absichtlich nicht lesbar, damit ihn niemand vom Server auslesen kann. Brauchst du ihn später noch einmal, erstell einfach einen neuen; alte löschst du unter Profil → API-Tokens.",
+        "another": "Weiteren Schlüssel erstellen",
+        "one-each": "Du kannst für jeden Kurzbefehl einen eigenen Schlüssel nehmen; dann kannst du einen einzeln löschen, ohne die anderen zu ändern.",
         "ios": {
           "title": "Schlüssel für Kurzbefehle",
           "s1": "Tippe auf „Schlüssel für dieses Gerät erstellen“.",

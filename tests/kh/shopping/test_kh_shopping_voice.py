@@ -6,7 +6,7 @@ from collections.abc import Callable, Generator
 import pytest
 from fastapi.testclient import TestClient
 
-from mealie.kh.shopping.voice import split_articles, spoken_confirmation
+from mealie.kh.shopping.voice import split_articles, split_store, spoken_confirmation
 from tests.kh.addons.test_kh_addons import addons  # noqa: F401  the add-on switches of unique_user's household
 from tests.kh.drafts.test_kh_drafts_share import device_token
 from tests.utils import api_routes
@@ -47,6 +47,25 @@ def test_the_text_is_split_into_articles(text: str, parts: list[str]):
     assert split_articles(text) == parts
 
 
+@pytest.mark.parametrize(
+    ("text", "names", "expected"),
+    [
+        ("Milch und Butter bei Rewe", ["Rewe", "Aldi"], ("Milch und Butter", "Rewe")),
+        ("2 Liter Milch für Aldi", ["Rewe", "Aldi"], ("2 Liter Milch", "Aldi")),
+        ("Zahnpasta auf die dm-Liste", ["Rewe", "dm"], ("Zahnpasta", "dm")),
+        ("Zahnpasta auf die dm Liste.", ["Rewe", "dm Liste"], ("Zahnpasta", "dm Liste")),
+        ("Brot", ["Rewe"], ("Brot", None)),
+        ("Kaffee für Gäste", ["Rewe"], ("Kaffee für Gäste", None)),
+        ("Milch bei Rewe", ["Rewe", "Rewe City"], ("Milch", "Rewe")),
+        ("Shampoo bei Rossmann", ["Rossmann Innenstadt", "Rewe"], ("Shampoo", "Rossmann Innenstadt")),
+        ("Shampoo bei Rewe", ["Rewe City", "Rewe Nord"], ("Shampoo bei Rewe", None)),
+        ("Kuchen für Oma bei REWE!", ["Rewe"], ("Kuchen für Oma", "Rewe")),
+    ],
+)
+def test_the_store_said_at_the_end_picks_the_list(text: str, names: list[str], expected: tuple[str, str | None]):
+    assert split_store(text, names) == expected
+
+
 def test_the_confirmation_is_a_german_sentence():
     assert spoken_confirmation(["Milch"], "Rewe") == "Milch steht auf der Liste Rewe."
     assert spoken_confirmation(["Milch", "Butter"], "Rewe") == "Milch und Butter stehen auf der Liste Rewe."
@@ -63,6 +82,13 @@ def test_two_articles_land_on_the_list_updated_last(api_client: TestClient, uniq
     assert set(items) == {"Milch", "Butter"}
     assert items["Butter"]["quantity"] == 2
     assert items_of(api_client, unique_user, lists["Rewe"]) == []
+
+
+def test_the_store_said_picks_the_list_but_an_explicit_list_wins(api_client: TestClient, unique_user: TestUser, lists):
+    said = api_client.post(ADD, json={"text": "Milch bei Rewe"}, headers=unique_user.token)
+    assert said.json()["message"] == "Milch steht auf der Liste Rewe."
+    both = api_client.post(ADD, json={"text": "Brot bei Rewe", "list": "Aldi"}, headers=unique_user.token)
+    assert both.json()["message"] == "Brot bei Rewe steht auf der Liste Aldi."
 
 
 def test_the_list_is_found_by_name_ignoring_case(api_client: TestClient, unique_user: TestUser, lists):
