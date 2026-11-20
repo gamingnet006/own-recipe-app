@@ -187,6 +187,7 @@ def test_system_route_lists_every_row(api_client: TestClient, admin_token, data_
     rows = api_client.get(SYSTEM, headers=admin_token).json()
     assert [row["key"] for row in rows] == [
         "version", "database", "disk", "backup", "ai", "profile", "signup", "defaultAccount", "autoUpdate", "nutrition",
+        "address",
         "telegram", "whisper",
     ]  # fmt: skip
     assert {row["state"] for row in rows} <= {"ok", "warn", "bad", "info"}

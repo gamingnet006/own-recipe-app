@@ -4,14 +4,16 @@ response."""
 
 from typing import Annotated
 
-from fastapi import BackgroundTasks, File, Form, Header, UploadFile, status
+from fastapi import BackgroundTasks, File, Form, Header, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import UUID4
 
 from mealie.kh.addons.service import ensure_addon
+from mealie.kh.drafts.file_import import decode_text
 from mealie.kh.drafts.recognize import recognize, recognize_all
 from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut
 from mealie.kh.drafts.service import DraftService
+from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, classify_share
 from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -62,6 +64,47 @@ class KhDraftsController(_DraftsBase):
     def create_from_file(self, tasks: BackgroundTasks, file: UploadFile = File(...)) -> FileImportOut:
         """New drafts from one uploaded .txt, .md or .zip file (D62); what made no draft is named in the answer."""
         result = self.service.create_from_file(file.filename or "", file)
+        tasks.add_task(
+            recognize_all,
+            [draft.id for draft in result.created],
+            user=self.user,
+            household=self.household,
+            translator=self.translator,
+        )
+        return result
+
+    @staticmethod
+    def _share_refused(code: str, message: str) -> HTTPException:
+        """422 whose sentence is in the answer, because the shortcut shows it as it is; no page translates it."""
+        return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail={"code": code, "message": message})
+
+    @router.post("/share", status_code=status.HTTP_201_CREATED, response_model=FileImportOut)
+    def create_from_share(
+        self,
+        tasks: BackgroundTasks,
+        file: UploadFile | None = File(default=None),
+        text: Annotated[str | None, Form()] = None,
+        url: Annotated[str | None, Form()] = None,
+    ) -> FileImportOut:
+        """New draft(s) from whatever the iOS share shortcut sent (D84): a photo, PDF, text file or ZIP, a text or
+        one or more links; Kochheft decides what it is (classify_share)."""
+        head, file_text = b"", None
+        if file:
+            head = file.file.read(SNIFF_BYTES)
+            file.file.seek(0)
+            if text and file.filename and file.filename.lower().endswith((".txt", ".md")):
+                # the text field is compared with the file's content (Shortcuts sends a text as both)
+                file_text = decode_text(file.file.read(4 * get_kh_settings().draft_max_text))
+                file.file.seek(0)
+        decision = classify_share(file.filename or "" if file else None, head, text, url, file_text)
+        if decision is None:
+            raise self._share_refused("nothing_usable", "Damit kann Kochheft nichts anfangen.")
+        result = self.service.create_shared(decision, file)
+        if not result.created:  # all skipped: the shortcut must not say "in the inbox"
+            reason = result.skipped[0].reason if result.skipped else ""
+            raise self._share_refused(
+                "nothing_created", SKIP_REASONS.get(reason, "Damit kann Kochheft nichts anfangen.")
+            )
         tasks.add_task(
             recognize_all,
             [draft.id for draft in result.created],

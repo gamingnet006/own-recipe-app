@@ -13,18 +13,19 @@ function firstValue(value: unknown): string {
 }
 
 // The last character is not sentence punctuation or a closing bracket: "(link)." gives the link alone (as the
-// Telegram bot reads links).
+// Telegram bot reads links). The backend's classify_share (mealie/kh/drafts/share.py, D84) uses the same rule: keep
+// the two in sync.
 const WEB_ADDRESS = /https?:\/\/\S*[^\s.,;:!?)»]/gi;
 
 // Words around the link that still make a share message, not a recipe ("Schau mal: Grießpudding <link>").
 const SHARE_MESSAGE_MAX = 200;
 
-/** The one http(s) address a short share message carries; empty for a longer text or several addresses, which
- * stay a text (a recipe from Notes may name its source). */
+/** The one http(s) address a short share message carries (the same address twice is one); empty for a longer text
+ * or several different addresses, which stay a text (a recipe from Notes may name its source). */
 function sharedAddress(text: string): string {
-  const found = text.match(WEB_ADDRESS) ?? [];
+  const found = [...new Set(text.match(WEB_ADDRESS) ?? [])];
   if (found.length !== 1) return "";
-  return text.replace(found[0], "").trim().length <= SHARE_MESSAGE_MAX ? found[0] : "";
+  return text.split(found[0]).join("").trim().length <= SHARE_MESSAGE_MAX ? found[0] : "";
 }
 
 /** Reads the shared link and text from the query; a text longer than a draft takes is cut at maxText. Many apps

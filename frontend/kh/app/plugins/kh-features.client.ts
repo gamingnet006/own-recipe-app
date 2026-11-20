@@ -14,6 +14,7 @@ export interface KhFeatures {
   emailReady: boolean; // mail sending is set up, so reset links and verification mails work (D53)
   draftMaxText: number; // longest recipe text one draft takes; a text shared into the app is cut here (D57)
   baseUrl: string | null; // Mealie's BASE_URL, null while it is still the default (D83)
+  addressChangedAt: string | null; // when the address last changed, null after 60 days or if never (D85)
 }
 
 // A slow server must not hold the whole app start: without an answer the hidden parts stay hidden.
@@ -31,6 +32,7 @@ const ALL_HIDDEN: KhFeatures = {
   emailReady: false,
   draftMaxText: 20000,
   baseUrl: null,
+  addressChangedAt: null,
 };
 
 export default defineNuxtPlugin({

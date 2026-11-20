@@ -61,13 +61,13 @@ def test_zip_with_text_photo_pair_and_lone_photo(api_client: TestClient, unique_
             "Buch/kuchen.png": png(40, 30),
             "Buch/Zettel.png": png(40, 30),
             "Buch/Notizen.md": TEXT.encode(),
-            "Buch/Buch.pdf": b"%PDF",
+            "Buch/Buch.docx": b"PK",
         }
     )
     response = post_file(api_client, unique_user, "Buch.zip", archive)
     assert response.status_code == 201
     body = response.json()
-    assert body["skipped"] == [{"name": "Buch/Buch.pdf", "reason": "unsupported"}]
+    assert body["skipped"] == [{"name": "Buch/Buch.docx", "reason": "unsupported"}]
     by_note = {draft["sourceNote"]: draft for draft in body["created"]}
     assert set(by_note) == {"Kuchen.txt", "Notizen.md", "Zettel.png"}
     paired = get_draft(api_client, unique_user, by_note["Kuchen.txt"]["id"]).json()

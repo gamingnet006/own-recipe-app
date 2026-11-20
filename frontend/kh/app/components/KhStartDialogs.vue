@@ -1,9 +1,16 @@
-<!-- KH: the one dialog the start page may open for a signed-in person (D59 tour, D69 news, D68 setup question); see
+<!-- KH: the one dialog the start page may open for a signed-in person (D59 tour, D69 news, D85 new address, D68 setup question); see
 startDialog() for the order. The setup question is asked once per person and device. -->
 <template>
   <div>
     <KhTour v-model="showTour" @done="onTourDone" />
     <KhNews v-model="showNews" :news="news" @done="onNewsDone" />
+    <KhCards
+      v-model="showAddress"
+      :cards="addressCards"
+      :finish-label="$t('kh.address.done')"
+      @done="onAddressDone"
+      @action="() => navigateTo(SETUP_PATH)"
+    />
     <v-dialog v-model="showDevice" max-width="480" persistent>
       <v-card>
         <v-card-title class="text-wrap pt-4">
@@ -30,6 +37,7 @@ startDialog() for the order. The setup question is asked once per person and dev
 </template>
 
 <script setup lang="ts">
+import { addressCardDue, addressSeenKey } from "~~/kh/app/lib/address-change";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { khOnboarding, useKhOnboarding } from "~~/kh/app/composables/use-kh-onboarding";
 import { detectDevice, familyOf, parseAnswer, SETUP_PATH, shouldAskDevice } from "~~/kh/app/lib/device-setup";
@@ -55,18 +63,50 @@ function storedAnswer() {
 
 // Decided once when the start page opens, so a finished dialog does not make the next one pop up
 const news = unseenNews(khOnboarding.status?.newsSeen ?? null, WHATS_NEW, khAddons.enabled, !!useMealieAuth().user.value?.admin);
+const { $khFeatures, $globals } = useNuxtApp();
+const seenKey = addressSeenKey(userId);
+
+/** What this device has stored as the seen address change; blocked storage counts as not seen. */
+function storedSeen() {
+  try {
+    return localStorage.getItem(seenKey);
+  }
+  catch {
+    return null;
+  }
+}
+
 const chosen = startDialog({
   status: khOnboarding.status,
   signedIn: !!userId,
   hasNews: news.length > 0,
+  addressChanged: addressCardDue($khFeatures.addressChangedAt, storedSeen()),
   askDevice: shouldAskDevice(storedAnswer(), device, navigator.userAgent, Date.now()),
 });
 const showTour = ref(chosen === "tour");
 const showNews = ref(chosen === "news");
+const showAddress = ref(chosen === "address");
 const showDevice = ref(chosen === "device");
+const addressCards = [{
+  icon: ($globals.icons as Record<string, string>).cellphone ?? "",
+  title: i18n.t("kh.address.title"),
+  text: i18n.t("kh.address.text", { address: $khFeatures.baseUrl ?? location.origin }),
+  action: "setup",
+  actionLabel: i18n.t("kh.setup.start"),
+}];
 
 const onTourDone = () => useKhOnboarding().finishTour(i18n.t("events.something-went-wrong"));
 const onNewsDone = () => useKhOnboarding().finishNews(WHATS_NEW[0]!.version, i18n.t("events.something-went-wrong"));
+
+/** Remembers on this device that the card was seen, so it comes once. */
+function onAddressDone() {
+  try {
+    localStorage.setItem(seenKey, $khFeatures.addressChangedAt ?? "");
+  }
+  catch {
+    // storage blocked: the card may come back, which is harmless
+  }
+}
 
 /** Stores the answer on this device ("later" asks again after a week, "never" and "yes" not at all) and opens the
  * setup page on yes. */

@@ -3,6 +3,7 @@
 import { describe, expect, test } from "vitest";
 import { DEFAULT_ADDONS } from "../lib/addons";
 import { compareVersions, forAddons, newsTextKey, unseenNews, WHATS_NEW, type KhNewsVersion } from "../lib/whats-new";
+import { addressCardDue } from "../lib/address-change";
 import { startDialog } from "../lib/start-dialog";
 import khTexts from "../../lang/en-US.json";
 import khTextsDe from "../../lang/de-DE.json";
@@ -68,13 +69,14 @@ test("every card has a title and a text in both languages", () => {
 
 describe("startDialog", () => {
   const status = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: false, newsSeen: null };
-  const facts = { status, signedIn: true, hasNews: true, askDevice: true };
+  const facts = { status, signedIn: true, hasNews: true, addressChanged: true, askDevice: true };
 
   test("tour first, then news, then the device question", () => {
     expect(startDialog({ ...facts, status: { ...status, tour: true } })).toBe("tour");
     expect(startDialog(facts)).toBe("news");
-    expect(startDialog({ ...facts, hasNews: false })).toBe("device");
-    expect(startDialog({ ...facts, hasNews: false, askDevice: false })).toBeNull();
+    expect(startDialog({ ...facts, hasNews: false })).toBe("address");
+    expect(startDialog({ ...facts, hasNews: false, addressChanged: false })).toBe("device");
+    expect(startDialog({ ...facts, hasNews: false, addressChanged: false, askDevice: false })).toBeNull();
   });
 
   test("nothing while a first step is open, without a status, or signed out", () => {
@@ -82,5 +84,14 @@ describe("startDialog", () => {
     expect(startDialog({ ...facts, status: { ...status, needsEmail: true } })).toBeNull();
     expect(startDialog({ ...facts, status: null })).toBeNull();
     expect(startDialog({ ...facts, signedIn: false })).toBeNull();
+  });
+});
+
+describe("addressCardDue", () => {
+  test("only for a change the person has not seen", () => {
+    expect(addressCardDue(null, null)).toBe(false);
+    expect(addressCardDue("2026-11-01T10:00", null)).toBe(true);
+    expect(addressCardDue("2026-11-01T10:00", "2026-11-01T10:00")).toBe(false);
+    expect(addressCardDue("2026-12-01T10:00", "2026-11-01T10:00")).toBe(true);
   });
 });

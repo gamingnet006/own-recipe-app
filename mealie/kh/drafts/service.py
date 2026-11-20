@@ -42,6 +42,7 @@ from mealie.kh.drafts.schemas import (
     OriginOut,
     SkippedFile,
 )
+from mealie.kh.drafts.share import ShareDecision, ShareKind
 from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import RECORDING_STALE_AFTER, media_path, store_media
 from mealie.kh.features.settings import get_kh_settings
@@ -156,9 +157,9 @@ class DraftService:
         return self.get(draft.id)
 
     def create_from_file(self, filename: str, upload: UploadFile) -> FileImportOut:
-        """New working drafts from an uploaded .txt, .md or .zip file (D62): each text one draft, each photo without
-        a text of its own name one photo draft; a photo with a text's name is that draft's cover. The route starts
-        the recognitions."""
+        """New working drafts from an uploaded .txt, .md, .pdf or .zip file (D62, D84): each text one draft, each photo
+        without a text of its own name one photo draft (a scanned PDF one draft of its images); a photo with a text's
+        name is that draft's cover. The route starts the recognitions."""
         limit = self.settings.import_max_unzipped_mb * 1024 * 1024
         data = upload.file.read(limit + 1)
         if len(data) > limit:
@@ -170,16 +171,30 @@ class DraftService:
         created: list[DraftOut] = []
         for item in content.items:
             try:
-                photo = prepare_original(item.photo, self.settings.draft_max_image_mb) if item.photo else None
+                photos = [prepare_original(photo, self.settings.draft_max_image_mb) for photo in item.photos]
             except ValueError as error:
                 content.skipped.append(SkippedFile(name=item.name, reason=str(error)))
                 if item.text is None:
                     continue
-                photo = None
+                photos = []
             source = DraftSource.text if item.text else DraftSource.image
             draft = self._insert(source, None, item.text, Path(item.name).name[:MAX_NOTE])
-            created.append(self._keep_originals(draft, [photo] if photo else []))
+            created.append(self._keep_originals(draft, photos))
         return FileImportOut(created=created, skipped=content.skipped)
+
+    def create_shared(self, decision: ShareDecision, upload: UploadFile | None) -> FileImportOut:
+        """New drafts from a share the way classify_share decided (D84); same checks as the other intakes."""
+        match decision.kind:
+            case ShareKind.photo:
+                assert upload  # a photo decision comes from an attached file
+                return FileImportOut(created=[self.create(None, None, [upload])], skipped=[])
+            case ShareKind.pdf | ShareKind.file:
+                assert upload
+                return self.create_from_file(decision.value, upload)
+            case ShareKind.link:
+                return FileImportOut(created=[self.create(decision.value, None, [])], skipped=[])
+            case ShareKind.text:
+                return FileImportOut(created=[self.create(None, decision.value, [])], skipped=[])
 
     def _keep_recording(self, draft_id: UUID4, media: UploadFile) -> None:
         """Stores the recording with the draft; too big or unwritable removes the draft again."""

@@ -36,6 +36,7 @@ describe("kh-features plugin", () => {
       emailReady: false,
       draftMaxText: 20000,
       baseUrl: null,
+      addressChangedAt: null,
     });
     expect(getMock).toHaveBeenCalledWith("/api/kh/features", { timeout: 5000 });
   });
@@ -56,6 +57,7 @@ describe("kh-features plugin", () => {
       emailReady: false,
       draftMaxText: 20000,
       baseUrl: null,
+      addressChangedAt: null,
     });
     expect(errorSpy).toHaveBeenCalled();
   });

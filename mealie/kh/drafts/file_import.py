@@ -1,5 +1,6 @@
-"""KH: reads an uploaded file for the drafts intake (D62): a .txt or .md file is one text, a .zip is unpacked in memory
-into texts and photos, with the limits that stop a ZIP bomb. Nothing is stored here; the service makes drafts."""
+"""KH: reads an uploaded file for the drafts intake (D62): a .txt or .md file is one text, a .pdf its text or scanned
+pages (D84), a .zip is unpacked in memory into texts, PDFs and photos, with the limits that stop a ZIP bomb.
+Nothing is stored here; the service makes drafts."""
 
 import io
 import zipfile
@@ -7,6 +8,7 @@ import zlib
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
+from mealie.kh.drafts.pdf import PdfBudget, read_pdf
 from mealie.kh.drafts.schemas import SkippedFile
 from mealie.kh.features.settings import KhSettings
 
@@ -19,11 +21,12 @@ CHUNK = 64 * 1024  # unpacked piece by piece, so a bomb is stopped at the limit 
 
 @dataclass
 class FileItem:
-    """One future draft: a text (with the photo of the same name, if any) or a photo alone; NAME is the file's."""
+    """One future draft: a text (with the photo of the same name, if any) or photos alone (a scanned PDF brings
+    several); NAME is the file's."""
 
     name: str
     text: str | None = None
-    photo: bytes | None = None
+    photos: list[bytes] = field(default_factory=list)
 
 
 @dataclass
@@ -80,6 +83,42 @@ def _skip(content: FileContent, name: str, reason: str) -> None:
     content.skipped.append(SkippedFile(name=name, reason=reason))
 
 
+def _add_text(
+    content: FileContent, texts: dict[tuple[PurePosixPath, str], FileItem], name: str, text: str, limit: int
+) -> None:
+    """Adds TEXT as an item of its own, or skips it as empty or too long; it can be given a photo of its name."""
+    text = text.strip()
+    if not text:
+        _skip(content, name, "empty")
+    elif len(text) > limit:
+        _skip(content, name, "text_too_long")
+    else:
+        path = PurePosixPath(name)
+        item = FileItem(name=name, text=text)
+        texts[(path.parent, path.stem.lower())] = item
+        content.items.append(item)
+
+
+def _add_pdf(
+    content: FileContent,
+    texts: dict[tuple[PurePosixPath, str], FileItem],
+    name: str,
+    raw: bytes,
+    settings: KhSettings,
+    budget: PdfBudget,
+) -> None:
+    """Adds a PDF as a text item, or as a photo item of its embedded images; what cannot be read is skipped."""
+    try:
+        text, images = read_pdf(raw, settings, budget)
+    except ValueError as error:
+        _skip(content, name, str(error))
+        return
+    if text:
+        _add_text(content, texts, name, text, settings.draft_max_text)
+    else:
+        content.items.append(FileItem(name=name, photos=images))
+
+
 def read_file(filename: str, data: bytes, settings: KhSettings) -> FileContent:
     """The items of an uploaded file. A .zip is paired by folder and name without the suffix: a photo with the name
     of a text belongs to it (the first one; more photos of the same name are photos of their own). The first
@@ -88,6 +127,7 @@ def read_file(filename: str, data: bytes, settings: KhSettings) -> FileContent:
     suffix = PurePosixPath(filename).suffix.lower()
     files = read_zip(data, settings) if suffix == ".zip" else [(filename, data)]
     content = FileContent()
+    budget = PdfBudget.from_settings(settings)  # one for all PDFs of this upload
     texts: dict[tuple[PurePosixPath, str], FileItem] = {}
     photos: list[tuple[str, bytes]] = []
     for name, raw in files:
@@ -96,14 +136,10 @@ def read_file(filename: str, data: bytes, settings: KhSettings) -> FileContent:
             text = decode_text(raw)
             if text is None:
                 _skip(content, name, "unreadable")
-            elif not text.strip():
-                _skip(content, name, "empty")
-            elif len(text.strip()) > settings.draft_max_text:
-                _skip(content, name, "text_too_long")
             else:
-                item = FileItem(name=name, text=text.strip())
-                texts[(path.parent, path.stem.lower())] = item
-                content.items.append(item)
+                _add_text(content, texts, name, text, settings.draft_max_text)
+        elif path.suffix.lower() == ".pdf":
+            _add_pdf(content, texts, name, raw, settings, budget)
         elif path.suffix.lower() in IMAGE_SUFFIXES:
             photos.append((name, raw))
         else:
@@ -111,10 +147,10 @@ def read_file(filename: str, data: bytes, settings: KhSettings) -> FileContent:
     for name, raw in photos:
         path = PurePosixPath(name)
         owner = texts.get((path.parent, path.stem.lower()))
-        if owner and owner.photo is None:
-            owner.photo = raw
+        if owner and not owner.photos:
+            owner.photos.append(raw)
         else:
-            content.items.append(FileItem(name=name, photo=raw))
+            content.items.append(FileItem(name=name, photos=[raw]))
     for item in content.items[settings.import_max_drafts :]:
         _skip(content, item.name, "too_many")
     del content.items[settings.import_max_drafts :]

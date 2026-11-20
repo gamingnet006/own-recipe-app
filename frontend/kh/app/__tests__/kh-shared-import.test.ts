@@ -8,6 +8,14 @@ vi.stubGlobal("defineNuxtRouteMiddleware", (fn: unknown) => fn);
 vi.stubGlobal("navigateTo", navigateTo);
 
 describe("readSharedImport", () => {
+  test("the same address twice is one link, all its copies are removed before the length check", () => {
+    const link = "https://a.de/r";
+    expect(readSharedImport({ recipe_import_text: `Schau: ${link} ${link}` }, 500)).toEqual({ link, text: "" });
+    const long = `${"x".repeat(150)} ${link} ${"y".repeat(150)}`;
+    expect(readSharedImport({ recipe_import_text: long }, 500).link).toBe("");
+    expect(readSharedImport({ recipe_import_text: `${link} https://b.de` }, 500).link).toBe("");
+  });
+
   test("reads a link and a text", () => {
     expect(readSharedImport({ recipe_import_url: "https://a.de/r" }, 100)).toEqual({ link: "https://a.de/r", text: "" });
     expect(readSharedImport({ recipe_import_text: "Hallo" }, 100)).toEqual({ link: "", text: "Hallo" });

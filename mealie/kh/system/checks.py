@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from mealie.kh.features.settings import KhSettings
+from mealie.kh.system.address import AddressState, recent_change
 from mealie.kh.system.auto_update import parse_status
 
 State = Literal["ok", "warn", "bad", "info"]
@@ -103,6 +104,13 @@ def auto_update_check(enabled: bool | None, status_line: str | None, now: dateti
 
 def nutrition_check(rows: int) -> Check:
     return Check("nutrition", "ok" if rows else "bad", str(rows))
+
+
+def address_check(state: AddressState | None, now: datetime) -> Check:
+    """Yellow while the address changed less than 60 days ago (value "<now> <before>"), else the standing hint (D85)."""
+    if state and recent_change(state, now):
+        return Check("address", "warn", f"{state.current} {state.previous}")
+    return Check("address", "info", "")
 
 
 def module_check(key: str, present: bool) -> Check:

@@ -118,9 +118,9 @@ ticked off; the ticks stay on this device. The key is shown once and never store
           <p class="text-body-2 mt-3 mb-1">
             {{ $t("kh.setup.asks-for") }}
           </p>
-          <v-text-field :model-value="origin" readonly density="compact" hide-details :label="$t('kh.setup.address')">
+          <v-text-field :model-value="shortcutAddress" readonly density="compact" hide-details :label="$t('kh.setup.address')">
             <template #append-inner>
-              <v-btn icon variant="text" :aria-label="$t('kh.setup.key.copy')" @click="copyText(origin)">
+              <v-btn icon variant="text" :aria-label="$t('kh.setup.key.copy')" @click="copyText(shortcutAddress)">
                 <v-icon :icon="$globals.icons.contentCopy" />
               </v-btn>
             </template>
@@ -178,6 +178,7 @@ import {
   type KhDevice,
   type KhSetupSection,
 } from "~~/kh/app/lib/device-setup";
+import { welcomeAddress } from "~~/kh/app/lib/setup-wizard";
 import { useCopy } from "~/composables/use-copy";
 import { useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
@@ -219,6 +220,7 @@ const installed = isInstalled(
   (navigator as Navigator & { standalone?: boolean }).standalone,
 );
 const origin = location.origin;
+const shortcutAddress = welcomeAddress($khFeatures.baseUrl, origin); // KH: the configured address, which the shortcuts ask for (D85)
 const settingsPath = computed(() => `/g/${auth.user.value?.groupSlug ?? ""}/einstellungen`); // KH: the timer switch sits there (D76)
 
 /** The ready-made shortcut's iCloud link for the import or Siri section, null while none is set. */

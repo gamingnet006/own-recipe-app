@@ -1,6 +1,7 @@
 """KH: what the scheduler does every few minutes for "Mitteilungen" (D75): sends what the bundles held back, the evening
 reminders whose time has come, and the news message once after an update."""
 
+from dataclasses import replace
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
@@ -8,7 +9,7 @@ import sqlalchemy as sa
 from dateutil.tz import tzlocal
 from sqlalchemy.orm import Session
 
-from mealie.core.config import get_app_dirs
+from mealie.core.config import get_app_dirs, get_app_settings
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
 from mealie.db.models.household.mealplan import GroupMealPlan
@@ -18,6 +19,7 @@ from mealie.kh.notifications.events import flush_bundles
 from mealie.kh.notifications.hints import PlannedRecipe, evening_message
 from mealie.kh.notifications.models import KhNotificationSettings, KhPushSubscription
 from mealie.kh.onboarding.news import NEWS_VERSION
+from mealie.kh.system import address
 
 logger = get_logger()
 
@@ -103,10 +105,32 @@ def send_news_once(session: Session) -> int:
     )
 
 
+def send_address_change_once(session: Session) -> int:
+    """Notes Kochheft's address at start and, after a change, tells everyone who switched the news on, once: the
+    shortcuts and the home-screen icon have to be set up again (D85). Returns how many people were reached."""
+    folder = get_app_dirs().DATA_DIR
+    state = address.refresh(folder, get_app_settings().BASE_URL)
+    if state is None or not state.changed_at or state.notified:
+        return 0
+    address.write_state(folder, replace(state, notified=True))
+    wanted = [
+        row.user_id for row in session.execute(sa.select(KhNotificationSettings)).scalars() if row.toggles.get("news")
+    ]
+    if not wanted:
+        return 0
+    return sender.send_to_users(
+        session,
+        wanted,
+        "Kochheft hat eine neue Adresse",
+        "Bitte Kurzbefehle und das Home-Bildschirm-Symbol neu einrichten.",
+        "/aufs-handy",
+    )
+
+
 def run_notifications() -> None:
     """The scheduler's "minutely" job (every 5 minutes); each part is guarded, so one failure stops no other."""
     flush_bundles()
-    for part in (lambda s: send_due_evenings(s, datetime.now(tzlocal())), send_news_once):
+    for part in (lambda s: send_due_evenings(s, datetime.now(tzlocal())), send_news_once, send_address_change_once):
         try:
             with session_context() as session:
                 part(session)

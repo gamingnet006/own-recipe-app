@@ -59,6 +59,7 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
             "baseUrl": None if get_app_settings().is_default_base_url else get_app_settings().BASE_URL,
+            "addressChangedAt": None,
             "media": False,
             "profile": "leicht",
         }

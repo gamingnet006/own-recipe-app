@@ -106,7 +106,7 @@ which is recognized in the background and then waits in the list above for a rev
     <input
       ref="filePicker"
       type="file"
-      accept=".txt,.md,.zip,text/plain,application/zip"
+      accept=".txt,.md,.zip,.pdf,text/plain,application/zip,application/pdf"
       hidden
       @change="chooseFile"
     >

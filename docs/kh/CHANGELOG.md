@@ -6,6 +6,17 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.4.1] - 2026-11-20
+
+- Address change (D85): Kochheft notices a new `BASE_URL`; the system check warns the admin for 60 days, everyone gets
+  a "New address" card once (and a push message) pointing to the phone setup page, which now names the address the
+  shortcuts ask for.
+- One share endpoint (D84): `POST /api/kh/drafts/share` takes `file`, `text` and `url` in one request and decides
+  itself (photo, PDF, ZIP or text file, one link, text), so the iOS shortcut needs no branches; the README now
+  describes one recommended shortcut, "In Kochheft importieren".
+- PDFs (D84): a PDF with text becomes a text draft, a scanned one a photo draft from its embedded page images; also in
+  the file import and inside ZIPs (new library pypdf 7.1.0, BSD-3-Clause; `KH_PDF_MAX_PAGES`, default 20).
+
 ## [v1.4] - 2026-11-19
 
 - Simple view (D79): per person (More > Account, or the admin on the user page) larger text, a short bar and side menu

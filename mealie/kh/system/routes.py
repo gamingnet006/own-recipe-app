@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from mealie.core.config import get_app_dirs, get_app_settings
 from mealie.kh.features.settings import get_kh_settings
 from mealie.kh.nutrition.bls import load_bls
-from mealie.kh.system import auto_update, checks
+from mealie.kh.system import address, auto_update, checks
 from mealie.kh.system.schemas import AboutOut, AutoUpdateIn, AutoUpdateOut, CheckOut
 from mealie.routes._base import BaseAdminController, BaseUserController, controller
 from mealie.routes._base.routers import AdminAPIRouter, UserAPIRouter
@@ -77,6 +77,7 @@ class KhSystemController(BaseAdminController):
             checks.default_account_check(self.repos.users.get_one(app_settings._DEFAULT_EMAIL, "email") is not None),
             checks.auto_update_check(auto_update.read_enabled(folder), auto_update.read_status(folder), now),
             checks.nutrition_check(len(load_bls())),
+            checks.address_check(address.read_state(folder), now),
             *checks.module_checks(settings),
         ]
         return [CheckOut(key=row.key, state=row.state, value=row.value) for row in rows]

@@ -97,7 +97,7 @@ export class KhDraftsApi extends BaseAPI {
     return await this.requests.post<KhDraft, FormData>(drafts, form, OWN_ERRORS);
   }
 
-  /** Hands in a .txt, .md or .zip file (D62); PROGRESS gets the share uploaded so far, from 0 to 1. */
+  /** Hands in a .txt, .md, .pdf or .zip file (D62, D84); PROGRESS gets the share uploaded so far, from 0 to 1. */
   async createFromFile(file: File, progress: (share: number) => void) {
     const form = new FormData();
     form.append("file", file);

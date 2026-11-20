@@ -115,6 +115,9 @@
         "too_large": "too large",
         "not_an_image": "not a photo",
         "unreadable": "unreadable",
+        "pdf_encrypted": "PDF with a password",
+        "pdf_unreadable": "no text and no image in the PDF",
+        "pdf_too_slow": "PDF too complex",
         "empty": "empty",
         "text_too_long": "text too long",
         "unsupported": "file type not supported",
@@ -530,6 +533,10 @@
           "ok": "Nutrition table loaded ({value} foods)",
           "bad": "Nutrition table is missing"
         },
+        "address": {
+          "warn": "Kochheft is now reached at {current} (before: {previous}). Shortcuts and home-screen icons still point to the old address: create new iCloud links for the shortcuts (KH_IMPORT_SHORTCUT_URL, KH_SIRI_SHORTCUT_URL) and ask everyone to add them again. Every member sees a card about it the next time they open the app.",
+          "info": "If the address changes, shortcuts and home-screen icons have to be set up again."
+        },
         "telegram": {
           "info": "Telegram bot: {value}"
         },
@@ -853,7 +860,7 @@
       "start": "Set up now",
       "done": "Done",
       "add-shortcut": "Add shortcut",
-      "asks-for": "While adding it, the device asks for the address and the key. The address:",
+      "asks-for": "While adding it, the device asks once for the address and the key. The address of your Kochheft is:",
       "address": "Address of Kochheft",
       "devices": {
         "iphone": "iPhone",
@@ -955,12 +962,12 @@
         }
       },
       "import": {
-        "with-link": "Tap “Add shortcut”. Afterwards “In Kochheft importieren” appears in the share menu of Safari, Instagram and Photos.",
+        "with-link": "Tap “Add shortcut”. Afterwards “In Kochheft importieren” appears in the share menu of Safari, Instagram, Photos and Files.",
         "ios": {
           "title": "Import recipes from other apps",
-          "s1": "Open the Shortcuts app, tap + and turn on “Show in Share Sheet” under ⓘ (types text and URLs).",
-          "s2": "Build the shortcut “In Kochheft importieren” following the README (section “Share by shortcut”).",
-          "s3": "Then it appears in the share menu of Safari, Instagram and Photos."
+          "s1": "Open the Shortcuts app, tap + and turn on “Show in Share Sheet” under ⓘ (types text, URLs, images, files and PDFs).",
+          "s2": "Build the shortcut “In Kochheft importieren” following the README (section “Share by shortcut”): one request sends everything, Kochheft recognizes photo, PDF, text and link itself.",
+          "s3": "Then it appears in the share menu of Safari, Instagram, Photos and Files."
         },
         "mac": {
           "title": "Import recipes from other apps",
@@ -1024,6 +1031,11 @@
           "s1": "Print the QR code and hang it on the fridge. Whoever scans it with the camera lands on the shopping list."
         }
       }
+    },
+    "address": {
+      "title": "New address",
+      "text": "Kochheft has a new address: {address}. Please set it up again once: add the shortcuts again and recreate the icon on the home screen.",
+      "done": "Later"
     },
     "news": {
       "title": "New in Kochheft {version}",

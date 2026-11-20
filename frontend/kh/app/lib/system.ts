@@ -16,7 +16,9 @@ export function rowText(t: Translate, row: KhCheck): string {
   const stale = row.key === "autoUpdate" && row.value === "stale";
   const state = row.key === "backup" && !row.value ? "none" : stale ? "stale" : row.state;
   const value = row.value === "on" || row.value === "off" ? t(`kh.system.${row.value}`) : row.value;
-  const text = t(`kh.system.rows.${row.key}.${state}`, { value });
+  // the address row carries "<now> <before>" (D85)
+  const [current = "", previous = ""] = row.key === "address" ? row.value.split(" ") : [];
+  const text = t(`kh.system.rows.${row.key}.${state}`, { value, current, previous });
   return row.key === "autoUpdate" && value && !stale ? `${text} ${value}` : text;
 }
 

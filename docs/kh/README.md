@@ -309,20 +309,21 @@ Auf dem Handy (Touch, kürzere Bildschirmseite unter 500 px) deckt ein Hinweis d
 
 ### Teilen per Kurzbefehl (iPhone und iPad)
 
-Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte und Fotos aus Safari, Instagram, Fotos oder Nachrichten direkt als Entwurf an (D37).
+Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte, Fotos, PDFs und Dateien aus Safari, Instagram, Fotos, Dateien, Notizen oder Nachrichten direkt als Entwurf an (D37, D84). Der Kurzbefehl schickt alles in **einer** Anfrage; ob es ein Foto, ein PDF, ein Text oder ein Link ist, entscheidet Kochheft selbst. Ein PDF mit Text wird gelesen wie ein Text, ein eingescanntes PDF über die Bilder darin (die ersten 20 Seiten, mit `KH_PDF_MAX_PAGES` einstellbar); ein PDF mit Passwort wird übersprungen.
 
 1. **Ein Schlüssel je Gerät:** In Kochheft unter **Profil → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
-2. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name zum Beispiel „Ins Kochbuch“:
-   - Unter **ⓘ** „Im Share-Sheet anzeigen“ einschalten, mit den Typen URLs, Safari-Webseiten, Bilder und Text.
-   - Aktion **Text** mit dem Schlüssel.
-   - **Bilder aus Eingabe abrufen** (aus der Kurzbefehleingabe), dann **Wenn** die Bilder einen Wert haben: **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/drafts`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Text, Anfragetext **Formular** mit dem Feld `images` (Datei) = Bilder.
-   - **Sonst** **URLs aus Eingabe abrufen**, dann **Wenn** es URLs gibt: dieselbe Abfrage mit dem Feld `url` (Text) = URLs; **sonst** mit dem Feld `text` (Text) = Kurzbefehleingabe.
-   - Zum Schluss **Mitteilung anzeigen**, zum Beispiel „Liegt bei den Entwürfen“.
-3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktion **Text** eine Frage einrichten („Dein Kochheft-Schlüssel“) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
+2. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name „In Kochheft importieren“:
+   - Unter **ⓘ** „Im Share-Sheet anzeigen“ einschalten, mit den Typen **Text**, **Formatierter Text**, **Safari-Webseiten**, **URLs**, **Bilder**, **Dateien** und **PDFs**. Ohne Eingabe: **Zwischenablage abrufen**.
+   - Aktion **Text** mit der Adresse, `https://<eure-adresse>` (Name „Adresse“).
+   - Aktion **Text** mit dem Wort `SCHLÜSSEL` (Name „Schlüssel“).
+   - **URLs aus Eingabe abrufen**.
+   - **Inhalte von URL abrufen** mit **Adresse**`/api/kh/drafts/share`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter **Schlüssel**, Anfragetext **Formular** mit den Feldern `file` (Datei) = Kurzbefehleingabe, `text` (Text) = Kurzbefehleingabe und `url` (Text) = URLs.
+   - Zum Schluss **Mitteilung anzeigen**: „Ist im Eingang“.
+3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktionen **Text** („Adresse“, „Schlüssel“) Fragen einrichten (zum Beispiel „Dein Kochheft-Schlüssel“, ersetzt `SCHLÜSSEL`) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
 
-Danach im Teilen-Menü „Ins Kochbuch“ wählen; der Entwurf erscheint im **Eingang**. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
+Danach im Teilen-Menü „In Kochheft importieren“ wählen; der Entwurf erscheint im **Eingang**. Kochheft nimmt zuerst die Datei (Foto, PDF, Text, ZIP), sonst einen einzelnen Link mit höchstens ein paar Worten drumherum, sonst den Text; eine Safari-Webseite oder ein Web-Archiv als Datei wird übergangen. Links zu Instagram, TikTok und YouTube holt Kochheft nie ab. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
 
-**Ohne Schlüssel, nur mit Anmeldung (D57):** Wer den Schlüssel nicht auf jedem Gerät pflegen will, baut den Kurzbefehl „In Kochheft importieren“. Er öffnet Kochheft mit dem geteilten Inhalt, und du prüfst und tippst **Hinzufügen** (ohne Anmeldung kommt zuerst die Anmeldung, dann der Eingang):
+**Ohne Schlüssel, nur mit Anmeldung (D57):** Wer den Schlüssel nicht auf jedem Gerät pflegen will, baut stattdessen einen einfacheren Kurzbefehl, der Kochheft mit dem geteilten Inhalt öffnet; du prüfst und tippst **Hinzufügen** (ohne Anmeldung kommt zuerst die Anmeldung, dann der Eingang). Er kann nur Links und Texte:
 
 1. Neuer Kurzbefehl in der App **Kurzbefehle**, unter **ⓘ** „Im Share-Sheet anzeigen“ mit den Typen **Text** und **URLs**.
 2. **Wenn** die Kurzbefehleingabe eine URL ist: Aktion **URL** mit `https://<eure-adresse>/r/create/url?recipe_import_url=` und dahinter die **URL-codierte** Eingabe (Aktion **URL-codieren**), dann **URLs öffnen**.
@@ -395,6 +396,10 @@ Unter dem Kopf jedes Rezepts steht „Unsere Notiz“, eine Notiz pro Rezept und
 Beim ersten Start führt Mealies Einrichtungs-Assistent durch: Konto, Grunddaten, KI, dann die Schritte von Kochheft. **Grunddaten:** Die Auswahl „Deutsche Lebensmittel, Einheiten und Abteilungen anlegen“ ist an; sie legt nur an, was es in der Gruppe noch nicht gibt, die Abteilungen entstehen mit den Lebensmitteln (sie braucht die Einkaufsliste mit Kacheln). **KI:** freiwillig, Links mit Rezeptdaten und Kochheft-Dateien gehen auch ohne. **Zusatzfunktionen:** „Nur Rezepte“, „Rezepte und Einkaufsliste“ oder „Alles mit Essensplaner“ als große Karten, darunter die einzelnen Schalter; jede Wahl gilt sofort. **Familie:** Name, Benutzername, E-Mail (freiwillig), „Mit Einführung“ (an) und „Einfache Ansicht“ (aus) je Person, „Weitere Person“ für mehr. Nach „Anlegen“ steht je Person eine Karte mit Adresse, Benutzername und vorläufigem Passwort zum Kopieren; das Passwort siehst du nur dort, beim ersten Anmelden wählt die Person ein eigenes. „Später“ überspringt den Schritt. **Prüfen:** Backup, USB-Kopie, automatische Updates, Zugang von unterwegs, Mail, KI; USB-Kopie und Zugang laufen am Rechner und zeigen nur den Befehl zum Prüfen. Ohne Mailversand gibt es keine Mails zum Zurücksetzen, Willkommens-Links und Passwörter gibst du selbst weiter. Zum Schluss führen Knöpfe zu „Dieses Gerät einrichten“ und „Mitteilungen“.
 
 Den Assistenten kannst du als Admin jederzeit unter **Mehr → Einstellungen → Einrichtungs-Assistent** wieder öffnen. Er überspringt den Kontoschritt und schreibt nur, was du änderst; vorhandene Lebensmittel und Einheiten bleiben unberührt. Für Admins gibt es dazu eine Karte in „Neu in Kochheft“.
+
+### Adresse ändern (D85)
+
+Kurzbefehle (Teilen-Import, Siri) und Home-Bildschirm-Symbole enthalten die Adresse (`BASE_URL`, z. B. `https://kochbuch.example.org`). Zieht Kochheft auf eine andere Adresse um, funktionieren sie nicht mehr. Kochheft merkt sich die Adresse in `kh/address.json` im Datenordner und bemerkt den Wechsel beim Start. **Admin:** Die Systemprüfung zeigt 60 Tage lang „Adresse geändert“. Neue iCloud-Links für die Kurzbefehle erstellen und in `KH_IMPORT_SHORTCUT_URL` und `KH_SIRI_SHORTCUT_URL` eintragen. **Alle:** Beim nächsten Öffnen erscheint einmal die Karte „Neue Adresse“ mit dem Knopf „Jetzt einrichten“ (Seite „Aufs Handy holen“); wer Mitteilungen für Neuigkeiten an hat, bekommt zusätzlich eine Push-Nachricht. Dort die Kurzbefehle neu hinzufügen und das Symbol auf dem Home-Bildschirm neu anlegen.
 
 ### Konto löschen (D78)
 
@@ -794,20 +799,21 @@ On a phone (touch, shorter screen side under 500 px) a notice covers the app whi
 
 ### Share shortcut (iPhone and iPad)
 
-With a shortcut in the share menu, links, texts and photos from Safari, Instagram, Photos or Messages arrive straight as drafts (D37).
+With a shortcut in the share menu, links, texts, photos, PDFs and files from Safari, Instagram, Photos, Files, Notes or Messages arrive straight as drafts (D37, D84). The shortcut sends everything in **one** request; Kochheft itself decides whether it is a photo, a PDF, a text or a link. A PDF with text is read like a text, a scanned PDF through the images in it (the first 20 pages, adjustable with `KH_PDF_MAX_PAGES`); a PDF with a password is skipped.
 
 1. **One key per device:** in Kochheft under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
-2. **Build the shortcut** once in the **Shortcuts** app with **+**, named for example "Into the cookbook":
-   - Under **ⓘ** turn on "Show in Share Sheet", with the types URLs, Safari web pages, images and text.
-   - A **Text** action holding the key.
-   - **Get Images from Input** (from the shortcut input), then **If** the images have any value: **Get Contents of URL** with `https://<your-address>/api/kh/drafts`, method **POST**, header `Authorization` with `Bearer ` followed by the text, request body **Form** with the field `images` (File) = images.
-   - **Otherwise** **Get URLs from Input**, then **If** there are URLs: the same request with the field `url` (Text) = URLs; **otherwise** with the field `text` (Text) = shortcut input.
-   - Finally **Show Notification**, for example "Waiting in the drafts".
-3. **For the family:** under **ⓘ → Import Questions** add a question for the **Text** action ("Your Kochheft key"), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
+2. **Build the shortcut** once in the **Shortcuts** app with **+**, named "Import into Kochheft":
+   - Under **ⓘ** turn on "Show in Share Sheet", with the types **Text**, **Rich Text**, **Safari web pages**, **URLs**, **Images**, **Files** and **PDFs**. With no input: **Get Clipboard**.
+   - A **Text** action with the address, `https://<your-address>` (name it "Address").
+   - A **Text** action with the word `KEY` (name it "Key").
+   - **Get URLs from Input**.
+   - **Get Contents of URL** with **Address**`/api/kh/drafts/share`, method **POST**, header `Authorization` with `Bearer ` followed by **Key**, request body **Form** with the fields `file` (File) = shortcut input, `text` (Text) = shortcut input and `url` (Text) = URLs.
+   - Finally **Show Notification**: "It is in the Intake".
+3. **For the family:** under **ⓘ → Import Questions** add questions for the **Text** actions ("Address", "Key"; for example "Your Kochheft key", replacing `KEY`), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
-Then pick "Into the cookbook" in the share menu; the draft shows in the **Intake**. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
+Then pick "Import into Kochheft" in the share menu; the draft shows in the **Intake**. Kochheft takes the file first (photo, PDF, text, ZIP), otherwise a single link with at most a few words around it, otherwise the text; a Safari web page or web archive sent as a file is ignored. Links to Instagram, TikTok and YouTube are never fetched. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
 
-**Without a key, just signing in (D57):** If you would rather not keep the key on every device, build the shortcut "Import into Kochheft". It opens Kochheft with the shared content, and you check it and tap **Add** (when signed out, the sign-in comes first, then the Intake):
+**Without a key, just signing in (D57):** If you would rather not keep the key on every device, build a simpler shortcut instead that opens Kochheft with the shared content; you check it and tap **Add** (when signed out, the sign-in comes first, then the Intake). It can only do links and texts:
 
 1. A new shortcut in the **Shortcuts** app, under **ⓘ** "Show in Share Sheet" with the types **Text** and **URLs**.
 2. **If** the shortcut input is a URL: a **URL** action with `https://<your-address>/r/create/url?recipe_import_url=` followed by the **URL-encoded** input (action **URL Encode**), then **Open URLs**.
@@ -872,6 +878,10 @@ Under the head of every recipe there is "Our note", one note per recipe and hous
 On first start Mealie's setup assistant walks you through: account, basic data, AI, then Kochheft's steps. **Basic data:** "Create German foods, units and departments" is on; it only creates what the group does not have yet, the departments come with the foods (the tile shopping list needs them). **AI:** optional, links with recipe data and Kochheft files work without it. **Add-ons:** "Recipes only", "Recipes and shopping list" or "Everything with meal planner" as big cards, below them the single switches; every choice applies at once. **Family:** name, username, e-mail (optional), "With introduction" (on) and "Simple view" (off) per person, "Another person" for more. After "Add" every person gets a card with address, username and temporary password to copy; you only see the password there, at the first sign-in the person chooses their own. "Later" skips the step. **Check:** backup, USB copy, automatic updates, access from outside, mail, AI; USB copy and access run on the host and only show the command to check them. Without mail sending there are no reset mails, you pass on welcome links and passwords yourself. At the end buttons lead to "Set up this device" and "Notifications".
 
 As admin you can open the assistant again any time under **More → Settings → Setup assistant**. It skips the account step and writes only what you change; existing foods and units stay untouched. Admins also get a card in "What's new".
+
+### Changing the address (D85)
+
+Shortcuts (share import, Siri) and home-screen icons contain the address (`BASE_URL`, e.g. `https://kochbuch.example.org`). If Kochheft moves to another address they stop working. Kochheft keeps the address in `kh/address.json` in the data folder and notices the change at start. **Admin:** the system check shows "Address changed" for 60 days. Create new iCloud links for the shortcuts and put them into `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL`. **Everyone:** the next time they open the app a "New address" card appears once with a "Set up now" button (page "Get it on your phone"); people with notifications on for news also get a push message. There they add the shortcuts again and recreate the home-screen icon.
 
 ### Delete account (D78)
 

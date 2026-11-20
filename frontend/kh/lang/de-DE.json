@@ -115,6 +115,9 @@
         "too_large": "zu groß",
         "not_an_image": "kein Foto",
         "unreadable": "nicht lesbar",
+        "pdf_encrypted": "PDF mit Passwort",
+        "pdf_unreadable": "kein Text und kein Bild im PDF",
+        "pdf_too_slow": "PDF zu aufwendig",
         "empty": "leer",
         "text_too_long": "Text zu lang",
         "unsupported": "Dateityp nicht unterstützt",
@@ -530,6 +533,10 @@
           "ok": "Nährwert-Tabelle geladen ({value} Lebensmittel)",
           "bad": "Nährwert-Tabelle fehlt"
         },
+        "address": {
+          "warn": "Kochheft ist jetzt unter {current} erreichbar (vorher {previous}). Kurzbefehle und Home-Bildschirm-Symbole zeigen noch auf die alte Adresse: neue iCloud-Links für die Kurzbefehle erstellen (KH_IMPORT_SHORTCUT_URL, KH_SIRI_SHORTCUT_URL) und alle bitten, sie neu hinzuzufügen. Alle Mitglieder sehen beim nächsten Öffnen eine Karte dazu.",
+          "info": "Wenn sich die Adresse ändert, müssen Kurzbefehle und Home-Bildschirm-Symbole neu eingerichtet werden."
+        },
         "telegram": {
           "info": "Telegram-Bot: {value}"
         },
@@ -853,7 +860,7 @@
       "start": "Jetzt einrichten",
       "done": "Erledigt",
       "add-shortcut": "Kurzbefehl hinzufügen",
-      "asks-for": "Beim Hinzufügen fragt das iPhone nach der Adresse und dem Schlüssel. Die Adresse:",
+      "asks-for": "Beim Hinzufügen fragt das iPhone einmal nach der Adresse und dem Schlüssel. Die Adresse deines Kochhefts ist:",
       "address": "Adresse von Kochheft",
       "devices": {
         "iphone": "iPhone",
@@ -955,12 +962,12 @@
         }
       },
       "import": {
-        "with-link": "Tippe auf „Kurzbefehl hinzufügen“. Danach erscheint „In Kochheft importieren“ im Teilen-Menü von Safari, Instagram und Fotos.",
+        "with-link": "Tippe auf „Kurzbefehl hinzufügen“. Danach erscheint „In Kochheft importieren“ im Teilen-Menü von Safari, Instagram, Fotos und Dateien.",
         "ios": {
           "title": "Rezepte aus anderen Apps importieren",
-          "s1": "Öffne die App „Kurzbefehle“, tippe auf + und schalte unter ⓘ „Im Share-Sheet anzeigen“ ein (Typen Text und URLs).",
-          "s2": "Baue den Kurzbefehl „In Kochheft importieren“ nach der Anleitung in der README (Abschnitt „Teilen per Kurzbefehl“).",
-          "s3": "Danach erscheint er im Teilen-Menü von Safari, Instagram und Fotos."
+          "s1": "Öffne die App „Kurzbefehle“, tippe auf + und schalte unter ⓘ „Im Share-Sheet anzeigen“ ein (Typen Text, URLs, Bilder, Dateien und PDFs).",
+          "s2": "Baue den Kurzbefehl „In Kochheft importieren“ nach der Anleitung in der README (Abschnitt „Teilen per Kurzbefehl“): eine Anfrage schickt alles, Kochheft erkennt Foto, PDF, Text und Link selbst.",
+          "s3": "Danach erscheint er im Teilen-Menü von Safari, Instagram, Fotos und Dateien."
         },
         "mac": {
           "title": "Rezepte aus anderen Apps importieren",
@@ -1024,6 +1031,11 @@
           "s1": "Drucke den QR-Code aus und häng ihn an den Kühlschrank. Wer ihn mit der Kamera scannt, landet auf der Einkaufsliste."
         }
       }
+    },
+    "address": {
+      "title": "Neue Adresse",
+      "text": "Kochheft hat eine neue Adresse: {address}. Bitte einmal neu einrichten: Kurzbefehle neu hinzufügen und das Symbol auf dem Home-Bildschirm neu anlegen.",
+      "done": "Später"
     },
     "news": {
       "title": "Neu in Kochheft {version}",
