@@ -6,6 +6,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- The share-import and Siri shortcuts are built in like the clock timer: "Add shortcut" works on every install;
+  both ask for address and key when added.
+
 - Shortcuts read errors (D88): the Siri shopping route and the share route always answer with a spoken German
   `message` at the top level, also on errors (no list, unknown list, nothing understood, add-on off, video link, file
   too large); `detail` and the status codes are unchanged. The share route also says "Ist im Eingang: 3 Entwürfe".

@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mealie.core.config import get_app_settings
-from mealie.kh.features.settings import DEFAULT_CLOCK_SHORTCUT_URL, KhSettings, get_kh_settings
+from mealie.kh.features.settings import DEFAULT_CLOCK_SHORTCUT_URL, DEFAULT_SHORTCUT_URLS, KhSettings, get_kh_settings
 from mealie.routes import spa
 from tests.utils import api_routes
 from tests.utils.factories import random_string
@@ -54,8 +54,8 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
             "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
-            "importShortcutUrl": None,
-            "siriShortcutUrl": None,
+            "importShortcutUrl": DEFAULT_SHORTCUT_URLS["import_shortcut_url"],
+            "siriShortcutUrl": DEFAULT_SHORTCUT_URLS["siri_shortcut_url"],
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
             "baseUrl": None if get_app_settings().is_default_base_url else get_app_settings().BASE_URL,
@@ -169,5 +169,13 @@ def test_import_and_siri_shortcut_urls_take_only_shortcuts_links(
     with caplog.at_level("WARNING"):
         assert getattr(KhSettings(), field) is None
     assert name in caplog.text
-    monkeypatch.setenv(name, "")  # what Compose passes for an empty line in .env
-    assert getattr(KhSettings(), field) is None
+    monkeypatch.setenv(name, "")  # what Compose passes for an empty line in .env: the built-in link
+    assert getattr(KhSettings(), field) == DEFAULT_SHORTCUT_URLS[field]
+
+
+def test_import_and_siri_shortcuts_are_built_in(monkeypatch: pytest.MonkeyPatch):
+    """The maintainer's shared shortcuts ask for address and key on adding, so every install can offer them."""
+    monkeypatch.delenv("KH_IMPORT_SHORTCUT_URL", raising=False)
+    monkeypatch.delenv("KH_SIRI_SHORTCUT_URL", raising=False)
+    assert KhSettings().import_shortcut_url == "https://www.icloud.com/shortcuts/3fd264e8918848f7b1022edd57e2210c"
+    assert KhSettings().siri_shortcut_url == "https://www.icloud.com/shortcuts/28389dd5c63c42d2bfb983ba09201d04"

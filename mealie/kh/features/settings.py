@@ -19,6 +19,12 @@ logger = get_logger()
 CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]+/?")
 # The "Kochheft Timer" shortcut the maintainer shared (no personal data in it), so every install offers it unconfigured
 DEFAULT_CLOCK_SHORTCUT_URL = "https://www.icloud.com/shortcuts/c6b533e1ee864389831f5a2d7801a9c9"
+# The share-import and Siri shortcuts the maintainer shared (D68, D84, D87); they ask for address and key when added and
+# carry neither, so every install offers them unconfigured
+DEFAULT_SHORTCUT_URLS = {
+    "import_shortcut_url": "https://www.icloud.com/shortcuts/3fd264e8918848f7b1022edd57e2210c",
+    "siri_shortcut_url": "https://www.icloud.com/shortcuts/28389dd5c63c42d2bfb983ba09201d04",
+}
 
 # Cloudflare's free plan cuts uploads at 100 MB, so a bigger recording could never reach the app through the tunnel
 TUNNEL_UPLOAD_MB = 95
@@ -36,9 +42,9 @@ class KhSettings(BaseSettings):
     # Ready-made iOS Shortcut for the Clock timer (D42), an iCloud share link; empty keeps our own, anything else unset
     clock_shortcut_url: str | None = DEFAULT_CLOCK_SHORTCUT_URL
     # Ready-made iOS Shortcuts for the share-sheet import and "Hey Siri, Auf die Einkaufsliste" (D68), iCloud share
-    # links shown on the setup page; none: the page shows the manual steps instead
-    import_shortcut_url: str | None = None
-    siri_shortcut_url: str | None = None
+    # links shown on the setup page; empty keeps our own, anything else unset (the page then shows the manual steps)
+    import_shortcut_url: str | None = DEFAULT_SHORTCUT_URLS["import_shortcut_url"]
+    siri_shortcut_url: str | None = DEFAULT_SHORTCUT_URLS["siri_shortcut_url"]
 
     # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
     draft_max_images: int = 5
@@ -103,7 +109,9 @@ class KhSettings(BaseSettings):
     @field_validator("import_shortcut_url", "siri_shortcut_url")
     @classmethod
     def only_icloud_links_or_none(cls, value: str | None, info: ValidationInfo) -> str | None:
-        """Same rule as the Clock link, but unset stays unset."""
+        """Same rule as the Clock link: empty keeps the built-in link, anything but an iCloud link is dropped."""
+        if value == "":
+            return DEFAULT_SHORTCUT_URLS[str(info.field_name)]
         if value is not None and not CLOCK_SHORTCUT_URL.fullmatch(value):
             logger.warning(f"KH_{str(info.field_name).upper()} is not an iCloud Shortcuts link, ignored")
             return None
