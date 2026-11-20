@@ -4,7 +4,7 @@ the draft the decision names."""
 import pytest
 from fastapi.testclient import TestClient
 
-from mealie.kh.drafts.share import ShareKind, classify_share
+from mealie.kh.drafts.share import ShareKind, classify_share, share_confirmation
 from mealie.kh.features.settings import get_kh_settings
 from tests.kh.drafts.helpers import DRAFTS, heic, pdf_scan, pdf_with_text, png, zip_bytes
 from tests.kh.drafts.test_kh_drafts_pdf import LINES
@@ -124,17 +124,20 @@ def test_nothing_usable_is_422(api_client: TestClient, unique_user: TestUser):
         "code": "nothing_usable",
         "message": "Damit kann Kochheft nichts anfangen.",
     }
+    assert response.json()["message"] == "Damit kann Kochheft nichts anfangen."  # D88: Siri reads this one
 
 
 def test_video_link_is_never_fetched(api_client: TestClient, unique_user: TestUser):
     response = post_share(api_client, unique_user, url="https://www.youtube.com/watch?v=abc")
     assert response.status_code == 400 and response.json()["detail"] == {"code": "video_link"}
+    assert "Videolinks" in response.json()["message"]
 
 
 def test_too_large_photo_is_refused_like_the_images_route(api_client: TestClient, unique_user: TestUser, monkeypatch):
     monkeypatch.setattr(get_kh_settings(), "draft_max_image_mb", 1)
     response = post_share(api_client, unique_user, file=("a.png", png(1200, 1200, noise=True)))
     assert response.status_code == 400 and response.json()["detail"] == {"code": "too_large"}
+    assert response.json()["message"] == "Die Datei ist zu groß."
 
 
 def test_text_sent_also_as_txt_file_is_one_text_draft(api_client: TestClient, unique_user: TestUser, fake_ai):
@@ -153,8 +156,23 @@ def test_docx_like_zip_is_ignored(api_client: TestClient, unique_user: TestUser)
 def test_share_with_no_draft_is_422_with_the_reason(api_client: TestClient, unique_user: TestUser):
     response = post_share(api_client, unique_user, file=("Eingabe.pdf", pdf_with_text(LINES, password="geheim")))
     assert response.status_code == 422
-    assert response.json()["detail"] == {"code": "nothing_created", "message": "PDF mit Passwort"}
+    assert response.json()["detail"] == {
+        "code": "nothing_created",
+        "message": "Das hat nicht geklappt: PDF mit Passwort.",
+    }
+    assert response.json()["message"] == "Das hat nicht geklappt: PDF mit Passwort."
 
 
 def test_needs_a_signed_in_user(api_client: TestClient):
-    assert api_client.post(f"{DRAFTS}/share", data={"url": LINK}).status_code == 401
+    response = api_client.post(f"{DRAFTS}/share", data={"url": LINK})
+    assert response.status_code == 401
+    assert "angemeldet" in response.json()["message"]
+
+
+def test_a_share_answers_with_a_sentence_for_siri(api_client: TestClient, unique_user: TestUser, fake_ai):
+    body = post_share(api_client, unique_user, text=LONG).json()
+    assert body["message"] == "Ist im Eingang: 1 Entwurf" and len(body["created"]) == 1
+
+
+def test_the_confirmation_counts_in_the_plural():
+    assert share_confirmation(3) == "Ist im Eingang: 3 Entwürfe"

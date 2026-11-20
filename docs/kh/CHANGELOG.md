@@ -6,6 +6,9 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Shortcuts read errors (D88): the Siri shopping route and the share route always answer with a spoken German
+  `message` at the top level, also on errors (no list, unknown list, nothing understood, add-on off, video link, file
+  too large); `detail` and the status codes are unchanged. The share route also says "Ist im Eingang: 3 Entwürfe".
 - Siri shopping list (D87): say the store ("Milch und Butter bei Rewe") and the article lands on that list, so one
   shortcut serves all lists; without a store the list changed last is used, a `list` field still wins.
 - Phone setup (D86): under "Add shortcut" the address and the key the shortcut asks for are copy boxes (the key is

@@ -11,9 +11,9 @@ from pydantic import UUID4
 from mealie.kh.addons.service import ensure_addon
 from mealie.kh.drafts.file_import import decode_text
 from mealie.kh.drafts.recognize import recognize, recognize_all
-from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut
+from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut, ShareOut
 from mealie.kh.drafts.service import DraftService
-from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, classify_share
+from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, classify_share, share_confirmation
 from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -78,14 +78,14 @@ class KhDraftsController(_DraftsBase):
         """422 whose sentence is in the answer, because the shortcut shows it as it is; no page translates it."""
         return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail={"code": code, "message": message})
 
-    @router.post("/share", status_code=status.HTTP_201_CREATED, response_model=FileImportOut)
+    @router.post("/share", status_code=status.HTTP_201_CREATED, response_model=ShareOut)
     def create_from_share(
         self,
         tasks: BackgroundTasks,
         file: UploadFile | None = File(default=None),
         text: Annotated[str | None, Form()] = None,
         url: Annotated[str | None, Form()] = None,
-    ) -> FileImportOut:
+    ) -> ShareOut:
         """New draft(s) from whatever the iOS share shortcut sent (D84): a photo, PDF, text file or ZIP, a text or
         one or more links; Kochheft decides what it is (classify_share)."""
         head, file_text = b"", None
@@ -103,7 +103,8 @@ class KhDraftsController(_DraftsBase):
         if not result.created:  # all skipped: the shortcut must not say "in the inbox"
             reason = result.skipped[0].reason if result.skipped else ""
             raise self._share_refused(
-                "nothing_created", SKIP_REASONS.get(reason, "Damit kann Kochheft nichts anfangen.")
+                "nothing_created",
+                f"Das hat nicht geklappt: {SKIP_REASONS.get(reason, 'Kochheft kann damit nichts anfangen')}.",
             )
         tasks.add_task(
             recognize_all,
@@ -112,7 +113,7 @@ class KhDraftsController(_DraftsBase):
             household=self.household,
             translator=self.translator,
         )
-        return result
+        return ShareOut(created=result.created, skipped=result.skipped, message=share_confirmation(len(result.created)))
 
     @router.get("", response_model=list[DraftOut])
     def list_open(self) -> list[DraftOut]:

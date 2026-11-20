@@ -101,3 +101,8 @@ def classify_share(
     if text:
         return ShareDecision(ShareKind.text, text)
     return ShareDecision(ShareKind.link, in_url[0]) if in_url else None
+
+
+def share_confirmation(created: int) -> str:
+    """The sentence the shortcut says after a share made `created` drafts (D88)."""
+    return f"Ist im Eingang: {created} Entwurf" if created == 1 else f"Ist im Eingang: {created} Entwürfe"

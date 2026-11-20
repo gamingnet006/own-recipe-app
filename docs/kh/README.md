@@ -318,7 +318,7 @@ Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte, Fotos, PDFs und Dateie
    - Aktion **Text** mit dem Wort `SCHLÜSSEL` (Name „Schlüssel“).
    - **URLs aus Eingabe abrufen**.
    - **Inhalte von URL abrufen** mit **Adresse**`/api/kh/drafts/share`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter **Schlüssel**, Anfragetext **Formular** mit den Feldern `file` (Datei) = Kurzbefehleingabe, `text` (Text) = Kurzbefehleingabe und `url` (Text) = URLs.
-   - Zum Schluss **Mitteilung anzeigen**: „Ist im Eingang“.
+   - Zum Schluss **Wörterbuchwert abrufen** für `message` und **Mitteilung anzeigen**. Kochheft antwortet mit einem Satz: „Ist im Eingang: 1 Entwurf“, bei einem Fehler zum Beispiel „Videolinks lädt Kochheft nicht …“ (D88).
 3. **Für die Familie:** Unter **ⓘ → Importfragen** für die Aktionen **Text** („Adresse“, „Schlüssel“) Fragen einrichten (zum Beispiel „Dein Kochheft-Schlüssel“, ersetzt `SCHLÜSSEL`) und den Kurzbefehl dann per iCloud-Link teilen. So trägt jeder beim Hinzufügen seinen eigenen Schlüssel ein, und deiner geht nicht mit.
 
 Danach im Teilen-Menü „In Kochheft importieren“ wählen; der Entwurf erscheint im **Eingang**. Kochheft nimmt zuerst die Datei (Foto, PDF, Text, ZIP), sonst einen einzelnen Link mit höchstens ein paar Worten drumherum, sonst den Text; eine Safari-Webseite oder ein Web-Archiv als Datei wird übergangen. Links zu Instagram, TikTok und YouTube holt Kochheft nie ab. Ob Instagram die Beschreibung eines Beitrags herausgibt, entscheidet Instagram; sonst einen Screenshot teilen. Ein Rezept über mehrere Seiten gibst du am besten in der App im **Eingang** ein.
@@ -338,7 +338,7 @@ Mit einem Kurzbefehl sagst du Siri, was auf die Einkaufsliste soll, zum Beispiel
 1. Neuer Kurzbefehl in der App **Kurzbefehle**, Name „Auf die Einkaufsliste“.
 2. **Nach Eingabe fragen** (Typ Text) mit der Frage „Was soll auf die Liste?“; sie lässt sich diktieren.
 3. **Inhalte von URL abrufen** mit `https://<eure-adresse>/api/kh/shopping/add`, Methode **POST**, Header `Authorization` mit `Bearer ` und dahinter dem Schlüssel, Anfragetext **JSON** mit dem Feld `text` (Text) = Antwort auf die Frage.
-4. **Wert für Schlüssel abrufen** mit `message` aus dem Ergebnis, dann **Text sprechen**.
+4. **Wert für Schlüssel abrufen** mit `message` aus dem Ergebnis, dann **Text sprechen**. `message` ist immer da, auch bei Fehlern („Die Liste Lidl gibt es nicht.“), und die Statuscodes bleiben (D88).
 
 Danach funktioniert „Hey Siri, Auf die Einkaufsliste“. Siri liest zum Beispiel vor: „Milch und Butter stehen auf der Liste Rewe.“ Mehrere Artikel trennst du mit „und“ oder einer Sprechpause (Komma). Ein Artikel, der schon offen ist, bekommt die neu gesagte Menge; ein abgehakter kommt zurück auf die Liste. Den Laden sagst du einfach mit: „Milch und Butter bei Rewe“ (auch „für“, „auf die“, „in“, „zu“; „Rewe“ genügt für eine Liste „Rewe Innenstadt“, wenn nur eine so beginnt) legt alles auf die Liste dieses Ladens (D87). Passt der Name zu keiner Liste („Kaffee für Gäste“), bleibt der Text, wie er ist. Ohne Laden landet alles auf der Liste, die zuletzt geändert wurde. Wer lieber je Laden einen eigenen Kurzbefehl hat, fügt dem JSON das Feld `list` (Text) mit dem Namen hinzu; es hat Vorrang.
 
@@ -808,7 +808,7 @@ With a shortcut in the share menu, links, texts, photos, PDFs and files from Saf
    - A **Text** action with the word `KEY` (name it "Key").
    - **Get URLs from Input**.
    - **Get Contents of URL** with **Address**`/api/kh/drafts/share`, method **POST**, header `Authorization` with `Bearer ` followed by **Key**, request body **Form** with the fields `file` (File) = shortcut input, `text` (Text) = shortcut input and `url` (Text) = URLs.
-   - Finally **Show Notification**: "It is in the Intake".
+   - Finally **Get Dictionary Value** for `message` and **Show Notification**. Kochheft answers with a German sentence: "Ist im Eingang: 1 Entwurf", or on an error for example "Videolinks lädt Kochheft nicht …" (D88).
 3. **For the family:** under **ⓘ → Import Questions** add questions for the **Text** actions ("Address", "Key"; for example "Your Kochheft key", replacing `KEY`), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
 Then pick "Import into Kochheft" in the share menu; the draft shows in the **Intake**. Kochheft takes the file first (photo, PDF, text, ZIP), otherwise a single link with at most a few words around it, otherwise the text; a Safari web page or web archive sent as a file is ignored. Links to Instagram, TikTok and YouTube are never fetched. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
@@ -828,7 +828,7 @@ With a shortcut you tell Siri what goes on the shopping list, for example "milk 
 1. A new shortcut in the **Shortcuts** app, named "Add to the shopping list".
 2. **Ask for Input** (type Text) with the question "What goes on the list?"; it can be dictated.
 3. **Get Contents of URL** with `https://<your-address>/api/kh/shopping/add`, method **POST**, header `Authorization` with `Bearer ` followed by the key, request body **JSON** with the field `text` (Text) = the answer.
-4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**.
+4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**. `message` is always there, also on errors ("Die Liste Lidl gibt es nicht."), and the status codes stay (D88).
 
 Then "Hey Siri, Add to the shopping list" works. Siri reads out, for example: "Milch und Butter stehen auf der Liste Rewe." (German). Separate several articles with "und" or a comma (a pause). An article that is already open takes the amount you say; a ticked-off one goes back on the list. Just say the store: "Milch und Butter bei Rewe" (also "für", "auf die", "in", "zu"; "Rewe" is enough for a list "Rewe Innenstadt" when only one starts that way) puts everything on that store's list (D87). If the name matches no list ("Kaffee für Gäste"), the text stays as it is. Without a store everything lands on the list changed last. If you prefer one shortcut per store, add the field `list` (Text) with the name to the JSON; it takes precedence.
 

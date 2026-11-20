@@ -15,6 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.routing import APIRoute
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from mealie.core.config import get_app_settings
@@ -23,6 +24,7 @@ from mealie.core.settings import branding
 from mealie.core.settings.static import APP_VERSION
 from mealie.kh.drafts.files import sweep_orphans  # KH: daily cleanup of draft files (phase 2)
 from mealie.kh.notifications.tasks import run_notifications  # KH: push messages that wait or are due (D75)
+from mealie.kh.speakable import kh_http_exception_handler  # KH: top-level `message` on shortcut errors (D88)
 from mealie.middleware.body_size_limit import BodySizeLimitMiddleware
 from mealie.middleware.locale_context import LocaleContextMiddleware
 from mealie.routes import router, spa, utility_routes
@@ -112,6 +114,8 @@ app = FastAPI(
     docs_url=settings.DOCS_URL,
     lifespan=lifespan_fn,
 )
+
+app.add_exception_handler(StarletteHTTPException, kh_http_exception_handler)  # KH: D88
 
 # Level 9 (Starlette's default) took ~2.5x the CPU of level 6 on recipe list pages for ~4% smaller output
 app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)

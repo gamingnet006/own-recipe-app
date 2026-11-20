@@ -110,6 +110,12 @@ class FileImportOut(MealieModel):
     skipped: list[SkippedFile]
 
 
+class ShareOut(FileImportOut):
+    """The answer to the share shortcut: also a sentence for Siri to say (D88)."""
+
+    message: str
+
+
 class OriginOut(MealieModel):
     """Where an approved recipe came from, for the badge on the recipe page."""
 

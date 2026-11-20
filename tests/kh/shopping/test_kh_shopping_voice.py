@@ -98,7 +98,9 @@ def test_the_list_is_found_by_name_ignoring_case(api_client: TestClient, unique_
 
 
 def test_an_unknown_list_name_is_404(api_client: TestClient, unique_user: TestUser, lists):
-    assert api_client.post(ADD, json={"text": "Brot", "list": "Lidl"}, headers=unique_user.token).status_code == 404
+    response = api_client.post(ADD, json={"text": "Brot", "list": "Lidl"}, headers=unique_user.token)
+    assert response.status_code == 404
+    assert response.json()["message"] == "Die Liste Lidl gibt es nicht."  # D88: Siri reads the top-level message
 
 
 def test_an_open_article_gets_the_amount_and_a_ticked_one_is_put_back(
@@ -127,11 +129,15 @@ def test_an_api_token_may_add(api_client: TestClient, unique_user: TestUser, lis
 
 def test_without_a_list_the_answer_is_404(api_client: TestClient, g2_user: TestUser):
     response = api_client.post(ADD, json={"text": "Quark"}, headers=g2_user.token)
-    assert (response.status_code, response.json()["detail"]["message"]) == (404, "Es gibt noch keine Einkaufsliste.")
+    body = response.json()
+    assert (response.status_code, body["detail"]["message"]) == (404, "Es gibt noch keine Einkaufsliste.")
+    assert body["message"] == "Es gibt noch keine Einkaufsliste."
 
 
 def test_a_text_without_an_article_is_422(api_client: TestClient, unique_user: TestUser, lists):
-    assert api_client.post(ADD, json={"text": "2 kg"}, headers=unique_user.token).status_code == 422
+    response = api_client.post(ADD, json={"text": "2 kg"}, headers=unique_user.token)
+    assert response.status_code == 422
+    assert response.json()["message"] == "Ich habe keinen Artikel verstanden."
 
 
 def test_another_groups_list_is_not_used(api_client: TestClient, g2_user: TestUser, lists):
@@ -145,7 +151,10 @@ def test_refused_while_the_shopping_list_is_off(
     addons: Callable[..., None],  # noqa: F811
 ):
     addons(shopping=False)
-    assert api_client.post(ADD, json={"text": "Brot"}, headers=unique_user.token).status_code == 403
+    response = api_client.post(ADD, json={"text": "Brot"}, headers=unique_user.token)
+    assert response.status_code == 403
+    assert "ausgeschaltet" in response.json()["message"]
+    assert response.json()["detail"]["message"] == response.json()["message"]
 
 
 def only_item(api_client: TestClient, user: TestUser, list_id: str) -> dict:
