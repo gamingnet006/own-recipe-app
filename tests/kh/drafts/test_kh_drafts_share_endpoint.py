@@ -4,7 +4,7 @@ the draft the decision names."""
 import pytest
 from fastapi.testclient import TestClient
 
-from mealie.kh.drafts.share import ShareKind, classify_share, share_confirmation
+from mealie.kh.drafts.share import SharedFile, ShareKind, classify_share, share_confirmation
 from mealie.kh.features.settings import get_kh_settings
 from tests.kh.drafts.helpers import DRAFTS, heic, pdf_scan, pdf_with_text, png, zip_bytes
 from tests.kh.drafts.test_kh_drafts_pdf import LINES
@@ -15,8 +15,35 @@ LONG = "Kuchen: " + "200 g Mehl, 100 g Zucker. " * 12
 
 
 def decide(filename=None, head=b"", text=None, url=None, file_text=None):
-    decision = classify_share(filename, head, text, url, file_text)
+    files = [SharedFile(filename, head, file_text)] if filename is not None else []
+    decision = classify_share(files, text, url)
     return decision and (decision.kind, decision.value)
+
+
+JPEG = b"\xff\xd8\xff\xe0 rest"
+NOTE = "Omas Apfelkuchen\n200 g Mehl, 100 g Butter, 3 Äpfel.\nAlles verrühren und 40 Minuten backen."
+
+
+def test_photos_with_a_note_are_one_photo_draft_that_keeps_the_text():
+    """A note from the Notes app comes as its text plus its photos: every photo and the text belong to one draft."""
+    files = [SharedFile("IMG_1.jpeg", JPEG), SharedFile("Notiz.pdf", b"%PDF-1.7"), SharedFile("IMG_2.jpeg", JPEG)]
+    decision = classify_share(files, f"{NOTE}\nIMG_1.jpeg\nIMG_2.jpeg", None)
+    assert decision is not None
+    assert (decision.kind, decision.images) == (ShareKind.photo, [0, 2])
+    assert decision.caption == NOTE
+
+
+def test_photos_alone_have_no_text_even_when_shortcuts_names_them():
+    decision = classify_share(
+        [SharedFile("IMG_1.jpeg", JPEG), SharedFile("IMG_2.HEIC", JPEG)], "IMG_1.jpeg IMG_2", None
+    )
+    assert decision is not None and decision.caption is None and decision.images == [0, 1]
+
+
+def test_the_note_text_may_come_as_a_text_file_only():
+    files = [SharedFile("Notiz.txt", b"Omas", NOTE), SharedFile("IMG_1.jpeg", JPEG)]
+    decision = classify_share(files, None, None)
+    assert decision is not None and (decision.images, decision.caption) == ([1], NOTE)
 
 
 @pytest.mark.parametrize(
@@ -176,3 +203,25 @@ def test_a_share_answers_with_a_sentence_for_siri(api_client: TestClient, unique
 
 def test_the_confirmation_counts_in_the_plural():
     assert share_confirmation(3) == "Ist im Eingang: 3 Entwürfe"
+
+
+def test_a_note_with_two_photos_is_one_draft_read_with_its_text(api_client: TestClient, unique_user: TestUser, fake_ai):
+    """Shared from the Notes app: the shortcut sends every photo as a `file` field and the note's text as `text`."""
+    calls = fake_ai("recipe.json")
+    photos = [("file", ("IMG_1.jpeg", png(40, 30), "image/png")), ("file", ("IMG_2.jpeg", png(30, 40), "image/png"))]
+    response = api_client.post(f"{DRAFTS}/share", headers=unique_user.token, data={"text": NOTE}, files=photos)
+    draft = only_draft(api_client, unique_user, response)
+    assert draft["sourceType"] == "image" and len(draft["originalFiles"]) == 2
+    assert draft["sourceText"] == NOTE
+    assert calls[-1]["content"] == NOTE and len(calls[-1]["images"]) == 2
+
+
+def test_photos_beyond_the_limit_are_named_as_skipped(
+    api_client: TestClient, unique_user: TestUser, fake_ai, monkeypatch
+):
+    fake_ai("recipe.json")
+    monkeypatch.setattr(get_kh_settings(), "draft_max_images", 2)
+    photos = [("file", (f"IMG_{n}.png", png(20 + n, 20), "image/png")) for n in range(3)]
+    body = api_client.post(f"{DRAFTS}/share", headers=unique_user.token, files=photos).json()
+    assert len(body["created"]) == 1 and len(body["created"][0]["originalFiles"]) == 2
+    assert body["skipped"] == [{"name": "IMG_2.png", "reason": "too_many"}]

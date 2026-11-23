@@ -112,17 +112,25 @@ class DraftService:
         return given[0]
 
     def create(
-        self, url: str | None, text: str | None, images: list[UploadFile], media: UploadFile | None = None
+        self,
+        url: str | None,
+        text: str | None,
+        images: list[UploadFile],
+        media: UploadFile | None = None,
+        caption: str | None = None,
     ) -> DraftOut:
-        """Stores a new draft as working, with its originals or its recording; the route starts the recognition."""
+        """Stores a new draft as working, with its originals or its recording; the route starts the recognition.
+        CAPTION is the text that came with photos (a shared note): it is kept as the draft's text and read with them."""
         url, text = (url or "").strip() or None, (text or "").strip() or None
         source = self._source(url, text, images, media)
+        if caption and len(caption) > self.settings.draft_max_text:
+            raise bad_request("text_too_long")
         try:
             prepared = [prepare_original(upload.file.read(), self.settings.draft_max_image_mb) for upload in images]
         except ValueError as error:
             raise bad_request(str(error)) from error
         note = Path(media.filename or "").name[:MAX_NOTE] if media else None
-        draft = self._insert(source, url, text, note)
+        draft = self._insert(source, url, text or caption, note)
         if media:
             self._keep_recording(draft.id, media)
         return self._keep_originals(draft, prepared)
@@ -182,15 +190,17 @@ class DraftService:
             created.append(self._keep_originals(draft, photos))
         return FileImportOut(created=created, skipped=content.skipped)
 
-    def create_shared(self, decision: ShareDecision, upload: UploadFile | None) -> FileImportOut:
-        """New drafts from a share the way classify_share decided (D84); same checks as the other intakes."""
+    def create_shared(self, decision: ShareDecision, uploads: list[UploadFile]) -> FileImportOut:
+        """New drafts from a share the way classify_share decided (D84); same checks as the other intakes. Photos
+        beyond the draft limit are named as skipped."""
         match decision.kind:
             case ShareKind.photo:
-                assert upload  # a photo decision comes from an attached file
-                return FileImportOut(created=[self.create(None, None, [upload])], skipped=[])
+                photos = [uploads[n] for n in decision.images]
+                kept, extra = photos[: self.settings.draft_max_images], photos[self.settings.draft_max_images :]
+                skipped = [SkippedFile(name=photo.filename or "", reason="too_many") for photo in extra]
+                return FileImportOut(created=[self.create(None, None, kept, caption=decision.caption)], skipped=skipped)
             case ShareKind.pdf | ShareKind.file:
-                assert upload
-                return self.create_from_file(decision.value, upload)
+                return self.create_from_file(decision.value, uploads[decision.file])
             case ShareKind.link:
                 return FileImportOut(created=[self.create(decision.value, None, [])], skipped=[])
             case ShareKind.text:

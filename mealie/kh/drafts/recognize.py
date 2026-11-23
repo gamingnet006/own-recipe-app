@@ -128,7 +128,8 @@ async def build(
             return await finalize_scraped_recipe(own, translator), False
         return await ai.build_recipe(content=draft.source_text, translate_language=language), True
     images = [original_path(draft.id, name) for name in draft.original_files]
-    return await ai.build_recipe(images=images, translate_language=language), True
+    # the text that came with the photos (a shared note) is read together with them
+    return await ai.build_recipe(content=draft.source_text, images=images, translate_language=language), True
 
 
 async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:

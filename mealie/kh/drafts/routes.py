@@ -13,7 +13,7 @@ from mealie.kh.drafts.file_import import decode_text
 from mealie.kh.drafts.recognize import recognize, recognize_all
 from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut, ShareOut
 from mealie.kh.drafts.service import DraftService
-from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, classify_share, share_confirmation
+from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, SharedFile, classify_share, share_confirmation
 from mealie.kh.features.settings import get_kh_settings
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -78,25 +78,30 @@ class KhDraftsController(_DraftsBase):
         """422 whose sentence is in the answer, because the shortcut shows it as it is; no page translates it."""
         return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail={"code": code, "message": message})
 
+    @staticmethod
+    def _shared_file(upload: UploadFile) -> SharedFile:
+        """What classify_share needs of an uploaded file: its name, its first bytes and, for a text file, its text
+        (Shortcuts sends a text also as a file, and a note's text may come only that way)."""
+        head = upload.file.read(SNIFF_BYTES)
+        upload.file.seek(0)
+        text = None
+        if (upload.filename or "").lower().endswith((".txt", ".md")):
+            text = decode_text(upload.file.read(4 * get_kh_settings().draft_max_text))
+            upload.file.seek(0)
+        return SharedFile(upload.filename or "", head, text)
+
     @router.post("/share", status_code=status.HTTP_201_CREATED, response_model=ShareOut)
     def create_from_share(
         self,
         tasks: BackgroundTasks,
-        file: UploadFile | None = File(default=None),
+        file: list[UploadFile] = File(default_factory=list),
         text: Annotated[str | None, Form()] = None,
         url: Annotated[str | None, Form()] = None,
     ) -> ShareOut:
-        """New draft(s) from whatever the iOS share shortcut sent (D84): a photo, PDF, text file or ZIP, a text or
-        one or more links; Kochheft decides what it is (classify_share)."""
-        head, file_text = b"", None
-        if file:
-            head = file.file.read(SNIFF_BYTES)
-            file.file.seek(0)
-            if text and file.filename and file.filename.lower().endswith((".txt", ".md")):
-                # the text field is compared with the file's content (Shortcuts sends a text as both)
-                file_text = decode_text(file.file.read(4 * get_kh_settings().draft_max_text))
-                file.file.seek(0)
-        decision = classify_share(file.filename or "" if file else None, head, text, url, file_text)
+        """New draft(s) from whatever the iOS share shortcut sent (D84): photos (all of them, with the text that came
+        along, e.g. a note), a PDF, text file or ZIP, a text or one or more links; Kochheft decides what it is
+        (classify_share). Shortcuts sends every item of a list as its own `file` field."""
+        decision = classify_share([self._shared_file(upload) for upload in file], text, url)
         if decision is None:
             raise self._share_refused("nothing_usable", "Damit kann Kochheft nichts anfangen.")
         result = self.service.create_shared(decision, file)

@@ -6,6 +6,10 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Share shortcut: a note shared with its photos (e.g. from the Notes app) becomes one draft with all its photos (up
+  to `KH_DRAFT_MAX_IMAGES`, more are named as skipped) and its text, which the AI reads together with the photos.
+  Before, only the first photo arrived and the text was dropped, so the AI found no recipe.
+
 ## [v1.4.3] - 2026-11-20
 
 - First run checked on a fresh install: the admin gets the tour after the setup wizard instead of the "New in
