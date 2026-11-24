@@ -206,6 +206,7 @@ import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDial
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import type { MealsByDate } from "~/composables/use-group-mealplan";
 import { getScaledRecipes, getWeekRange, useMealplans } from "~/composables/use-group-mealplan";
+import { onKhReconnect } from "~~/kh/app/composables/use-kh-connection"; // KH: D63
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
 import KhWeekSuggestion from "~~/kh/app/components/KhWeekSuggestion.vue"; // KH: D70
@@ -375,6 +376,7 @@ watch(visibleRange, (newRange) => {
 }, { immediate: true });
 
 const { mealplans, actions } = useMealplans(visibleRange);
+onKhReconnect(() => void actions.refreshAll()); // KH: the server is back, load the week again (D63)
 
 function filterMealByDate(date: Date) {
   if (!mealplans.value) return [];

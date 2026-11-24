@@ -156,8 +156,8 @@ title with its origin, the times as tiles and the amount with − and +. -->
 </template>
 
 <script setup lang="ts">
-import { useOnline } from "@vueuse/core";
 import { useKhOn } from "../composables/use-kh-addons";
+import { useKhOnline } from "../composables/use-kh-connection";
 import { useKhCanEdit } from "../composables/use-kh-can-edit";
 import { recipeTimes, scaleBase, scaleLabel, scalesAmounts, sourceLink, stepScale } from "../composables/use-kh-recipe";
 import { timeHint } from "../lib/amounts";
@@ -174,7 +174,7 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { RecipeOut } from "~/lib/api/types/recipe";
 
 const props = defineProps<{ recipe: NoUndefinedField<RecipeOut> }>();
-const online = useOnline();
+const online = useKhOnline();
 defineEmits<{ edit: [] }>();
 const scale = defineModel<number>("scale", { required: true });
 
@@ -182,7 +182,7 @@ const i18n = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { isOwnGroup } = useLoggedInState();
-const { recipeImage } = useStaticRoutes();
+const { recipeSmallImage } = useStaticRoutes(); // the small photo is the one the offline cache keeps
 const { imageKey } = usePageState(props.recipe.slug);
 
 // The menu holds Mealie's dialogs, so once opened it stays mounted, as in Mealie's RecipeContextMenu
@@ -195,7 +195,7 @@ const canEditRecipe = useKhCanEdit(props.recipe);
 const khOn = useKhOn();
 
 const imageFailed = ref(false);
-const imageUrl = computed(() => recipeImage(props.recipe.id, props.recipe.image, imageKey.value));
+const imageUrl = computed(() => recipeSmallImage(props.recipe.id, props.recipe.image, imageKey.value));
 const showImage = computed(() => !!props.recipe.image && !imageFailed.value);
 watch(imageUrl, () => {
   imageFailed.value = false;

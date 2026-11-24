@@ -287,3 +287,8 @@ export function foodLink<F extends { id: string; name: string; pluralName?: stri
   if (!food || old.quantity !== null || old.extra || (old.unit && (!word || item.unit))) return null;
   return { food, unit: word ?? null, note: joinNote(properties, "") };
 }
+
+/** The name a person typed for a list, trimmed; null when nothing is left, which is refused. */
+export function cleanListName(raw: string): string | null {
+  return raw.trim() || null;
+}

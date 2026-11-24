@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from mealie.core.security import url_safe_token
 from mealie.db.db_setup import generate_session
+from mealie.kh.calendar.translator import DEFAULT_FEED_LANG, FeedTranslator  # KH: German feed by default
 from mealie.lang import get_locale_provider
-from mealie.lang.providers import Translator
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.controller import controller
 from mealie.routes._base.permissions import Perm, not_found, require
@@ -53,14 +53,14 @@ def get_mealplan_ical_feed(
     token: str,
     query: Annotated[MealPlanICalQuery, Query()],
     session: Session = Depends(generate_session),
-    translator: Translator = Depends(get_locale_provider),
 ) -> Response:
     """
     Public iCal feed of the household's meal plan. No authentication is required;
     access is controlled by the secret token in the URL.
     """
-    if query.lang:
-        translator = get_locale_provider(query.lang)
+    # KH: the link's language (default German) decides the meal-type words, not the calendar app's Accept-Language
+    lang = query.lang or DEFAULT_FEED_LANG
+    translator = FeedTranslator(get_locale_provider(lang), lang)
     feed = MealPlanICalService(session, translator).get_feed(token, query)
     if feed is None:
         raise not_found("Calendar not found")

@@ -66,7 +66,7 @@ def test_ical_feed(api_client: TestClient, unique_user_fn_scoped: TestUser, h2_u
     other = create_entry(api_client, h2_user, date=JULY_1, entry_type="dinner", title=random_string())
 
     token = enable_feed(api_client, user)
-    response = get_feed(api_client, token)
+    response = get_feed(api_client, token, {"lang": "en-US"})  # KH: the feed is German unless told otherwise
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/calendar")
 
@@ -158,7 +158,8 @@ def test_ical_feed_lang(api_client: TestClient, unique_user_fn_scoped: TestUser)
     create_entry(api_client, user, date=JULY_1, entry_type="dinner", title=random_string())
     token = enable_feed(api_client, user)
 
-    assert "SUMMARY:Essen: " in unfold(get_feed(api_client, token, {"lang": "de-DE"}).text)
+    # KH: Kochheft says "Abendessen" where the Mealie backend says "Essen"
+    assert "SUMMARY:Abendessen: " in unfold(get_feed(api_client, token, {"lang": "de-DE"}).text)
     # unknown locales fall back to English
     assert "SUMMARY:Dinner: " in unfold(get_feed(api_client, token, {"lang": "xx-XX"}).text)
 

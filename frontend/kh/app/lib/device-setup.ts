@@ -38,7 +38,7 @@ const STEPS: Record<KhSetupSection, Partial<Record<KhFamily, number>>> = {
   key: { ios: 3, android: 3, mac: 3, computer: 3 },
   import: { ios: 3, mac: 3, android: 1 },
   siri: { ios: 3, mac: 2 },
-  timer: { ios: 2 },
+  timer: { ios: 2, mac: 2 },
 };
 
 /** The add-on a section needs, if any: the list, the kitchen code and Siri need the shopping list, the timer the Clock timer. */

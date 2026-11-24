@@ -11,7 +11,16 @@ from pydantic import UUID4
 from mealie.kh.addons.service import ensure_addon
 from mealie.kh.drafts.file_import import decode_text
 from mealie.kh.drafts.recognize import recognize, recognize_all
-from mealie.kh.drafts.schemas import ApproveIn, ApproveOut, DraftEditIn, DraftOut, FileImportOut, OriginOut, ShareOut
+from mealie.kh.drafts.schemas import (
+    ApproveIn,
+    ApproveOut,
+    DraftEditIn,
+    DraftOut,
+    FileImportOut,
+    OriginalsOrderIn,
+    OriginOut,
+    ShareOut,
+)
 from mealie.kh.drafts.service import DraftService
 from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, SharedFile, classify_share, share_confirmation
 from mealie.kh.features.settings import get_kh_settings
@@ -152,6 +161,11 @@ class KhDraftsController(_DraftsBase):
     def discard(self, draft_id: UUID4) -> None:
         """Deletes a ready or failed draft and its files."""
         self.service.discard(draft_id)
+
+    @router.put("/{draft_id}/originals/order", response_model=DraftOut)
+    def reorder_originals(self, draft_id: UUID4, data: OriginalsOrderIn) -> DraftOut:
+        """Reorders the photos of a ready or failed draft; the first becomes the recipe's cover."""
+        return self.service.reorder_originals(draft_id, data.order)
 
     @router.get("/{draft_id}/originals/{n}")
     def original(self, draft_id: UUID4, n: int) -> FileResponse:

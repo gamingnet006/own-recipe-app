@@ -1,7 +1,7 @@
 // KH: loading and writing for the shopping page (D60): the household's lists, the open list with its items, and every
 // action of the tiles (check off, put back, add, change details, remove, new store) on Mealie's shopping list API.
 // Without network (D63) the last loaded lists are shown from the device and changes wait in a queue until it is back.
-import { until, useDebounceFn, useOnline } from "@vueuse/core";
+import { until, useDebounceFn } from "@vueuse/core";
 import { alert } from "~/composables/use-toast";
 import { useUserApi } from "~/composables/api";
 import { useFoodStore } from "~/composables/store/use-food-store";
@@ -19,13 +19,14 @@ import type {
   ShoppingListOut,
   ShoppingListSummary,
 } from "~/lib/api/types/household";
-import { applyQuantity, foodLink, foodMatches, lastList, pickListId, rememberList, quantityText, sameAmount, recentItems, sortListItems } from "../lib/shopping-items";
+import { applyQuantity, cleanListName, foodLink, foodMatches, lastList, pickListId, rememberList, quantityText, sameAmount, recentItems, sortListItems } from "../lib/shopping-items";
 import {
   type Fields, type Outcome, type QueuedOp, enqueue, isLocalId, lastUser, newLocalId, noAnswer, readStored, rememberUser, replay, writeStored,
 } from "../lib/shopping-offline";
 import { type StoreKind, labelSettingsFor } from "../lib/shopping-stores";
 import { type Tile, BASICS, catalog, existingFor, isOnHand } from "../lib/shopping-tiles";
 import { khAddons } from "./use-kh-addons";
+import { useKhOnline } from "./use-kh-connection";
 
 /** What a change of an item may set: the fields the detail sheet edits. */
 export type ItemChanges = Partial<Pick<ShoppingListItemOut, "quantity" | "unit" | "unitId" | "note" | "extras" | "checked" | "food" | "foodId">>;
@@ -62,7 +63,7 @@ export function useKhShopping() {
   const ready = ref(false);
 
   // Offline use (D63): only for the signed-in user and while the add-on is on
-  const online = useOnline();
+  const online = useKhOnline(); // the browser has a network and the server answers (D63)
   // Without network the session may not have loaded (no user): then the last user of this device stands in
   const userId = () => auth.user.value?.id ?? (online.value ? "" : lastUser());
   const householdSlug = () => auth.user.value?.householdSlug ?? "";
@@ -469,5 +470,25 @@ export function useKhShopping() {
     await select(created.id);
   }
 
-  return { lists, list, ready, items, open, recent, recipes, departments, units, offline, start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore, onHand, setOnHand };
+  /**
+   * Gives the open list a new name. The fresh list is read first and written back with only the name changed (the
+   * update leaves the items alone, they are not part of what it stores); the new name shows in the store chips and the
+   * header at once. Needs the connection; a blank name is refused.
+   */
+  async function rename(raw: string): Promise<boolean> {
+    const name = cleanListName(raw);
+    if (!list.value || !name || offline.value) return false;
+    const { data: fresh } = await api.shopping.lists.getOne(list.value.id);
+    const { data, error } = fresh ? await api.shopping.lists.updateOne(fresh.id, { ...fresh, name }) : { data: null, error: null };
+    if (!data || error) {
+      fail();
+      return false;
+    }
+    list.value = { ...list.value, name: data.name };
+    lists.value = lists.value.map(entry => (entry.id === data.id ? { ...entry, name: data.name } : entry));
+    saveList();
+    keep(NAME.lists, lists.value);
+    return true;
+  }
+  return { rename, lists, list, ready, items, open, recent, recipes, departments, units, offline, start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore, onHand, setOnHand };
 }

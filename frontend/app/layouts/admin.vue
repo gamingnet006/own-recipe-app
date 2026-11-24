@@ -3,6 +3,7 @@
     <TheSnackbar />
 
     <AppHeader>
+      <KhBackButton /> <!-- KH: the installed app has no browser back -->
       <v-btn
         icon
         @click.stop="sidebar = !sidebar"

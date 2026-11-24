@@ -25,6 +25,26 @@ read, and the third-party components from THIRD_PARTY_NOTICES.md. -->
           <v-btn :href="$khFeatures.sourceUrl" target="_blank" rel="noopener" color="primary" class="mt-3">
             {{ $t("kh.about.source") }}
           </v-btn>
+          <v-btn class="mt-3 ml-2" @click="newsOpen = true">
+            {{ $t("kh.about.news") }}
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+      <h2 class="text-h6 mb-2">
+        {{ $t("kh.about.leaves-title") }}
+      </h2>
+      <v-card class="mb-4">
+        <v-card-text>
+          <p>{{ $t("kh.about.leaves-intro") }}</p>
+          <ul class="ml-6">
+            <li v-for="key in LEAVES" :key="key">
+              {{ $t(`kh.about.leaves.${key}`) }}
+            </li>
+          </ul>
+          <a :href="readmeUrl" target="_blank" rel="noopener" class="d-inline-block mt-2">
+            {{ $t("kh.about.leaves-details") }}
+          </a>
         </v-card-text>
       </v-card>
 
@@ -41,18 +61,29 @@ read, and the third-party components from THIRD_PARTY_NOTICES.md. -->
       </p>
     </template>
     <v-progress-linear v-else indeterminate />
+    <KhNews v-model="newsOpen" :news="allNews" />
   </v-container>
 </template>
 
 <script setup lang="ts">
+import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { KhSystemApi, type KhAbout } from "~~/kh/app/lib/api/system";
+import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { useRequests } from "~/composables/api/api-client";
 
 definePageMeta({
   middleware: ["auth", "group-only"],
 });
 
+// The rows of "What leaves the house?", short forms of the README table "What goes where"
+const LEAVES = ["link", "ai", "push", "tunnel", "updates"];
+
 const i18n = useI18n();
+const auth = useMealieAuth();
+const { $khFeatures } = useNuxtApp();
+const readmeUrl = `${$khFeatures.sourceUrl}/blob/main/docs/kh/README.md#${i18n.t("kh.about.readme-anchor")}`;
+const newsOpen = ref(false);
+const allNews = computed(() => forAddons(WHATS_NEW, khAddons.enabled, !!auth.user.value?.admin));
 useSeoMeta({ title: i18n.t("kh.about.title") });
 
 const about = ref<KhAbout | null>(null);

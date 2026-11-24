@@ -79,11 +79,12 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
             :title="$t('sidebar.language')"
             @click="languageDialog = true"
           />
-          <v-list-item
-            :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight"
-            :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')"
-            @click="toggleDark"
-          />
+          <!-- KH: System / Light / Dark instead of Mealie's one toggle -->
+          <v-list-item :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherNight : $globals.icons.weatherSunny" :title="$t('kh.theme.title')">
+            <template #append>
+              <KhThemeChoice />
+            </template>
+          </v-list-item>
           <v-list-item
             :prepend-icon="$globals.icons.logout"
             :title="$t('user.logout')"
@@ -124,7 +125,6 @@ import { khSidebar, saveKhSimple } from "~~/kh/app/composables/use-kh-sidebar";
 import { SETUP_PATH } from "~~/kh/app/lib/device-setup";
 import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { alert } from "~/composables/use-toast";
-import { useToggleDarkMode } from "~/composables/use-utils";
 
 definePageMeta({
   middleware: ["auth", "group-only"],
@@ -137,7 +137,6 @@ const i18n = useI18n();
 const { $globals } = useNuxtApp();
 const route = useRoute();
 const auth = useMealieAuth();
-const toggleDark = useToggleDarkMode();
 
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 

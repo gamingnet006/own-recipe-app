@@ -121,6 +121,11 @@ export class KhDraftsApi extends BaseAPI {
     return await this.requests.patch<KhDraft, KhDraftEdit>(`${drafts}/${id}/recipe`, body, OWN_ERRORS);
   }
 
+  /** Puts a ready draft's photos in a new order (their current numbers from 1); the first becomes the cover. */
+  async reorderOriginals(id: string, order: number[]) {
+    return await this.requests.put<KhDraft, { order: number[] }>(`${drafts}/${id}/originals/order`, { order }, OWN_ERRORS);
+  }
+
   /** Starts the recognition of a failed draft again. */
   async retry(id: string) {
     return await this.requests.post<KhDraft, undefined>(`${drafts}/${id}/retry`, undefined, OWN_ERRORS);

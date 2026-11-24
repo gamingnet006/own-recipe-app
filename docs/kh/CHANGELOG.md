@@ -6,6 +6,36 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Calendar subscription: the calendar is named "Kochheft - <household>" and the meal types in the entries follow the
+  language of the link (German "Abendessen: ...", English "Dinner: ..."; German when the link carries none). The dialog
+  now says to create or copy the link while Kochheft is open under its public address.
+- About Kochheft: a "Neuigkeiten" button and a short "What leaves the house?" section from the README table "What goes
+  where".
+- Shopping list: a tap on the list name (or "Rename" in the lists sheet) renames it; needs a connection.
+- Adding recipes from several photos: arrows move a photo earlier or later, in the intake form and in the draft review;
+  the first photo becomes the recipe photo.
+- Third-party notices: the QR code library `uqr` (MIT) was missing and is listed now.
+- Sub-pages (settings and everything linked from More, the planner's own pages, the admin area) get a back arrow at the top:
+  back in the history, or to More / the tab's page when opened directly, because the Dock and home-screen app has no
+  back button.
+- The side menu ends with "Customize" (pencil) which opens the same ticks as Settings > Side menu.
+- The hint under "Our oven" no longer overdraws itself; hints under inputs get a normal line height.
+- The clock timer now also works on the Mac (Shortcuts app, Safari and the Dock app, Chrome too), with its own set-up steps.
+- Appearance: System / Light / Dark per device instead of one toggle (More > Account and Settings); "System" follows the
+  device live. Earlier choices carry over.
+- Offline for everyone (the add-on "Offline recipes" stays, on by default, as an opt-out): all recipes of the household
+  (text, amounts and the one main photo in the small size, about 20 MB at most, oldest dropped first), the recipe lists,
+  the week and the wishes stay readable without a connection. They load quietly in the background after sign-in and
+  whenever the server is back.
+- A banner "No connection to the server - changes will be sent later" shows while the server is not reachable. The app
+  checks every 25 seconds while the page is visible (and at once when the device goes online/offline); when the server
+  answers again the banner goes, queued shopping changes are sent and the shopping list, the week and the recipes refresh.
+- Without a connection "Create" and the intake form are disabled ("Needs a connection") instead of failing.
+- "Hey Siri, Add to the shopping list" understands whole sentences in German and English: amounts said as words
+  ("zweimal Butter", "one liter", "3-mal", "3x"), a leading "Setz/Schreib/put/add ..." and a trailing "drauf/on it",
+  "-Einkaufsliste" and "shopping list", and several stores in one sentence ("Butter auf die Aldi-Liste und Tampons auf
+  die dm-Liste"). Siri answers with one sentence per list.
+
 ## [v1.4.4] - 2026-11-23
 
 - Share shortcut: a note shared with its photos (e.g. from the Notes app) becomes one draft with all its photos (up

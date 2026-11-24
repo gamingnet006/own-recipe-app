@@ -1,17 +1,16 @@
-import { useDark } from "@vueuse/core";
+// KH: the look follows the three-way choice System / Hell / Dunkel (use-kh-theme.ts) instead of vueuse's two-way toggle;
+// Vuetify gets the resolved look by name, so "System" also switches live when the device does.
+import { useKhTheme } from "~~/kh/app/composables/use-kh-theme";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const isDark = useDark({
-    onChanged: (v) => {
-      console.log(`changing theme to ${v ? "dark" : "light"} using @vueuse/useDark`);
-      const $vuetify = nuxtApp.vueApp.$nuxt.$vuetify;
-      if ($vuetify)
-        $vuetify.theme.toggle();
-    },
+  const { resolved } = useKhTheme();
+
+  watch(resolved, (name) => {
+    nuxtApp.vueApp.$nuxt.$vuetify?.theme.change(name);
   });
 
   nuxtApp.hook("vuetify:ready", (vuetify) => {
-    vuetify.theme.change(isDark.value ? "dark" : "light");
+    vuetify.theme.change(resolved.value);
   });
 
   return {

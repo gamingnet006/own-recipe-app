@@ -201,6 +201,27 @@ export function activeTab(
   return "more";
 }
 
+/**
+ * Where the back arrow of a sub-page goes when there is no history (page opened directly), or null when the page gets
+ * no arrow: the tabs of the bar, More, cook mode, and the recipe view and shared recipes, which bring their own. The
+ * fallback is the page of the tab the path belongs to (More for everything under More).
+ */
+export function backTarget(
+  path: string,
+  groupSlug: string,
+  cook: boolean,
+  on: KhAddonFlags = khAddons.enabled,
+  simple: boolean = khSidebar.simple,
+): string | null {
+  const group = `/g/${groupSlug}`;
+  const clean = path.length > 1 ? path.replace(/\/$/, "") : path;
+  const recipeView = clean.startsWith(`${group}/r/`) && !clean.startsWith(`${group}/r/create`);
+  const topLevel = barTargets(groupSlug, on, simple).some(target => target.to === clean);
+  if (cook || topLevel || recipeView || clean.startsWith(`${group}/shared/`)) return null;
+  const all = allTargets(groupSlug, "");
+  return all[activeTab(clean, groupSlug, on, simple)].to;
+}
+
 /** Mealie's side menu: open while the screen is wide, also after an iPad is turned to landscape. */
 export function useKhSidebar(wide: Ref<boolean>): Ref<boolean> {
   const open = ref(false);

@@ -108,6 +108,10 @@
             />
           </template>
         </v-text-field>
+        <!-- KH: the link holds the address it was made under (D85) -->
+        <p class="text-caption">
+          {{ $t("kh.calendar.public-address-hint") }}
+        </p>
         <p
           v-if="canManage"
           class="text-caption"

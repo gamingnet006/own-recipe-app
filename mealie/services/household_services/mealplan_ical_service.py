@@ -154,8 +154,9 @@ class MealPlanICalService(BaseService):
         entries = [e for e in entries if self._include(e, query)]
 
         tz: tzinfo = ZoneInfo(query.tz) if query.tz else tzlocal()
+        # KH: our name instead of Mealie's
         return self.build_calendar(
-            entries, query, tz, calendar_name=f"Mealie - {household.name}", group_slug=group.slug
+            entries, query, tz, calendar_name=f"Kochheft – {household.name}", group_slug=group.slug
         )
 
     @staticmethod

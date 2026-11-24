@@ -102,13 +102,12 @@ test("the link to the clock app", async () => {
   expect(clockTimerUrl("KH Timer", 61)).toBe("shortcuts://run-shortcut?name=KH%20Timer&input=text&text=2");
 });
 
-test("the clock shortcut is offered on iPhone and iPad only", async () => {
+test("the clock shortcut is offered on iPhone, iPad and Mac, not on Android or Windows", async () => {
   const { offersClockShortcut } = await fresh();
-  expect(offersClockShortcut("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)", 5)).toBe(true);
-  expect(offersClockShortcut("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 5)).toBe(true); // iPad
-  expect(offersClockShortcut("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 0)).toBe(false); // Mac
-  expect(offersClockShortcut("Mozilla/5.0 (Linux; Android 15; Pixel 9)", 5)).toBe(false);
-  expect(offersClockShortcut("Mozilla/5.0 (Windows NT 10.0; Win64; x64)", 0)).toBe(false);
+  expect(offersClockShortcut("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)")).toBe(true);
+  expect(offersClockShortcut("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")).toBe(true); // iPad or Mac, Safari or Chrome
+  expect(offersClockShortcut("Mozilla/5.0 (Linux; Android 15; Pixel 9)")).toBe(false);
+  expect(offersClockShortcut("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).toBe(false);
 });
 
 test("an Android phone that turned the clock on in v1.1 is not offered the button any more", async () => {

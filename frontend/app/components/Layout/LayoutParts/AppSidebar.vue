@@ -150,6 +150,7 @@
             <v-list-item v-if="isAdmin" :prepend-icon="$globals.icons.wrench" :title="$t('settings.admin-settings')" to="/admin/site-settings" />
           </v-list>
         </v-menu>
+        <KhSidebarCustomize v-if="loggedIn && isOwnGroup" /> <!-- KH: choose what the side menu shows -->
       </v-list>
     </template>
   </v-navigation-drawer>

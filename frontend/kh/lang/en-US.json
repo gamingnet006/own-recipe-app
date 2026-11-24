@@ -18,6 +18,9 @@
       "choose-media": "Choose a recording",
       "remove-photo": "Remove photo",
       "original-photo": "Photo {n}",
+      "photo-earlier": "Move photo {n} earlier",
+      "photo-later": "Move photo {n} later",
+      "photo-first-hint": "The first photo becomes the recipe photo.",
       "no-drafts": "No drafts waiting.",
       "status": {
         "working": "Being recognized …",
@@ -128,7 +131,15 @@
       "yield": "Makes",
       "discard-this": "Discard this draft"
     },
+    "theme": {
+      "title": "Appearance",
+      "auto": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "hint": "System follows the setting of this device. The choice applies to this device only."
+    },
     "nav": {
+      "customize": "Customize",
       "intake": "Intake",
       "shopping": "Shopping list",
       "more": "More",
@@ -264,12 +275,12 @@
       "clock-name": "Name of the shortcut",
       "clock-add": "Add shortcut",
       "clock-setup": "How to set up the shortcut",
-      "clock-step-1": "Open the Shortcuts app and tap \"+\" at the bottom right.",
+      "clock-step-1": "Open the Shortcuts app and create a new shortcut with \"+\".",
       "clock-step-2": "Change the name at the top to \"Kochheft Timer\" (exactly, or adjust the name below).",
       "clock-step-3": "Add the action \"Get Numbers from Input\" with the source \"Shortcut Input\".",
       "clock-step-4": "Add the action \"Start Timer\"; duration = the number from step 3, unit minutes. Done.",
       "clock-try": "Try it (1 minute)",
-      "clock-ios-only": "The clock timer works on iPhone and iPad only, because it needs the Shortcuts app. Here the timer rings while Kochheft is open."
+      "clock-ios-only": "The clock timer works on iPhone, iPad and Mac only, because it needs the Shortcuts app. Here the timer rings while Kochheft is open."
     },
     "cooked": {
       "often": "Often cooked",
@@ -322,6 +333,10 @@
       "no-steps": "This recipe has no steps.",
       "offline": "Offline: saved version",
       "lock-hint": "This device cannot keep the screen on by itself. Set its automatic lock to a longer time in the settings so the screen stays on while you cook."
+    },
+    "connection": {
+      "banner": "No connection to the server – changes will be sent later",
+      "needs": "Needs a connection"
     },
     "voice": {
       "start": "Voice commands on",
@@ -472,6 +487,9 @@
         "retry": "Try again"
       }
     },
+    "calendar": {
+      "public-address-hint": "Create or copy this link while Kochheft is open under its public address. Calendars outside your home network cannot reach a link made on a local address."
+    },
     "about": {
       "title": "About Kochheft",
       "version": "Version {version}",
@@ -481,7 +499,19 @@
       "source": "View the source code",
       "notices": "Third-party components",
       "notices-missing": "The list of third-party components is not part of this installation.",
-      "failed": "The details could not be loaded."
+      "failed": "The details could not be loaded.",
+      "news": "What's new",
+      "leaves-title": "What leaves the house?",
+      "leaves-intro": "Kochheft has no telemetry. Only what you switch on goes out:",
+      "leaves": {
+        "link": "Reading a link: the website you ask for.",
+        "ai": "AI import: the text or photo goes to the AI provider you entered.",
+        "push": "Notifications: encrypted, via the push service of Apple, Google or Mozilla.",
+        "tunnel": "Access from outside: through Cloudflare, if you switched it on.",
+        "updates": "Updates: GitHub and Docker Hub. Backups stay in your own folder or on your USB stick."
+      },
+      "leaves-details": "All details in the README",
+      "readme-anchor": "what-goes-where"
     },
     "system": {
       "description": "One traffic light per item. Nothing is changed here.",
@@ -792,6 +822,10 @@
       }
     },
     "shopping": {
+      "rename": "Rename",
+      "rename-label": "List name",
+      "rename-done": "Done",
+      "rename-offline": "Renaming needs a connection.",
       "search": "Search or add an item …",
       "stores": "Stores",
       "add-store": "Add store",
@@ -1004,6 +1038,11 @@
           "title": "Clock timer",
           "s1": "Under More → Settings → Timer turn on “Put on Clock timer”.",
           "s2": "The timer then rings even when the device is locked."
+        },
+        "mac": {
+          "title": "Clock timer",
+          "s1": "Under More → Settings → Timer turn on “Put on Clock timer” and add the shortcut with the button there (it opens in the Shortcuts app).",
+          "s2": "The timer then starts in the Clock app, even when Kochheft is no longer in front."
         }
       },
       "kitchen": {

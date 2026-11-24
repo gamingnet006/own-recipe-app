@@ -3,6 +3,7 @@
     <TheSnackbar />
 
     <AppHeader>
+      <KhBackButton /> <!-- KH: the installed app has no browser back -->
       <!-- KH: below 840 px the bar at the bottom replaces menu button and side menu (D38) -->
       <v-btn
         v-if="khWide && !khCookScreen"
@@ -30,8 +31,10 @@
         nudge-right="15"
       >
         <template #activator="{ props }">
+          <!-- KH: the next button is disabled without a connection, creating needs the server (D63) -->
           <v-btn
             v-if="isOwnGroup"
+            :disabled="!khOnline"
             rounded
             size="large"
             class="ml-2 mt-3"
@@ -91,6 +94,7 @@
       </v-menu>
     </AppSidebar>
     <v-main class="pt-12">
+      <KhConnectionBanner /> <!-- KH: the server is not reachable (D63) -->
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
@@ -109,6 +113,8 @@ import type { CookBookOut } from "~/lib/api/types/cookbook";
 import { useKhDraftCount } from "~~/kh/app/composables/use-kh-drafts"; // KH: drafts counter for the menu
 import { useKhCookScreen } from "~~/kh/app/composables/use-kh-cook-screen"; // KH: D76
 import { useKhAddonsLoader } from "~~/kh/app/composables/use-kh-addons"; // KH: add-on switches (D46)
+import { useKhConnectionMonitor, useKhOnline } from "~~/kh/app/composables/use-kh-connection"; // KH: D63
+import { useKhOfflineSync } from "~~/kh/app/composables/use-kh-offline-sync"; // KH: D63
 // KH: shared destinations (D38)
 import {
   type KhNavTarget,
@@ -159,6 +165,9 @@ const khWide = computed(() => display.mdAndUp.value);
 const sidebar = useKhSidebar(khWide);
 const khCookScreen = useKhCookScreen(); // KH: cook mode hides bar, side menu and sign-out (D76)
 useKhAddonsLoader(); // KH: D46
+useKhConnectionMonitor(); // KH: is the server reachable? (D63)
+useKhOfflineSync(); // KH: fills the offline cache in the background (D63)
+const khOnline = useKhOnline(); // KH: server-only actions are disabled without a connection
 
 function cookbookAsLink(cookbook: CookBookOut): SideBarLink {
   return {

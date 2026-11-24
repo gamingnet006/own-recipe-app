@@ -308,6 +308,26 @@ class DraftService:
             raise conflict("not_ready")
         return self.get(draft_id)
 
+    def reorder_originals(self, draft_id: UUID4, order: list[int]) -> DraftOut:
+        """Puts a ready or failed draft's originals in the given order (current numbers from 1); the first becomes the
+        cover and the first photo of a retry."""
+        draft = self.get(draft_id)
+        if draft.status not in (DraftStatus.ready, DraftStatus.failed):
+            raise conflict("not_ready")
+        if sorted(order) != list(range(1, len(draft.original_files) + 1)):
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail={"code": "bad_order"})
+        names = [draft.original_files[n - 1] for n in order]
+        # written only while the draft is still open, so a racing approval or retry keeps its cover
+        written = self.session.execute(
+            sa.update(KhDraft)
+            .where(KhDraft.id == draft_id, KhDraft.status.in_((DraftStatus.ready, DraftStatus.failed)))
+            .values(original_files=names)
+        )
+        self.session.commit()
+        if written.rowcount == 0:  # type: ignore[attr-defined]
+            raise conflict("not_ready")
+        return self.get(draft_id)
+
     def _all_repos(self):
         """Repositories that see every group, for checks that must not miss another household's recipe."""
         return get_repositories(self.session, group_id=None, household_id=None)

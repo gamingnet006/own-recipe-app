@@ -208,11 +208,11 @@ export function clockTimerUrl(name: string, seconds: number): string {
 }
 
 /**
- * Whether this device can run an iOS Shortcut: iPhone and iPad only. iPadOS Safari names itself "Macintosh", so a Mac
- * name with a touch screen counts as an iPad. Android has no Shortcuts app, and browsers there cannot start its timer.
+ * Whether this device can run a Shortcut: iPhone, iPad and Mac (the Mac's Shortcuts app runs the same one; iPadOS and
+ * Chrome on a Mac also name themselves "Macintosh"). Android and Windows have no Shortcuts app.
  */
-export function offersClockShortcut(userAgent: string, touchPoints: number): boolean {
-  return /iPhone|iPad|iPod/.test(userAgent) || (/Macintosh/.test(userAgent) && touchPoints > 1);
+export function offersClockShortcut(userAgent: string): boolean {
+  return /iPhone|iPad|iPod|Macintosh/.test(userAgent);
 }
 
 interface ClockSetting {
@@ -235,6 +235,6 @@ watch(clock, setting => localStorage.setItem(CLOCK_KEY, JSON.stringify(setting))
 /** Whether this device offers "Auf Uhr-Timer legen", and the name of its Shortcut; kept on the device. `offered`
  * says whether the device can run it at all, so a switch left on from before (say on Android) shows no button. */
 export function useKhClockSetting() {
-  const offered = offersClockShortcut(navigator.userAgent, navigator.maxTouchPoints);
+  const offered = offersClockShortcut(navigator.userAgent);
   return { enabled: toRef(clock.value, "enabled"), name: toRef(clock.value, "name"), offered };
 }

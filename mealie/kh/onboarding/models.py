@@ -22,6 +22,10 @@ class KhUserOnboarding(SqlAlchemyBase, BaseMixins):
     verified_email: Mapped[str | None] = mapped_column(sa.String, nullable=True)
     tour: Mapped[bool] = mapped_column(sa.Boolean, default=False, server_default=sa.false(), nullable=False)  # D59
     news_seen: Mapped[str | None] = mapped_column(sa.String(20), nullable=True)  # newest "Neu in Kochheft" seen (D69)
+    # the person answered or skipped "Verträgst du etwas nicht?" once (kh0016); per account, not per device
+    intolerances_asked: Mapped[bool] = mapped_column(
+        sa.Boolean, default=False, server_default=sa.false(), nullable=False
+    )
 
     @auto_init()
     def __init__(self, **_) -> None:
@@ -51,6 +55,8 @@ class KhAccountSettings(SqlAlchemyBase, BaseMixins):
 
     id: Mapped[GUID] = mapped_column(GUID, primary_key=True, default=GUID.generate)
     email_required: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
+    locale: Mapped[str | None] = mapped_column(sa.String(10), nullable=True)  # chosen in the first setup (kh0016)
+    accent: Mapped[str | None] = mapped_column(sa.String(20), nullable=True)  # the installation's colour (kh0016)
 
     @auto_init()
     def __init__(self, **_) -> None:

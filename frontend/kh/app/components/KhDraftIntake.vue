@@ -2,6 +2,16 @@
 which is recognized in the background and then waits in the list above for a review. The page gives it its heading. -->
 <template>
   <section>
+    <v-alert
+      v-if="!online"
+      type="warning"
+      variant="tonal"
+      density="compact"
+      class="mb-3"
+      role="status"
+    >
+      {{ $t("kh.connection.needs") }}
+    </v-alert>
     <!-- D39: when no AI provider is set up or free, photos and texts would fail; links with recipe data still work -->
     <v-alert
       v-if="aiHint"
@@ -28,6 +38,7 @@ which is recognized in the background and then waits in the list above for a rev
       <v-col v-for="option in sources" :key="option.source" :cols="columns">
         <v-btn
           block
+          :disabled="!online"
           height="72"
           :color="source === option.source ? 'primary' : 'kh-hint'"
           stacked
@@ -65,6 +76,13 @@ which is recognized in the background and then waits in the list above for a rev
         <div v-if="photos.length" class="d-flex flex-wrap ga-2 mb-3">
           <div v-for="(photo, index) in photos" :key="photo.url" class="kh-photo">
             <v-img :src="photo.url" width="88" height="88" cover rounded />
+            <KhPhotoMove
+              v-if="photos.length > 1"
+              :index="index"
+              :count="photos.length"
+              class="kh-photo-move"
+              @order="order => (photos = applyOrder(photos, order))"
+            />
             <v-btn
               icon
               size="x-small"
@@ -76,6 +94,9 @@ which is recognized in the background and then waits in the list above for a rev
             </v-btn>
           </div>
         </div>
+        <p v-if="photos.length > 1" class="text-caption mb-2">
+          {{ $t("kh.drafts.photo-first-hint") }}
+        </p>
         <v-btn variant="tonal" :prepend-icon="$globals.icons.createAlt" @click="picker?.click()">
           {{ $t("kh.drafts.add-photos") }}
         </v-btn>
@@ -99,7 +120,7 @@ which is recognized in the background and then waits in the list above for a rev
         </v-btn>
         <v-progress-linear v-if="sending && source === 'file'" :model-value="uploaded * 100" class="mt-3" />
       </div>
-      <v-btn type="submit" color="success" class="mt-4" :loading="sending" :disabled="!complete">
+      <v-btn type="submit" color="success" class="mt-4" :loading="sending" :disabled="!complete || !online">
         {{ $t("general.submit") }}
       </v-btn>
     </v-form>
@@ -132,8 +153,10 @@ which is recognized in the background and then waits in the list above for a rev
 <script setup lang="ts">
 import type { KhDraftSource } from "~~/kh/app/lib/api/drafts";
 import { errorText, fileSummary, isVideoLink, requestError, useKhDraftsApi } from "~~/kh/app/composables/use-kh-drafts";
+import { applyOrder } from "~~/kh/app/lib/photo-order";
 import { aiHintKey, useKhAiApi } from "~~/kh/app/composables/use-kh-ai";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
+import { useKhOnline } from "~~/kh/app/composables/use-kh-connection";
 import { alert } from "~/composables/use-toast";
 import { validators } from "~/composables/use-validators";
 
@@ -142,6 +165,7 @@ const props = defineProps<{ sharedLink: string; sharedText: string }>();
 const emit = defineEmits<{ submitted: [] }>();
 
 const i18n = useI18n();
+const online = useKhOnline(); // an intake needs the server (and its AI)
 const { $globals, $khFeatures } = useNuxtApp();
 const api = useKhDraftsApi();
 
@@ -279,6 +303,12 @@ async function submitFile() {
 <style scoped>
 .kh-photo {
   position: relative;
+}
+
+.kh-photo-move {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
 }
 
 .kh-photo-remove {

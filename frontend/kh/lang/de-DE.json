@@ -18,6 +18,9 @@
       "choose-media": "Aufnahme wählen",
       "remove-photo": "Foto entfernen",
       "original-photo": "Foto {n}",
+      "photo-earlier": "Foto {n} nach vorn schieben",
+      "photo-later": "Foto {n} nach hinten schieben",
+      "photo-first-hint": "Das erste Foto wird das Rezeptfoto.",
       "no-drafts": "Keine offenen Entwürfe.",
       "status": {
         "working": "Wird erkannt …",
@@ -128,7 +131,15 @@
       "yield": "Ergibt",
       "discard-this": "Diesen Entwurf verwerfen"
     },
+    "theme": {
+      "title": "Darstellung",
+      "auto": "System",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "hint": "System folgt der Einstellung dieses Geräts. Die Wahl gilt nur für dieses Gerät."
+    },
     "nav": {
+      "customize": "Anpassen",
       "intake": "Eingang",
       "shopping": "Einkaufsliste",
       "more": "Mehr",
@@ -264,12 +275,12 @@
       "clock-name": "Name des Kurzbefehls",
       "clock-add": "Kurzbefehl hinzufügen",
       "clock-setup": "So richtest du den Kurzbefehl ein",
-      "clock-step-1": "App „Kurzbefehle“ öffnen, unten rechts auf „+“ tippen.",
+      "clock-step-1": "App „Kurzbefehle“ öffnen und mit „+“ einen neuen Kurzbefehl anlegen.",
       "clock-step-2": "Oben den Namen auf „Kochheft Timer“ ändern (genau so, oder den Namen hier unten anpassen).",
       "clock-step-3": "Aktion „Zahlen aus Eingabe abrufen“ hinzufügen; als Quelle „Kurzbefehleingabe“.",
       "clock-step-4": "Aktion „Timer starten“ hinzufügen; Dauer = die Zahl aus Schritt 3, Einheit Minuten. Fertig.",
       "clock-try": "Ausprobieren (1 Minute)",
-      "clock-ios-only": "Den Uhr-Timer gibt es nur auf iPhone und iPad, weil er die App Kurzbefehle braucht. Hier klingelt der Timer, solange Kochheft offen ist."
+      "clock-ios-only": "Den Uhr-Timer gibt es nur auf iPhone, iPad und Mac, weil er die App Kurzbefehle braucht. Hier klingelt der Timer, solange Kochheft offen ist."
     },
     "cooked": {
       "often": "Oft gekocht",
@@ -322,6 +333,10 @@
       "no-steps": "Dieses Rezept hat keine Schritte.",
       "offline": "Offline: gespeicherte Fassung",
       "lock-hint": "Dieses Gerät kann die Bildschirmsperre nicht von selbst ausschalten. Stell die automatische Sperre in den Einstellungen länger, damit der Bildschirm beim Kochen an bleibt."
+    },
+    "connection": {
+      "banner": "Keine Verbindung zum Server – Änderungen werden nachgeschickt",
+      "needs": "Geht nur mit Verbindung"
     },
     "voice": {
       "start": "Sprachbefehle an",
@@ -472,6 +487,9 @@
         "retry": "Erneut versuchen"
       }
     },
+    "calendar": {
+      "public-address-hint": "Erstelle oder kopiere den Link, während Kochheft unter seiner öffentlichen Adresse geöffnet ist. Kalender außerhalb deines Heimnetzes erreichen sonst keinen Link, der mit einer lokalen Adresse entstanden ist."
+    },
     "about": {
       "title": "Über Kochheft",
       "version": "Version {version}",
@@ -481,7 +499,19 @@
       "source": "Quellcode ansehen",
       "notices": "Fremde Bausteine",
       "notices-missing": "Die Liste der Fremd-Bausteine ist in dieser Installation nicht enthalten.",
-      "failed": "Die Angaben konnten nicht geladen werden."
+      "failed": "Die Angaben konnten nicht geladen werden.",
+      "news": "Neuigkeiten",
+      "leaves-title": "Was verlässt das Haus?",
+      "leaves-intro": "Kochheft hat keine Telemetrie. Nur was du einschaltest, geht nach draußen:",
+      "leaves": {
+        "link": "Link einlesen: die Webseite, die du angibst.",
+        "ai": "KI-Import: Text oder Foto gehen an den KI-Anbieter, den du eingetragen hast.",
+        "push": "Mitteilungen: verschlüsselt über den Push-Dienst von Apple, Google oder Mozilla.",
+        "tunnel": "Zugang von unterwegs: über Cloudflare, wenn du ihn eingeschaltet hast.",
+        "updates": "Updates: GitHub und Docker Hub. Backups bleiben in deinem Ordner oder auf deinem USB-Stick."
+      },
+      "leaves-details": "Alle Einzelheiten im README",
+      "readme-anchor": "was-geht-wohin"
     },
     "system": {
       "description": "Eine Ampel pro Punkt. Hier wird nichts verändert.",
@@ -792,6 +822,10 @@
       }
     },
     "shopping": {
+      "rename": "Umbenennen",
+      "rename-label": "Name der Liste",
+      "rename-done": "Fertig",
+      "rename-offline": "Umbenennen geht nur mit Verbindung.",
       "search": "Artikel suchen oder hinzufügen …",
       "stores": "Läden",
       "add-store": "Laden hinzufügen",
@@ -1004,6 +1038,11 @@
           "title": "Uhr-Timer",
           "s1": "Unter Mehr → Einstellungen → Timer schaltest du „Auf Uhr-Timer legen“ ein.",
           "s2": "Der Timer klingelt dann auch bei gesperrtem Gerät."
+        },
+        "mac": {
+          "title": "Uhr-Timer",
+          "s1": "Unter Mehr → Einstellungen → Timer schaltest du „Auf Uhr-Timer legen“ ein und fügst den Kurzbefehl mit dem Knopf dort hinzu (er öffnet sich in der App Kurzbefehle).",
+          "s2": "Der Timer startet dann in der App Uhr, auch wenn Kochheft nicht mehr im Vordergrund ist."
         }
       },
       "kitchen": {

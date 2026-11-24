@@ -52,9 +52,9 @@ describe("setupSections", () => {
     expect(ids("ipad")).toEqual(ids("iphone"));
   });
 
-  test("Android has no Siri and no Clock timer, Mac no timer, computers only install and key", () => {
+  test("Android has no Siri and no Clock timer, the Mac has both, computers only install and key", () => {
     expect(ids("android")).toEqual(["home", "list", "kitchen", "key", "import"]);
-    expect(ids("mac")).toEqual(["home", "list", "kitchen", "key", "import", "siri"]);
+    expect(ids("mac")).toEqual(["home", "list", "kitchen", "key", "import", "siri", "timer"]);
     expect(ids("computer")).toEqual(["home", "list", "kitchen", "key"]);
   });
 

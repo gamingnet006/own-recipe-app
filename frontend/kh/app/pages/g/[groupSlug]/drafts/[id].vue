@@ -35,7 +35,7 @@ recognized (one below the other on a phone, side by side from iPad width), then 
           <h2 class="text-h6 mb-2">
             {{ $t("kh.drafts.original") }}
           </h2>
-          <KhDraftOriginal :draft="draft" />
+          <KhDraftOriginal :draft="draft" @reordered="draft = $event" />
         </v-col>
         <v-col :cols="columns">
           <h2 class="text-h6 mb-2">

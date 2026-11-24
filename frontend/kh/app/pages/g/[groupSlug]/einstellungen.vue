@@ -28,6 +28,18 @@ timer, and from 840 px the choice of what the side menu shows. -->
       </v-list>
     </section>
 
+    <section class="mb-4">
+      <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+        {{ $t("kh.theme.title") }}
+      </h2>
+      <v-list rounded="lg" class="py-2 px-4">
+        <KhThemeChoice />
+        <p class="text-body-2 text-medium-emphasis mt-2">
+          {{ $t("kh.theme.hint") }}
+        </p>
+      </v-list>
+    </section>
+
     <section v-if="khOn.oven" class="mb-4">
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.oven.title") }}
@@ -112,23 +124,7 @@ timer, and from 840 px the choice of what the side menu shows. -->
       <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
         {{ $t("kh.nav.sidebar") }}
       </h2>
-      <v-list rounded="lg" class="py-2 px-4">
-        <p class="text-body-2 text-medium-emphasis mb-2">
-          {{ $t("kh.nav.sidebar-hint") }}
-        </p>
-        <v-list-item v-for="target in sidebarEntries" :key="target.key" :title="$t(target.title)" class="px-0">
-          <template #append>
-            <v-checkbox
-              :model-value="!khSidebar.hidden.includes(target.key)"
-              color="primary"
-              density="compact"
-              hide-details
-              :label="$t('kh.nav.in-sidebar')"
-              @update:model-value="setInSidebar(target.key, !!$event)"
-            />
-          </template>
-        </v-list-item>
-      </v-list>
+      <KhSidebarChoices />
     </section>
 
     <UserInviteDialog v-model="inviteDialog" />
@@ -137,8 +133,7 @@ timer, and from 840 px the choice of what the side menu shows. -->
 </template>
 
 <script setup lang="ts">
-import { settingsTargets, sidebarChoices } from "~~/kh/app/composables/use-kh-navigation";
-import { khSidebar, saveKhSidebar } from "~~/kh/app/composables/use-kh-sidebar";
+import { settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
 import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
@@ -171,13 +166,6 @@ const inviteDialog = ref(false);
 const switchDialog = ref(false);
 const { accounts, load: loadAccounts } = useKhAccounts();
 onMounted(loadAccounts);
-
-const sidebarEntries = computed(() => sidebarChoices(route.params.groupSlug as string));
-
-/** Shows or hides one entry of the side menu and saves the choice right away. */
-function setInSidebar(key: string, shown: boolean) {
-  void saveKhSidebar(shown ? khSidebar.hidden.filter(hidden => hidden !== key) : [...khSidebar.hidden, key]);
-}
 
 const settings = computed(() =>
   settingsTargets(

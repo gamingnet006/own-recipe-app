@@ -162,6 +162,19 @@ class DraftEditIn(MealieModel):
         return self
 
 
+class OriginalsOrderIn(MealieModel):
+    """The new order of a draft's original photos: their current numbers (from 1), the new first one first."""
+
+    order: list[Annotated[int, Field(ge=1)]] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def no_repeats(self) -> OriginalsOrderIn:
+        """Refuses a number named twice."""
+        if len(set(self.order)) != len(self.order):
+            raise ValueError("each photo once")
+        return self
+
+
 class ApproveIn(MealieModel):
     """Approve, optionally with servings and yield set in the review and the step links it kept. FORCE also approves
     when the check finds possible duplicates that were not there at recognition."""

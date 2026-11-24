@@ -6,9 +6,13 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
     <div class="kh-shop__head">
       <div class="d-flex align-center ga-2">
         <v-btn :icon="$globals.icons.menu" variant="tonal" :aria-label="$t('kh.shopping.stores')" @click="drawer = true" />
-        <h1 class="text-h6 font-weight-bold flex-grow-1 text-truncate">
-          {{ list?.name ?? $t("kh.nav.shopping") }}
-        </h1>
+        <KhShopListName
+          ref="nameEditor"
+          :name="list?.name ?? $t('kh.nav.shopping')"
+          :editable="!!list"
+          :disabled="offline"
+          @save="rename"
+        />
         <v-btn
           v-if="list"
           :icon="$globals.icons.shareVariant"
@@ -146,6 +150,14 @@ items to put back, and all foods by department of the store. Tap a red tile = bo
           @click="openList(entry.id)"
         />
         <v-list-item
+          v-if="list"
+          :prepend-icon="$globals.icons.edit"
+          :title="$t('kh.shopping.rename')"
+          :subtitle="offline ? $t('kh.shopping.rename-offline') : undefined"
+          :disabled="offline"
+          @click="renameFromMenu"
+        />
+        <v-list-item
           :prepend-icon="$globals.icons.createAlt"
           :title="$t('kh.shopping.add-store')"
           class="text-primary"
@@ -210,7 +222,7 @@ const route = useRoute();
 const { shareList } = useKhShareList();
 const {
   lists, list, ready, items, open, recent, recipes, departments, units, offline,
-  start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore: makeStore, onHand, setOnHand,
+  rename, start, select, reload, change, check, uncheck, remove, addTile, addTyped, setQuantity, createStore: makeStore, onHand, setOnHand,
 } = useKhShopping();
 
 const search = ref("");
@@ -221,6 +233,7 @@ const expanded = ref(new Set<string>());
 const undoOpen = ref(false);
 const undoItem = ref<ShoppingListItemOut | null>(null);
 const menuTile = ref<Tile | null>(null);
+const nameEditor = ref<{ begin: () => void } | null>(null);
 
 const sheetItem = computed(() => items.value.find(item => item.id === sheetId.value) ?? null);
 const undoName = computed(() => (undoItem.value ? itemTitle(undoItem.value, units.value) : ""));
@@ -306,6 +319,12 @@ async function removeItem(item: ShoppingListItemOut) {
 async function openList(id: string) {
   drawer.value = false;
   await select(id);
+}
+
+/** The lists sheet's "Rename" opens the name field in the header. */
+function renameFromMenu() {
+  drawer.value = false;
+  nameEditor.value?.begin();
 }
 
 async function createStore(store: StorePreset) {

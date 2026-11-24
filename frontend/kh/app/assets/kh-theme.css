@@ -35,3 +35,9 @@ html.kh-simple .v-btn--size-small {
 html.kh-simple .v-chip--size-default {
   --v-chip-height: 36px;
 }
+
+/* KH: hints under inputs (the oven hint on the settings page) wrap onto lines of their own: Vuetify gives them a line
+   height of 12px, so a hint of two lines was drawn over itself */
+.v-messages__message {
+  line-height: 1.4;
+}
