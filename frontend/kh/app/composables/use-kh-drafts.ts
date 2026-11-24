@@ -12,6 +12,7 @@ import {
 } from "../lib/api/drafts";
 import type { RecipeOut } from "~/lib/api/types/recipe";
 import type { KhDraftAmounts } from "../lib/api/amounts";
+import { recognizedTags } from "../lib/draft-tags";
 import en from "../../lang/en-US.json";
 
 type Translate = (key: string) => string;
@@ -146,14 +147,15 @@ export function draftAmounts(recipe: RecipeOut | null | undefined): KhDraftAmoun
   return { extras: amounts?.extras ?? [], stepAmounts: amounts?.stepAmounts ?? [] };
 }
 
-/** The review's fields start from what the recognition found: servings, yield amount and yield text, and the step
- * links it made. */
+/** The review's fields start from what the recognition found: servings, yield amount and yield text, the step
+ * links it made and the tags it chose. */
 export function recipeChanges(recipe: RecipeOut | null): KhRecipeChanges {
   return {
     recipeServings: recipe?.recipeServings ?? 0,
     recipeYieldQuantity: recipe?.recipeYieldQuantity ?? 0,
     recipeYield: recipe?.recipeYield ?? "",
     linkedSteps: draftAmounts(recipe).stepAmounts.flatMap((link, index) => (link.linked ? [index] : [])),
+    tags: recognizedTags(recipe),
   };
 }
 

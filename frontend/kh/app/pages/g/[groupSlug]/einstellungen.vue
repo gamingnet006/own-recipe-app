@@ -86,8 +86,8 @@ timer, and from 840 px the choice of what the side menu shows. -->
         />
         <!-- Optional ready-made shortcut (KH_CLOCK_SHORTCUT_URL); the steps below stay as the fallback -->
         <v-btn
-          v-if="$khFeatures.clockShortcutUrl"
-          :href="$khFeatures.clockShortcutUrl"
+          v-if="clockShortcutUrl"
+          :href="clockShortcutUrl"
           target="_blank"
           rel="noopener"
           color="primary"
@@ -112,7 +112,7 @@ timer, and from 840 px the choice of what the side menu shows. -->
           v-model="clockName"
           :label="$t('kh.timer.clock-name')"
           class="mt-4"
-          @blur="clockName = clockName.trim() || DEFAULT_CLOCK_SHORTCUT"
+          @blur="clockName = clockName.trim()"
         />
         <v-btn variant="tonal" class="mt-2" block @click="tryClockShortcut">
           {{ $t("kh.timer.clock-try") }}
@@ -134,7 +134,8 @@ timer, and from 840 px the choice of what the side menu shows. -->
 
 <script setup lang="ts">
 import { settingsTargets } from "~~/kh/app/composables/use-kh-navigation";
-import { clockTimerUrl, DEFAULT_CLOCK_SHORTCUT, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { clockTimerUrl, useKhClockSetting } from "~~/kh/app/composables/use-kh-timers";
+import { shortcutUrlsFor } from "~~/kh/app/lib/device-setup";
 import { useKhNutritionSetting } from "~~/kh/app/lib/nutrition";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useKhAccounts } from "~~/kh/app/composables/use-kh-accounts";
@@ -145,13 +146,14 @@ definePageMeta({
 });
 
 const i18n = useI18n();
-const { $globals } = useNuxtApp();
+const { $globals, $khFeatures } = useNuxtApp();
+const clockShortcutUrl = computed(() => shortcutUrlsFor($khFeatures.shortcutUrls, i18n.locale.value).clock); // KH: per language
 const route = useRoute();
 const auth = useMealieAuth();
 const oven = useKhOven();
 const khOn = useKhOn();
 const showNutrition = useKhNutritionSetting();
-const { enabled: clockEnabled, name: clockName, offered: clockOffered } = useKhClockSetting();
+const { enabled: clockEnabled, name: clockName, offered: clockOffered } = useKhClockSetting(() => i18n.locale.value); // KH: the default shortcut name follows the language
 const khWide = useDisplay().mdAndUp; // the side menu only exists from 840 px, so only there is it set up
 
 /** Starts a one-minute Clock timer through the shortcut, so locking the phone proves that it rings. */

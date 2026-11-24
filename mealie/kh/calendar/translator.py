@@ -3,7 +3,7 @@
 from mealie.lang.providers import Translator
 
 DEFAULT_FEED_LANG = "de-DE"
-"""Language of the feed when the link carries none: Kochheft's household calendars are mostly German"""
+"""Language of the feed when the link carries none and nobody chose one for the installation: German"""
 
 # Mealie's backend German differs from its frontend (which Kochheft shows) in these two words only
 GERMAN_ENTRY_TYPES = {"mealplan.entry-type.dinner": "Abendessen", "mealplan.entry-type.side": "Beilage"}

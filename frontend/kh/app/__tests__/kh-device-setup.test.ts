@@ -1,6 +1,6 @@
 // KH: tests for the setup page's rules (D68): device detection, the sections per device, the stored ticks and answers,
 // and when a new device is asked; every step has its text in both languages.
-import { describe, expect, test } from "vitest";
+import { describe, expect, it, test } from "vitest";
 import { DEFAULT_ADDONS } from "../lib/addons";
 import {
   allStepKeys,
@@ -17,6 +17,7 @@ import {
   parseDone,
   asksForAddressAndKey,
   shortcutLink,
+  shortcutUrlsFor,
   setupSections,
   shouldAskDevice,
   withDone,
@@ -151,6 +152,10 @@ test("keyName names the device and the day", () => {
   expect(keyName("iphone", new Date("2026-11-19T10:00:00Z"), 1)).toBe("Kurzbefehle iPhone 2026-11-19");
 });
 
+test("keyName follows the language", () => {
+  expect(keyName("iphone", new Date("2026-11-19T10:00:00Z"), 2, "en-US")).toBe("Shortcuts iPhone 2026-11-19 (2)");
+});
+
 test("keyName tells further keys of the same day apart", () => {
   expect(keyName("mac", new Date("2026-11-19T10:00:00Z"), 2)).toBe("Kurzbefehle Mac 2026-11-19 (2)");
 });
@@ -165,13 +170,26 @@ describe("asksForAddressAndKey", () => {
 });
 
 describe("shortcutLink", () => {
-  const links = { importShortcutUrl: "https://www.icloud.com/shortcuts/i", siriShortcutUrl: "https://www.icloud.com/shortcuts/s" };
+  const links = { import: "https://www.icloud.com/shortcuts/i", siri: "https://www.icloud.com/shortcuts/s" };
   it("gives the ready-made link on Apple devices only: Android imports through its own share menu", () => {
-    expect(shortcutLink("import", "ios", links)).toBe(links.importShortcutUrl);
-    expect(shortcutLink("siri", "mac", links)).toBe(links.siriShortcutUrl);
+    expect(shortcutLink("import", "ios", links)).toBe(links.import);
+    expect(shortcutLink("siri", "mac", links)).toBe(links.siri);
     expect(shortcutLink("import", "android", links)).toBeNull();
     expect(shortcutLink("key", "ios", links)).toBeNull();
-    expect(shortcutLink("import", "ios", { importShortcutUrl: null, siriShortcutUrl: null })).toBeNull();
+    expect(shortcutLink("import", "ios", { import: null, siri: null })).toBeNull();
+  });
+});
+
+describe("shortcutUrlsFor", () => {
+  const all = {
+    "de-DE": { clock: "c", import: "i", siri: "s" },
+    "en-US": { clock: null, import: null, siri: null },
+  };
+  it("picks the links of the language, and none for an unknown language or no answer", () => {
+    expect(shortcutUrlsFor(all, "de-DE").siri).toBe("s");
+    expect(shortcutUrlsFor(all, "en-US")).toEqual({ clock: null, import: null, siri: null });
+    expect(shortcutUrlsFor(all, "fr-FR").import).toBeNull();
+    expect(shortcutUrlsFor(undefined, "de-DE").clock).toBeNull();
   });
 });
 

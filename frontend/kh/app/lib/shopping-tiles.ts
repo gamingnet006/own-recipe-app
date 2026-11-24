@@ -44,8 +44,8 @@ export const isOnHand = (food: Pick<TileFood, "householdsWithIngredientFood"> | 
 /** The department that takes every item without a label, as in Mealie's seed. */
 export const OTHER_DEPARTMENT = "Sonstiges";
 
-// Emoji by food name, lower case; plural forms are found by tileEmoji's suffix rules, only umlaut plurals are listed.
-const NAME_EMOJI: Record<string, string> = {
+// Emoji by food name (German here, English below), lower case; plural forms are found by tileEmoji's suffix rules, only umlaut plurals are listed.
+const GERMAN_EMOJI: Record<string, string> = {
   // fruit and vegetables
   apfel: "🍎", äpfel: "🍎", birne: "🍐", banane: "🍌", orange: "🍊", mandarine: "🍊", zitrone: "🍋", limette: "🍋",
   erdbeere: "🍓", weintraube: "🍇", traube: "🍇", wassermelone: "🍉", melone: "🍈", pfirsich: "🍑", kirsche: "🍒",
@@ -82,6 +82,36 @@ const NAME_EMOJI: Record<string, string> = {
   deo: "🧴", kerze: "🕯️", glühbirne: "💡",
 };
 
+// The same in English (singular; plurals by the suffix rules, "berries" is listed)
+const ENGLISH_EMOJI: Record<string, string> = {
+  "milk": "🥛",
+  "apple": "🍎", "pear": "🍐", "banana": "🍌", "lemon": "🍋", "lime": "🍋", "strawberry": "🍓", "strawberries": "🍓", "grape": "🍇",
+  "watermelon": "🍉", "melon": "🍈", "peach": "🍑", "cherry": "🍒", "cherries": "🍒", "pineapple": "🍍", "coconut": "🥥",
+  "tomato": "🍅", "eggplant": "🍆", "potato": "🥔", "sweet potato": "🍠", "carrot": "🥕", "corn": "🌽", "pepper": "🫑",
+  "cucumber": "🥒", "broccoli": "🥦", "lettuce": "🥬", "spinach": "🥬", "garlic": "🧄", "onion": "🧅", "leek": "🧅", "mushroom": "🍄",
+  "pumpkin": "🎃", "cauliflower": "🥦", "arugula": "🥬", "ginger": "🫚", "pea": "🫛", "chickpea": "🫘", "lentil": "🫘",
+  "raisin": "🍇", "berry": "🫐", "berries": "🫐", "blueberry": "🫐", "blueberries": "🫐", "raspberry": "🍓", "raspberries": "🍓",
+  "plum": "🍑",
+  "egg": "🥚", "cheese": "🧀", "yogurt": "🥣", "yoghurt": "🥣", "cream": "🥛", "sour cream": "🥣", "cream cheese": "🧀",
+  "ground beef": "🥩", "beef": "🥩", "pork": "🥩", "meat": "🥩", "chicken": "🍗", "turkey": "🍗", "bacon": "🥓", "ham": "🥓",
+  "sausage": "🌭", "salmon": "🐟", "fish": "🐟", "tuna": "🐟", "shrimp": "🦐", "crab": "🦀", "squid": "🦑", "mussel": "🦪",
+  "bread": "🍞", "bun": "🥖", "roll": "🥖", "pretzel": "🥨", "rice": "🍚", "noodle": "🍝", "flour": "🌾", "semolina": "🌾",
+  "oat": "🌾", "oats": "🌾", "cereal": "🥣", "muesli": "🥣",
+  "sugar": "🍬", "salt": "🧂", "black pepper": "🧂", "oil": "🫒", "olive oil": "🫒", "olive": "🫒", "vinegar": "🍶", "honey": "🍯",
+  "jam": "🍯", "mustard": "🌭", "mayo": "🥚", "soy sauce": "🍶", "tomato paste": "🍅", "broth": "🍲", "stock": "🍲", "soup": "🍲",
+  "chocolate": "🍫", "cookie": "🍪", "biscuit": "🍪", "cake": "🍰", "ice cream": "🍦", "candy": "🍬", "chip": "🥔",
+  "crisps": "🥔", "cracker": "🍘", "nut": "🥜", "peanut": "🥜", "almond": "🌰", "walnut": "🥜", "fries": "🍟", "yeast": "🥣",
+  "baking powder": "🧂", "cocoa": "🍫",
+  "water": "💧", "sparkling water": "💧", "juice": "🧃", "orange juice": "🧃", "apple juice": "🧃", "soda": "🥤",
+  "lemonade": "🥤", "coffee": "☕", "tea": "🍵", "beer": "🍺", "wine": "🍷", "red wine": "🍷", "white wine": "🥂",
+  "champagne": "🍾", "vodka": "🍸", "oat milk": "🥛", "soy milk": "🥛", "coconut milk": "🥥",
+  "toilet paper": "🧻", "paper towel": "🧻", "tissue": "🤧", "dish soap": "🧴", "detergent": "🧺", "trash bag": "🗑️",
+  "toothpaste": "🪥", "toothbrush": "🪥", "shower gel": "🧴", "soap": "🧼", "battery": "🔋", "aluminum foil": "📦",
+  "plastic wrap": "📦", "cat food": "🐱", "dog food": "🐶", "deodorant": "🧴", "candle": "🕯️", "light bulb": "💡",
+};
+
+const NAME_EMOJI = { ...GERMAN_EMOJI, ...ENGLISH_EMOJI };
+
 // The emoji of a department, for a food that has none of its own; keyed by the names of Mealie's German seed labels.
 const DEPARTMENT_EMOJI: Record<string, string> = {
   "obst & gemüse": "🥬", "getreide": "🌾", "fleisch": "🥩", "fleischprodukte": "🥓", "meeresfrüchte": "🐟",
@@ -90,7 +120,7 @@ const DEPARTMENT_EMOJI: Record<string, string> = {
   "pflanzliche ersatzprodukte": "🌱", "haushalt": "🧺", "sonstiges": "🛒",
 };
 
-const PLURAL_ENDINGS = ["", "n", "en", "e", "er", "s"];
+const PLURAL_ENDINGS = ["", "n", "en", "e", "er", "s", "es"]; // "es": tomatoes, peaches
 
 /** The emoji for a plural or singular form of a word, or "" when the name map has none. */
 function wordEmoji(word: string): string {

@@ -6,6 +6,19 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Tags: 24 starter tags (German or English, by the installation's language) are made once per family; own and deleted
+  tags are respected. Adding a recipe suggests tags from the existing ones (rules without AI: quick, vegetarian,
+  vegan, with meat, with fish), shown as removable chips in the review. New button "Suggest tags" on the tags page
+  proposes tags for recipes without any; only what is ticked is saved.
+- Everything the server says (Siri and share-shortcut answers, push messages, "switched off" refusals, the first shopping
+  list's name) comes in the person's language: account choice, then browser language, then the installation's, then German.
+  Siri in English: "Milk and butter are on your Aldi list." The ready-made shortcut links are per language
+  (`KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN`, `KH_CLOCK_SHORTCUT_URL_EN`; none for English yet, the setup page
+  shows the manual English steps). Shopping tiles know English food words.
+- Language: only Deutsch and English. A person's choice is saved on their account and follows them to every device;
+  without a choice the browser's German or English is used (else English). The first setup starts with the choice of the
+  language for the installation, which also names the home-screen app. In English the app is called "Cookbook".
+- Mealie's "Kochbücher" / "Cookbooks" are called "Sammlungen" / "Collections" in menu, page and buttons.
 - Calendar subscription: the calendar is named "Kochheft - <household>" and the meal types in the entries follow the
   language of the link (German "Abendessen: ...", English "Dinner: ..."; German when the link carries none). The dialog
   now says to create or copy the link while Kochheft is open under its public address.

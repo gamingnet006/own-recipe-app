@@ -4,11 +4,11 @@ response."""
 
 from typing import Annotated
 
-from fastapi import BackgroundTasks, File, Form, Header, HTTPException, UploadFile, status
+from fastapi import BackgroundTasks, File, Form, Header, HTTPException, Request, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import UUID4
 
-from mealie.kh.addons.service import ensure_addon
+from mealie.kh.addons.service import addon_enabled, addon_refusal
 from mealie.kh.drafts.file_import import decode_text
 from mealie.kh.drafts.recognize import recognize, recognize_all
 from mealie.kh.drafts.schemas import (
@@ -22,8 +22,9 @@ from mealie.kh.drafts.schemas import (
     ShareOut,
 )
 from mealie.kh.drafts.service import DraftService
-from mealie.kh.drafts.share import SKIP_REASONS, SNIFF_BYTES, SharedFile, classify_share, share_confirmation
+from mealie.kh.drafts.share import SNIFF_BYTES, SharedFile, classify_share, share_confirmation, skip_reason
 from mealie.kh.features.settings import get_kh_settings
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
 
@@ -57,14 +58,16 @@ class KhDraftsController(_DraftsBase):
         images: list[UploadFile] = File(default_factory=list),
         media: UploadFile | None = File(default=None),
         via: Annotated[str | None, Header(alias="X-KH-Via")] = None,
+        *,
+        request: Request,
     ) -> DraftOut:
         """New draft from exactly one of a link, a text, up to KH_DRAFT_MAX_IMAGES images or, with a Whisper
         server, one audio or video recording."""
         # KH: add-ons (D46): the Telegram bot says it is the sender, recordings are the Whisper add-on
-        if via == "telegram":
-            ensure_addon(self.session, self.user.household_id, "telegram")
-        if media and get_kh_settings().whisper_url:  # without a server the service answers "not configured"
-            ensure_addon(self.session, self.user.household_id, "whisper")
+        if via == "telegram" or (media and get_kh_settings().whisper_url):  # no server: "not configured" instead
+            addon = "telegram" if via == "telegram" else "whisper"
+            if not addon_enabled(self.session, self.user.household_id, addon):
+                raise addon_refusal(addon, request_locale(self.session, self.user.id, request))
         draft = self.service.create(url, text, images, media)
         self._recognize_later(tasks, draft)
         return draft
@@ -106,19 +109,22 @@ class KhDraftsController(_DraftsBase):
         file: list[UploadFile] = File(default_factory=list),
         text: Annotated[str | None, Form()] = None,
         url: Annotated[str | None, Form()] = None,
+        *,
+        request: Request,
     ) -> ShareOut:
         """New draft(s) from whatever the iOS share shortcut sent (D84): photos (all of them, with the text that came
         along, e.g. a note), a PDF, text file or ZIP, a text or one or more links; Kochheft decides what it is
         (classify_share). Shortcuts sends every item of a list as its own `file` field."""
+        locale = request_locale(self.session, self.user.id, request)
         decision = classify_share([self._shared_file(upload) for upload in file], text, url)
         if decision is None:
-            raise self._share_refused("nothing_usable", "Damit kann Kochheft nichts anfangen.")
+            raise self._share_refused("nothing_usable", say("share_nothing_usable", locale))
         result = self.service.create_shared(decision, file)
         if not result.created:  # all skipped: the shortcut must not say "in the inbox"
             reason = result.skipped[0].reason if result.skipped else ""
             raise self._share_refused(
                 "nothing_created",
-                f"Das hat nicht geklappt: {SKIP_REASONS.get(reason, 'Kochheft kann damit nichts anfangen')}.",
+                say("share_failed", locale, reason=skip_reason(reason, locale)),
             )
         tasks.add_task(
             recognize_all,
@@ -127,7 +133,9 @@ class KhDraftsController(_DraftsBase):
             household=self.household,
             translator=self.translator,
         )
-        return ShareOut(created=result.created, skipped=result.skipped, message=share_confirmation(len(result.created)))
+        return ShareOut(
+            created=result.created, skipped=result.skipped, message=share_confirmation(len(result.created), locale)
+        )
 
     @router.get("", response_model=list[DraftOut])
     def list_open(self) -> list[DraftOut]:

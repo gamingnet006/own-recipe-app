@@ -5,6 +5,8 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.db.models.users.users import User
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import say
 from mealie.kh.notifications.models import KhNotificationSettings, KhPushSubscription
 from mealie.kh.notifications.schemas import DEFAULT_EVENING, DEFAULT_ON, EVENTS, NotificationSettings
 
@@ -14,9 +16,9 @@ ALL_OFF = NotificationSettings(
 LABELS = (("iPhone", "iPhone"), ("iPad", "iPad"), ("Android", "Android"), ("Macintosh", "Mac"), ("Windows", "Windows"))
 
 
-def device_label(user_agent: str) -> str:
+def device_label(user_agent: str, locale: Locale = DEFAULT_LOCALE) -> str:
     """A short name for the device list from the browser's name; iPadOS Safari reports "Macintosh" like a Mac."""
-    return next((label for marker, label in LABELS if marker in user_agent), "Gerät")
+    return next((label for marker, label in LABELS if marker in user_agent), say("device_unknown", locale))
 
 
 def _row(session: Session, user_id: UUID4) -> KhNotificationSettings | None:
@@ -50,13 +52,21 @@ def put_settings(session: Session, user_id: UUID4, data: NotificationSettings) -
     session.commit()
 
 
-def subscribe(session: Session, user_id: UUID4, endpoint: str, p256dh: str, auth: str, user_agent: str) -> None:
+def subscribe(
+    session: Session,
+    user_id: UUID4,
+    endpoint: str,
+    p256dh: str,
+    auth: str,
+    user_agent: str,
+    locale: Locale = DEFAULT_LOCALE,
+) -> None:
     """Saves this device (a known endpoint is taken over by this user). The first device of a person without
     choices switches on the defaults: plan, evening and wishes."""
     row = session.execute(
         sa.select(KhPushSubscription).where(KhPushSubscription.endpoint == endpoint)
     ).scalar_one_or_none()
-    label = device_label(user_agent)
+    label = device_label(user_agent, locale)
     if row is None:
         session.add(
             KhPushSubscription(

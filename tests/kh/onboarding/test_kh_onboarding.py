@@ -162,7 +162,7 @@ def test_account_settings(api_client: TestClient, smtp, admin_token, unique_user
     smtp(True)
     assert api_client.put(SETTINGS, json={"emailRequired": True}, headers=unique_user.token).status_code == 403
     assert api_client.put(SETTINGS, json={"emailRequired": True}, headers=admin_token).status_code == 200
-    assert api_client.get(SETTINGS, headers=admin_token).json() == {"emailRequired": True}
+    assert api_client.get(SETTINGS, headers=admin_token).json() == {"emailRequired": True, "locale": None}
     api_client.put(SETTINGS, json={"emailRequired": False}, headers=admin_token)
 
 

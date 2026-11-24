@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- KH: the texts say "Collections" (kh.collections.*) instead of Mealie's cookbook texts (wave 2) -->
     <!-- Create Dialog -->
     <BaseDialog
       v-if="createTarget"
@@ -7,7 +8,7 @@
       width="100%"
       max-width="1100px"
       :icon="$globals.icons.pages"
-      :title="$t('cookbook.create-a-cookbook')"
+      :title="$t('kh.collections.create')"
       :submit-icon="$globals.icons.save"
       :submit-text="$t('general.save')"
       :submit-disabled="!createTarget.queryFilterString"
@@ -25,14 +26,14 @@
     <BaseDialog
       v-model="dialogStates.delete"
       bottom-sheet
-      :title="$t('general.delete-with-name', { name: $t('cookbook.cookbook') })"
+      :title="$t('general.delete-with-name', { name: $t('kh.collections.one') })"
       :icon="$globals.icons.alertCircle"
       color="error"
       can-confirm
       @confirm="deleteCookbook()"
     >
       <v-card-text>
-        <p>{{ $t("general.confirm-delete-generic-with-name", { name: $t("cookbook.cookbook") }) }}</p>
+        <p>{{ $t("general.confirm-delete-generic-with-name", { name: $t("kh.collections.one") }) }}</p>
         <p v-if="deleteTarget" class="mt-4 ml-4">
           {{ deleteTarget.name }}
         </p>
@@ -47,21 +48,21 @@
           <v-img width="100%" max-height="100" max-width="100" src="/svgs/manage-cookbooks.svg" />
         </template>
         <template #title>
-          {{ $t("cookbook.cookbooks") }}
+          {{ $t("kh.collections.title") }}
         </template>
-        {{ $t("cookbook.description") }}
+        {{ $t("kh.collections.description") }}
       </BasePageTitle>
 
       <div class="my-6">
         <v-checkbox
           v-model="cookbookPreferences.hideOtherHouseholds"
-          :label="$t('cookbook.hide-cookbooks-from-other-households')"
+          :label="$t('kh.collections.hide-other')"
           hide-details
           color="primary"
         />
         <div class="ml-10 mt-n3">
           <p class="text-subtitle-2 my-0 py-0">
-            {{ $t("cookbook.hide-cookbooks-from-other-households-description") }}
+            {{ $t("kh.collections.hide-other-description") }}
           </p>
         </div>
       </div>
@@ -158,7 +159,7 @@ const i18n = useI18n();
 
 // Set page title
 useSeoMeta({
-  title: i18n.t("cookbook.cookbooks"),
+  title: i18n.t("kh.collections.title"), // KH: wave 2
 });
 
 const auth = useMealieAuth();
@@ -184,7 +185,7 @@ const cookbookPreferences = useCookbookPreferences();
 const createTargetKey = ref(0);
 const createTarget = ref<CookBookOut | null>(null);
 async function createCookbook() {
-  const name = i18n.t("cookbook.household-cookbook-name", [
+  const name = i18n.t("kh.collections.household-name", [ // KH: wave 2
     household.value?.name || "",
     String((myCookbooks.value?.length ?? 0) + 1),
   ]) as string;

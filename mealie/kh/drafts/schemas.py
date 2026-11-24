@@ -7,6 +7,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import UUID4, ConfigDict, Field, StringConstraints, model_validator
 
+from mealie.kh.tags.schemas import TagRef
 from mealie.schema._mealie import MealieModel
 
 MAX_NAME = 200  # longest recipe name the review accepts
@@ -185,6 +186,7 @@ class ApproveIn(MealieModel):
     recipe_yield_quantity: float | None = Field(default=None, ge=0)
     recipe_yield: str | None = None
     recipe_category: list[CategoryRef] | None = None  # where the recipe goes, chosen in the review
+    tags: list[TagRef] | None = None  # the tags the review kept or added; None: as recognized
 
     def recipe_changes(self) -> dict[str, Any]:
         """What the review set, under the recipe's own JSON keys."""

@@ -1,6 +1,7 @@
 // KH: the API of accounts without e-mail, first sign-in and the welcome and verification mails (D53) as a Mealie API
 // class; the types are written by hand like the accounts' (mealie/kh/onboarding).
 import { BaseAPI } from "~/lib/api/base/base-clients";
+import type { KhLocale } from "../locale";
 import { OWN_ERRORS } from "./own-errors";
 
 export interface KhOnboardingStatus {
@@ -20,6 +21,8 @@ export interface KhWelcomeInfo {
 
 export interface KhAccountSettings {
   emailRequired: boolean;
+  /** The installation's language from the first setup; null until one was chosen. */
+  locale: KhLocale | null;
 }
 
 const prefix = "/api/kh/onboarding";
@@ -78,5 +81,15 @@ export class KhOnboardingApi extends BaseAPI {
   /** Admin: changes the account settings. */
   async putSettings(emailRequired: boolean) {
     return await this.requests.put<KhAccountSettings>("/api/kh/admin/account-settings", { emailRequired }, OWN_ERRORS);
+  }
+
+  /** Admin: saves the installation's language (the e-mail switch stays as it is). */
+  async putLocale(locale: KhLocale) {
+    return await this.requests.put<KhAccountSettings>("/api/kh/admin/account-settings", { locale }, OWN_ERRORS);
+  }
+
+  /** Public: the installation's language, null until the first setup chose one. */
+  async installationLocale() {
+    return await this.requests.get<{ locale: KhLocale | null }>(`${prefix}/locale`);
   }
 }

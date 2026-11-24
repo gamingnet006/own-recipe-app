@@ -10,21 +10,10 @@ from mealie.db.db_setup import generate_session
 from mealie.kh.addons.models import KhHouseholdAddons
 from mealie.kh.addons.schemas import AddonFlags, AddonsOut
 from mealie.kh.features.settings import get_kh_settings
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import MESSAGES, say
 from mealie.repos.all_repositories import AllRepositories
 from mealie.schema.response import ErrorResponse
-
-# The name shown in the refusal; the page itself is translated in the frontend
-LABELS = {
-    "books": "Familienkochbuch",
-    "duplicates": "Doppelte Rezepte",
-    "nutrition": "Nährwerte",
-    "allergens": "Allergene",
-    "substitutions": "Austausch und Varianten",
-    "whisper": "Audio und Video mit Whisper",
-    "telegram": "Telegram-Bot",
-    "share_links": "Öffentliche Teilen-Links",
-    "season": "Saison",
-}
 
 
 def host_unavailable() -> list[str]:
@@ -98,16 +87,11 @@ def addon_enabled(session: Session, household_id: UUID4, name: str) -> bool:
     return bool(getattr(enabled_flags(load_flags(session, household_id)), name))
 
 
-def ensure_addon(session: Session, household_id: UUID4, name: str) -> None:
-    """Raises 403 with a readable message while the add-on is off."""
-    if not addon_enabled(session, household_id, name):
-        label = LABELS.get(name, name)
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            ErrorResponse.respond(
-                f"{label} ist ausgeschaltet. Ein Admin kann sie unter Mehr → Zusatzfunktionen einschalten."
-            ),
-        )
+def addon_refusal(name: str, locale: Locale = DEFAULT_LOCALE) -> HTTPException:
+    """The 403 with a readable message in LOCALE for an add-on that is off."""
+    key = f"addon_{name}"  # the add-ons with a name have one in messages.py; the others are named by their key
+    label = say(key, locale) if key in MESSAGES else name
+    return HTTPException(status.HTTP_403_FORBIDDEN, ErrorResponse.respond(say("addon_off", locale, label=label)))
 
 
 def require_household_share_links(token_id: UUID4, session: Session = Depends(generate_session)) -> None:

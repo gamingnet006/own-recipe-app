@@ -14,7 +14,7 @@
         dark
       >
         <v-toolbar-title class="headline text-h4 text-center mx-0">
-          Kochheft <!-- KH: own name (D83) -->
+          {{ $t('kh.app.name') }} <!-- KH: own name, by language (D83) -->
         </v-toolbar-title>
       </v-toolbar>
 
@@ -122,18 +122,7 @@
               </v-btn>
             </v-container>
 
-            <v-card-actions class="justify-center flex-column py-8">
-              <BaseButton
-                size="large"
-                color="primary"
-                class="px-10"
-                rounded
-                :icon="$globals.icons.translate"
-                @click="langDialog = true"
-              >
-                {{ $t('language-dialog.choose-language') }}
-              </BaseButton>
-            </v-card-actions>
+            <KhSetupLanguage v-model:chosen="languageChosen" :rerun="rerun" /> <!-- KH: language first (wave 2) -->
 
             <v-stepper-actions
               class="justify-end"
@@ -145,7 +134,7 @@
                 <v-btn
                   variant="flat"
                   color="success"
-                  :disabled="isSubmitting"
+                  :disabled="isSubmitting || !languageChosen"
                   :loading="isSubmitting"
                   :text="$t('general.next')"
                   @click="onNext"
@@ -328,9 +317,6 @@
       </v-stepper>
 
       <KhSetupPending v-model="pendingOpen" @next="onNext" /> <!-- KH: D83 -->
-
-      <!-- Dialog Language -->
-      <LanguageDialog v-model="langDialog" />
     </v-card>
   </v-container>
 </template>
@@ -409,7 +395,7 @@ async function handleDeleteProvider(id: string) {
 const { locale } = useLocales();
 const router = useRouter();
 const isSubmitting = ref(false);
-const langDialog = ref(false);
+const languageChosen = ref(false); // KH: the first step needs a language (wave 2)
 const isDark = useDark();
 
 useSeoMeta({

@@ -9,7 +9,7 @@ self.addEventListener("push", (event) => {
     message = { body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(message.title || "Kochheft", {
+    self.registration.showNotification(message.title || (/^de/i.test(self.navigator.language) ? "Kochheft" : "Cookbook"), {
       body: message.body || "",
       icon: "/icons/android-chrome-192x192.png",
       data: { url: message.url || "/" },

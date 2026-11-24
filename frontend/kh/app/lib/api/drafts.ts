@@ -1,5 +1,6 @@
 // KH: the drafts API (phase 2) as a Mealie API class. The answer types are written by hand, because
 // Mealie's type generator only reads mealie/schema and ours live in mealie/kh/drafts/schemas.py.
+import type { KhTagRef } from "./tags";
 import { BaseAPI } from "~/lib/api/base/base-clients";
 import { OWN_ERRORS } from "./own-errors";
 import type { RecipeOut } from "~/lib/api/types/recipe";
@@ -82,6 +83,7 @@ export interface KhRecipeChanges {
   recipeYield: string;
   linkedSteps: number[];
   recipeCategory?: KhCategoryRef[];
+  tags: KhTagRef[]; // the tags the review keeps; they start as the recognized ones and are always sent
 }
 
 /** The detail of a failed drafts request: a code, and for some codes what goes with it. */

@@ -57,7 +57,7 @@
         >
           <!-- KH: our name on the sign-in page -->
           <v-toolbar-title class="text-h4 text-center">
-            Kochheft
+            {{ $t('kh.app.name') }}
           </v-toolbar-title>
         </v-toolbar>
         <AppLogo :size="100" />

@@ -220,11 +220,8 @@ export default defineNuxtConfig({
     lazy: true,
     langDir: "./../app/lang/locales", // note: we need to up one ../ because the default root of lang dir is the /frontend/i18n, which can not be configured
     defaultLocale: "en-US",
-    detectBrowserLanguage: {
-      useCookie: true,
-      alwaysRedirect: true,
-      fallbackLocale: "en-US",
-    },
+    // KH: the language comes from the account or the device, decided in kh/app/plugins/kh-locale.client.ts
+    detectBrowserLanguage: false,
     compilation: {
       strictMessage: false,
       escapeHtml: true,

@@ -1,12 +1,13 @@
 <template>
   <div>
+    <!-- KH: "Collection" texts (kh.collections.*) instead of Mealie's cookbook texts (wave 2) -->
     <v-card-text
       v-if="cookbook"
       class="px-1"
     >
       <v-text-field
         v-model="cookbook.name"
-        :label="$t('cookbook.cookbook-name')"
+        :label="$t('kh.collections.name')"
         variant="underlined"
         color="primary"
       />
@@ -30,13 +31,13 @@
         color="primary"
       >
         <template #label>
-          {{ $t('cookbook.public-cookbook') }}
+          {{ $t('kh.collections.public') }}
           <HelpIcon
             size="small"
             right
             class="ml-2"
           >
-            {{ $t('cookbook.public-cookbook-description') }}
+            {{ $t('kh.collections.public-description') }}
           </HelpIcon>
         </template>
       </v-switch>

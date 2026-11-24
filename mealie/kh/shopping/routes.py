@@ -2,8 +2,10 @@
 permission to organize, which a normal family member lacks; these two let every signed-in member of the group
 write down an item, and only ever make a food or one of four standard units."""
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Request, status
 
+from mealie.kh.i18n.locale import Locale
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.kh.notifications.events import notify_items_added
 from mealie.kh.shopping.on_hand import set_on_hand
 from mealie.kh.shopping.schemas import AddByVoiceIn, AddByVoiceOut, EnsureFoodIn, EnsureUnitIn, OnHandIn
@@ -18,7 +20,6 @@ from mealie.schema.response import ErrorResponse
 from mealie.services.household_services.shopping_lists import ShoppingListService
 
 router = UserAPIRouter(prefix="/shopping")
-FIRST_LIST_NAME = "Einkaufsliste"
 
 
 @controller(router)
@@ -42,47 +43,49 @@ class KhShoppingController(BaseUserController):
         return ensure_unit(repos, data.abbreviation)
 
     @router.post("/add", response_model=AddByVoiceOut)
-    def add(self, data: AddByVoiceIn) -> AddByVoiceOut:
+    def add(self, data: AddByVoiceIn, request: Request) -> AddByVoiceOut:
         """Puts the articles in a said or typed text ("Milch und 2 Butter") on the named list or the household list
         updated last (D64, for the Siri Shortcut, which signs in with an API key); a store at the end of the text
         ("... bei Rewe") picks the list when it matches one (D87). An open article gets the amount,
         a ticked-off one is put back. Without any list the first one is made; 404 for an unknown list name, 422
         when no article is understood."""
+        locale = request_locale(self.session, self.user.id, request)  # the answer is read out in the person's language
         lists = self.repos.group_shopping_lists.get_all()
         # D87: the stores said ("bei Rewe") pick the lists; a list given explicitly wins for everything
         groups = plan_additions(data.text, [] if data.list else [entry.name or "" for entry in lists])
         if not groups:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("Ich habe keinen Artikel verstanden.")
-            )
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(say("no_article", locale)))
         group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)
         # all or nothing: every list is found and every article understood before anything is written
-        targets = [self._existing_list(lists, list_name or data.list) for list_name, _ in groups]
+        targets = [self._existing_list(lists, list_name or data.list, locale) for list_name, _ in groups]
         try:
             parsed = [parse_articles(group_repos, articles) for _, articles in groups]
         except ValueError:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond("Ich habe keinen Artikel verstanden.")
+                status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(say("no_article", locale))
             ) from None
         results: list[tuple[str, list[str]]] = []
         for target, lines in zip(targets, parsed, strict=True):
-            shopping_list = target or self._make_first_list()
+            shopping_list = target or self._make_first_list(locale)
             names = add_to_list(self.repos, group_repos, shopping_list, lines)
             notify_items_added(self.user.id, self.household_id, shopping_list.id, names)  # D75
-            results.append((shopping_list.name or FIRST_LIST_NAME, names))
-        return AddByVoiceOut(message=spoken_summary(results))
+            results.append((shopping_list.name or say("first_list_name", locale), names))
+        return AddByVoiceOut(message=spoken_summary(results, locale))
 
-    def _existing_list(self, lists: list[ShoppingListOut], name: str | None) -> ShoppingListOut | None:
+    def _existing_list(self, lists: list[ShoppingListOut], name: str | None, locale: Locale) -> ShoppingListOut | None:
         """The list called NAME, else the one updated last; None for a family without any list and no name (the
         first one is made when writing), 404 for a name that no list has."""
         shopping_list = pick_list(lists, name)
         if shopping_list is None and (lists or name):
-            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(f"Die Liste {name} gibt es nicht."))
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND, ErrorResponse.respond(say("no_such_list", locale, name=name))
+            )
         return shopping_list
 
-    def _make_first_list(self) -> ShoppingListOut:
-        """A new family's first "Hey Siri" makes the list "Einkaufsliste" instead of failing."""
-        return ShoppingListService(self.repos).create_one_list(ShoppingListCreate(name=FIRST_LIST_NAME), self.user.id)
+    def _make_first_list(self, locale: Locale) -> ShoppingListOut:
+        """A new family's first "Hey Siri" makes the list "Einkaufsliste" ("Shopping list") instead of failing."""
+        name = say("first_list_name", locale)
+        return ShoppingListService(self.repos).create_one_list(ShoppingListCreate(name=name), self.user.id)
 
     @router.post("/on-hand", response_model=IngredientFoodOut)
     def on_hand(self, data: OnHandIn) -> IngredientFoodOut:

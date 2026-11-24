@@ -2,6 +2,7 @@
 
 from pydantic import Field
 
+from mealie.kh.i18n.locale import Locale
 from mealie.schema._mealie import MealieModel
 
 
@@ -40,10 +41,18 @@ class WelcomeInfo(MealieModel):
 
 class AccountSettingsOut(MealieModel):
     email_required: bool
+    locale: Locale | None = None  # the installation's language from the first setup
 
 
 class AccountSettingsIn(MealieModel):
-    email_required: bool
+    email_required: bool | None = None  # None keeps the stored value
+    locale: Locale | None = None  # None keeps the stored value
+
+
+class InstallationLocale(MealieModel):
+    """The installation's language alone, readable before anyone signs in (login page, first setup)."""
+
+    locale: Locale | None = None
 
 
 class NewsSeenIn(MealieModel):

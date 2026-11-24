@@ -1,7 +1,8 @@
 """KH: /api/kh/notifications (D75): the server's public key, this person's devices and choices, and a test message."""
 
-from fastapi import Header, status
+from fastapi import Header, Request, status
 
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.kh.notifications import keys, sender, service
 from mealie.kh.notifications.schemas import NotificationSettings, SubscriptionIn, SubscriptionOut
 from mealie.routes._base import BaseUserController, controller
@@ -36,9 +37,17 @@ class KhNotificationsController(BaseUserController):
         return [SubscriptionOut.model_validate(row) for row in service.devices(self.session, self.user.id)]
 
     @router.post("/subscriptions", status_code=status.HTTP_204_NO_CONTENT)
-    def subscribe(self, data: SubscriptionIn, user_agent: str = Header("")) -> None:
+    def subscribe(self, data: SubscriptionIn, request: Request, user_agent: str = Header("")) -> None:
         """Adds this device. The first device switches on plan, evening and wishes."""
-        service.subscribe(self.session, self.user.id, data.endpoint, data.keys.p256dh, data.keys.auth, user_agent)
+        service.subscribe(
+            self.session,
+            self.user.id,
+            data.endpoint,
+            data.keys.p256dh,
+            data.keys.auth,
+            user_agent,
+            request_locale(self.session, self.user.id, request),
+        )
 
     @router.delete("/subscriptions", status_code=status.HTTP_204_NO_CONTENT)
     def unsubscribe(self, endpoint: str) -> None:
@@ -46,8 +55,11 @@ class KhNotificationsController(BaseUserController):
         service.unsubscribe(self.session, self.user.id, endpoint)
 
     @router.post("/test")
-    def test(self) -> dict[str, int]:
+    def test(self, request: Request) -> dict[str, int]:
         """Sends "Test von Kochheft" to the person's devices; says how many accepted it. Waits for the push service,
         because the person is watching for the answer."""
-        sent = sender.send_to_users(self.session, [self.user.id], "Kochheft", "Test von Kochheft", "/")
+        locale = request_locale(self.session, self.user.id, request)
+        sent = sender.send_to_users(
+            self.session, [self.user.id], say("push_test_title", locale), say("push_test", locale), "/"
+        )
         return {"sent": sent}

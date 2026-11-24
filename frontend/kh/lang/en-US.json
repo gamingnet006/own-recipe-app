@@ -4,7 +4,7 @@
       "add-recipe": "Add recipe",
       "add-recipe-subtitle": "From a link, a text or a photo",
       "drafts": "Drafts",
-      "intake-description": "A link, a text, a photo or a file: Kochheft recognizes the recipe as a draft. It waits here until someone checks and accepts it.",
+      "intake-description": "A link, a text, a photo or a file: @:{'kh.app.name'} recognizes the recipe as a draft. It waits here until someone checks and accepts it.",
       "source": {
         "link": "Link",
         "text": "Text",
@@ -61,7 +61,7 @@
         "ai_not_configured": "No AI set up: Group Settings → AI Providers",
         "quota_exceeded": "The AI quota is used up, please try again later.",
         "address_blocked": "This address is not allowed.",
-        "video_link": "Kochheft does not download videos. Paste the description or upload a screenshot.",
+        "video_link": "@:{'kh.app.name'} does not download videos. Paste the description or upload a screenshot.",
         "invalid_result": "The recognition did not return a valid recipe.",
         "interrupted": "Interrupted, please try again.",
         "unknown": "Something went wrong, please try again.",
@@ -77,7 +77,7 @@
         "already_approved": "Already saved as a recipe.",
         "duplicates": "This recipe may already exist.",
         "not_found": "Draft not found.",
-        "offline": "No connection to Kochheft. Check the network; it tries again in a moment.",
+        "offline": "No connection to @:{'kh.app.name'}. Check the network; it tries again in a moment.",
         "ai_unavailable": "No AI reachable, try again later.",
         "whisper_unreachable": "The speech recognition (Whisper) does not answer. Is it running?",
         "whisper_timeout": "The speech recognition took too long. Try a shorter recording.",
@@ -103,10 +103,10 @@
         "title": "Where does the recipe go?",
         "hint": "You can leave this empty.",
         "categories": "Categories",
-        "cookbook": "Cookbook",
+        "cookbook": "Collection",
         "none": "None",
         "new-category": "+ New category",
-        "new-cookbook": "+ New cookbook",
+        "new-cookbook": "+ New collection",
         "name": "Name",
         "create": "Create",
         "create-failed": "Could not create it. Please try again."
@@ -126,10 +126,16 @@
         "unsupported": "file type not supported",
         "too_many": "too many files"
       },
-      "shortcut-link": "Set up Kochheft",
+      "shortcut-link": "Set up @:{'kh.app.name'}",
       "type-yourself-short": "Type it yourself",
       "yield": "Makes",
-      "discard-this": "Discard this draft"
+      "discard-this": "Discard this draft",
+      "tags": {
+        "title": "Tags",
+        "hint": "Suggested from the tags that already exist. You can remove them or add others.",
+        "add": "Add tag",
+        "new": "+ New tag"
+      }
     },
     "theme": {
       "title": "Appearance",
@@ -156,7 +162,7 @@
       "duplicates": "Duplicate recipes",
       "nutrition": "Nutrition",
       "tolerance": "I do not tolerate",
-      "about": "About Kochheft",
+      "about": "About @:{'kh.app.name'}",
       "system": "System check",
       "addons": "Add-ons",
       "households": "Household access",
@@ -182,7 +188,7 @@
       "time-hint": "With this much more or less, baking and cooking times often change."
     },
     "ai": {
-      "choice-hint": "How it works: below, use “Create provider” to add a provider with your key, for example Google Gemini (free, step-by-step guide right below). For text and recipes Kochheft uses the top provider of the list; photos and screenshots are read by the top one that reads images; change the order with the arrows. Audio and video: An audio provider only worked with providers that offer OpenAI's speech-to-text interface (in practice only OpenAI/ChatGPT) and only served the video download Kochheft does not do. Your own recordings are transcribed by the Whisper add-on instead; it runs locally and needs no key.",
+      "choice-hint": "How it works: below, use “Create provider” to add a provider with your key, for example Google Gemini (free, step-by-step guide right below). For text and recipes @:{'kh.app.name'} uses the top provider of the list; photos and screenshots are read by the top one that reads images; change the order with the arrows. Audio and video: An audio provider only worked with providers that offer OpenAI's speech-to-text interface (in practice only OpenAI/ChatGPT) and only served the video download @:{'kh.app.name'} does not do. Your own recordings are transcribed by the Whisper add-on instead; it runs locally and needs no key.",
       "order-hint": "The AI asks the providers from top to bottom. If one fails, it takes the next.",
       "profile-lokal": "Profile \"lokal\": everything stays in the house. Use only local AI providers (e.g. Ollama), no cloud keys.",
       "move-up": "Move up",
@@ -198,7 +204,7 @@
       "free-keys": {
         "title": "Free keys",
         "date": "as of {date}",
-        "hint": "One provider is enough, ideally one that reads photos. More are a reserve: when one runs out of quota, Kochheft takes the next. Free tiers change often; the test button shows whether a model fits. You enter the keys yourself.",
+        "hint": "One provider is enough, ideally one that reads photos. More are a reserve: when one runs out of quota, @:{'kh.app.name'} takes the next. Free tiers change often; the test button shows whether a model fits. You enter the keys yourself.",
         "set-up": "set up",
         "not-set-up": "not set up yet (optional)",
         "get-key": "Get a key",
@@ -213,9 +219,9 @@
       "guide": {
         "title": "Step by step: set up Gemini (free)",
         "key": "Get a key: open the page below, sign in with your Google account, tap \"Create API key\" and copy the key. Do not add a billing account there; then it costs nothing.",
-        "preset": "Back in Kochheft, tap here. The window opens already filled in; you only paste the key into the \"API Key\" field. Best leave the tick \"Also add Gemini Reserve\" on: when the first model's daily quota runs out, Kochheft takes the second one automatically.",
+        "preset": "Back in @:{'kh.app.name'}, tap here. The window opens already filled in; you only paste the key into the \"API Key\" field. Best leave the tick \"Also add Gemini Reserve\" on: when the first model's daily quota runs out, @:{'kh.app.name'} takes the second one automatically.",
         "preset-main": "Open Gemini preset",
-        "test": "Tap \"Create\". Kochheft then tests the new providers itself; after a few seconds the list shows whether they work and read photos. If it shows an error, the key is usually wrong: tap the pencil icon next to the provider, paste the key again and tap \"Update\".",
+        "test": "Tap \"Create\". @:{'kh.app.name'} then tests the new providers itself; after a few seconds the list shows whether they work and read photos. If it shows an error, the key is usually wrong: tap the pencil icon next to the provider, paste the key again and tap \"Update\".",
         "mistakes": "Common mistakes: when pasting the key, no space may come before or after it. The Model field takes the ID such as \"gemini-3.5-flash-lite\", not the name \"Gemini 3.5 Flash Lite\" from Google; the preset fills it in correctly.",
         "also-reserve": "Also add {name} (same key, its own daily quota)"
       }
@@ -276,11 +282,11 @@
       "clock-add": "Add shortcut",
       "clock-setup": "How to set up the shortcut",
       "clock-step-1": "Open the Shortcuts app and create a new shortcut with \"+\".",
-      "clock-step-2": "Change the name at the top to \"Kochheft Timer\" (exactly, or adjust the name below).",
+      "clock-step-2": "Change the name at the top to \"Cookbook timer\" (exactly, or adjust the name below).",
       "clock-step-3": "Add the action \"Get Numbers from Input\" with the source \"Shortcut Input\".",
       "clock-step-4": "Add the action \"Start Timer\"; duration = the number from step 3, unit minutes. Done.",
       "clock-try": "Try it (1 minute)",
-      "clock-ios-only": "The clock timer works on iPhone, iPad and Mac only, because it needs the Shortcuts app. Here the timer rings while Kochheft is open."
+      "clock-ios-only": "The clock timer works on iPhone, iPad and Mac only, because it needs the Shortcuts app. Here the timer rings while @:{'kh.app.name'} is open."
     },
     "cooked": {
       "often": "Often cooked",
@@ -354,7 +360,7 @@
       "print-as-book": "Print as book",
       "page-title": "Family cookbook",
       "card-title": "Recipe card",
-      "not-found": "This cookbook does not exist.",
+      "not-found": "This collection does not exist.",
       "recipe-not-found": "This recipe does not exist.",
       "title": "Title",
       "subtitle": "Subtitle",
@@ -371,10 +377,10 @@
       "own-photo-hint": "Only for photos you took yourselves",
       "servings": "Servings",
       "print": "Print / Save as PDF",
-      "empty": "This cookbook finds no recipes. Adjust the filter in the cookbook.",
-      "forbidden": "Only the own household can change this cookbook",
+      "empty": "This collection finds no recipes. Adjust the filter in the collection.",
+      "forbidden": "Only the own household can change this collection",
       "save-failed": "Saving did not work.",
-      "load-failed": "The cookbook could not be loaded.",
+      "load-failed": "The collection could not be loaded.",
       "recipes-failed": "{n} recipes could not be loaded, so the book is incomplete.",
       "reload": "Reload",
       "retry": "Try again",
@@ -488,21 +494,21 @@
       }
     },
     "calendar": {
-      "public-address-hint": "Create or copy this link while Kochheft is open under its public address. Calendars outside your home network cannot reach a link made on a local address."
+      "public-address-hint": "Create or copy this link while @:{'kh.app.name'} is open under its public address. Calendars outside your home network cannot reach a link made on a local address."
     },
     "about": {
-      "title": "About Kochheft",
+      "title": "About @:{'kh.app.name'}",
       "version": "Version {version}",
-      "built-on": "Kochheft is built on Mealie.",
+      "built-on": "@:{'kh.app.name'} is built on Mealie.",
       "copyright": "Mealie: Copyright © Hayden and the Mealie contributors, licensed under AGPL-3.0.",
-      "license": "Kochheft is licensed under the AGPL-3.0 as well.",
+      "license": "@:{'kh.app.name'} is licensed under the AGPL-3.0 as well.",
       "source": "View the source code",
       "notices": "Third-party components",
       "notices-missing": "The list of third-party components is not part of this installation.",
       "failed": "The details could not be loaded.",
       "news": "What's new",
       "leaves-title": "What leaves the house?",
-      "leaves-intro": "Kochheft has no telemetry. Only what you switch on goes out:",
+      "leaves-intro": "@:{'kh.app.name'} has no telemetry. Only what you switch on goes out:",
       "leaves": {
         "link": "Reading a link: the website you ask for.",
         "ai": "AI import: the text or photo goes to the AI provider you entered.",
@@ -564,7 +570,7 @@
           "bad": "Nutrition table is missing"
         },
         "address": {
-          "warn": "Kochheft is now reached at {current} (before: {previous}). Shortcuts and home-screen icons still point to the old address: create new iCloud links for the shortcuts (KH_IMPORT_SHORTCUT_URL, KH_SIRI_SHORTCUT_URL) and ask everyone to add them again. Every member sees a card about it the next time they open the app.",
+          "warn": "@:{'kh.app.name'} is now reached at {current} (before: {previous}). Shortcuts and home-screen icons still point to the old address: create new iCloud links for the shortcuts (KH_IMPORT_SHORTCUT_URL, KH_SIRI_SHORTCUT_URL) and ask everyone to add them again. Every member sees a card about it the next time they open the app.",
           "info": "If the address changes, shortcuts and home-screen icons have to be set up again."
         },
         "telegram": {
@@ -603,12 +609,12 @@
       }
     },
     "addons": {
-      "description": "Choose which functions Kochheft shows for your household. Switched-off functions disappear from the interface, their data stays.",
+      "description": "Choose which functions @:{'kh.app.name'} shows for your household. Switched-off functions disappear from the interface, their data stays.",
       "off-hint": "{name} is switched off. An admin can switch it on under More → Settings → Add-ons.",
       "unavailable": "Not set up, see the guide.",
       "needs-allergens": "Needs the Allergens function.",
       "presets": {
-        "title": "How do you want to use Kochheft?",
+        "title": "How do you want to use @:{'kh.app.name'}?",
         "recipes": "Recipes only",
         "shopping": "Recipes and shopping list",
         "planner": "Everything with the meal planner",
@@ -788,7 +794,7 @@
       "failed": "The introduction could not be switched on for this person",
       "steps": {
         "welcome": {
-          "title": "Welcome to Kochheft",
+          "title": "Welcome to @:{'kh.app.name'}",
           "text": "Here the family collects recipes, plans and cooks. A short tour shows you the most important things."
         },
         "recipes": {
@@ -809,10 +815,10 @@
         },
         "share": {
           "title": "Sharing",
-          "text": "Share a recipe “as text”, or a whole cookbook as files."
+          "text": "Share a recipe “as text”, or a whole collection as files."
         },
         "phone": {
-          "title": "Set up Kochheft",
+          "title": "Set up @:{'kh.app.name'}",
           "text": "Icon on the home screen or in the Dock, shopping list as its own icon, shortcuts: done in 2 minutes."
         },
         "more": {
@@ -876,7 +882,7 @@
       "copied": "Recipe copied",
       "copy-failed": "Copying did not work.",
       "book-button": "Export as text files",
-      "book-title": "Cookbook as text files",
+      "book-title": "Collection as text files",
       "as-recipe": "Servings as in the recipe",
       "for-all": "Same for all recipes",
       "servings-all": "Servings",
@@ -886,8 +892,8 @@
       "done": "Done, the ZIP file was saved."
     },
     "setup": {
-      "title": "Set up Kochheft",
-      "intro": "In a few minutes Kochheft is easy to reach on this device. Tick off what you have done.",
+      "title": "Set up @:{'kh.app.name'}",
+      "intro": "In a few minutes @:{'kh.app.name'} is easy to reach on this device. Tick off what you have done.",
       "device": "Device",
       "device-hint": "Another device? Pick it here to see its steps.",
       "this-device": "this device",
@@ -906,35 +912,35 @@
       },
       "prompt": {
         "title": "New device?",
-        "text-phone": "Set up Kochheft here in 2 minutes: icon on the home screen, shopping list, shortcuts.",
-        "text-computer": "Set up Kochheft here in 2 minutes: icon in the Dock or as an app, shopping list, shortcuts.",
+        "text-phone": "Set up @:{'kh.app.name'} here in 2 minutes: icon on the home screen, shopping list, shortcuts.",
+        "text-computer": "Set up @:{'kh.app.name'} here in 2 minutes: icon in the Dock or as an app, shopping list, shortcuts.",
         "yes": "Yes, show me",
         "later": "Later",
         "never": "No, thanks"
       },
       "home": {
-        "installed": "You are using Kochheft as an app right now. This is already done.",
+        "installed": "You are using @:{'kh.app.name'} as an app right now. This is already done.",
         "ios": {
-          "title": "Kochheft on the home screen",
-          "s1": "Open Kochheft in Safari.",
+          "title": "@:{'kh.app.name'} on the home screen",
+          "s1": "Open @:{'kh.app.name'} in Safari.",
           "s2": "Tap Share (the square with the arrow).",
           "s3": "Choose “Add to Home Screen” and tap Add."
         },
         "android": {
-          "title": "Kochheft on the home screen",
-          "s1": "Open Kochheft in Chrome.",
+          "title": "@:{'kh.app.name'} on the home screen",
+          "s1": "Open @:{'kh.app.name'} in Chrome.",
           "s2": "Tap the menu ⋮ at the top right.",
           "s3": "Choose “Install app” or “Add to Home screen”."
         },
         "mac": {
-          "title": "Kochheft in the Dock",
-          "s1": "Safari (macOS Sonoma or newer): open Kochheft and choose File → “Add to Dock”.",
+          "title": "@:{'kh.app.name'} in the Dock",
+          "s1": "Safari (macOS Sonoma or newer): open @:{'kh.app.name'} and choose File → “Add to Dock”.",
           "s2": "Chrome or Edge: click the install icon in the address bar.",
-          "s3": "Confirm with “Add” or “Install”. Then you start Kochheft like any other app."
+          "s3": "Confirm with “Add” or “Install”. Then you start @:{'kh.app.name'} like any other app."
         },
         "computer": {
-          "title": "Kochheft as an app",
-          "s1": "Open Kochheft in Chrome or Edge.",
+          "title": "@:{'kh.app.name'} as an app",
+          "s1": "Open @:{'kh.app.name'} in Chrome or Edge.",
           "s2": "Click the install icon in the address bar (or menu → “Install app”).",
           "s3": "Confirm with “Install”."
         }
@@ -950,7 +956,7 @@
         },
         "android": {
           "title": "Shopping list as its own icon",
-          "s1": "Press and hold the Kochheft icon on the home screen.",
+          "s1": "Press and hold the @:{'kh.app.name'} icon on the home screen.",
           "s2": "Choose “Shopping list”.",
           "s3": "Drag the entry onto the home screen."
         },
@@ -970,7 +976,7 @@
       "key": {
         "label": "Your key",
         "create": "Create key",
-        "once": "The key is only visible while this page is open. Kochheft deliberately does not store it in readable form, so nobody can read it from the server. If you need it again later, just create a new one; delete old ones under Profile → API tokens.",
+        "once": "The key is only visible while this page is open. @:{'kh.app.name'} deliberately does not store it in readable form, so nobody can read it from the server. If you need it again later, just create a new one; delete old ones under Profile → API tokens.",
         "another": "Create another key",
         "one-each": "You can use a separate key for each shortcut; then you can delete one without touching the others.",
         "ios": {
@@ -983,7 +989,7 @@
           "title": "Key for shortcuts",
           "s1": "Tap “Create key”.",
           "s2": "Copy the key right away, it is only visible now.",
-          "s3": "You only need it for apps and automations that reach Kochheft."
+          "s3": "You only need it for apps and automations that reach @:{'kh.app.name'}."
         },
         "mac": {
           "title": "Key for shortcuts",
@@ -995,41 +1001,41 @@
           "title": "Key for shortcuts",
           "s1": "Click “Create key”.",
           "s2": "Copy the key right away, it is only visible now.",
-          "s3": "You only need it for programs and automations that reach Kochheft."
+          "s3": "You only need it for programs and automations that reach @:{'kh.app.name'}."
         }
       },
       "import": {
-        "with-link": "Tap “Add shortcut”. Afterwards “In Kochheft importieren” appears in the share menu of Safari, Instagram, Photos and Files.",
+        "with-link": "Tap “Add shortcut”. Afterwards “Import to Cookbook” appears in the share menu of Safari, Instagram, Photos and Files.",
         "ios": {
           "title": "Import recipes from other apps",
           "s1": "Open the Shortcuts app, tap + and turn on “Show in Share Sheet” under ⓘ (types text, URLs, images, files and PDFs).",
-          "s2": "Build the shortcut “In Kochheft importieren” following the README (section “Share by shortcut”): one request sends everything, Kochheft recognizes photo, PDF, text and link itself.",
+          "s2": "Build the shortcut “Import to Cookbook” following the README (section “Share by shortcut”): one request sends everything, @:{'kh.app.name'} recognizes photo, PDF, text and link itself.",
           "s3": "Then it appears in the share menu of Safari, Instagram, Photos and Files."
         },
         "mac": {
           "title": "Import recipes from other apps",
           "s1": "Shortcuts from the iPhone reach the Mac through iCloud: Shortcuts → Settings → iCloud Sync.",
-          "s2": "“In Kochheft importieren” then appears in Safari's share menu on the Mac.",
+          "s2": "“Import to Cookbook” then appears in Safari's share menu on the Mac.",
           "s3": "If you do not have it yet, set it up on the iPhone first."
         },
         "android": {
           "title": "Import recipes from other apps",
-          "s1": "Kochheft is right in the share menu of other apps. Nothing to do here."
+          "s1": "@:{'kh.app.name'} is right in the share menu of other apps. Nothing to do here."
         }
       },
       "siri": {
-        "with-link": "Tap “Add shortcut”. Afterwards “Hey Siri, Auf die Einkaufsliste” works.",
-        "android-note": "Google Assistant cannot do “Auf die Einkaufsliste”. On Android you type items straight into the shopping list.",
+        "with-link": "Tap “Add shortcut”. Afterwards “Hey Siri, Add to shopping list” works.",
+        "android-note": "Google Assistant cannot do “Add to shopping list”. On Android you type items straight into the shopping list.",
         "ios": {
-          "title": "“Hey Siri, Auf die Einkaufsliste”",
-          "s1": "Build the shortcut “Auf die Einkaufsliste” in the Shortcuts app (instructions in the README).",
-          "s2": "It needs the key from above and the address of Kochheft.",
-          "s3": "Then say “Hey Siri, Auf die Einkaufsliste” and dictate what is missing."
+          "title": "“Hey Siri, Add to shopping list”",
+          "s1": "Build the shortcut “Add to shopping list” in the Shortcuts app (instructions in the README).",
+          "s2": "It needs the key from above and the address of @:{'kh.app.name'}.",
+          "s3": "Then say “Hey Siri, Add to shopping list” and dictate what is missing."
         },
         "mac": {
-          "title": "“Hey Siri, Auf die Einkaufsliste”",
+          "title": "“Hey Siri, Add to shopping list”",
           "s1": "The shortcut from the iPhone reaches the Mac through iCloud (Shortcuts → Settings → iCloud Sync).",
-          "s2": "Then “Hey Siri, Auf die Einkaufsliste” works on the Mac too."
+          "s2": "Then “Hey Siri, Add to shopping list” works on the Mac too."
         }
       },
       "timer": {
@@ -1042,7 +1048,7 @@
         "mac": {
           "title": "Clock timer",
           "s1": "Under More → Settings → Timer turn on “Put on Clock timer” and add the shortcut with the button there (it opens in the Shortcuts app).",
-          "s2": "The timer then starts in the Clock app, even when Kochheft is no longer in front."
+          "s2": "The timer then starts in the Clock app, even when @:{'kh.app.name'} is no longer in front."
         }
       },
       "kitchen": {
@@ -1076,11 +1082,11 @@
     },
     "address": {
       "title": "New address",
-      "text": "Kochheft has a new address: {address}. Please set it up again once: add the shortcuts again and recreate the icon on the home screen.",
+      "text": "@:{'kh.app.name'} has a new address: {address}. Please set it up again once: add the shortcuts again and recreate the icon on the home screen.",
       "done": "Later"
     },
     "news": {
-      "title": "New in Kochheft {version}",
+      "title": "New in @:{'kh.app.name'} {version}",
       "done": "Got it",
       "menu": "What's new",
       "v1-3": {
@@ -1089,24 +1095,24 @@
           "text": "Tap items or write “2 milk”. Every store has its own list with details, and it works without a signal. Mark what is always at home as “Always at home”."
         },
         "siri": {
-          "title": "Hey Siri, Auf die Einkaufsliste",
+          "title": "Hey Siri, Add to shopping list",
           "text": "Tell Siri what is missing and it lands on the list. Setting it up takes two minutes."
         },
         "share": {
           "title": "Share and import recipes",
-          "text": "Share a recipe “as text” or export your cookbook as files. Drop recipe files or a ZIP into the inbox; you check before anything reaches the cookbook."
+          "text": "Share a recipe “as text” or export a collection as files. Drop recipe files or a ZIP into the inbox; you check before anything reaches the collection."
         },
         "week": {
           "title": "Plan the week",
           "text": "“Suggest a week” in the meal plan picks dishes you have not had for a while. A tap plans a family wish, and you can share the plan as text."
         },
         "setup": {
-          "title": "Set up Kochheft",
+          "title": "Set up @:{'kh.app.name'}",
           "text": "Icon on the home screen, shopping list as its own icon, shortcuts: step by step, on iPad and Mac too."
         },
         "notifications": {
           "title": "Notifications",
-          "text": "If you like, Kochheft speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More → Settings."
+          "text": "If you like, @:{'kh.app.name'} speaks up: when someone plans a dish or adds to the list, and in the evening with what is on tomorrow. You set it under More → Settings."
         }
       },
       "v1-4": {
@@ -1128,16 +1134,16 @@
         },
         "wizard": {
           "title": "Setup assistant",
-          "text": "The first-time setup now knows Kochheft: add-ons, adding the family, a short check. You can open it again any time."
+          "text": "The first-time setup now knows @:{'kh.app.name'}: add-ons, adding the family, a short check. You can open it again any time."
         }
       }
     },
     "notifications": {
       "title": "Notifications",
       "this-device": "Notifications on this device",
-      "install-first": "On iPhone and iPad, notifications only reach Kochheft on the home screen. Put it there first.",
-      "unsupported": "This browser cannot show notifications from Kochheft.",
-      "denied": "Notifications are blocked for Kochheft. Allow them in the settings of the device or browser.",
+      "install-first": "On iPhone and iPad, notifications only reach @:{'kh.app.name'} on the home screen. Put it there first.",
+      "unsupported": "This browser cannot show notifications from @:{'kh.app.name'}.",
+      "denied": "Notifications are blocked for @:{'kh.app.name'}. Allow them in the settings of the device or browser.",
       "no-worker": "The app is not ready yet. Reload the page and try again in a moment.",
       "evening-time": "Time",
       "test": "Send test notification",
@@ -1174,7 +1180,7 @@
     },
     "planner": {
       "all-to-list": "All to shopping list",
-      "sunday-note": "Sunday counts as “not chosen” in Kochheft; the week then starts on Monday."
+      "sunday-note": "Sunday counts as “not chosen” in @:{'kh.app.name'}; the week then starts on Monday."
     },
     "simple": {
       "title": "Simple view",
@@ -1244,12 +1250,38 @@
       "end": {
         "device": "Set up this device",
         "notifications": "Notifications",
-        "intro": "These help you get going with Kochheft",
-        "import-url": "Enter the address of a recipe page. Kochheft reads the recipe there and adds it to your collection."
+        "intro": "These help you get going with @:{'kh.app.name'}",
+        "import-url": "Enter the address of a recipe page. @:{'kh.app.name'} reads the recipe there and adds it to your collection."
       },
-      "welcome": "Welcome to Kochheft! Let’s get started",
-      "previous": "Do you already have a backup of Kochheft or Mealie?",
-      "seed-hint": "Kochheft adds foods, units and departments, so the shopping list is sorted by department. You can change or add to them at any time."
+      "welcome": "Welcome to @:{'kh.app.name'}! Let’s get started",
+      "previous": "Do you already have a backup of @:{'kh.app.name'} or Mealie?",
+      "seed-hint": "@:{'kh.app.name'} adds foods, units and departments, so the shopping list is sorted by department. You can change or add to them at any time.",
+      "language": "Choose your language"
+    },
+    "app": {
+      "name": "Cookbook"
+    },
+    "collections": {
+      "title": "Collections",
+      "create": "Create a collection",
+      "one": "Collection",
+      "description": "Collections are another way to organize recipes: you set filters, and all matching recipes appear in the collection. Each collection gets an entry in the side menu.",
+      "hide-other": "Hide collections from other households",
+      "hide-other-description": "When enabled, only collections from your household appear in the side menu",
+      "public": "Public collection",
+      "public-description": "Public collections can be shared with people without an account and are shown on your group page.",
+      "name": "Collection name",
+      "household-name": "{0} Collection {1}"
+    },
+    "tag-suggest": {
+      "title": "Suggest tags",
+      "description": "For recipes without tags. Nothing is saved until you confirm it.",
+      "search": "Find suggestions",
+      "search-ai": "Keep looking with AI (up to 20 recipes)",
+      "none": "No suggestions found. Either all recipes have tags already, or none of the existing tags fits.",
+      "left": "There is no suggestion for {n} more recipes without tags.",
+      "apply": "Apply to {n} recipes",
+      "failed": "Could not do that. Please try again."
     }
   }
 }

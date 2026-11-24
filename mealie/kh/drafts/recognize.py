@@ -27,6 +27,7 @@ from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import WhisperError, media_path, transcribe
 from mealie.kh.features.settings import get_kh_settings
 from mealie.kh.notifications.events import notify_draft_ready
+from mealie.kh.tags.suggest import add_rule_tags
 from mealie.lang.providers import Translator
 from mealie.pkgs.safehttp.transport import InvalidDomainError
 from mealie.repos.all_repositories import get_repositories
@@ -161,6 +162,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdO
             if draft.source_type == DraftSource.text and not draft.source_text and media_path(draft_id).exists():
                 draft = await transcribe_recording(draft, session)
             recipe, used_ai = await build(draft, ai, repos, translator)
+            add_rule_tags(recipe, repos.tags.get_all())  # tags from the rules, only the group's existing ones
             amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)
             found = DraftAmounts(extras=amounts.extras, step_amounts=amounts.links)

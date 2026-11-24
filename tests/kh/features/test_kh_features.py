@@ -53,9 +53,14 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
             "shareLinks": on,
             "noticePollMinutes": 5,
             "sourceUrl": get_kh_settings().source_url,
-            "clockShortcutUrl": DEFAULT_CLOCK_SHORTCUT_URL,
-            "importShortcutUrl": DEFAULT_SHORTCUT_URLS["import_shortcut_url"],
-            "siriShortcutUrl": DEFAULT_SHORTCUT_URLS["siri_shortcut_url"],
+            "shortcutUrls": {
+                "de-DE": {
+                    "clock": DEFAULT_CLOCK_SHORTCUT_URL,
+                    "import": DEFAULT_SHORTCUT_URLS["import_shortcut_url"],
+                    "siri": DEFAULT_SHORTCUT_URLS["siri_shortcut_url"],
+                },
+                "en-US": {"clock": None, "import": None, "siri": None},  # no English shortcuts are shared yet
+            },
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
             "baseUrl": None if get_app_settings().is_default_base_url else get_app_settings().BASE_URL,
@@ -155,7 +160,17 @@ def test_features_name_the_base_url_only_when_it_is_set(api_client: TestClient, 
 
 def test_features_report_the_shortcut_url(api_client: TestClient, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(get_kh_settings(), "clock_shortcut_url", VALID_SHORTCUT)
-    assert api_client.get("/api/kh/features").json()["clockShortcutUrl"] == VALID_SHORTCUT
+    assert api_client.get("/api/kh/features").json()["shortcutUrls"]["de-DE"]["clock"] == VALID_SHORTCUT
+
+
+@pytest.mark.parametrize("field", ["clock", "import", "siri"])
+def test_english_shortcut_urls_come_from_their_own_settings(monkeypatch: pytest.MonkeyPatch, field: str):
+    monkeypatch.setenv(f"KH_{field.upper()}_SHORTCUT_URL_EN", VALID_SHORTCUT)
+    settings = KhSettings()
+    assert settings.shortcut_urls()["en-US"][field] == VALID_SHORTCUT
+    assert settings.shortcut_urls()["de-DE"][field] != VALID_SHORTCUT  # the German link is untouched
+    monkeypatch.setenv(f"KH_{field.upper()}_SHORTCUT_URL_EN", "https://example.com/x")
+    assert KhSettings().shortcut_urls()["en-US"][field] is None
 
 
 @pytest.mark.parametrize("name", ["KH_IMPORT_SHORTCUT_URL", "KH_SIRI_SHORTCUT_URL"])

@@ -6,8 +6,10 @@ import { uuid4 } from "~/composables/use-utils";
 
 const STORAGE_KEY = "kh-timers";
 const CLOCK_KEY = "kh-clock-timer";
-/** The name of the iOS Shortcut that starts the clock app's timer, unless the device is set to another. */
-export const DEFAULT_CLOCK_SHORTCUT = "Kochheft Timer";
+/** The name of the iOS Shortcut that starts the clock app's timer, unless the device is set to another: the name of
+ * the shared shortcut in that language. */
+const DEFAULT_CLOCK_SHORTCUTS: Record<string, string> = { "de-DE": "Kochheft Timer", "en-US": "Cookbook timer" };
+export const defaultClockShortcut = (locale: string): string => DEFAULT_CLOCK_SHORTCUTS[locale] ?? DEFAULT_CLOCK_SHORTCUTS["de-DE"]!;
 /** The alarm stops by itself after this long if nobody taps "Aus". */
 export const ALARM_MAX_MS = 120_000;
 const ALARM_ROUND_MS = 1000;
@@ -225,7 +227,7 @@ function loadClock(): ClockSetting {
   const stored = readStored(CLOCK_KEY) as Partial<ClockSetting> | null;
   return {
     enabled: stored?.enabled === true,
-    name: typeof stored?.name === "string" && stored.name ? stored.name : DEFAULT_CLOCK_SHORTCUT,
+    name: typeof stored?.name === "string" ? stored.name : "", // "" = the default of the language shown
   };
 }
 
@@ -234,7 +236,14 @@ watch(clock, setting => localStorage.setItem(CLOCK_KEY, JSON.stringify(setting))
 
 /** Whether this device offers "Auf Uhr-Timer legen", and the name of its Shortcut; kept on the device. `offered`
  * says whether the device can run it at all, so a switch left on from before (say on Android) shows no button. */
-export function useKhClockSetting() {
+export function useKhClockSetting(locale: () => string = () => "de-DE") {
   const offered = offersClockShortcut(navigator.userAgent);
-  return { enabled: toRef(clock.value, "enabled"), name: toRef(clock.value, "name"), offered };
+  // an empty stored name means "the default of the language shown", so a person who never renamed it follows the language
+  const name = computed({
+    get: () => clock.value.name || defaultClockShortcut(locale()),
+    set: (value: string) => {
+      clock.value.name = value.trim();
+    },
+  });
+  return { enabled: toRef(clock.value, "enabled"), name, offered };
 }

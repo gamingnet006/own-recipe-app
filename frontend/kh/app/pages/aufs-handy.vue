@@ -158,6 +158,7 @@ import {
   asksForAddressAndKey,
   familyOf,
   shortcutLink,
+  shortcutUrlsFor,
   isInstalled,
   canWriteNfc,
   keyName,
@@ -214,7 +215,7 @@ const settingsPath = computed(() => `/g/${auth.user.value?.groupSlug ?? ""}/eins
 
 /** The ready-made shortcut's iCloud link for this section on this device, null where there is none. */
 function shortcutUrl(id: KhSetupSection): string | null {
-  return shortcutLink(id, family.value, $khFeatures);
+  return shortcutLink(id, family.value, shortcutUrlsFor($khFeatures.shortcutUrls, i18n.locale.value)); // KH: links per language
 }
 
 // Ticks stay on this device, per person; storage that is blocked or broken just means nothing is ticked
@@ -268,7 +269,7 @@ const making = ref(false);
 /** Makes one more Mealie API token for this person and device and shows it; each gets its own name. */
 async function makeKey() {
   making.value = true;
-  const { data } = await api.users.createAPIToken({ name: keyName(device.value, new Date(), madeKeys.value.length + 1) });
+  const { data } = await api.users.createAPIToken({ name: keyName(device.value, new Date(), madeKeys.value.length + 1, i18n.locale.value) });
   making.value = false;
   if (data) madeKeys.value.push(data.token);
   else alert.error(i18n.t("events.something-went-wrong"));

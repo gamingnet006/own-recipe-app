@@ -48,7 +48,7 @@ function allTargets(groupSlug: string, userId: string): Targets {
     shopping: target("shopping", SHOPPING_PAGE, "formatListCheck", "kh.nav.shopping"),
     more: target("more", `${group}/more`, "dotsHorizontal", "kh.nav.more"),
     mealplan: target("mealplan", `${PLANNER_PAGE}/planner/view`, "calendarMultiselect", "kh.nav.mealplan"),
-    cookbooks: target("cookbooks", `${group}/cookbooks`, "book", "cookbook.cookbooks"),
+    cookbooks: target("cookbooks", `${group}/cookbooks`, "book", "kh.collections.title"),
     finder: target("finder", `${group}/recipes/finder`, "search", "kh.nav.finder"),
     favorites: target("favorites", `/user/${userId}/favorites`, "heart", "general.favorites"),
     categories: target("categories", `${group}/recipes/categories`, "categories", "sidebar.categories"),

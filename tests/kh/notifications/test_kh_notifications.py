@@ -6,7 +6,7 @@ import json
 import re
 import stat
 from collections.abc import Callable, Generator
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pytest
 import sqlalchemy as sa
@@ -580,3 +580,31 @@ def test_the_vapid_subject_comes_from_mealies_base_url(monkeypatch: pytest.Monke
         assert sender._subject() == "https://kochbuch.example.org"
     finally:
         sender._subject.cache_clear()
+
+
+# --- every person gets the push in their own language -----------------------------------------------------------
+
+
+@pytest.mark.usefixtures("no_account_locale")
+def test_pushes_follow_each_persons_language(api_client: TestClient, fake_push, housemate, unique_user: TestUser):
+    english, german = housemate(), housemate()
+    for mate in (english, german):
+        turn_on(api_client, mate)
+    saved = api_client.put("/api/kh/navigation", json={"hidden": [], "locale": "en-US"}, headers=english["headers"])
+    assert saved.status_code == 200
+    events.notify_wish(unique_user.user_id, unique_user.household_id, "Soup")
+    by_device = {endpoint.rsplit("/", 1)[1]: payload for endpoint, payload in fake_push}
+    who = unique_user.full_name
+    assert by_device[english["id"]]["body"] == f"{who} wishes for Soup"
+    assert by_device[english["id"]]["title"] == "Wish list"
+    assert by_device[german["id"]]["body"] == f"{who} wünscht sich Soup"
+
+
+@pytest.mark.usefixtures("no_account_locale")
+def test_plan_and_shopping_pushes_in_english(api_client: TestClient, fake_push, housemate, unique_user: TestUser):
+    mate = housemate()
+    turn_on(api_client, mate, shopping=True)
+    api_client.put("/api/kh/navigation", json={"hidden": [], "locale": "en-US"}, headers=mate["headers"])
+    events.notify_plan_created(unique_user.user_id, unique_user.household_id, "Soup", date(2026, 11, 24))
+    assert fake_push[0][1]["body"] == f"{unique_user.full_name} planned Soup for Tue 11/24"
+    assert fake_push[0][1]["title"] == "Meal plan"

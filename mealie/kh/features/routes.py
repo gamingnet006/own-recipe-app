@@ -20,9 +20,9 @@ class KhFeatures(MealieModel):
     source_url: str  # where the source of this fork can be read (AGPL), shown on the About page
     media: bool  # own audio and video files are accepted, because a Whisper server is set (P7.3)
     profile: str  # leicht, normal, stark or lokal (P7.4)
-    clock_shortcut_url: str | None  # ready-made Clock timer shortcut to add, None while not configured (D42)
-    import_shortcut_url: str | None  # ready-made share-sheet import shortcut, None while not configured (D68)
-    siri_shortcut_url: str | None  # ready-made "Auf die Einkaufsliste" Siri shortcut, None while not configured (D68)
+    # ready-made shortcuts to add per UI language ("de-DE", "en-US"): clock (D42), import (D68) and siri (D68), each
+    # null while not configured
+    shortcut_urls: dict[str, dict[str, str | None]]
     email_ready: bool  # Mealie can send mail, so reset and welcome links work (D53)
     draft_max_text: int  # longest recipe text one draft takes; a text shared into the app is cut here (D57)
     base_url: str | None  # the address Mealie's BASE_URL names, None while it is still the default (D83)
@@ -40,9 +40,7 @@ def get_features() -> KhFeatures:
         source_url=settings.source_url,
         media=bool(settings.whisper_url),
         profile=settings.profile,
-        clock_shortcut_url=settings.clock_shortcut_url,
-        import_shortcut_url=settings.import_shortcut_url,
-        siri_shortcut_url=settings.siri_shortcut_url,
+        shortcut_urls=settings.shortcut_urls(),
         email_ready=app_settings.SMTP_ENABLE,
         draft_max_text=settings.draft_max_text,
         base_url=None if app_settings.is_default_base_url else app_settings.BASE_URL,

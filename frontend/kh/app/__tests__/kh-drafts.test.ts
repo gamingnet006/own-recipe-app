@@ -195,8 +195,8 @@ describe("drafts list and review", () => {
 
   test("the review starts from the recognized servings and yield", () => {
     const recognized = { recipeServings: 4, recipeYieldQuantity: 1, recipeYield: "Springform Ø 26 cm" } as RecipeOut;
-    expect(recipeChanges(recognized)).toEqual({ ...recognized, linkedSteps: [] });
-    expect(recipeChanges(null)).toEqual({ recipeServings: 0, recipeYieldQuantity: 0, recipeYield: "", linkedSteps: [] });
+    expect(recipeChanges(recognized)).toEqual({ ...recognized, linkedSteps: [], tags: [] });
+    expect(recipeChanges(null)).toEqual({ recipeServings: 0, recipeYieldQuantity: 0, recipeYield: "", linkedSteps: [], tags: [] });
   });
 
   test("the review starts with the step links the recognition made", () => {

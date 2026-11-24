@@ -2,9 +2,11 @@
 
 from datetime import UTC, datetime, timedelta
 
+import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
 from mealie.kh.calendar.translator import FeedTranslator
+from mealie.kh.onboarding.models import KhAccountSettings
 from mealie.lang import get_locale_provider
 from mealie.schema.meal_plan.new_meal import PlanEntryCreate
 from tests.utils import api_routes
@@ -48,3 +50,18 @@ def test_feed_defaults_to_german(api_client: TestClient, unique_user_fn_scoped: 
 
 def test_feed_english_when_asked(api_client: TestClient, unique_user_fn_scoped: TestUser):
     assert "SUMMARY:Dinner: " in feed_for(api_client, unique_user_fn_scoped, {"lang": "en-US"})
+
+
+def test_feed_follows_the_installation_language_without_a_link_language(
+    api_client: TestClient, unique_user_fn_scoped: TestUser, session
+):
+    settings = session.execute(sa.select(KhAccountSettings)).scalars().first() or KhAccountSettings(session=session)
+    settings.locale = "en-US"
+    session.add(settings)
+    session.commit()
+    try:
+        assert "SUMMARY:Dinner: " in feed_for(api_client, unique_user_fn_scoped)
+        assert "SUMMARY:Abendessen: " in feed_for(api_client, unique_user_fn_scoped, {"lang": "de-DE"})
+    finally:
+        settings.locale = None
+        session.commit()

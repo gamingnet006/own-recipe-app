@@ -2,6 +2,7 @@
 
 from pydantic import field_validator
 
+from mealie.kh.i18n.locale import Locale
 from mealie.schema._mealie import MealieModel
 
 # The entries of the side menu a person may hide, in the menu's order (never recipes or More); the frontend's
@@ -11,10 +12,12 @@ HIDEABLE_ENTRIES = ("intake", "shopping", "mealplan", "cookbooks", "finder", "or
 
 class NavigationSettings(MealieModel):
     """The hidden side-menu entries; stored without duplicates, in the menu's order. In a request, simple None keeps
-    the stored switch, so a client that only knows the hidden list stays compatible."""
+    the stored switch, so a client that only knows the hidden list stays compatible. The same holds for locale: the
+    person's chosen language (None: they never chose, follow the device)."""
 
     hidden: list[str]
     simple: bool | None = None
+    locale: Locale | None = None
 
     @field_validator("hidden")
     @classmethod

@@ -7,6 +7,8 @@ from enum import StrEnum
 from pathlib import PurePosixPath
 
 from mealie.kh.drafts.pdf import is_pdf
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import MESSAGES, say
 
 # Same address rule and message length as the frontend's readSharedImport (D57, frontend/kh/app/lib/shared-import.ts):
 # keep the two in sync.
@@ -16,18 +18,6 @@ CAPTION_MIN = 20  # characters a text next to photos needs to be more than the p
 
 HEIF_BRANDS = {b"heic", b"heix", b"heim", b"heis", b"hevc", b"hevx", b"mif1", b"msf1"}
 TEXT_SUFFIXES = {".txt", ".md"}
-SKIP_REASONS = {  # German sentences for the skip reasons, because the shortcut shows the answer as it is
-    "too_large": "zu groß",
-    "not_an_image": "kein Foto",
-    "unreadable": "nicht lesbar",
-    "empty": "leer",
-    "text_too_long": "Text zu lang",
-    "unsupported": "Dateityp nicht unterstützt",
-    "too_many": "zu viele Dateien",
-    "pdf_encrypted": "PDF mit Passwort",
-    "pdf_unreadable": "kein Text und kein Bild im PDF",
-    "pdf_too_slow": "PDF zu aufwendig",
-}
 SNIFF_BYTES = 16  # how much of a file's start the decision reads
 
 
@@ -134,6 +124,12 @@ def classify_share(files: list[SharedFile], text: str | None, url: str | None) -
     return ShareDecision(ShareKind.link, in_url[0]) if in_url else None
 
 
-def share_confirmation(created: int) -> str:
-    """The sentence the shortcut says after a share made `created` drafts (D88)."""
-    return f"Ist im Eingang: {created} Entwurf" if created == 1 else f"Ist im Eingang: {created} Entwürfe"
+def share_confirmation(created: int, locale: Locale = DEFAULT_LOCALE) -> str:
+    """The sentence the shortcut says after a share made `created` drafts (D88), in LOCALE."""
+    return say("share_done_one" if created == 1 else "share_done_many", locale, count=created)
+
+
+def skip_reason(reason: str, locale: Locale = DEFAULT_LOCALE) -> str:
+    """Why a shared file was skipped, in words the shortcut shows as they are; an unknown reason gets a general text."""
+    key = f"skip_{reason}"  # the reasons the drafts service names each have a sentence in messages.py
+    return say(key if key in MESSAGES else "skip_other", locale)

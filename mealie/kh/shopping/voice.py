@@ -8,6 +8,8 @@ from pydantic import UUID4
 
 from mealie.kh.amounts.line import ShoppingLine, parse_shopping_line
 from mealie.kh.amounts.parse import ensure_german_units
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import say
 from mealie.kh.shopping.service import ensure_food, ensure_unit
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.household.group_shopping_list import (
@@ -185,16 +187,20 @@ def pick_list(lists: list[ShoppingListOut], name: str | None) -> ShoppingListOut
     return max(lists, key=lambda entry: entry.updated_at or entry.created_at or datetime.min, default=None)  # noqa: DTZ901
 
 
-def spoken_confirmation(names: list[str], list_name: str) -> str:
-    """The German sentence Siri reads out: "Milch, Butter und Eier stehen auf der Liste Rewe." """
-    what = names[0] if len(names) == 1 else f"{', '.join(names[:-1])} und {names[-1]}"
-    verb = "steht" if len(names) == 1 else "stehen"
-    return f"{what} {verb} auf der Liste {list_name}."
+def spoken_confirmation(names: list[str], list_name: str, locale: Locale = DEFAULT_LOCALE) -> str:
+    """The sentence Siri reads out in LOCALE: "Milch, Butter und Eier stehen auf der Liste Rewe." or "Milk, butter and
+    eggs are on your Rewe list." """
+    joiner = f" {say('and', locale)} "
+    what = names[0] if len(names) == 1 else f"{', '.join(names[:-1])}{joiner}{names[-1]}"
+    where = say(
+        "on_list_plain" if LIST_WORD.search(list_name.strip().casefold()) else "on_list", locale, name=list_name
+    )
+    return say("listed_one" if len(names) == 1 else "listed_many", locale, what=what, where=where)
 
 
-def spoken_summary(results: list[tuple[str, list[str]]]) -> str:
+def spoken_summary(results: list[tuple[str, list[str]]], locale: Locale = DEFAULT_LOCALE) -> str:
     """What Siri reads out for several lists: one sentence per (list name, article names), in the order given."""
-    return " ".join(spoken_confirmation(names, list_name) for list_name, names in results)
+    return " ".join(spoken_confirmation(names, list_name, locale) for list_name, names in results)
 
 
 def parse_articles(group_repos: AllRepositories, articles: list[str]) -> list[ShoppingLine]:

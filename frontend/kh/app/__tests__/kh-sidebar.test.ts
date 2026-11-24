@@ -2,7 +2,7 @@
 // retried at once, a save is taken over at once and keeps quick changes in order, a failed save brings the old list back,
 // and the route guard loads with the app's i18n and forgets everything when nobody is signed in.
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { khSidebar, loadKhSidebarFor, resetKhSidebar, saveKhSidebar, saveKhSimple } from "../composables/use-kh-sidebar";
+import { khSidebar, loadKhSidebarFor, resetKhSidebar, saveKhLocale, saveKhSidebar, saveKhSimple } from "../composables/use-kh-sidebar";
 
 const get = vi.hoisted(() => vi.fn());
 const put = vi.hoisted(() => vi.fn());
@@ -11,6 +11,8 @@ const useRequests = vi.hoisted(() => vi.fn(() => ({})));
 const user = vi.hoisted(() => ({ value: null as { id: string } | null }));
 const appI18n = { t: (key: string) => key };
 
+const applyKhLocale = vi.hoisted(() => vi.fn());
+vi.mock("../composables/use-kh-locale", () => ({ applyKhLocale }));
 vi.mock("../lib/api/navigation", () => ({ KhNavigationApi: class { get = get; put = put; } }));
 vi.mock("~/composables/api/api-client", () => ({ useRequests }));
 vi.mock("~/composables/use-global-i18n", () => ({ useGlobalI18n: () => ({ t: (key: string) => key }) }));
@@ -25,6 +27,7 @@ beforeEach(() => {
   error.mockReset();
   useRequests.mockClear();
   user.value = null;
+  applyKhLocale.mockReset();
   resetKhSidebar();
 });
 
@@ -115,6 +118,16 @@ describe("route guard", () => {
     expect(khSidebar.hidden).toEqual(["cookbooks"]);
   });
 
+  test("shows the chosen language once per user, not on every navigation", async () => {
+    get.mockResolvedValue({ data: { hidden: [], locale: "en-US" } });
+    user.value = { id: "locale-user" };
+    const { default: guard } = await import("../middleware/kh-sidebar.global");
+    await (guard as () => Promise<unknown>)();
+    await (guard as () => Promise<unknown>)();
+    expect(applyKhLocale).toHaveBeenCalledTimes(1);
+    expect(applyKhLocale).toHaveBeenCalledWith("en-US", appI18n);
+  });
+
   test("forgets the list when nobody is signed in", async () => {
     khSidebar.hidden = ["cookbooks"];
     khSidebar.userId = "u1";
@@ -123,5 +136,32 @@ describe("route guard", () => {
     expect(khSidebar.hidden).toEqual([]);
     expect(khSidebar.userId).toBeNull();
     expect(get).not.toHaveBeenCalled();
+  });
+});
+
+describe("language", () => {
+  test("a load takes over the chosen language, an unknown or missing one is none", async () => {
+    get.mockResolvedValue({ data: { hidden: [], simple: false, locale: "de-DE" } });
+    await loadKhSidebarFor("u1");
+    expect(khSidebar.locale).toBe("de-DE");
+    get.mockResolvedValue({ data: { hidden: [], simple: false, locale: "fr-FR" } });
+    await loadKhSidebarFor("u2");
+    expect(khSidebar.locale).toBeNull();
+  });
+
+  test("a save stores the language with the current list and keeps the switch", async () => {
+    khSidebar.hidden = ["finder"];
+    put.mockResolvedValue({ data: { hidden: ["finder"], simple: false, locale: "en-US" } });
+    await saveKhLocale("en-US");
+    expect(put).toHaveBeenCalledWith(["finder"], undefined, "en-US");
+    expect(khSidebar.locale).toBe("en-US");
+  });
+
+  test("a failed save is reported and the old choice returns", async () => {
+    khSidebar.locale = "de-DE";
+    put.mockResolvedValue({ data: null });
+    await saveKhLocale("en-US");
+    expect(error).toHaveBeenCalled();
+    expect(khSidebar.locale).toBe("de-DE");
   });
 });

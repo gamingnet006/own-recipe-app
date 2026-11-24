@@ -106,7 +106,7 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
     </v-btn>
 
     <p class="text-center text-body-2 text-medium-emphasis">
-      {{ $appInfo.brandingName }} ·
+      {{ appName }} ·
       <a :href="MEALIE_URL" target="_blank" rel="noopener">{{ $t("kh.nav.based-on-mealie") }}</a> ·
       <a :href="$khFeatures.sourceUrl" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
@@ -119,6 +119,7 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
 </template>
 
 <script setup lang="ts">
+import { useKhAppName } from "~~/kh/app/composables/use-kh-app-name";
 import { moreLayout, moreSections } from "~~/kh/app/composables/use-kh-navigation";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { khSidebar, saveKhSimple } from "~~/kh/app/composables/use-kh-sidebar";
@@ -140,6 +141,7 @@ const auth = useMealieAuth();
 
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 
+const appName = useKhAppName();
 const languageDialog = ref(false);
 const deleteOpen = ref(false);
 const tourOpen = ref(false); // shown again any time, without a call to the server (D59)

@@ -1,12 +1,15 @@
 // KH: the API of a person's own side menu (D58) as a Mealie API class; the type is written by hand
 // (mealie/kh/navigation).
 import { BaseAPI } from "~/lib/api/base/base-clients";
+import type { KhLocale } from "../locale";
 
 export interface KhNavigationSettings {
   /** Keys of the side-menu entries the person hid. */
   hidden: string[];
   /** Whether the simple view (D79) is on. */
   simple: boolean;
+  /** The language the person chose; null: they never did, the device decides. */
+  locale: KhLocale | null;
 }
 
 export class KhNavigationApi extends BaseAPI {
@@ -15,11 +18,11 @@ export class KhNavigationApi extends BaseAPI {
     return await this.requests.get<KhNavigationSettings>("/api/kh/navigation");
   }
 
-  /** Stores the own hidden entries; without SIMPLE the stored simple view switch stays. */
-  async put(hidden: string[], simple?: boolean) {
-    return await this.requests.put<KhNavigationSettings, { hidden: string[]; simple?: boolean }>(
+  /** Stores the own hidden entries; without SIMPLE or LOCALE the stored switch and language stay. */
+  async put(hidden: string[], simple?: boolean, locale?: KhLocale) {
+    return await this.requests.put<KhNavigationSettings, { hidden: string[]; simple?: boolean; locale?: KhLocale }>(
       "/api/kh/navigation",
-      { hidden, simple },
+      { hidden, simple, locale },
     );
   }
 

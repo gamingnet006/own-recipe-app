@@ -1,5 +1,9 @@
 <template>
   <v-container>
+    <!-- KH: tags for recipes that have none, proposed and applied only after confirmation -->
+    <v-btn :to="`/g/${$route.params.groupSlug}/schlagworte`" variant="outlined" class="mb-4">
+      {{ $t("kh.tag-suggest.title") }}
+    </v-btn>
     <RecipeOrganizerPage
       v-if="store"
       :items="store"

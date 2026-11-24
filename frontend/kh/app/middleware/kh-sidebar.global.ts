@@ -2,10 +2,22 @@
 // forgets them when nobody is signed in any more (a sign-out without reload). A route guard runs before any component
 // exists: useI18n() would throw there (vue-i18n error 26), so it hands the app's own i18n instance on.
 import type { Composer } from "vue-i18n";
-import { loadKhSidebarFor, resetKhSidebar } from "../composables/use-kh-sidebar";
+// The person's chosen language (if any) is shown once per sign-in, so a language picked later is not overwritten.
+import { applyKhLocale } from "../composables/use-kh-locale";
+import { khSidebar, loadKhSidebarFor, resetKhSidebar } from "../composables/use-kh-sidebar";
+
+let localeShownFor: string | null = null;
 
 export default defineNuxtRouteMiddleware(async () => {
   const user = useMealieAuth().user.value;
-  if (!user) return resetKhSidebar();
-  await loadKhSidebarFor(user.id, useNuxtApp().$i18n as unknown as Composer);
+  if (!user) {
+    localeShownFor = null;
+    return resetKhSidebar();
+  }
+  const i18n = useNuxtApp().$i18n as unknown as Composer;
+  await loadKhSidebarFor(user.id, i18n);
+  if (localeShownFor !== user.id) {
+    localeShownFor = user.id;
+    await applyKhLocale(khSidebar.locale, i18n);
+  }
 });

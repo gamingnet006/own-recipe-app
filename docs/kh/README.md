@@ -34,6 +34,8 @@ Gemessen am 9.11.2026 mit `v1.0` · measured on 9 Nov 2026 with `v1.0`:
 
 ## Installieren
 
+Kochheft spricht Deutsch und Englisch (auf Englisch heißt die App „Cookbook“). Der erste Einrichtungsschritt ist die Sprache der Installation; jede Person ändert ihre unter **Mehr → Sprache**, sie wird im Konto gespeichert und gilt auf allen Geräten. Mealies „Kochbücher“ heißen hier **Sammlungen**.
+
 ### Voraussetzungen
 
 - **Ein Rechner, der dauernd läuft:**
@@ -246,6 +248,13 @@ Aus den Zutaten erkennt Kochheft die 14 Allergen-Gruppen der EU. Das ist immer �
 - Zur Warnung zeigt Kochheft Ersatz-Hinweise („Statt Butter: Margarine“). Dort legt der Haushalt auch eigene Regeln an; sie gehen vor der Standardliste.
 - **Als Variante speichern** macht eine Kopie „(ohne …)“ mit den Ersatz-Zutaten. Das Original bleibt unverändert.
 
+### Schlagworte
+
+Kochheft legt beim ersten Mal 24 Start-Schlagworte an (Frühstück, Suppe, vegetarisch, schnell und so weiter), in der Sprache der Installation. Eigene Schlagworte bleiben unberührt, ein gelöschtes kommt nicht zurück.
+
+- Beim Hinzufügen eines Rezepts schlägt Kochheft Schlagworte vor, aber nur aus denen, die es schon gibt. Ohne KI geht das nach Regeln: „schnell“ bis 30 Minuten, „vegetarisch“, „vegan“, „mit Fleisch“ und „mit Fisch“ aus den Zutaten. In der Prüfung kannst du jedes Schlagwort entfernen oder mit **Schlagwort hinzufügen** ein anderes wählen.
+- **Schlagworte vorschlagen** (Knopf auf der Seite der Schlagworte): macht Vorschläge für Rezepte ohne Schlagworte. Du hakst an, was stimmt; nur das wird gespeichert. Ist eine KI eingerichtet, kann sie für bis zu 20 Rezepte pro Mal weitersuchen. Die Regeln für vegetarisch und vegan sind eine Hilfe, kein Versprechen: prüfe sie.
+
 ### Familienkochbuch drucken
 
 1. Öffne in Mealie ein Kochbuch und tippe **Als Buch drucken**. Es öffnet sich der Editor mit Live-Vorschau.
@@ -359,6 +368,10 @@ Ein Timer in der App klingelt nur, solange die App offen ist. Damit er auch bei 
 Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öffnet kurz die Kurzbefehle-App und startet den Timer der Uhr mit der Restzeit, aufgerundet auf volle Minuten. Der Timer in Kochheft läuft weiter.
 
 **Kurzbefehl hinzufügen:** Kochheft bringt den fertigen Kurzbefehl „Kochheft Timer“ als iCloud-Link mit. **Mehr → Einstellungen → Timer** zeigt dafür die Taste „Kurzbefehl hinzufügen“; ein Tipp legt ihn auf dem Gerät an. Wer lieber einen eigenen nimmt, teilt ihn (Kurzbefehle → Teilen → „iCloud-Link kopieren“) und trägt den Link in `.env` als `KH_CLOCK_SHORTCUT_URL` ein (nur `https://www.icloud.com/shortcuts/…`; alles andere blendet die Taste aus).
+
+### Sprache der Antworten und Kurzbefehle
+
+Alles, was der Server vorliest oder als Mitteilung schickt (Antworten von Siri und vom Teilen-Kurzbefehl, Push-Nachrichten, „ist ausgeschaltet“), kommt in der Sprache der Person: ihre Kontosprache, sonst die `Accept-Language` der Anfrage (Deutsch oder Englisch), sonst die Sprache der Installation aus der Ersteinrichtung, sonst Deutsch (bestehende Installationen bleiben deutsch). Die fertigen iCloud-Kurzbefehle gibt es bisher nur auf Deutsch; Englisch sprechende Personen sehen unter **Mehr → Kochheft einrichten** die Schritte zum Selbstbauen. Sind englische Versionen geteilt, kommen ihre Links in `.env` als `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` und `KH_CLOCK_SHORTCUT_URL_EN` (nur `https://www.icloud.com/shortcuts/…`).
 
 ### Kochheft einrichten (D68)
 
@@ -524,6 +537,8 @@ Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 
 ## Install (English)
 
+In English the app is called **Cookbook** (in German: Kochheft). It speaks German or English: the first setup starts with the choice of the language for the installation, and each person can change theirs under **More → Language**; the choice is kept on their account and follows them to every device. Mealie's cookbooks are called **Collections** here.
+
 ### Requirements
 
 - **A machine that is always on:**
@@ -571,7 +586,7 @@ kh/ops/install.sh "$image"
 The script asks two things:
 
 - **Where the backups go:** safest on another drive, a network drive or a folder a second device collects.
-- **Under which address you open Kochheft.**
+- **Under which address you open Cookbook.**
 
 It then starts everything, creates the key for the backups and shows the first login. The daily backup runs at 3:30 am.
 
@@ -585,11 +600,11 @@ It then starts everything, creates the key for the backups and shows the first l
 
 Each person gets an invite link and creates their own account. Or you create it yourself under **Admin → Users**, also without e-mail; the person then chooses their own password at the first sign-in. Both are in [familienkonten.en.md](familienkonten.en.md).
 
-**Several households:** if someone lives in two households, give them another one under **More → Household access**, also in another group. Kochheft creates a linked account for it; the person switches under **More → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
+**Several households:** if someone lives in two households, give them another one under **More → Household access**, also in another group. Cookbook creates a linked account for it; the person switches under **More → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
 
 ### 6. Automatic updates
 
-Every night at 4 am Kochheft fetches the newest stable version and installs it with a backup and a rollback (D29).
+Every night at 4 am Cookbook fetches the newest stable version and installs it with a backup and a rollback (D29).
 
 1. Put the read key from step 1 into `kh/ops/.env`, for example with `nano kh/ops/.env`: `KH_REGISTRY_USER` (your GitHub name) and `KH_REGISTRY_TOKEN` (the key).
 2. Switch the updates on and check the state:
@@ -601,24 +616,24 @@ Every night at 4 am Kochheft fetches the newest stable version and installs it w
 
 ### 7. Set up AI (Gemini)
 
-An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Kochheft uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
+An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Cookbook uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
 
-1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Kochheft says "The AI quota is used up".
-2. In Kochheft open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Kochheft takes the second (step 5).
+1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Cookbook says "The AI quota is used up".
+2. In Cookbook open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Cookbook takes the second (step 5).
    - **Gemini:** Base URL `https://generativelanguage.googleapis.com/v1beta/openai/`, the API key from AI Studio, model `gemini-3.5-flash-lite`
    - **Gemini Reserve:** the same base URL and key, model `gemini-3.1-flash-lite`
 
    The **Model** field takes the ID such as `gemini-3.5-flash-lite`, not the display name from AI Studio ("Gemini 3.5 Flash Lite").
-3. Save both, then check each with **Test Connection**: only the test of a saved provider tells the list whether it reads images. Kochheft picks the default and the image provider from the list itself (step 5); leave the **Audio Provider** empty, videos come in a later phase.
+3. Save both, then check each with **Test Connection**: only the test of a saved provider tells the list whether it reads images. Cookbook picks the default and the image provider from the list itself (step 5); leave the **Audio Provider** empty, videos come in a later phase.
 4. If all recipes should arrive in one language, put it into `kh/ops/.env` as an English name, for example `KH_RECIPE_LANGUAGE=German`, and restart with `docker compose -f kh/ops/docker-compose.yml up -d` (D36). Whatever the AI reads is then translated; recipes already in that language cost nothing extra. Links with recipe data stay in the page's language.
 
 **What it takes (trial run 2026-11-01):** a link with recipe data needs no AI request and is there after about a second, a text needs one request (about 5 seconds), a photo two: one reads the photo, one builds the recipe (4 to 12 seconds). A translation costs one request more. On the free tier the two Flash-Lite models had 500 requests a day and 15 a minute each, Flash models without "Lite" only 20 a day. AI Studio shows your own numbers under [rate limits](https://aistudio.google.com/rate-limit).
 
-On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Kochheft's database and so in every backup.
+On the free tier Google may use the texts, photos and screenshots handed in (see "What goes where"). The key is stored in Cookbook's database and so in every backup.
 
 5. **Several providers, priority list (D39):** the AI provider settings show the providers as a list you order with ▲▼. The AI asks them from top to bottom: when a quota is used up, a key is invalid, a model is gone or a provider cannot be reached, it takes the next. Next to each provider is its state, such as "quota used up until 9:00".
    - A used-up quota is skipped until the time the provider names, else an hour; an invalid key or a missing model until you save the provider or its test is green; an unreachable provider ten minutes. The times can be changed in `kh/ops/.env` (`KH_AI_…`).
-   - Photos go first to providers whose test read an image, then to untested ones. For this Kochheft sets the default and image provider to the first fitting one of the list.
+   - Photos go first to providers whose test read an image, then to untested ones. For this Cookbook sets the default and image provider to the first fitting one of the list.
    - **Bell:** whoever may manage AI providers sees a bell next to the search with the number of new messages, such as "Gemini: quota used up until 9:00. Now using Groq." Messages are kept 30 days. The rest of the family only sees a hint in the intake when no provider is free at all or none is set up yet.
    - **Free keys:** under the list an info box names these places (as of 2026-11-04). Free tiers change often; **Test Connection** shows whether a model fits. Every further provider sees the recipes it reads (see "What goes where").
 
@@ -654,10 +669,10 @@ At the top is the photo with **Back**, the heart for favorites and the **⋯** m
 
 New recipes come in through the **Intake**; Mealie's import pages lead there too. To type a recipe in yourself, use **Type a recipe in yourself** in the intake or **Create** in the side menu.
 
-- **Link:** paste the address. If the page has recipe data, Kochheft reads it without AI, otherwise the AI reads the page.
+- **Link:** paste the address. If the page has recipe data, Cookbook reads it without AI, otherwise the AI reads the page.
 - **Text:** paste the recipe text, for example from a message.
 - **Photo or screenshot:** camera or photo library. A recipe on several pages gets all its photos together, up to five. The arrows on a photo change the order, later in the review too; the first photo becomes the recipe photo.
-- **File:** a text file (`.txt`, `.md`) or a ZIP folder, on the iPhone from the Files app. Each text file becomes a draft; in a ZIP each photo (jpg, png, webp, heic) without a text file of the same name becomes a photo draft, and a photo with a text file's name becomes its cover. Folders and hidden files (`__MACOSX`, `._*`) do not matter. Limits: at most 100 drafts per ZIP and 50 MB unpacked (`KH_IMPORT_MAX_DRAFTS`, `KH_IMPORT_MAX_UNZIPPED_MB`); what does not fit is named with its reason ("3 drafts created, 1 skipped"). No PDF. Texts in Kochheft's own format (see below) are read without AI.
+- **File:** a text file (`.txt`, `.md`) or a ZIP folder, on the iPhone from the Files app. Each text file becomes a draft; in a ZIP each photo (jpg, png, webp, heic) without a text file of the same name becomes a photo draft, and a photo with a text file's name becomes its cover. Folders and hidden files (`__MACOSX`, `._*`) do not matter. Limits: at most 100 drafts per ZIP and 50 MB unpacked (`KH_IMPORT_MAX_DRAFTS`, `KH_IMPORT_MAX_UNZIPPED_MB`); what does not fit is named with its reason ("3 drafts created, 1 skipped"). No PDF. Texts in Cookbook's own format (see below) are read without AI.
 
 The recipe then waits as a draft at the bottom of the **Intake** and is recognized after a few seconds. Everyone in the household sees all drafts and may save them. The review shows the original next to the result, one below the other on a phone:
 
@@ -671,7 +686,7 @@ A badge on the saved recipe shows where it came from, with **View original**.
 
 ### Amounts and scaling
 
-- **On import** Kochheft reads German amounts itself, without AI and without the network: "250 g", "½ TL", "1 1/2 EL", "1,5 kg", ranges such as "2–3 EL" or "2 bis 3 EL", and Prise, Msp., Pck., Bund, Stück and more. If the group lacks units such as Messerspitze, Stück, Scheibe or Becher, Kochheft adds them the first time. An ingredient that already exists among the foods is linked; otherwise its name stays as text next to amount and unit.
+- **On import** Cookbook reads German amounts itself, without AI and without the network: "250 g", "½ TL", "1 1/2 EL", "1,5 kg", ranges such as "2–3 EL" or "2 bis 3 EL", and Prise, Msp., Pck., Bund, Stück and more. If the group lacks units such as Messerspitze, Stück, Scheibe or Becher, Cookbook adds them the first time. An ingredient that already exists among the foods is linked; otherwise its name stays as text next to amount and unit.
 - **In the review** amounts in the step text are tinted when they fit an ingredient ("125 g Mehl" for 250 g Mehl). Tapping unlinks one, tapping again links it again. Hints point out what stands out:
   - an amount that was not recognized;
   - unusual amounts, that is more than 5000 g, 5 kg, 20 EL, 3 pinches or 30 pieces;
@@ -704,7 +719,7 @@ A badge on the saved recipe shows where it came from, with **View original**.
 
 #### Voice commands (test)
 
-Under **More** → **Add-ons** there is the switch **Voice commands (test)**, off by default (admins only). When it is on, cook mode shows **Voice commands on**. After the tap (and the microphone permission) the device loads the speech model once (about 45 MB, from your own Kochheft) and then listens for four words: **weiter** (next), **zurück** (back), **Timer** (starts the first timer of the step) and **stopp** (silences ringing timers). **Voice commands off** ends the microphone. Recognition runs entirely in the browser; audio never leaves the device.
+Under **More** → **Add-ons** there is the switch **Voice commands (test)**, off by default (admins only). When it is on, cook mode shows **Voice commands on**. After the tap (and the microphone permission) the device loads the speech model once (about 45 MB, from your own Cookbook) and then listens for four words: **weiter** (next), **zurück** (back), **Timer** (starts the first timer of the step) and **stopp** (silences ringing timers). **Voice commands off** ends the microphone. Recognition runs entirely in the browser; audio never leaves the device.
 
 This is a test (T2): on some iPhones and browsers it does not work, for example with little memory or in kitchen noise. A hint then shows, and the switch is better left off. The buttons and swiping always work.
 
@@ -730,12 +745,19 @@ Under the ingredients there is the block **Nutrition per serving (approx.)**.
 
 ### Allergens and intolerances
 
-Kochheft detects the 14 EU allergen groups from the ingredients. This is always "probably, without guarantee" and never a promise. When in doubt, check the packaging.
+Cookbook detects the 14 EU allergen groups from the ingredients. This is always "probably, without guarantee" and never a promise. When in doubt, check the packaging.
 
 - On the recipe you can correct mistakes: **not correct** takes an allergen out, **Add an allergen** adds one. Both apply to this recipe only.
 - **More** → **I do not tolerate**: Each person ticks, for their own account, what they do not tolerate. If a recipe probably contains it, the recipe page shows a warning with the names and the recipe card carries a mark.
-- With the warning, Kochheft shows substitution hints ("Instead of butter: margarine"). The household can also add its own rules there; they come before the standard list.
+- With the warning, Cookbook shows substitution hints ("Instead of butter: margarine"). The household can also add its own rules there; they come before the standard list.
 - **Save as variant** makes a copy "(ohne ...)" with the replacement ingredients. The original stays unchanged.
+
+### Tags
+
+On first start Cookbook creates 24 starter tags (Breakfast, Soup, Vegetarian, Quick and so on) in the installation's language. Your own tags stay untouched, and a tag you delete does not come back.
+
+- When you add a recipe, Cookbook suggests tags, but only from those that already exist. Without AI it uses rules: "Quick" up to 30 minutes, "Vegetarian", "Vegan", "With meat" and "With fish" from the ingredients. In the review you can remove any tag or pick another with **Add tag**.
+- **Suggest tags** (button on the tags page): proposes tags for recipes that have none. You tick what is right; only that is saved. If an AI is set up, it can keep looking at up to 20 recipes at a time. The vegetarian and vegan rules are a help, not a promise: check them.
 
 ### Print the family cookbook
 
@@ -771,7 +793,7 @@ The shopping list (`/einkauf`) works with tiles, much like Bring!, but without a
 - **Recipes:** "Add to shopping list" works as before; the ingredients show as tiles ("From <recipe>").
 - **Classic view:** the link at the bottom opens Mealie's list page (sort departments, tidy up).
 - **Rename:** a tap on the list name at the top (or "Rename" in the store menu) turns it into a text field; Enter or "Done" saves, Escape cancels. Needs a connection.
-- **Straight to the home screen:** Android: long-press the Kochheft icon → "Einkaufsliste" (or drag it out). iPhone: open `/einkauf` in Safari → Share → "Add to Home Screen"; sign in once at the first start.
+- **Straight to the home screen:** Android: long-press the Cookbook icon → "Einkaufsliste" (or drag it out). iPhone: open `/einkauf` in Safari → Share → "Add to Home Screen"; sign in once at the first start.
 - **Without network:** Reception in the store is often bad. The page shows the last loaded state at once and then refreshes. Without network you can tick off, put back, write down tiles and change amount, properties, urgency and note; "Offline – changes will be sent later" shows at the top, and when the network is back the changes are sent in order (anything deleted meanwhile is skipped). Typing a new article name, "Always in the house" and new stores need the network. This only applies while the add-on "Offline recipes" is on; signing out removes the stored lists from the device.
 - **Always in the house:** salt, flour, oil - what you always have in stock. The detail sheet has the switch "Always in the house"; a long press on a catalog tile opens it too. Such tiles carry a small house and sit at the end of their department, and "Add to shopping list" on a recipe leaves them unticked. The setting is per household and every member can change it, also without the permission to organize.
 
@@ -801,61 +823,65 @@ On a phone (touch, shorter screen side under 500 px) a notice covers the app whi
 
 ### Share shortcut (iPhone and iPad)
 
-With a shortcut in the share menu, links, texts, photos, PDFs and files from Safari, Instagram, Photos, Files, Notes or Messages arrive straight as drafts (D37, D84). The shortcut sends everything in **one** request; Kochheft itself decides whether it is a photo, a PDF, a text or a link. A PDF with text is read like a text, a scanned PDF through the images in it (the first 20 pages, adjustable with `KH_PDF_MAX_PAGES`); a PDF with a password is skipped.
+With a shortcut in the share menu, links, texts, photos, PDFs and files from Safari, Instagram, Photos, Files, Notes or Messages arrive straight as drafts (D37, D84). The shortcut sends everything in **one** request; Cookbook itself decides whether it is a photo, a PDF, a text or a link. A PDF with text is read like a text, a scanned PDF through the images in it (the first 20 pages, adjustable with `KH_PDF_MAX_PAGES`); a PDF with a password is skipped.
 
-1. **One key per device:** in Kochheft under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
-2. **Build the shortcut** once in the **Shortcuts** app with **+**, named "Import into Kochheft":
+1. **One key per device:** in Cookbook under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
+2. **Build the shortcut** once in the **Shortcuts** app with **+**, named "Import to Cookbook":
    - Under **ⓘ** turn on "Show in Share Sheet", with the types **Text**, **Rich Text**, **Safari web pages**, **URLs**, **Images**, **Files** and **PDFs**. With no input: **Get Clipboard**.
    - A **Text** action with the address, `https://<your-address>` (name it "Address").
    - A **Text** action with the word `KEY` (name it "Key").
    - **Get URLs from Input**.
    - **Get Contents of URL** with **Address**`/api/kh/drafts/share`, method **POST**, header `Authorization` with `Bearer ` followed by **Key**, request body **Form** with the fields `file` (File) = shortcut input, `text` (Text) = shortcut input and `url` (Text) = URLs.
-   - Finally **Get Dictionary Value** for `message` and **Show Notification**. Kochheft answers with a German sentence: "Ist im Eingang: 1 Entwurf", or on an error for example "Videolinks lädt Kochheft nicht …" (D88).
-3. **For the family:** under **ⓘ → Import Questions** add questions for the **Text** actions ("Address", "Key"; for example "Your Kochheft key", replacing `KEY`), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
+   - Finally **Get Dictionary Value** for `message` and **Show Notification**. Cookbook answers in the person's language (English or German, see below): "It is in the inbox: 1 draft", or on an error for example "Cookbook does not load video links. Share the text or a photo instead." (D88).
+3. **For the family:** under **ⓘ → Import Questions** add questions for the **Text** actions ("Address", "Key"; for example "Your Cookbook key", replacing `KEY`), then share the shortcut by iCloud link. Everyone enters their own key when adding it, and yours stays with you.
 
-Then pick "Import into Kochheft" in the share menu; the draft shows in the **Intake**. Kochheft takes the file first (photo, PDF, text, ZIP), otherwise a single link with at most a few words around it, otherwise the text; a Safari web page or web archive sent as a file is ignored. Links to Instagram, TikTok and YouTube are never fetched. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
+Then pick "Import to Cookbook" in the share menu; the draft shows in the **Intake**. Cookbook takes the file first (photo, PDF, text, ZIP), otherwise a single link with at most a few words around it, otherwise the text; a Safari web page or web archive sent as a file is ignored. Links to Instagram, TikTok and YouTube are never fetched. Whether Instagram hands out a post's caption is up to Instagram; otherwise share a screenshot. A recipe on several pages is best entered in the app in the **Intake**.
 
-**Without a key, just signing in (D57):** If you would rather not keep the key on every device, build a simpler shortcut instead that opens Kochheft with the shared content; you check it and tap **Add** (when signed out, the sign-in comes first, then the Intake). It can only do links and texts:
+**Without a key, just signing in (D57):** If you would rather not keep the key on every device, build a simpler shortcut instead that opens Cookbook with the shared content; you check it and tap **Add** (when signed out, the sign-in comes first, then the Intake). It can only do links and texts:
 
 1. A new shortcut in the **Shortcuts** app, under **ⓘ** "Show in Share Sheet" with the types **Text** and **URLs**.
 2. **If** the shortcut input is a URL: a **URL** action with `https://<your-address>/r/create/url?recipe_import_url=` followed by the **URL-encoded** input (action **URL Encode**), then **Open URLs**.
 3. **Otherwise:** **URL Encode** the input and **Open URLs** with `https://<your-address>/r/create/url?recipe_import_text=` followed by the encoded text.
 
-Very long texts (more than a few thousand characters) are better added with the shortcut with a key (above) or pasted in the **Intake**; Kochheft cuts them at the longest length a draft takes.
+Very long texts (more than a few thousand characters) are better added with the shortcut with a key (above) or pasted in the **Intake**; Cookbook cuts them at the longest length a draft takes.
 
 ### "Hey Siri, Add to the shopping list"
 
 With a shortcut you tell Siri what goes on the shopping list, for example "milk and 2 butter" (D64). You need the same key as for the [share shortcut](#share-shortcut-iphone-and-ipad) (Profile → API Tokens).
 
-1. A new shortcut in the **Shortcuts** app, named "Add to the shopping list".
+1. A new shortcut in the **Shortcuts** app, named "Add to shopping list" (English people name it that way; the German shortcut is "Auf die Einkaufsliste").
 2. **Ask for Input** (type Text) with the question "What goes on the list?"; it can be dictated.
 3. **Get Contents of URL** with `https://<your-address>/api/kh/shopping/add`, method **POST**, header `Authorization` with `Bearer ` followed by the key, request body **JSON** with the field `text` (Text) = the answer.
-4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**. `message` is always there, also on errors ("Die Liste Lidl gibt es nicht."), and the status codes stay (D88).
+4. **Get Dictionary Value** for the key `message` from the result, then **Speak Text**. `message` is always there, also on errors ("There is no list called Lidl."), and the status codes stay (D88).
 
-Then "Hey Siri, Add to the shopping list" works. Siri reads out, for example: "Milch und Butter stehen auf der Liste Rewe." (German). Separate several articles with "und" or a comma (a pause). An article that is already open takes the amount you say; a ticked-off one goes back on the list. Just say the store: "Milch und Butter bei Rewe" (also "für", "auf die", "in", "zu"; "Rewe" is enough for a list "Rewe Innenstadt" when only one starts that way) puts everything on that store's list (D87). If the name matches no list ("Kaffee für Gäste"), the text stays as it is. Without a store everything lands on the list changed last. You can say whole sentences, in German and English: "put butter and milk on the Aldi list", "twice butter and one liter of milk", "butter on the Aldi list and tampons on the dm list" (amounts as words or "3x", "3-mal"; several stores in one sentence; an article without a store follows the next store named, after the last store the list changed last is used) and "Setz 3-mal Butter auf die Aldi-Einkaufsliste". Siri asks "Was soll auf die Liste?" first because a shortcut cannot receive the rest of the sentence; only App Store apps can. If you prefer one shortcut per store, add the field `list` (Text) with the name to the JSON; it takes precedence.
+Then "Hey Siri, Add to shopping list" works. Siri reads out, for example: "Milk and butter are on your Rewe list." (English people; "Milch und Butter stehen auf der Liste Rewe." for German people). Separate several articles with "and" or a comma (a pause). An article that is already open takes the amount you say; a ticked-off one goes back on the list. Just say the store: "Milch und Butter bei Rewe" (also "für", "auf die", "in", "zu"; "Rewe" is enough for a list "Rewe Innenstadt" when only one starts that way) puts everything on that store's list (D87). If the name matches no list ("Kaffee für Gäste"), the text stays as it is. Without a store everything lands on the list changed last. You can say whole sentences, in German and English: "put butter and milk on the Aldi list", "twice butter and one liter of milk", "butter on the Aldi list and tampons on the dm list" (amounts as words or "3x", "3-mal"; several stores in one sentence; an article without a store follows the next store named, after the last store the list changed last is used) and "Setz 3-mal Butter auf die Aldi-Einkaufsliste". Siri asks "Was soll auf die Liste?" first because a shortcut cannot receive the rest of the sentence; only App Store apps can. If you prefer one shortcut per store, add the field `list` (Text) with the name to the JSON; it takes precedence.
 
 ### Clock timer via shortcut (iPhone, iPad and Mac)
 
 A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
 
-> **iPhone, iPad and Mac only.** The clock timer needs the Shortcuts app (on the Mac in Safari and the Dock app; Chrome on a Mac opens it too). Android has none, and a web page cannot start the Clock app's timer there. On Android and on Windows, **More → Timer** therefore shows only a note; the timer in Kochheft rings there while the app is open.
+> **iPhone, iPad and Mac only.** The clock timer needs the Shortcuts app (on the Mac in Safari and the Dock app; Chrome on a Mac opens it too). Android has none, and a web page cannot start the Clock app's timer there. On Android and on Windows, **More → Timer** therefore shows only a note; the timer in Cookbook rings there while the app is open.
 
 1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
    - Open the **Shortcuts** app and tap **+** at the bottom right.
-   - Change the name at the top to "Kochheft Timer" (or adjust the name in Kochheft).
+   - Change the name at the top to "Cookbook timer" (or adjust the name in Cookbook).
    - Add the action **Get Numbers from Input**, source **Shortcut Input**.
    - Add the action **Start Timer**, duration = that number, unit **minutes**.
-2. **Turn it on:** in Kochheft under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
+2. **Turn it on:** in Cookbook under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
 
-Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Kochheft keeps running.
+Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Cookbook keeps running.
 
-**Add shortcut:** Kochheft comes with the ready-made "Kochheft Timer" shortcut as an iCloud link. **More → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
+**Add shortcut:** Cookbook comes with the ready-made "Kochheft Timer" shortcut (German only for now; English people name their own "Cookbook timer") as an iCloud link. **More → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
 
-### Set up Kochheft (D68)
+### Language of the answers and the shortcuts
 
-Under **More → Set up Kochheft** (address `/aufs-handy`) a page walks through everything a new device needs. It recognizes iPhone, iPad, Android, Mac and other computers and shows their steps; "Device" lets you see the steps of the others. Each card has 2 to 5 short steps and a "Done" tick (kept on this device): Kochheft on the home screen or in the Dock, the shopping list as its own icon (opens `/einkauf` in the browser), a key for shortcuts (an API token "Kurzbefehle <device> <date>", shown once and never stored; delete it under Profile → API tokens if the device is lost; on a Mac you can create your own), importing recipes from other apps and "Hey Siri, Auf die Einkaufsliste" (iPhone, iPad, and the Mac through iCloud sync of Shortcuts; the "Add shortcut" button fetches the built-in shortcuts; your own via `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env`), and the Clock timer (iPhone and iPad). On a new phone, iPad or (in Safari, Chrome, Edge) computer, Kochheft asks once after sign-in: "Yes, show me", "Later" (asks again after 7 days) or "No, thanks" (never on this device). The introduction ends with a "Set up now" button. For the shortcuts, the address and the key the shortcut asks for sit as copy boxes right under "Add shortcut" (create the key there with one click; you can take one key per shortcut and delete it alone) (D86).
+Everything the server says out loud or pushes (Siri and share-shortcut answers, push messages, "switched off" refusals) comes in the language of the person: their account's language if they chose one, else the request's `Accept-Language` (German or English), else the installation's language from the first setup, else German (so existing installations stay German). The ready-made iCloud shortcuts exist in German only so far: English people see the manual steps on **More → Set up Cookbook** and build the two shortcuts themselves ("Import to Cookbook", "Add to shopping list" as described above; the share-sheet one also works with the German steps, only the name differs). Once you have shared English versions by iCloud link, put them into `.env` as `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` and `KH_CLOCK_SHORTCUT_URL_EN` (only `https://www.icloud.com/shortcuts/…`); the German ones stay `KH_IMPORT_SHORTCUT_URL`, `KH_SIRI_SHORTCUT_URL` and `KH_CLOCK_SHORTCUT_URL`.
 
-### What's new in Kochheft (D69)
+### Set up Cookbook (D68)
+
+Under **More → Set up Cookbook** (address `/aufs-handy`) a page walks through everything a new device needs. It recognizes iPhone, iPad, Android, Mac and other computers and shows their steps; "Device" lets you see the steps of the others. Each card has 2 to 5 short steps and a "Done" tick (kept on this device): Cookbook on the home screen or in the Dock, the shopping list as its own icon (opens `/einkauf` in the browser), a key for shortcuts (an API token "Kurzbefehle <device> <date>", shown once and never stored; delete it under Profile → API tokens if the device is lost; on a Mac you can create your own), importing recipes from other apps and "Hey Siri, Auf die Einkaufsliste" (iPhone, iPad, and the Mac through iCloud sync of Shortcuts; the "Add shortcut" button fetches the built-in shortcuts; your own via `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env`), and the Clock timer (iPhone and iPad). On a new phone, iPad or (in Safari, Chrome, Edge) computer, Cookbook asks once after sign-in: "Yes, show me", "Later" (asks again after 7 days) or "No, thanks" (never on this device). The introduction ends with a "Set up now" button. For the shortcuts, the address and the key the shortcut asks for sit as copy boxes right under "Add shortcut" (create the key there with one click; you can take one key per shortcut and delete it alone) (D86).
+
+### What's new in Cookbook (D69)
 
 After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
 
@@ -869,7 +895,7 @@ An add-on (off; **More → Settings → More functions → Season**): the start 
 
 ### Shopping list by QR code and NFC (D81)
 
-**More → Set up Kochheft** has "For the kitchen": a QR code of the address `…/einkauf` to print (fridge; scan with the camera and the list opens) and for NFC stickers. In Chrome on Android "Write to NFC sticker" writes the address onto an empty sticker. An iPhone can read stickers but a website cannot write them: use the free app "NFC Tools" there, or in Shortcuts → Automation → NFC set a sticker to "Open URL". Stickers are optional and cost about 1 € each.
+**More → Set up Cookbook** has "For the kitchen": a QR code of the address `…/einkauf` to print (fridge; scan with the camera and the list opens) and for NFC stickers. In Chrome on Android "Write to NFC sticker" writes the address onto an empty sticker. An iPhone can read stickers but a website cannot write them: use the free app "NFC Tools" there, or in Shortcuts → Automation → NFC set a sticker to "Open URL". Stickers are optional and cost about 1 € each.
 
 ### Our note on a recipe (D82)
 
@@ -877,13 +903,13 @@ Under the head of every recipe there is "Our note", one note per recipe and hous
 
 ### First-time setup (D83)
 
-On first start Mealie's setup assistant walks you through: account, basic data, AI, then Kochheft's steps. **Basic data:** "Create German foods, units and departments" is on; it only creates what the group does not have yet, the departments come with the foods (the tile shopping list needs them). **AI:** optional, links with recipe data and Kochheft files work without it. **Add-ons:** "Recipes only", "Recipes and shopping list" or "Everything with meal planner" as big cards, below them the single switches; every choice applies at once. **Family:** name, username, e-mail (optional), "With introduction" (on) and "Simple view" (off) per person, "Another person" for more. After "Add" every person gets a card with address, username and temporary password to copy; you only see the password there, at the first sign-in the person chooses their own. "Later" skips the step. **Check:** backup, USB copy, automatic updates, access from outside, mail, AI; USB copy and access run on the host and only show the command to check them. Without mail sending there are no reset mails, you pass on welcome links and passwords yourself. At the end buttons lead to "Set up this device" and "Notifications".
+On first start Mealie's setup assistant walks you through: account, basic data, AI, then Cookbook's steps. **Basic data:** "Create German foods, units and departments" is on; it only creates what the group does not have yet, the departments come with the foods (the tile shopping list needs them). **AI:** optional, links with recipe data and Cookbook files work without it. **Add-ons:** "Recipes only", "Recipes and shopping list" or "Everything with meal planner" as big cards, below them the single switches; every choice applies at once. **Family:** name, username, e-mail (optional), "With introduction" (on) and "Simple view" (off) per person, "Another person" for more. After "Add" every person gets a card with address, username and temporary password to copy; you only see the password there, at the first sign-in the person chooses their own. "Later" skips the step. **Check:** backup, USB copy, automatic updates, access from outside, mail, AI; USB copy and access run on the host and only show the command to check them. Without mail sending there are no reset mails, you pass on welcome links and passwords yourself. At the end buttons lead to "Set up this device" and "Notifications".
 
 As admin you can open the assistant again any time under **More → Settings → Setup assistant**. It skips the account step and writes only what you change; existing foods and units stay untouched. Admins also get a card in "What's new".
 
 ### Changing the address (D85)
 
-Shortcuts (share import, Siri) and home-screen icons contain the address (`BASE_URL`, e.g. `https://kochbuch.example.org`). If Kochheft moves to another address they stop working. Kochheft keeps the address in `kh/address.json` in the data folder and notices the change at start. **Admin:** the system check shows "Address changed" for 60 days. Create new iCloud links for the shortcuts and put them into `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL`. **Everyone:** the next time they open the app a "New address" card appears once with a "Set up now" button (page "Get it on your phone"); people with notifications on for news also get a push message. There they add the shortcuts again and recreate the home-screen icon.
+Shortcuts (share import, Siri) and home-screen icons contain the address (`BASE_URL`, e.g. `https://kochbuch.example.org`). If Cookbook moves to another address they stop working. Cookbook keeps the address in `kh/address.json` in the data folder and notices the change at start. **Admin:** the system check shows "Address changed" for 60 days. Create new iCloud links for the shortcuts and put them into `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL`. **Everyone:** the next time they open the app a "New address" card appears once with a "Set up now" button (page "Get it on your phone"); people with notifications on for news also get a push message. There they add the shortcuts again and recreate the home-screen icon.
 
 ### Delete account (D78)
 
@@ -891,14 +917,14 @@ Under **More → Account → Delete account** you delete your own account: you t
 
 ### Notifications (D75)
 
-Under **More → Notifications** each person chooses which push messages they get (web push, no store app). The big switch "Notifications on this device" asks for permission; on iPhone and iPad (16.4 or newer) this only works for Kochheft on the home screen. Six switches: **Meal plan**, **Evening reminder** ("Morgen: Lasagne" at the chosen time with thawing and prepare-the-day-before hints; nothing planned, no message), **Shopping list** (at most one message per list in 15 minutes), **Wishes**, **Inbox** (a recipe is ready for review) and **What's new** (once after an update). The first device switches on meal plan, evening and wishes. Nobody is told about what they did themselves (except "Inbox"), and only the own household counts. "Send test notification" checks the setup; the device list lets you remove devices. The server's VAPID key is made on first use in `<data>/kh/vapid.json` (readable by the app only, included in backups).
+Under **More → Notifications** each person chooses which push messages they get (web push, no store app). The big switch "Notifications on this device" asks for permission; on iPhone and iPad (16.4 or newer) this only works for Cookbook on the home screen. Six switches: **Meal plan**, **Evening reminder** ("Morgen: Lasagne" at the chosen time with thawing and prepare-the-day-before hints; nothing planned, no message), **Shopping list** (at most one message per list in 15 minutes), **Wishes**, **Inbox** (a recipe is ready for review) and **What's new** (once after an update). The first device switches on meal plan, evening and wishes. Nobody is told about what they did themselves (except "Inbox"), and only the own household counts. "Send test notification" checks the setup; the device list lets you remove devices. The server's VAPID key is made on first use in `<data>/kh/vapid.json` (readable by the app only, included in backups).
 
 ### Set up the Telegram bot
 
 Optional and off by default: if you prefer to send links, texts or photos to a Telegram chat, they arrive as a draft in the **inbox** (P7.1). The bot asks Telegram for messages itself, no port is opened.
 
 1. In Telegram open the chat with **@BotFather**, send `/newbot` and answer the questions. Put the token it gives you into `kh/ops/.env` as `KH_TELEGRAM_TOKEN`.
-2. In Kochheft create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
+2. In Cookbook create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
 3. Start the bot with `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, write it a message and put the chat ID it sends back ("Diese Chat-ID ist nicht freigeschaltet: …") into `KH_TELEGRAM_ALLOWED_IDS` (several with commas). Then restart the bot with the same command.
 
 From then on every link, text or photo from an allowed chat becomes a draft; the bot answers "Entwurf angelegt" with the link to the review. For photos the largest size counts, at most `KH_DRAFT_MAX_IMAGE_MB`. Video links (Instagram, TikTok, YouTube, Facebook) are not fetched: send the description as text with it, or a screenshot. In the `lokal` profile the bot does not start. Switch it off: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
@@ -909,13 +935,13 @@ Optional and off by default (P7.3): a Whisper service turns your own recordings,
 
 1. Put `KH_WHISPER_URL=http://whisper:8000` into `kh/ops/.env`.
 2. Start the service: `docker compose -f kh/ops/docker-compose.yml --profile whisper up -d whisper`. `KH_WHISPER_MEM_LIMIT` caps its memory (default 2g). The first time, the service downloads the model from the internet (Hugging Face), never again; after 5 minutes without a recording it frees the memory.
-3. Restart Kochheft (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
+3. Restart Cookbook (`docker compose -f kh/ops/docker-compose.yml up -d`). The intake then offers **Audio or video file (own recording)**.
 
-The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 95, because the free Cloudflare tunnel cuts uploads at 100 MB). The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Kochheft never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
+The model depends on the profile (see "Profiles and hardware test"): `tiny`, `base` or `small`; `KH_WHISPER_MODEL` overrides it. Largest file: `KH_DRAFT_MAX_MEDIA_MB` (default 95, because the free Cloudflare tunnel cuts uploads at 100 MB). The conversion runs in the background and can take minutes on a Pi; the recording is deleted afterwards, its file name stays as a note on the draft. Without `KH_WHISPER_URL` there is no file field. Cookbook never downloads videos from the internet (Instagram, TikTok, YouTube); this is about your own files only.
 
 ### Profiles and hardware test
 
-The profile tells Kochheft how much your machine can carry (P7.4). It lives in `kh/ops/.env` as `KH_PROFILE` (default `leicht`) and sets the Whisper model: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. In the `lokal` profile the Telegram bot does not start; Whisper stays allowed because it runs at your place. You should then enter only local AI providers (e.g. Ollama); the app reminds you at the AI providers and in the system check. The system check shows the profile.
+The profile tells Cookbook how much your machine can carry (P7.4). It lives in `kh/ops/.env` as `KH_PROFILE` (default `leicht`) and sets the Whisper model: `leicht` = `tiny`, `normal` = `base`, `stark` = `small`, `lokal` = `base`. In the `lokal` profile the Telegram bot does not start; Whisper stays allowed because it runs at your place. You should then enter only local AI providers (e.g. Ollama); the app reminds you at the AI providers and in the system check. The system check shows the profile.
 
 `sh kh/ops/hardware_test.sh` measures which profile fits: architecture, CPU cores and RAM, plus a proposal (under 4 GB or up to 4 cores: `leicht`; from 8 GB and more than 4 cores: `normal`; Apple Silicon with 16 GB or 8 and more cores: `stark`). A Raspberry Pi ends up at `leicht`.
 
@@ -940,7 +966,7 @@ With your own recording of about 1 minute it also measures speech recognition: `
   - Bring one back: with a password, `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for it and puts the backup into the backup folder; on a Mac run it in the Terminal on the machine itself, not over SSH. Without a password, copy the `.zip` from the stick into `kh/ops/backups`. Then `restore.sh <backup>.zip` as under "Day to day".
   - A guide next to the backups: the stick and the backup folder hold `LIESMICH.txt` with every step, reinstalling included, and `CLAUDE.md` for Claude: whoever starts Claude Code in that folder gets help with the restore. Both are renewed when the guide changes.
   - Change where the copies go: the same as in step 2, so on a Mac a double-click on `kh/ops/backup-ort-aendern.command`, handy as an alias on the desktop (drag it there in the Finder holding ⌥⌘). The password choice and the key stay, the first copy lands at the new place right away with `LIESMICH.txt` and `CLAUDE.md`, and on a Mac the result shows. The old place keeps its copies. On purpose this works only on the machine itself or over SSH, not on the website.
-  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Kochheft under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
+  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Cookbook under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
 
 ### Day to day
 
@@ -965,24 +991,24 @@ On a Mac, your own background jobs (cron, launchd) need `/usr/local/bin` in PATH
 2. Check free space: `df -h` on the drive with the data and on the one with the backups. Below 20 % free: delete old backups or use a bigger drive.
 3. Check updates: `kh/ops/auto_update.sh status` and read the log it shows. On an error the old image stays active; the data is safe.
 4. Check the USB copy: `kh/ops/backup_copy.sh status`.
-5. Watch for security notices about Mealie and then update Kochheft by hand.
+5. Watch for security notices about Mealie and then update Cookbook by hand.
 
 **After every update:**
 
-1. Open Kochheft and check under **More → About Kochheft** that the new version shows.
+1. Open Cookbook and check under **More → About Cookbook** that the new version shows.
 2. Open a recipe and start cooking mode.
 3. Take a backup right now: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
 4. If something fails, restore the backup from before the update (see "Day to day").
 
 ### What goes where
 
-What Kochheft sends out. There is no telemetry.
+What Cookbook sends out. There is no telemetry.
 
 | Feature | What is sent | To whom | Switch off |
 |---|---|---|---|
 | Read a link | fetching the page and its recipe picture | the website in question | – |
 | AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | the AI providers entered, in the order of the priority list, e.g. Google Gemini; each with its own rules (D35, D39) | delete the AI provider in the group settings |
-| Share shortcut | link, text or photo, with the device's key | your Kochheft, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
+| Share shortcut | link, text or photo, with the device's key | your Cookbook, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
 | Notifications (web push, D75) | an encrypted message (title and text); the service only sees that a message goes to a device, not its content | the push service of Apple, Google or Mozilla, depending on the device | switch off under More → Notifications or remove the device |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
@@ -990,10 +1016,10 @@ What Kochheft sends out. There is no telemetry.
 | Backups and copy | all data, the AI key included | your backup folder and, if set up, the USB stick; encrypted when a password was chosen during setup (D32, D33) | `kh/ops/backup_copy.sh off` for the copy |
 | Reports | whether backup, copy and update worked | your Uptime Kuma | leave the push addresses in `kh/ops/.env` empty |
 | Mail sending (D53, only when set up) | welcome, confirm and password mails with name, user name and link | your mail provider (`KH_SMTP_*`) and the person's mailbox | leave `KH_SMTP_HOST` empty |
-| Nutrition | the ingredient names, only to match them with the table inside your own Kochheft | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
-| Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Kochheft does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
+| Nutrition | the ingredient names, only to match them with the table inside your own Cookbook | nowhere: the BLS table (CC BY 4.0) ships in the image | – |
+| Video links (Instagram, TikTok, YouTube, Facebook) | nothing: Cookbook does not fetch them and does not download videos (D5); you paste the description or upload a screenshot | nobody | – |
 | Share via Telegram (optional module, off by default) | link, text or photo from your chat | Telegram servers; blocked in the "lokal" profile | do not start the `telegram` service |
-| Voice commands (test, add-on, off by default) | the microphone audio, only to the recognizer in the browser itself; the speech model comes from your own Kochheft | nowhere | switch **Voice commands (test)** off, or **Voice commands off** in cook mode |
+| Voice commands (test, add-on, off by default) | the microphone audio, only to the recognizer in the browser itself; the speech model comes from your own Cookbook | nowhere | switch **Voice commands (test)** off, or **Voice commands off** in cook mode |
 | Audio and video with Whisper (optional module, off by default) | your own file, only to the Whisper in your own network | your Whisper service, not outside | do not start the `whisper` service |
 
 **Profiles (`KH_PROFILE` in `kh/ops/.env`, default `leicht`):**

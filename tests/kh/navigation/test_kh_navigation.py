@@ -36,14 +36,22 @@ def nothing_hidden(api_client: TestClient, unique_user: TestUser, household_memb
 
 
 def test_default_hides_nothing(api_client: TestClient, unique_user: TestUser):
-    assert api_client.get(NAVIGATION, headers=unique_user.token).json() == {"hidden": [], "simple": False}
+    assert api_client.get(NAVIGATION, headers=unique_user.token).json() == {
+        "hidden": [],
+        "simple": False,
+        "locale": None,
+    }
 
 
 def test_round_trip_without_duplicates_in_the_menus_order(api_client: TestClient, unique_user: TestUser):
     answer = put(api_client, unique_user, ["timeline", "finder", "timeline"])
-    assert answer.status_code == 200 and answer.json() == {"hidden": ["finder", "timeline"], "simple": False}
+    assert answer.status_code == 200 and answer.json() == {
+        "hidden": ["finder", "timeline"],
+        "simple": False,
+        "locale": None,
+    }
     assert hidden_of(api_client, unique_user) == ["finder", "timeline"]
-    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": False}
+    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": False, "locale": None}
 
 
 @pytest.mark.parametrize("key", ["recipes", "more", "nonsense", ""])
@@ -59,9 +67,13 @@ def test_other_users_are_unaffected(api_client: TestClient, unique_user: TestUse
 
 
 def test_simple_view_is_stored_and_kept_by_a_hidden_only_request(api_client: TestClient, unique_user: TestUser):
-    assert put(api_client, unique_user, ["finder"], simple=True).json() == {"hidden": ["finder"], "simple": True}
+    assert put(api_client, unique_user, ["finder"], simple=True).json() == {
+        "hidden": ["finder"],
+        "simple": True,
+        "locale": None,
+    }
     # an older client sends no "simple": the stored switch stays
-    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": True}
+    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": True, "locale": None}
     assert api_client.get(NAVIGATION, headers=unique_user.token).json()["simple"] is True
 
 

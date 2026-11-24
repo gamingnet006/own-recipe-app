@@ -262,13 +262,17 @@ def get_email_required(session: Session) -> bool:
     return _email_required(session)
 
 
-def set_email_required(session: Session, value: bool) -> None:
-    """Saves the switch; turning it on needs working mail, otherwise nobody could confirm an address (400)."""
-    if value and not get_app_settings().SMTP_ENABLE:
+def save_account_settings(session: Session, email_required: bool | None = None, locale: str | None = None) -> None:
+    """Saves the given parts (None keeps the stored one); turning "e-mail required" on needs working mail,
+    otherwise nobody could confirm an address (400)."""
+    if email_required and not get_app_settings().SMTP_ENABLE:
         raise _fail(status.HTTP_400_BAD_REQUEST, "Mail sending is not set up")
     row = session.execute(sa.select(KhAccountSettings)).scalars().first()
     if row is None:
-        row = KhAccountSettings(session=session, email_required=value)
+        row = KhAccountSettings(session=session, email_required=False)
         session.add(row)
-    row.email_required = value
+    if email_required is not None:
+        row.email_required = email_required
+    if locale is not None:
+        row.locale = locale
     session.commit()

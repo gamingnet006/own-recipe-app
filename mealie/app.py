@@ -25,6 +25,7 @@ from mealie.core.settings.static import APP_VERSION
 from mealie.kh.drafts.files import sweep_orphans  # KH: daily cleanup of draft files (phase 2)
 from mealie.kh.notifications.tasks import run_notifications  # KH: push messages that wait or are due (D75)
 from mealie.kh.speakable import kh_http_exception_handler  # KH: top-level `message` on shortcut errors (D88)
+from mealie.kh.tags.starter import run_seeding  # KH: the 24 starter tags, once per group (wave 2)
 from mealie.middleware.body_size_limit import BodySizeLimitMiddleware
 from mealie.middleware.locale_context import LocaleContextMiddleware
 from mealie.routes import router, spa, utility_routes
@@ -150,6 +151,7 @@ async def start_scheduler():
 
     SchedulerRegistry.register_minutely(
         tasks.post_group_webhooks,
+        run_seeding,  # KH: starter tags for groups that have none seeded yet (wave 2)
         run_notifications,  # KH: (every 5 min) bundled and evening push messages, news once (D75)
     )
 

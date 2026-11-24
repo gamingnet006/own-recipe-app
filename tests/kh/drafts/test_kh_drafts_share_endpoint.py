@@ -4,7 +4,7 @@ the draft the decision names."""
 import pytest
 from fastapi.testclient import TestClient
 
-from mealie.kh.drafts.share import SharedFile, ShareKind, classify_share, share_confirmation
+from mealie.kh.drafts.share import SharedFile, ShareKind, classify_share, share_confirmation, skip_reason
 from mealie.kh.features.settings import get_kh_settings
 from tests.kh.drafts.helpers import DRAFTS, heic, pdf_scan, pdf_with_text, png, zip_bytes
 from tests.kh.drafts.test_kh_drafts_pdf import LINES
@@ -225,3 +225,23 @@ def test_photos_beyond_the_limit_are_named_as_skipped(
     body = api_client.post(f"{DRAFTS}/share", headers=unique_user.token, files=photos).json()
     assert len(body["created"]) == 1 and len(body["created"][0]["originalFiles"]) == 2
     assert body["skipped"] == [{"name": "IMG_2.png", "reason": "too_many"}]
+
+
+def test_share_answers_are_english_for_english_people(api_client: TestClient, unique_user: TestUser, fake_ai):
+    headers = {**unique_user.token, "Accept-Language": "en-US"}
+    nothing = api_client.post(f"{DRAFTS}/share", headers=headers, data={"url": "kein Link"})
+    assert nothing.json()["message"] == "Cookbook cannot do anything with that."
+    video = api_client.post(f"{DRAFTS}/share", headers=headers, data={"url": "https://www.youtube.com/watch?v=abc"})
+    assert video.json()["message"] == "Cookbook does not load video links. Share the text or a photo instead."
+    done = api_client.post(f"{DRAFTS}/share", headers=headers, data={"text": LONG})
+    assert done.json()["message"] == "It is in the inbox: 1 draft"
+    no_auth = api_client.post(f"{DRAFTS}/share", headers={"Accept-Language": "en"}, data={"url": LINK})
+    assert no_auth.status_code == 401 and no_auth.json()["message"].startswith("You are not signed in.")
+
+
+def test_share_confirmation_and_skip_reasons_in_both_languages():
+    assert share_confirmation(1, "en-US") == "It is in the inbox: 1 draft"
+    assert share_confirmation(3, "en-US") == "It is in the inbox: 3 drafts"
+    assert skip_reason("pdf_encrypted", "de-DE") == "PDF mit Passwort"
+    assert skip_reason("pdf_encrypted", "en-US") == "PDF with a password"
+    assert skip_reason("something_new", "en-US") == "Cookbook cannot do anything with it"

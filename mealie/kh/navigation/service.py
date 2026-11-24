@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
+from mealie.kh.i18n.locale import known_locale
 from mealie.kh.navigation.models import KhUserNavigation
 from mealie.kh.navigation.schemas import NavigationSettings
 
@@ -13,13 +14,21 @@ def _row(session: Session, user_id: UUID4) -> KhUserNavigation | None:
 
 
 def load_navigation(session: Session, user_id: UUID4) -> NavigationSettings:
-    """The user's hidden side-menu entries and simple view switch (nothing hidden, off, when never set)."""
+    """The user's hidden entries, simple view switch and chosen language (nothing hidden, off, none, when never set)."""
     row = _row(session, user_id)
-    return NavigationSettings(hidden=list(row.hidden) if row else [], simple=bool(row and row.simple))
+    return NavigationSettings(
+        hidden=list(row.hidden) if row else [],
+        simple=bool(row and row.simple),
+        locale=known_locale(row.locale if row else None),
+    )
 
 
 def save_navigation(
-    session: Session, user_id: UUID4, hidden: list[str] | None = None, simple: bool | None = None
+    session: Session,
+    user_id: UUID4,
+    hidden: list[str] | None = None,
+    simple: bool | None = None,
+    locale: str | None = None,
 ) -> None:
     """Stores the given parts for the user (None keeps the stored part). Commits."""
     row = _row(session, user_id)
@@ -30,6 +39,8 @@ def save_navigation(
         row.hidden = hidden
     if simple is not None:
         row.simple = simple
+    if locale is not None:
+        row.locale = locale
     session.commit()
 
 

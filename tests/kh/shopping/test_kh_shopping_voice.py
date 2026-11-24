@@ -406,3 +406,58 @@ def test_half_a_liter_is_half_a_liter_and_a_few_is_no_amount(api_client: TestCli
     items = {item["food"]["name"]: item for item in items_of(api_client, unique_user, lists["Aldi"])}
     assert (items["Sahne"]["quantity"], items["Sahne"]["unit"]["abbreviation"]) == (0.5, "l")
     assert items["Bananen"]["quantity"] == 0
+
+
+# --- English people hear English (Accept-Language or the account's own choice) -----------------------------------
+
+ENGLISH = {"Accept-Language": "en-US,en;q=0.9"}
+
+
+def test_the_confirmation_is_an_english_sentence_for_english_people():
+    assert spoken_confirmation(["Milk"], "Rewe", "en-US") == "Milk is on your Rewe list."
+    assert spoken_confirmation(["Butter", "milk"], "Aldi", "en-US") == "Butter and milk are on your Aldi list."
+    assert (
+        spoken_confirmation(["Milk", "butter", "eggs"], "Rewe", "en-US")
+        == "Milk, butter and eggs are on your Rewe list."
+    )
+    assert spoken_confirmation(["Milk"], "Shopping list", "en-US") == "Milk is on your Shopping list."
+    assert spoken_summary([("Aldi", ["Butter"]), ("dm", ["Soap"])], "en-US") == (
+        "Butter is on your Aldi list. Soap is on your dm list."
+    )
+
+
+def test_siri_answers_in_english_and_makes_an_english_first_list(api_client: TestClient, unique_user: TestUser):
+    for old in api_client.get(api_routes.households_shopping_lists, headers=unique_user.token).json()["items"]:
+        api_client.delete(api_routes.households_shopping_lists_item_id(old["id"]), headers=unique_user.token)
+    response = api_client.post(ADD, json={"text": "butter and milk"}, headers={**unique_user.token, **ENGLISH})
+    assert response.status_code == 200
+    assert response.json()["message"] == "Butter and Milk are on your Shopping list."
+    made = api_client.get(api_routes.households_shopping_lists, headers=unique_user.token).json()["items"]
+    assert [entry["name"] for entry in made] == ["Shopping list"]
+
+
+def test_siri_errors_are_english_for_english_people(api_client: TestClient, unique_user: TestUser):
+    nothing = api_client.post(ADD, json={"text": "2 kg"}, headers={**unique_user.token, **ENGLISH})
+    assert (nothing.status_code, nothing.json()["message"]) == (422, "I did not understand any item.")
+    named = api_client.post(ADD, json={"text": "Quark", "list": "Lidl"}, headers={**unique_user.token, **ENGLISH})
+    assert (named.status_code, named.json()["message"]) == (404, "There is no list called Lidl.")
+
+
+@pytest.mark.usefixtures("no_account_locale")
+def test_the_account_language_beats_accept_language(api_client: TestClient, unique_user: TestUser, lists):
+    saved = api_client.put("/api/kh/navigation", json={"hidden": [], "locale": "en-US"}, headers=unique_user.token)
+    assert saved.status_code == 200
+    german_browser = {**unique_user.token, "Accept-Language": "de-DE"}
+    response = api_client.post(ADD, json={"text": "Quark", "list": "Aldi"}, headers=german_browser)
+    assert response.json()["message"] == "Quark is on your Aldi list."
+
+
+def test_the_add_on_refusal_is_english_for_english_people(
+    api_client: TestClient,
+    unique_user: TestUser,
+    addons: Callable[..., None],  # noqa: F811
+):
+    addons(shopping=False)
+    response = api_client.post(ADD, json={"text": "Bread"}, headers={**unique_user.token, **ENGLISH})
+    assert response.status_code == 403
+    assert "switched off" in response.json()["message"]

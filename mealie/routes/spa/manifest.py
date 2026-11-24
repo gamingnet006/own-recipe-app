@@ -4,22 +4,26 @@ from urllib.parse import urlparse
 from fastapi import Response
 
 from mealie.core.config import get_app_settings
+from mealie.db.db_setup import session_context  # KH: the installation language names the app
+from mealie.kh.i18n.locale import installation_app_name  # KH: wave 2
 
 
 def build_manifest() -> dict:  # KH: a function of its own, so the shopping page's manifest reuses it (D60)
     settings = get_app_settings()
     sub_path = urlparse(settings.BASE_URL).path or "/"
+    with session_context() as session:  # KH: "Cookbook" for an English installation (wave 2)
+        app_name = installation_app_name(session, settings.branding.name)
 
     manifest = {
-        "name": settings.branding.name,
-        "short_name": settings.branding.name,
+        "name": app_name,  # KH: wave 2
+        "short_name": app_name,
         "id": "/",
         "start_url": sub_path,
         "scope": sub_path,
         "display": "standalone",
         "background_color": "#1E1E1E",
         "theme_color": settings.theme.light_primary,
-        "description": "Kochheft is a recipe management and meal planning app",  # KH: app name (D49)
+        "description": f"{app_name} is a recipe management and meal planning app",  # KH: app name (D49, wave 2)
         "lang": "en",
         "display_override": ["standalone", "minimal-ui", "browser", "window-controls-overlay"],
         "categories": ["food", "lifestyle"],

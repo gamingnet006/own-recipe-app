@@ -208,6 +208,14 @@ describe("the clock shortcut setting", () => {
   test("off and named Kochheft Timer at first", async () => {
     expect(await read()).toEqual(standard);
   });
+  test("the default name follows the language until a name is typed in", async () => {
+    const setting = (await fresh()).useKhClockSetting(() => "en-US");
+    expect(setting.name.value).toBe("Cookbook timer");
+    setting.name.value = " Uhr ";
+    expect(setting.name.value).toBe("Uhr");
+    setting.name.value = "";
+    expect(setting.name.value).toBe("Cookbook timer");
+  });
   test("stored values come back, and changes are stored", async () => {
     localStorage.setItem(KEY, JSON.stringify({ enabled: true, name: "Mein Timer" }));
     expect(await read()).toEqual({ enabled: true, name: "Mein Timer" });

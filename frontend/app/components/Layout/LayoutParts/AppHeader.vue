@@ -32,7 +32,7 @@
         style="cursor: pointer"
         @click="$router.push(routerLink)"
       >
-        {{ $appInfo.brandingName }}
+        {{ appName }} <!-- KH: Kochheft or Cookbook by language (wave 2) -->
       </v-toolbar-title>
     </div>
     <RecipeDialogSearch ref="domSearchDialog" />
@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { useKhAppName } from "~~/kh/app/composables/use-kh-app-name"; // KH: wave 2
 import { useKhCookScreen } from "~~/kh/app/composables/use-kh-cook-screen"; // KH: D76
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type RecipeDialogSearch from "~/components/Domain/Recipe/RecipeDialogSearch.vue";
@@ -105,6 +106,7 @@ defineProps({
     default: true,
   },
 });
+const appName = useKhAppName(); // KH: wave 2
 const auth = useMealieAuth();
 const { loggedIn } = useLoggedInState();
 const route = useRoute();

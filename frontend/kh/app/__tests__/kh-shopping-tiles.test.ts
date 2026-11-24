@@ -48,6 +48,19 @@ describe("tileEmoji", () => {
     expect(tileEmoji("MILCH")).toBe("🥛");
   });
 
+  test("finds English foods in singular and plural", () => {
+    for (const [name, emoji] of [
+      ["milk", "🥛"], ["Butter", "🧈"], ["eggs", "🥚"], ["cheese", "🧀"], ["Bread", "🍞"], ["apples", "🍎"],
+      ["banana", "🍌"], ["Tomatoes", "🍅"], ["potatoes", "🥔"], ["onions", "🧅"], ["garlic", "🧄"], ["carrots", "🥕"],
+      ["rice", "🍚"], ["pasta", "🍝"], ["coffee", "☕"], ["tea", "🍵"], ["water", "💧"], ["orange juice", "🧃"],
+      ["beer", "🍺"], ["wine", "🍷"], ["chicken", "🍗"], ["beef", "🥩"], ["fish", "🐟"], ["strawberries", "🍓"],
+      ["toilet paper", "🧻"],
+    ]) {
+      expect(tileEmoji(name), name).toBe(emoji);
+    }
+    expect(tileEmoji("Red onion")).toBe("🧅");
+  });
+
   test("falls back to the last or first word of the name", () => {
     expect(tileEmoji("Rote Zwiebel")).toBe("🧅");
     expect(tileEmoji("Tomaten aus der Dose")).toBe("🍅");

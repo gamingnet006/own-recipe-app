@@ -23,6 +23,7 @@ from mealie.kh.onboarding import routes as onboarding
 from mealie.kh.season import routes as season
 from mealie.kh.shopping import routes as shopping
 from mealie.kh.system import routes as system
+from mealie.kh.tags import routes as tags
 from mealie.kh.weeksuggestion import routes as weeksuggestion
 from mealie.kh.wishes import routes as wishes
 
@@ -55,6 +56,7 @@ router.include_router(allergens.router, tags=["KH: Allergens"], dependencies=[De
 router.include_router(shopping.router, tags=["KH: Shopping"], dependencies=[Depends(require_addon("shopping"))])
 router.include_router(season.router, tags=["KH: Season"], dependencies=[Depends(require_addon("season"))])
 router.include_router(system.router, tags=["KH: System"])
+router.include_router(tags.router, tags=["KH: Tags"])
 router.include_router(wishes.router, tags=["KH: Wishes"], dependencies=[Depends(require_addon("planner"))])
 router.include_router(
     weeksuggestion.router, tags=["KH: Week suggestion"], dependencies=[Depends(require_addon("planner"))]

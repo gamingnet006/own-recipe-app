@@ -14,6 +14,8 @@ from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
 from mealie.db.models.household.mealplan import GroupMealPlan
 from mealie.db.models.users.users import User
+from mealie.kh.i18n.locale import person_locale
+from mealie.kh.i18n.messages import say
 from mealie.kh.notifications import sender
 from mealie.kh.notifications.events import flush_bundles
 from mealie.kh.notifications.hints import PlannedRecipe, evening_message
@@ -76,7 +78,8 @@ def send_due_evenings(session: Session, now: datetime) -> int:
             continue
         row.last_evening = day.isoformat()
         user = session.get(User, row.user_id)
-        message = evening_message(_planned(session, user.household_id, day + timedelta(days=1))) if user else None
+        planned = _planned(session, user.household_id, day + timedelta(days=1)) if user else []
+        message = evening_message(planned, person_locale(session, row.user_id, None))
         if message:
             sent += sender.send_to_users(session, [row.user_id], message[0], message[1], "/household/mealplan/planner")
     session.commit()
@@ -100,8 +103,11 @@ def send_news_once(session: Session) -> int:
     ]
     if not wanted:
         return 0
-    return sender.send_to_users(
-        session, wanted, f"Neu in Kochheft {NEWS_VERSION}", "Schau dir die Neuigkeiten an.", "/"
+    return sender.send_localized(
+        session,
+        wanted,
+        lambda locale: (say("push_news_title", locale, version=NEWS_VERSION), say("push_news", locale)),
+        "/",
     )
 
 
@@ -118,11 +124,10 @@ def send_address_change_once(session: Session) -> int:
     ]
     if not wanted:
         return 0
-    return sender.send_to_users(
+    return sender.send_localized(
         session,
         wanted,
-        "Kochheft hat eine neue Adresse",
-        "Bitte Kurzbefehle und das Home-Bildschirm-Symbol neu einrichten.",
+        lambda locale: (say("push_address_title", locale), say("push_address", locale)),
         "/aufs-handy",
     )
 

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
 from mealie.db.db_setup import session_context
+from mealie.kh.i18n.locale import Locale, person_locale
 from mealie.kh.notifications.endpoints import is_push_endpoint
 from mealie.kh.notifications.keys import get_vapid
 from mealie.kh.notifications.models import KhPushSubscription
@@ -120,3 +121,13 @@ def send_to_users(session: Session, user_ids: list[UUID4], title: str, body: str
         sent += 1
     session.commit()
     return sent
+
+
+def send_localized(
+    session: Session, user_ids: list[UUID4], text_for: Callable[[Locale], tuple[str, str]], url: str
+) -> int:
+    """Like send_to_users, but each person gets the (title, body) of TEXT_FOR in their own language."""
+    by_locale: dict[Locale, list[UUID4]] = {}
+    for user_id in user_ids:
+        by_locale.setdefault(person_locale(session, user_id, None), []).append(user_id)
+    return sum(send_to_users(session, ids, *text_for(locale), url) for locale, ids in by_locale.items())

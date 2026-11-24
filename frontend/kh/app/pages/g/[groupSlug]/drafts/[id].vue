@@ -77,6 +77,7 @@ recognized (one below the other on a phone, side by side from iPad width), then 
       </v-row>
 
       <KhDraftWhere v-if="draft.status === 'ready' && changes" v-model="categories" class="mt-6" />
+      <KhDraftTags v-if="draft.status === 'ready' && changes" v-model="tags" class="mt-6" />
 
       <!-- D76: the buttons to accept stay at the bottom of the screen above the bar, so a long recipe needs no scrolling -->
       <div v-if="draft.status === 'ready'" class="kh-actions d-flex ga-2 mt-6">
@@ -130,6 +131,7 @@ recognized (one below the other on a phone, side by side from iPad width), then 
 
 <script setup lang="ts">
 import type { KhCategoryRef, KhDraft, KhDraftWarning, KhRecipeChanges } from "~~/kh/app/lib/api/drafts";
+import type { KhTagRef } from "~~/kh/app/lib/api/tags";
 import { remapLinked, type KhDraftEdit } from "~~/kh/app/lib/draft-edit";
 import {
   approveTarget,
@@ -179,6 +181,12 @@ const categories = computed({
   get: () => changes.value?.recipeCategory ?? [],
   set: (value: KhCategoryRef[]) => {
     if (changes.value) changes.value.recipeCategory = value;
+  },
+});
+const tags = computed({
+  get: () => changes.value?.tags ?? [],
+  set: (value: KhTagRef[]) => {
+    if (changes.value) changes.value.tags = value;
   },
 });
 const yieldAmount = computed({

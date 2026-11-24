@@ -3,8 +3,21 @@ Pure: takes plain data, so it is tested without a database."""
 
 from dataclasses import dataclass, field
 
-THAW_LABELS = {"fleisch", "fleischprodukte", "meeresfrüchte", "tiefkühlware"}
-PREP_WORDS = ("über nacht", "am vortag", "einweichen", "marinieren")
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import say
+
+# German and English words: they are read from the recipes, which may be in either language
+THAW_LABELS = {
+    "fleisch",
+    "fleischprodukte",
+    "meeresfrüchte",
+    "tiefkühlware",
+    "meat",
+    "meat products",
+    "seafood",
+    "frozen",
+}
+PREP_WORDS = ("über nacht", "am vortag", "einweichen", "marinieren", "overnight", "day before", "soak", "marinate")
 SHORT_STEP = 60  # characters of a step shown in the hint
 
 
@@ -26,15 +39,15 @@ def _short(step: str) -> str:
     return first[:SHORT_STEP].rsplit(" ", 1)[0] + " …"
 
 
-def evening_message(recipes: list[PlannedRecipe]) -> tuple[str, str] | None:
+def evening_message(recipes: list[PlannedRecipe], locale: Locale = DEFAULT_LOCALE) -> tuple[str, str] | None:
     """(title, body) for tomorrow's recipes, or None when nothing is planned. The body holds the hints, one per line."""
     if not recipes:
         return None
-    title = "Morgen: " + ", ".join(recipe.name for recipe in recipes)
+    title = say("push_evening_title", locale, dishes=", ".join(recipe.name for recipe in recipes))
     thaw = list(dict.fromkeys(food for r in recipes for food, label in r.foods if (label or "").lower() in THAW_LABELS))
-    lines = [f"Denk ans Auftauen: {', '.join(thaw)}"] if thaw else []
+    lines = [say("push_thaw", locale, foods=", ".join(thaw))] if thaw else []
     for recipe in recipes:
         for step in recipe.steps:
             if any(word in step.lower() for word in PREP_WORDS):
-                lines.append(f"Am Vortag vorbereiten: {_short(step)}")
+                lines.append(say("push_prepare", locale, step=_short(step)))
     return title, "\n".join(lines)

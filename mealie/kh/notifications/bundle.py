@@ -6,13 +6,14 @@ import threading
 import time
 from collections.abc import Callable, Hashable
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
 class _Slot:
     sent_at: float
     context: object
-    waiting: list[str] = field(default_factory=list)
+    waiting: list[Any] = field(default_factory=list)
 
 
 class Bundler:
@@ -24,7 +25,7 @@ class Bundler:
         self._slots: dict[Hashable, _Slot] = {}
         self._lock = threading.Lock()
 
-    def add(self, key: Hashable, context: object, items: list[str]) -> bool:
+    def add(self, key: Hashable, context: object, items: list[Any]) -> bool:
         """True when the items go out now (nothing was sent for KEY within the window); else they wait."""
         now = self._clock()
         with self._lock:
@@ -35,11 +36,11 @@ class Bundler:
             slot.waiting.extend(items)
             return False
 
-    def due(self) -> list[tuple[object, list[str]]]:
+    def due(self) -> list[tuple[object, list[Any]]]:
         """The waiting items of every key whose window has passed, as (context, items); their window starts anew.
         Keys with nothing waiting and an old window are forgotten."""
         now = self._clock()
-        out: list[tuple[object, list[str]]] = []
+        out: list[tuple[object, list[Any]]] = []
         with self._lock:
             for key, slot in list(self._slots.items()):
                 if now - slot.sent_at < self._window:

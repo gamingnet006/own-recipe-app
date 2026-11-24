@@ -73,15 +73,27 @@ export function allStepKeys(): string[] {
 export function asksForAddressAndKey(id: KhSetupSection, family: KhFamily): boolean {
   return (id === "import" || id === "siri") && family !== "android";
 }
+/** The ready-made shortcuts' iCloud links of one language, null where there is none (the English ones are not shared yet). */
+export interface KhShortcutUrls {
+  clock: string | null;
+  import: string | null;
+  siri: string | null;
+}
+
+/** The links for this language from the features answer; none at all when it has none for it. */
+export function shortcutUrlsFor(all: Record<string, KhShortcutUrls> | undefined, locale: string): KhShortcutUrls {
+  return all?.[locale] ?? { clock: null, import: null, siri: null };
+}
+
 /** The ready-made shortcut's iCloud link for the import or Siri section, null where there is none: on Android the import
  * is the app's own share target, so the Apple shortcut would only mislead. */
 export function shortcutLink(
   id: KhSetupSection,
   family: KhFamily,
-  links: { importShortcutUrl: string | null; siriShortcutUrl: string | null },
+  links: Pick<KhShortcutUrls, "import" | "siri">,
 ): string | null {
   if (family === "android") return null;
-  return id === "import" ? links.importShortcutUrl : id === "siri" ? links.siriShortcutUrl : null;
+  return id === "import" ? links.import : id === "siri" ? links.siri : null;
 }
 
 /** Whether the app runs installed (home screen or Dock) and not in a browser tab. */
@@ -90,9 +102,9 @@ export function isInstalled(standaloneMedia: boolean, navigatorStandalone: boole
 }
 
 /** Name of the API key made on this device, e.g. "Kurzbefehle iPhone 2026-11-19"; the 2nd and later get " (2)" and so on. */
-export function keyName(device: KhDevice, date: Date, count = 1): string {
+export function keyName(device: KhDevice, date: Date, count = 1, locale = "de-DE"): string {
   const label = { iphone: "iPhone", ipad: "iPad", android: "Android", mac: "Mac", computer: "Computer" }[device];
-  return `Kurzbefehle ${label} ${date.toISOString().slice(0, 10)}${count > 1 ? ` (${count})` : ""}`;
+  return `${locale === "en-US" ? "Shortcuts" : "Kurzbefehle"} ${label} ${date.toISOString().slice(0, 10)}${count > 1 ? ` (${count})` : ""}`;
 }
 
 /** The sections ticked off, from the stored text; anything broken counts as nothing ticked. */

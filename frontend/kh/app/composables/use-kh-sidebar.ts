@@ -1,13 +1,14 @@
 // KH: the side-menu entries a person hid (D58) and their simple view switch (D79) as one shared state, loaded once per
 // user like the add-on switches. The menus read khSidebar.hidden and .simple; nothing hidden and simple off until the
-// answer has arrived.
+// answer has arrived. The language the person chose (null: none yet) travels with them.
 import type { Composer } from "vue-i18n";
 import { KhNavigationApi } from "../lib/api/navigation";
+import { asKhLocale, type KhLocale } from "../lib/locale";
 import { useRequests } from "~/composables/api/api-client";
 import { useGlobalI18n } from "~/composables/use-global-i18n";
 import { alert } from "~/composables/use-toast";
 
-export const khSidebar = reactive({ hidden: [] as string[], simple: false, userId: null as string | null });
+export const khSidebar = reactive({ hidden: [] as string[], simple: false, locale: null as KhLocale | null, userId: null as string | null });
 
 // When the last load failed, and for whom: every navigation runs the route guard, and a down server should not be
 // asked on each of them.
@@ -22,6 +23,7 @@ let newest = 0; // the number of the latest save, to tell whether a finished one
 export function resetKhSidebar(): void {
   khSidebar.hidden = [];
   khSidebar.simple = false;
+  khSidebar.locale = null;
   khSidebar.userId = null;
   failedLoad = null;
 }
@@ -37,6 +39,7 @@ export async function loadKhSidebarFor(userId: string, i18n?: Composer): Promise
   if (data) {
     khSidebar.hidden = data.hidden;
     khSidebar.simple = data.simple;
+    khSidebar.locale = asKhLocale(data.locale);
     khSidebar.userId = userId;
   }
   else {
@@ -74,6 +77,21 @@ export function saveKhSimple(simple: boolean): Promise<void> {
     if (!data) {
       alert.error(useGlobalI18n().t("events.something-went-wrong"));
       khSidebar.simple = previous;
+    }
+  });
+  return saves;
+}
+
+/** Keeps the language the person chose on their account (shown at once, stored with the current list); a failure is
+ * reported and the stored choice stays as it was. */
+export function saveKhLocale(locale: KhLocale): Promise<void> {
+  const previous = khSidebar.locale;
+  khSidebar.locale = locale;
+  saves = saves.then(async () => {
+    const { data } = await new KhNavigationApi(useRequests()).put(khSidebar.hidden, undefined, locale);
+    if (!data) {
+      alert.error(useGlobalI18n().t("events.something-went-wrong"));
+      khSidebar.locale = previous;
     }
   });
   return saves;

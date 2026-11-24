@@ -103,10 +103,10 @@
         "title": "Wohin kommt das Rezept?",
         "hint": "Du kannst das leer lassen.",
         "categories": "Kategorien",
-        "cookbook": "Kochbuch",
+        "cookbook": "Sammlung",
         "none": "Keins",
         "new-category": "+ Neue Kategorie",
-        "new-cookbook": "+ Neues Kochbuch",
+        "new-cookbook": "+ Neue Sammlung",
         "name": "Name",
         "create": "Anlegen",
         "create-failed": "Das hat nicht geklappt. Bitte versuche es noch einmal."
@@ -129,7 +129,13 @@
       "shortcut-link": "Kochheft einrichten",
       "type-yourself-short": "Selbst eintippen",
       "yield": "Ergibt",
-      "discard-this": "Diesen Entwurf verwerfen"
+      "discard-this": "Diesen Entwurf verwerfen",
+      "tags": {
+        "title": "Schlagworte",
+        "hint": "Vorgeschlagen aus den Schlagworten, die es schon gibt. Du kannst sie entfernen oder andere hinzufügen.",
+        "add": "Schlagwort hinzufügen",
+        "new": "+ Neues Schlagwort"
+      }
     },
     "theme": {
       "title": "Darstellung",
@@ -354,7 +360,7 @@
       "print-as-book": "Als Buch drucken",
       "page-title": "Familienkochbuch",
       "card-title": "Rezeptkarte",
-      "not-found": "Dieses Kochbuch gibt es nicht.",
+      "not-found": "Diese Sammlung gibt es nicht.",
       "recipe-not-found": "Dieses Rezept gibt es nicht.",
       "title": "Titel",
       "subtitle": "Untertitel",
@@ -371,10 +377,10 @@
       "own-photo-hint": "Nur für Fotos, die ihr selbst gemacht habt",
       "servings": "Portionen",
       "print": "Drucken / Als PDF sichern",
-      "empty": "Dieses Kochbuch findet keine Rezepte. Passe den Filter im Kochbuch an.",
-      "forbidden": "Nur der eigene Haushalt kann dieses Kochbuch ändern",
+      "empty": "Diese Sammlung findet keine Rezepte. Passe den Filter in der Sammlung an.",
+      "forbidden": "Nur der eigene Haushalt kann diese Sammlung ändern",
       "save-failed": "Speichern hat nicht geklappt.",
-      "load-failed": "Das Kochbuch konnte nicht geladen werden.",
+      "load-failed": "Die Sammlung konnte nicht geladen werden.",
       "recipes-failed": "{n} Rezepte konnten nicht geladen werden, das Buch ist unvollständig.",
       "reload": "Neu laden",
       "retry": "Erneut versuchen",
@@ -809,7 +815,7 @@
         },
         "share": {
           "title": "Teilen",
-          "text": "Rezepte teilst du „Als Text“, ein ganzes Kochbuch als Dateien."
+          "text": "Rezepte teilst du „Als Text“, eine ganze Sammlung als Dateien."
         },
         "phone": {
           "title": "Kochheft einrichten",
@@ -876,7 +882,7 @@
       "copied": "Rezept kopiert",
       "copy-failed": "Kopieren hat nicht geklappt.",
       "book-button": "Als Textdateien exportieren",
-      "book-title": "Kochbuch als Textdateien",
+      "book-title": "Sammlung als Textdateien",
       "as-recipe": "Portionen wie im Rezept",
       "for-all": "Für alle Rezepte gleich",
       "servings-all": "Portionen",
@@ -1094,7 +1100,7 @@
         },
         "share": {
           "title": "Rezepte teilen und einlesen",
-          "text": "Teile ein Rezept „Als Text“ oder exportiere dein Kochbuch als Dateien. Rezeptdateien oder ein ZIP wirfst du in den Eingang; du prüfst, bevor etwas im Kochbuch landet."
+          "text": "Teile ein Rezept „Als Text“ oder exportiere eine Sammlung als Dateien. Rezeptdateien oder ein ZIP wirfst du in den Eingang; du prüfst, bevor etwas in der Sammlung landet."
         },
         "week": {
           "title": "Die Woche planen",
@@ -1249,7 +1255,33 @@
       },
       "welcome": "Willkommen bei Kochheft! Lass uns loslegen",
       "previous": "Hast du schon ein Backup von Kochheft oder Mealie?",
-      "seed-hint": "Kochheft legt deutsche Lebensmittel, Einheiten und Abteilungen an, damit die Einkaufsliste nach Abteilungen sortiert. Du kannst sie später jederzeit ändern oder ergänzen."
+      "seed-hint": "Kochheft legt deutsche Lebensmittel, Einheiten und Abteilungen an, damit die Einkaufsliste nach Abteilungen sortiert. Du kannst sie später jederzeit ändern oder ergänzen.",
+      "language": "Sprache wählen"
+    },
+    "app": {
+      "name": "Kochheft"
+    },
+    "collections": {
+      "title": "Sammlungen",
+      "create": "Sammlung erstellen",
+      "one": "Sammlung",
+      "description": "Sammlungen sind ein weiterer Weg, Rezepte zu ordnen: Du legst Filter fest, und alle passenden Rezepte erscheinen in der Sammlung. Jede Sammlung bekommt einen Eintrag in der Seitenleiste.",
+      "hide-other": "Sammlungen anderer Haushalte ausblenden",
+      "hide-other-description": "Wenn aktiviert, erscheinen nur Sammlungen deines Haushalts in der Seitenleiste",
+      "public": "Öffentliche Sammlung",
+      "public-description": "Öffentliche Sammlungen können mit Personen ohne Konto geteilt werden und erscheinen auf deiner Gruppenseite.",
+      "name": "Name der Sammlung",
+      "household-name": "{0} Sammlung {1}"
+    },
+    "tag-suggest": {
+      "title": "Schlagworte vorschlagen",
+      "description": "Für Rezepte ohne Schlagworte. Es wird nichts gespeichert, bevor du es bestätigst.",
+      "search": "Vorschläge suchen",
+      "search-ai": "Mit KI weitersuchen (bis zu 20 Rezepte)",
+      "none": "Keine Vorschläge gefunden. Entweder haben alle Rezepte schon Schlagworte, oder es passt keins der vorhandenen.",
+      "left": "Für {n} weitere Rezepte ohne Schlagworte gibt es keinen Vorschlag.",
+      "apply": "{n} Rezepte übernehmen",
+      "failed": "Das hat nicht geklappt. Bitte versuche es noch einmal."
     }
   }
 }

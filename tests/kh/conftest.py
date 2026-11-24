@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from mealie.kh.ai.models import KhAiProviderState
+from mealie.kh.navigation.models import KhUserNavigation
 from mealie.kh.notices.models import KhNotice, KhNoticeRead
 from mealie.repos.all_repositories import get_repositories
 from tests import utils
@@ -67,3 +68,11 @@ def clean_ai(unique_user: TestUser) -> Generator[None]:
     clear_ai(unique_user)
     yield
     clear_ai(unique_user)
+
+
+@pytest.fixture
+def no_account_locale(session: Session) -> Generator[None]:
+    """For tests that make someone choose a language: nobody has chosen one afterwards (the API cannot unset it)."""
+    yield
+    session.execute(sa.update(KhUserNavigation).values(locale=None))
+    session.commit()
