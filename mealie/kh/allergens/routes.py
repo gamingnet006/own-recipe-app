@@ -1,7 +1,7 @@
 """KH: the allergen routes under /api/kh (D44): a recipe's allergens with corrections, the "Ich vertrage nicht"
 profile, the warnings for the viewer's household, substitution rules and variants."""
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from pydantic import UUID4
 
 from mealie.kh.addons.guards import require_addon
@@ -33,6 +33,7 @@ from mealie.kh.allergens.service import (
     set_correction,
 )
 from mealie.kh.allergens.substitutions import Substitution, save_variant, substitutions_for
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -62,7 +63,7 @@ class KhAllergensController(BaseUserController):
         ]
 
     @router.get("/recipes/{slug}/allergens", response_model=AllergenReport)
-    def get_allergens(self, slug: str) -> AllergenReport:
+    def get_allergens(self, slug: str, request: Request) -> AllergenReport:
         """The allergens of any recipe of the user's group (also another household's), with their source lines and
         the warnings for the user's own household."""
         recipe = self._recipe(slug)
@@ -70,11 +71,15 @@ class KhAllergensController(BaseUserController):
         return AllergenReport(
             hits=hits,
             warnings=household_warnings(self.session, self.household_id, hits),
-            substitutions=substitutions_for(recipe, hits, self._own_rules()),
+            substitutions=substitutions_for(
+                recipe, hits, self._own_rules(), request_locale(self.session, self.user.id, request)
+            ),
         )
 
     @router.put("/recipes/{slug}/allergens/{allergen}", response_model=AllergenCorrectionIn)
-    def put_correction(self, slug: str, allergen: str, data: AllergenCorrectionIn) -> AllergenCorrectionIn:
+    def put_correction(
+        self, slug: str, allergen: str, data: AllergenCorrectionIn, request: Request
+    ) -> AllergenCorrectionIn:
         """Corrects one allergen of a recipe (present None clears it), for whoever may edit the recipe."""
         try:
             allergen_key(allergen)
@@ -82,7 +87,9 @@ class KhAllergensController(BaseUserController):
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(str(e))) from e
         recipe = self._recipe(slug)
         if not RecipeService(self.repos, self.user, self.household, self.translator).can_update([slug]):
-            raise HTTPException(status.HTTP_403_FORBIDDEN, "Dieses Rezept darfst du nicht ändern")
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, say("recipe_not_yours", request_locale(self.session, self.user.id, request))
+            )
         set_correction(self.session, recipe.id, allergen, data.present)
         return data
 
@@ -152,14 +159,15 @@ class KhAllergensController(BaseUserController):
         status_code=status.HTTP_201_CREATED,
         dependencies=[Depends(require_addon("substitutions"))],
     )
-    def post_variant(self, slug: str, data: VariantIn) -> VariantOut:
+    def post_variant(self, slug: str, data: VariantIn, request: Request) -> VariantOut:
         """Saves a copy of any recipe of the group with the foods of the chosen allergens replaced; 422 when no
         line can be replaced."""
         recipe = self._recipe(slug)
         hits = recipe_allergens(recipe, corrections_of(self.session, recipe.id))
         service = RecipeService(self.repos, self.user, self.household, self.translator)
         try:
-            new = save_variant(service, self.repos, recipe, hits, data.allergens, self._own_rules())
+            locale = request_locale(self.session, self.user.id, request)
+            new = save_variant(service, self.repos, recipe, hits, data.allergens, self._own_rules(), locale)
         except ValueError as e:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(str(e))) from e
         return VariantOut(slug=new.slug)

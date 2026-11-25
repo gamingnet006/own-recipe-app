@@ -3,9 +3,11 @@
 from pathlib import Path
 
 import pytest
+import sqlalchemy as sa
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from mealie.kh.onboarding.models import KhAccountSettings
 from mealie.kh.tags import starter
 from mealie.kh.tags.starter import STARTER_TAGS, seed_all_groups, seed_group
 from mealie.schema.recipe.recipe_organizers import TagSave
@@ -67,3 +69,14 @@ def test_existing_installation_without_language_gets_german(
     api_client.post(api_routes.recipes, json={"name": "Etwas"}, headers=clean_group.token)
     seed_all_groups(session, tmp_path)
     assert "Frühstück" in names(clean_group)
+
+
+def test_saving_the_installation_language_seeds_at_once(session: Session, clean_group: TestUser) -> None:
+    from mealie.kh.onboarding.service import save_account_settings
+
+    save_account_settings(session, locale="en-US")
+    try:
+        assert "Breakfast" in names(clean_group)
+    finally:
+        session.execute(sa.update(KhAccountSettings).values(locale=None))  # as before: nobody chose a language
+        session.commit()

@@ -4,10 +4,22 @@ import { scaleTitle } from "./amounts";
 import { recipeTimes, scaleBase } from "../composables/use-kh-recipe";
 import type { RecipeIngredient, RecipeOut, RecipeStep } from "~/lib/api/types/recipe";
 
-/** The last line of every export; it is how the import knows the text is ours. */
-export const TEXT_SIGNATURE = "Exportiert aus Kochheft";
+/** The words an export is written in, per language. The import (mealie/kh/drafts/text_format.py) reads both sets, so
+ * old German exports and new English ones work; keep the two in sync. The signature is the last line of every export
+ * and how the import knows the text is ours. */
+const LABELS = {
+  "de-DE": {
+    servings: "Portionen", ingredients: "Zutaten", steps: "Zubereitung", notes: "Notizen", familyNote: "Unsere Notiz",
+    source: "Quelle", signature: "Exportiert aus Kochheft", times: { prep: "Vorbereitung", perform: "Zubereitung", total: "Gesamt" },
+  },
+  "en-US": {
+    servings: "Servings", ingredients: "Ingredients", steps: "Instructions", notes: "Notes", familyNote: "Our note",
+    source: "Source", signature: "Exported from Cookbook", times: { prep: "Prep time", perform: "Cook time", total: "Total time" },
+  },
+} as const;
 
-const TIME_LABELS = { prep: "Vorbereitung", perform: "Zubereitung", total: "Gesamt" } as const;
+/** The labels of the language of LOCALE; anything but English is German, as before. */
+const labelsFor = (locale: string) => (locale.startsWith("en") ? LABELS["en-US"] : LABELS["de-DE"]);
 
 /** How the views write an ingredient line and a step at SCALE (amounts scaled, no markup); the callers bring Mealie's
  * own display in, which only works while a component is set up (see use-kh-recipe-text.ts). */
@@ -24,18 +36,21 @@ function oneLine(text: string): string {
 /** The line under the title: servings (with the yield word the page shows, "13 Muffins") and times, only those the
  * recipe has. */
 function infoLine(recipe: RecipeOut, scale: number, locale: string): string {
+  const labels = labelsFor(locale);
   const base = scaleBase(recipe);
   const count = new Intl.NumberFormat(locale, { maximumFractionDigits: 1, useGrouping: false }).format(base * scale);
   const word = recipe.recipeYieldQuantity ? (recipe.recipeYield ?? "").trim() : "";
-  const servings = base ? [`Portionen: ${[count, word].filter(Boolean).join(" ")}`] : [];
-  const times = recipeTimes(recipe, locale).map(time => `${TIME_LABELS[time.key]}: ${time.value}`);
+  const servings = base ? [`${labels.servings}: ${[count, word].filter(Boolean).join(" ")}`] : [];
+  const times = recipeTimes(recipe, locale).map(time => `${labels.times[time.key]}: ${time.value}`);
   return [...servings, ...times].join(" · ");
 }
 
 /** RECIPE at SCALE as text: title, info line, "Zutaten:" with "- " lines, "Zubereitung:" with numbered steps, optional
- * "Notizen:", "Unsere Notiz:" (the household's note, D82, FAMILY_NOTE) and "Quelle:", then the signature. Section titles stand on a line of their own; amounts in the ingredients,
+ * "Notizen:", "Unsere Notiz:" (the household's note, D82, FAMILY_NOTE) and "Quelle:", then the signature (in English
+ * "Ingredients:", "Instructions:", "Notes:", "Our note:", "Source:", "Exported from Cookbook"). Section titles stand on a line of their own; amounts in the ingredients,
  * the titles and the steps scale. LOCALE writes the numbers and times. */
 export function recipeText(recipe: RecipeOut, scale: number, locale: string, read: TextReaders, familyNote = ""): string {
+  const labels = labelsFor(locale);
   const ingredients = (recipe.recipeIngredient ?? []).flatMap((line) => {
     const text = oneLine(read.ingredient(line, scale));
     return [...(line.title ? [oneLine(scaleTitle(line.title, scale, locale))] : []), ...(text ? [`- ${text}`] : [])];
@@ -48,12 +63,12 @@ export function recipeText(recipe: RecipeOut, scale: number, locale: string, rea
   const notes = (recipe.notes ?? []).map(note => [note.title, note.text].filter(Boolean).join("\n").trim()).filter(Boolean);
   return [
     [recipe.name, infoLine(recipe, scale, locale)].filter(Boolean).join("\n"),
-    ["Zutaten:", ...ingredients].join("\n"),
-    ["Zubereitung:", ...steps].join("\n"),
-    notes.length ? `Notizen:\n${notes.join("\n\n")}` : "",
-    familyNote.trim() ? `Unsere Notiz: ${oneLine(familyNote)}` : "",
-    recipe.orgURL ? `Quelle: ${oneLine(recipe.orgURL)}` : "",
-    TEXT_SIGNATURE,
+    [`${labels.ingredients}:`, ...ingredients].join("\n"),
+    [`${labels.steps}:`, ...steps].join("\n"),
+    notes.length ? `${labels.notes}:\n${notes.join("\n\n")}` : "",
+    familyNote.trim() ? `${labels.familyNote}: ${oneLine(familyNote)}` : "",
+    recipe.orgURL ? `${labels.source}: ${oneLine(recipe.orgURL)}` : "",
+    labels.signature,
   ].filter(Boolean).join("\n\n") + "\n";
 }
 

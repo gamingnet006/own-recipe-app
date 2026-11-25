@@ -52,8 +52,9 @@
           <AutoForm
             v-model="newUserData"
             :items="userForm"
-            :disabled-fields="disabledFields"
           />
+          <!-- KH: the account kind instead of the permission checkboxes -->
+          <KhAccountKind :flags="newUserData" @update:flags="Object.assign(newUserData, $event)" />
           <!-- KH: show the new person the first-sign-in tour (D59) -->
           <v-checkbox
             v-model="withTour"
@@ -78,6 +79,7 @@ import { useAdminApi } from "~/composables/api";
 import { useGroups } from "~/composables/use-groups";
 import { useUserForm } from "~/composables/use-users";
 import { validators } from "~/composables/use-validators";
+import { flagsOfKind } from "~~/kh/app/lib/account-kind"; // KH: account kinds
 import { KhOnboardingApi } from "~~/kh/app/lib/api/onboarding"; // KH: first-sign-in tour (D59)
 import { useRequests } from "~/composables/api/api-client"; // KH: D59
 import { alert } from "~/composables/use-toast"; // KH: D59
@@ -103,48 +105,14 @@ const newUserData = ref({
   username: "",
   fullName: "",
   email: "",
-  admin: false,
+  ...flagsOfKind("family"), // KH: a family account by default (account kinds)
   group: computed(() => selectedGroup.value?.name || ""),
   household: "",
-  advanced: false,
-  canInvite: false,
-  canManage: false,
-  canOrganize: false,
   password: "",
   authMethod: "Mealie",
 });
 
-const disabledFields = computed(() => {
-  const fields: string[] = [];
-  if (newUserData.value.admin) {
-    fields.push("canManageHousehold", "canManage", "advanced");
-  }
-  if (newUserData.value.admin) {
-    fields.push("canOrganize", "canInvite");
-  }
-  return fields;
-});
-
-watch(
-  () => newUserData.value.admin,
-  (isAdmin, wasAdmin) => {
-    if (isAdmin && !wasAdmin) {
-      newUserData.value.canManageHousehold = true;
-      newUserData.value.canManage = true;
-      newUserData.value.canOrganize = true;
-      newUserData.value.canInvite = true;
-      newUserData.value.advanced = true;
-    }
-    else if (!isAdmin && wasAdmin) {
-      newUserData.value.canManageHousehold = false;
-      newUserData.value.canManage = false;
-      newUserData.value.canOrganize = false;
-      newUserData.value.canInvite = false;
-      newUserData.value.advanced = false;
-    }
-  },
-);
-
+// KH: which flags go with admin is decided in KhAccountKind (account kinds)
 async function handleSubmit() {
   const { valid } = (await refNewUserForm.value?.validate()) ?? {
     valid: false,

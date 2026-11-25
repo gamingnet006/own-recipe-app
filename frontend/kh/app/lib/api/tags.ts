@@ -20,12 +20,17 @@ export interface KhTagSuggestions {
   proposals: KhTagProposal[];
   aiAvailable: boolean;
   withoutProposal: number;
+  askedIds: string[]; // the recipes the AI was asked about in this call
+  aiLeft: number; // tagless recipes it has not been asked about yet
 }
 
 export class KhTagsApi extends BaseAPI {
-  /** Proposals for recipes without tags; with USEAI also the AI for a few recipes the rules had nothing for. */
-  async suggest(useAi: boolean) {
-    return await this.requests.post<KhTagSuggestions, { useAi: boolean }>("/api/kh/tags/suggest", { useAi });
+  /** Proposals for recipes without tags; with USEAI also the AI for a few recipes, except SKIPIDS (asked before). */
+  async suggest(useAi: boolean, skipIds: string[] = []) {
+    return await this.requests.post<KhTagSuggestions, { useAi: boolean; skipIds: string[] }>("/api/kh/tags/suggest", {
+      useAi,
+      skipIds,
+    });
   }
 
   /** Adds the confirmed tags (per recipe, by ID); answers how many recipes changed. */

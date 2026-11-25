@@ -1,72 +1,72 @@
 {
   "gluten": {
-    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße", "bröt", "penne", "fusilli", "tagliatelle", "lasagne", "makkaroni", "gnocchi", "tortellini", "ravioli", "blätterteig", "toast", "baguette", "zwieback", "keks", "graupen", "bier", "malz", "panko", "teig", "semmel"],
-    "except": ["buchweizenmehl", "buchweizen", "lupinenmehl", "kokosmehl", "mandelmehl", "reismehl", "reisgrieß", "reisnudel", "glasnudel", "maismehl", "maisgrieß", "hirsemehl", "kartoffelmehl", "kichererbsenmehl", "quinoamehl", "amaranthmehl", "sojamehl", "schmalz"],
-    "cancel": ["glutenfrei"]
+    "match": ["weizen", "dinkel", "roggen", "gerste", "hafer", "kamut", "grünkern", "emmer", "einkorn", "bulgur", "couscous", "grieß", "seitan", "paniermehl", "semmelbrösel", "nudel", "spätzle", "pasta", "spaghetti", "brot", "mehl", "sojasauce", "sojasoße", "bröt", "penne", "fusilli", "tagliatelle", "lasagne", "makkaroni", "gnocchi", "tortellini", "ravioli", "blätterteig", "baguette", "zwieback", "keks", "graupen", "bier", "malz", "panko", "teig", "semmel", "wheat", "flour", "barley", "rye", "spelt", "semolina", "breadcrumb", "bread crumb", "noodle", "bread", "=roll", "=rolls", "=bun", "=buns", "pretzel", "cracker", "biscuit", "cookie", "puff pastry", "pastry", "dough", "pizza", "macaroni", "lasagna", "=oat", "=oats", "oatmeal", "soy sauce", "=malt", "=beer", "=ale", "=lager", "=stout", "=orzo", "farro", "freekeh", "wonton wrapper", "filo", "phyllo", "=toast", "=toasts", "sandwichtoast", "toastscheibe"],
+    "except": ["buchweizenmehl", "buchweizen", "lupinenmehl", "kokosmehl", "mandelmehl", "reismehl", "reisgrieß", "reisnudel", "glasnudel", "maismehl", "maisgrieß", "hirsemehl", "kartoffelmehl", "kichererbsenmehl", "quinoamehl", "amaranthmehl", "sojamehl", "schmalz", "rice flour", "corn flour", "cornflour", "almond flour", "coconut flour", "chickpea flour", "gram flour", "potato flour", "tapioca flour", "buckwheat", "soy flour", "oat flour", "rice noodle", "glass noodle", "cellophane noodle", "cornmeal", "lupin flour", "quinoa flour", "millet flour", "sorghum flour", "gluten-free bread", "broth", "buckwheat flour", "banana flour", "pasta sauce", "breadfruit"],
+    "cancel": ["glutenfrei", "gluten-free", "gluten free"]
   },
   "crustaceans": {
-    "match": ["garnele", "shrimp", "scampi", "krabbe", "hummer", "krebs", "crevette", "langust"],
-    "except": [],
+    "match": ["garnele", "shrimp", "scampi", "krabbe", "hummer", "krebs", "crevette", "langust", "prawn", "crab", "lobster", "crayfish", "crawfish", "langoustine", "shellfish", "krill"],
+    "except": ["crab apple", "crabapple", "lobster mushroom"],
     "cancel": []
   },
   "eggs": {
-    "match": ["=ei", "eier", "eigelb", "eiweiß", "eiklar", "mayonnaise", "mayo", "aioli", "rührei", "spiegelei", "hühnerei", "wachtelei"],
-    "except": ["eierschwamm", "eierfrucht", "milcheiweiß", "molkeneiweiß", "sojaeiweiß", "erbseneiweiß"],
-    "cancel": []
+    "match": ["=ei", "eier", "eigelb", "eiweiß", "eiklar", "mayonnaise", "mayo", "aioli", "rührei", "spiegelei", "hühnerei", "wachtelei", "meringue", "custard", "=egg", "=eggs", "eggnog"],
+    "except": ["eierschwamm", "eierfrucht", "milcheiweiß", "molkeneiweiß", "sojaeiweiß", "erbseneiweiß", "egg-free", "eggless", "custard apple"],
+    "cancel": ["vegan", "egg-free", "eggless", "egg replacer", "egg substitute", "flax egg", "chia egg"]
   },
   "fish": {
-    "match": ["fisch", "lachs", "thunfisch", "forelle", "kabeljau", "hering", "makrele", "sardine", "sardelle", "anchovis", "zander", "karpfen", "kaviar", "worcester"],
-    "except": ["tintenfisch"],
+    "match": ["fisch", "lachs", "thunfisch", "forelle", "kabeljau", "hering", "makrele", "sardine", "sardelle", "anchovis", "zander", "karpfen", "kaviar", "worcester", "fish", "salmon", "tuna", "=cod", "haddock", "halibut", "trout", "mackerel", "anchov", "sea bass", "seabass", "=bass", "pollock", "tilapia", "snapper", "=sole", "herring", "caviar", "=roe", "=eel", "worcestershire", "bonito", "swordfish", "monkfish"],
+    "except": ["tintenfisch", "cuttlefish", "crayfish", "shellfish", "starfish", "jellyfish", "vegan fish"],
     "cancel": []
   },
   "peanuts": {
-    "match": ["erdnuss", "erdnüsse", "peanut"],
+    "match": ["erdnuss", "erdnüsse", "peanut", "groundnut", "arachis"],
     "except": [],
     "cancel": []
   },
   "soy": {
-    "match": ["soja", "tofu", "edamame", "miso", "tempeh", "=tamari", "shoyu"],
+    "match": ["soja", "tofu", "edamame", "miso", "tempeh", "=tamari", "shoyu", "soy", "bean curd"],
     "except": [],
     "cancel": []
   },
   "milk": {
-    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto", "fraiche", "fraîche", "cheddar", "halloumi", "gorgonzola", "ghee", "raclette", "burrata"],
-    "except": ["kokosmilch", "kokossahne", "kokosjoghurt", "kokosrahm", "kokosbutter", "sojamilch", "sojasahne", "sojajoghurt", "hafermilch", "hafersahne", "haferjoghurt", "mandelmilch", "mandeljoghurt", "reismilch", "erdnussbutter", "mandelbutter", "cashewbutter", "kakaobutter", "sheabutter", "butternut", "butterbohne"],
-    "cancel": ["vegan", "pflanzlich", "pflanzen"]
+    "match": ["milch", "butter", "sahne", "rahm", "käse", "joghurt", "yoghurt", "quark", "topfen", "molke", "kefir", "skyr", "schmand", "parmesan", "mozzarella", "mascarpone", "ricotta", "gouda", "feta", "pecorino", "emmentaler", "camembert", "laktose", "pesto", "fraiche", "fraîche", "cheddar", "halloumi", "gorgonzola", "ghee", "raclette", "burrata", "milk", "=cream", "cheese", "yogurt", "whey", "paneer", "=brie", "gruyere", "gruyère", "custard", "buttermilk", "casein", "lactose", "=curd", "half-and-half", "half and half", "creme fraiche", "crème fraîche", "sour cream", "gelato", "ice cream", "parmigiano", "reggiano", "grana padano"],
+    "except": ["kokosmilch", "kokossahne", "kokosjoghurt", "kokosrahm", "kokosbutter", "sojamilch", "sojasahne", "sojajoghurt", "hafermilch", "hafersahne", "haferjoghurt", "mandelmilch", "mandeljoghurt", "reismilch", "erdnussbutter", "mandelbutter", "cashewbutter", "kakaobutter", "sheabutter", "butternut", "butterbohne", "coconut milk", "coconut cream", "coconut yogurt", "coconut yoghurt", "coconut butter", "soy milk", "soy cream", "soy yogurt", "soymilk", "oat milk", "oat cream", "oat drink", "almond milk", "almond yogurt", "almond butter", "rice milk", "cashew milk", "cashew butter", "peanut butter", "nut butter", "seed butter", "sunflower butter", "cocoa butter", "cacao butter", "shea butter", "butter bean", "butterbean", "cream of tartar", "cream of coconut", "custard apple", "cream soda", "vegan cheese", "vegan butter", "vegan cream", "bean curd"],
+    "cancel": ["vegan", "pflanzlich", "pflanzen", "plant-based", "plant based", "dairy-free", "dairy free", "non-dairy"]
   },
   "nuts": {
-    "match": ["haselnuss", "haselnüsse", "walnuss", "walnüsse", "mandel", "cashew", "pistazie", "pekannuss", "pekannüsse", "paranuss", "paranüsse", "macadamia", "marzipan", "nougat", "nüsse", "pesto"],
+    "match": ["haselnuss", "haselnüsse", "walnuss", "walnüsse", "mandel", "cashew", "pistazie", "pekannuss", "pekannüsse", "paranuss", "paranüsse", "macadamia", "marzipan", "nougat", "nüsse", "pesto", "hazelnut", "walnut", "almond", "pistachio", "pecan", "brazil nut", "praline", "gianduja", "=nuts", "tree nut"],
     "except": ["erdnüsse", "muskatnüsse", "kokosnüsse"],
     "cancel": []
   },
   "celery": {
-    "match": ["sellerie", "brühe", "brühwürfel", "bouillon", "suppenwürfel", "suppengrün"],
-    "except": [],
+    "match": ["sellerie", "brühe", "brühwürfel", "bouillon", "suppenwürfel", "suppengrün", "celery", "celeriac", "stock", "broth", "stock cube"],
+    "except": ["livestock"],
     "cancel": []
   },
   "mustard": {
-    "match": ["senf", "mayonnaise", "mayo", "remoulade"],
+    "match": ["senf", "mayonnaise", "mayo", "remoulade", "mustard", "tartar sauce", "tartare sauce"],
     "except": [],
     "cancel": []
   },
   "sesame": {
-    "match": ["sesam", "tahin", "hummus"],
+    "match": ["sesam", "tahin", "hummus", "sesame", "tahini", "tahina"],
     "except": [],
     "cancel": []
   },
   "sulphites": {
-    "match": ["wein", "sekt", "rosine", "sultanine", "balsamico", "trockenfrüchte", "trockenobst", "sulfit"],
-    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere", "schwein", "insekt", "weinberg"],
+    "match": ["wein", "sekt", "rosine", "sultanine", "balsamico", "trockenfrüchte", "trockenobst", "sulfit", "wine", "champagne", "prosecco", "sherry", "vermouth", "raisin", "sultana", "balsamic", "dried fruit", "dried apricot", "dried mango", "dried fig", "sulphite", "sulfite"],
+    "except": ["weintraube", "weinblatt", "weinblätter", "weinstein", "weinbeere", "schwein", "insekt", "weinberg", "swine", "twine", "wineberry", "wine gum", "raising"],
     "cancel": []
   },
   "lupin": {
-    "match": ["lupine"],
+    "match": ["lupine", "lupin"],
     "except": [],
     "cancel": []
   },
   "molluscs": {
-    "match": ["muschel", "auster", "tintenfisch", "calamari", "kalmar", "schnecke", "oktopus", "krake"],
-    "except": ["austernpilz", "austernseitling", "zimtschnecke", "schneckennudel", "nussschnecke", "muschelnudel"],
+    "match": ["muschel", "auster", "tintenfisch", "calamari", "kalmar", "schnecke", "oktopus", "krake", "mussel", "oyster", "=clam", "=clams", "scallop", "squid", "octopus", "=snail", "=snails", "escargot", "abalone", "cuttlefish", "whelk", "shellfish"],
+    "except": ["austernpilz", "austernseitling", "zimtschnecke", "schneckennudel", "nussschnecke", "muschelnudel", "oyster mushroom", "scalloped", "cinnamon snail"],
     "cancel": []
   }
 }

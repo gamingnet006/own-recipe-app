@@ -2,7 +2,7 @@
 // exists only when the person has linked accounts.
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { khAccounts, useKhAccounts } from "../composables/use-kh-accounts";
-import { settingsTargets } from "../composables/use-kh-navigation";
+import { settingsSections } from "../composables/use-kh-navigation";
 
 const getMock = vi.hoisted(() => vi.fn());
 const postMock = vi.hoisted(() => vi.fn());
@@ -59,13 +59,13 @@ describe("switching", () => {
 
 describe("More entry", () => {
   test("shown only with linked accounts", () => {
-    const keys = (linked: boolean) => settingsTargets({ admin: true, linked }, "familie").map(t => t.key);
+    const keys = (linked: boolean) => settingsSections({ admin: true, linked }, "familie").me.map(t => t.key);
     expect(keys(false)).not.toContain("switch");
     expect(keys(true)).toContain("switch");
   });
 
   test("the admin page is for admins only", () => {
-    expect(settingsTargets({ admin: true }, "familie").map(t => t.key)).toContain("households");
-    expect(settingsTargets({ admin: false }, "familie").map(t => t.key)).not.toContain("households");
+    expect(settingsSections({ admin: true }, "familie").family.map(t => t.key)).toContain("households");
+    expect(settingsSections({ admin: false }, "familie").family.map(t => t.key)).not.toContain("households");
   });
 });

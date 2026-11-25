@@ -128,6 +128,21 @@ describe("route guard", () => {
     expect(applyKhLocale).toHaveBeenCalledWith("en-US", appI18n);
   });
 
+  test("a failed load applies no language; the retry that succeeds does", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    get.mockResolvedValue({ data: null });
+    user.value = { id: "retry-user" };
+    const { default: guard } = await import("../middleware/kh-sidebar.global");
+    await (guard as () => Promise<unknown>)();
+    expect(applyKhLocale).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(61_000);
+    get.mockResolvedValue({ data: { hidden: [], locale: "en-US" } });
+    await (guard as () => Promise<unknown>)();
+    expect(applyKhLocale).toHaveBeenCalledWith("en-US", appI18n);
+    vi.useRealTimers();
+  });
+
   test("forgets the list when nobody is signed in", async () => {
     khSidebar.hidden = ["cookbooks"];
     khSidebar.userId = "u1";

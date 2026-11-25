@@ -122,8 +122,9 @@
               v-model="user"
               :items="userForm"
               update-mode
-              :disabled-fields="disabledFields"
             />
+            <!-- KH: the account kind instead of the permission checkboxes -->
+            <KhAccountKind :flags="user" :disable-admin="user.authMethod !== 'Mealie'" @update:flags="Object.assign(user, $event)" />
           </v-card-text>
         </v-sheet>
       </v-card>
@@ -172,43 +173,7 @@ const adminApi = useAdminApi();
 const user = ref<UserOut | null>(null);
 const households = useHouseholdsInGroup(computed(() => user.value?.groupId || ""));
 
-const disabledFields = computed(() => {
-  const fields: string[] = [];
-  if (user.value?.authMethod !== "Mealie") {
-    fields.push("admin");
-  }
-  if (user.value?.admin) {
-    fields.push("canManageHousehold", "canManage", "advanced");
-  }
-  if (user.value?.admin) {
-    fields.push("canOrganize", "canInvite");
-  }
-  return fields;
-});
-
-watch(
-  () => user.value?.admin,
-  (isAdmin, wasAdmin) => {
-    if (!user.value) {
-      return;
-    }
-    if (isAdmin && !wasAdmin) {
-      user.value.canManageHousehold = true;
-      user.value.canManage = true;
-      user.value.canOrganize = true;
-      user.value.canInvite = true;
-      user.value.advanced = true;
-    }
-    else if (!isAdmin && wasAdmin) {
-      user.value.canManageHousehold = false;
-      user.value.canManage = false;
-      user.value.canOrganize = false;
-      user.value.canInvite = false;
-      user.value.advanced = false;
-    }
-  },
-);
-
+// KH: which flags go with admin is decided in KhAccountKind (account kinds)
 const userError = ref(false);
 
 const resetUrl = ref<string | null>(null);

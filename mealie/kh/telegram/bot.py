@@ -12,6 +12,8 @@ from typing import Any
 from urllib.error import HTTPError
 
 from mealie.kh.drafts.video import is_video_link
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale, known_locale
+from mealie.kh.i18n.messages import MESSAGES, say
 from mealie.kh.telegram.multipart import encode
 
 logger = logging.getLogger("kh.telegram")
@@ -21,24 +23,6 @@ POLL_TIMEOUT_SECONDS = 50  # how long Telegram holds a getUpdates request open
 REQUEST_TIMEOUT_SECONDS = POLL_TIMEOUT_SECONDS + 10
 RETRY_DELAY_SECONDS = 30  # pause after a network error before polling again
 MAX_RESPONSE_BYTES = 25 * 1024 * 1024  # more than Telegram lets a bot download
-
-# What the user reads for the codes Mealie's drafts API answers with (the app has them in its own language files)
-MEALIE_ERRORS = {
-    "video_link": "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
-    "no_source": "Schick mir einen Link, einen Text oder ein Foto.",
-    "several_sources": "Nur eins auf einmal: ein Link, ein Text oder ein Foto.",
-    "too_many_images": "Zu viele Fotos auf einmal.",
-    "too_large": "Das Foto ist zu groß.",
-    "not_an_image": "Das ist kein Foto.",
-    "text_too_long": "Der Text ist zu lang.",
-}
-UNKNOWN_CHAT = "Diese Chat-ID ist nicht freigeschaltet: {id}"
-BAD_API_TOKEN = "Der API-Token des Bots ist ungültig. Leg in Kochheft unter Profil → API-Tokens einen neuen an."
-BOT_OFF = (
-    "Der Telegram-Bot ist in Kochheft ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen einschalten."
-)
-MEALIE_DOWN = "Kochheft ist gerade nicht erreichbar. Versuch es gleich noch einmal."
-NOTHING_TO_USE = "Schick mir einen Link, einen Text oder ein Foto."
 
 # the last character is not sentence punctuation or a closing bracket: "(link)." must give the link alone
 URL = re.compile(r"https?://\S*[^\s.,;:!?)»]")
@@ -59,7 +43,12 @@ class Config:
 
 
 class UserError(Exception):
-    """A problem the chat should hear about; the text is the answer."""
+    """A problem the chat should hear about; KEY names its sentence in mealie/kh/i18n/messages.py."""
+
+    def __init__(self, key: str, **values: object) -> None:
+        super().__init__(key)
+        self.key = key
+        self.values = values
 
 
 def urllib_transport(request: urllib.request.Request, timeout: float) -> tuple[int, bytes]:
@@ -108,7 +97,7 @@ class Bot:
         """The largest size of a photo, refused above the image limit before and after the download."""
         largest = max(sizes, key=lambda size: size["width"] * size["height"])
         limit = self.config.max_image_bytes
-        too_large = UserError(f"Das Foto ist zu groß (höchstens {limit // (1024 * 1024)} MB).")
+        too_large = UserError("tg_photo_limit", mb=limit // (1024 * 1024))
         if largest.get("file_size", 0) > limit:
             raise too_large
         file = self._telegram("getFile", file_id=largest["file_id"])
@@ -117,7 +106,7 @@ class Bot:
         request = urllib.request.Request(f"{TELEGRAM}/file/bot{self.config.token}/{file['file_path']}")
         status, data = self.transport(request, REQUEST_TIMEOUT_SECONDS)
         if status != 200:
-            raise UserError("Das Foto konnte nicht von Telegram geladen werden.")
+            raise UserError("tg_photo_failed")
         if len(data) > limit:
             raise too_large
         return data
@@ -143,19 +132,32 @@ class Bot:
             self.group_slug = me.get("groupSlug") if status == 200 else None
         return f": {self.config.base_url}/g/{self.group_slug}/drafts/{draft_id}" if self.group_slug else "."
 
-    def _create_draft(self, fields: dict[str, str], images: list[bytes]) -> str:
-        """Hands the source in and returns the answer for the chat."""
+    def _language(self) -> Locale:
+        """The language to answer in: the choice of the person the bot's API token belongs to, else the installation's,
+        else German; a Mealie that does not answer means German."""
+        try:
+            for path in ("/api/kh/navigation", "/api/kh/onboarding/locale"):
+                status, answer = self._mealie(path)
+                if status == 200 and isinstance(answer, dict) and (locale := known_locale(answer.get("locale"))):
+                    return locale
+        except OSError:
+            pass
+        return DEFAULT_LOCALE
+
+    def _create_draft(self, fields: dict[str, str], images: list[bytes], locale: Locale) -> str:
+        """Hands the source in and returns the answer for the chat in LOCALE."""
         body, content_type = encode(fields, images)
         status, answer = self._mealie("/api/kh/drafts", body, content_type)
         if status == 201:
-            return f"Entwurf angelegt{self._draft_link(answer['id'])}"
+            return say("tg_draft_made", locale, where=self._draft_link(answer["id"]))
         if status == 401:
-            return BAD_API_TOKEN
+            return say("tg_bad_api_token", locale)
         if status == 403:  # the Telegram add-on is off (D46)
-            return BOT_OFF
+            return say("tg_bot_off", locale)
         detail = answer.get("detail") if isinstance(answer, dict) else None
         code = detail.get("code") if isinstance(detail, dict) else None
-        return MEALIE_ERRORS.get(str(code)) or f"Kochheft hat den Entwurf nicht angenommen (Fehler {status})."
+        key = f"tg_{code}"  # the codes Mealie's drafts API answers with have a sentence of their own
+        return say(key if key in MESSAGES else "tg_rejected", locale, status=status)
 
     # --- Messages ---
 
@@ -179,22 +181,23 @@ class Bot:
         elif text.strip():
             fields["text"] = text.strip()
         else:
-            raise UserError(NOTHING_TO_USE)
+            raise UserError("tg_no_source")
         return fields, images
 
     def handle_message(self, message: dict[str, Any]) -> None:
         """Answers one message: its chat's ID if the chat is not allowed, else the draft or what went wrong."""
         chat_id = message["chat"]["id"]
+        locale = self._language()
         if chat_id not in self.config.allowed_ids:
-            self._reply(chat_id, UNKNOWN_CHAT.format(id=chat_id))
+            self._reply(chat_id, say("tg_unknown_chat", locale, id=chat_id))
             return
         try:
-            answer = self._create_draft(*self._sources(message))
+            answer = self._create_draft(*self._sources(message), locale)
         except UserError as error:
-            answer = str(error)
+            answer = say(error.key, locale, **error.values)
         except OSError as error:  # Mealie or Telegram's file server did not answer
             logger.warning("handing in failed: %s", type(error).__name__)  # never the error text: it may hold a URL
-            answer = MEALIE_DOWN
+            answer = say("tg_down", locale)
         self._reply(chat_id, answer)
 
     # --- Loop ---

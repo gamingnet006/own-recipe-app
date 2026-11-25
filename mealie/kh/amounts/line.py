@@ -9,6 +9,7 @@ from functools import lru_cache
 
 from mealie.db.models.recipe.ingredient import IngredientFoodModel, IngredientUnitModel
 from mealie.kh.amounts.parse import parse_ingredient, stem
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.repos.seed._abstract_seeder import AbstractSeeder
 from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut, IngredientUnitOut
 
@@ -18,12 +19,15 @@ DECIMAL_POINT = re.compile(r"(?<=\d)\.(?=\d)")  # parse_ingredient turned "3,5" 
 # The units the amount chips use, by every way of writing them: the abbreviation the client asks the server to ensure
 STANDARD_UNIT_WORDS = {
     "g": "g", "gramm": "g", "kg": "kg", "kilo": "kg", "kilogramm": "kg", "ml": "ml", "milliliter": "ml",
-    "l": "l", "liter": "l",
+    "l": "l", "liter": "l", "gram": "g", "grams": "g", "kilos": "kg", "kilograms": "kg", "milliliters": "ml",
+    "liters": "l", "litre": "l", "litres": "l",
 }  # fmt: skip
 # Words of the shopping list that are no standard unit: kept in the note when the group has no such unit
 SHOPPING_WORDS = (
     "Packung", "Packungen", "Pck.", "Flasche", "Flaschen", "Becher", "Dose", "Dosen", "Glas", "Gläser", "Stück", "Stk.",
     "Beutel", "Netz", "Kiste", "Kasten", "Tüte", "Tüten", "Rolle", "Rollen",
+    "pack", "packs", "package", "packages", "bottle", "bottles", "jar", "jars", "can", "cans", "piece", "pieces", "bag",
+    "bags", "roll", "rolls", "carton", "cartons", "box", "boxes",
 )  # fmt: skip
 
 
@@ -47,11 +51,12 @@ def key(word: str) -> str:
 
 @lru_cache(maxsize=1)
 def unit_words() -> frozenset[str]:
-    """Every unit word of Mealie's German seed (names, plurals, abbreviations) and of the shopping list."""
-    path = AbstractSeeder.resources / "units" / "locales" / "de-DE.json"
+    """Every unit word of Mealie's German and English seed (names, plurals, abbreviations) and of the shopping list."""
     words = list(SHOPPING_WORDS)
-    for unit in json.loads(path.read_text(encoding="utf-8")).values():
-        words += [unit.get("name", ""), unit.get("plural_name", ""), unit.get("abbreviation", "")]
+    for locale in ("de-DE", "en-US"):
+        path = AbstractSeeder.resources / "units" / "locales" / f"{locale}.json"
+        for unit in json.loads(path.read_text(encoding="utf-8")).values():
+            words += [unit.get("name", ""), unit.get("plural_name", ""), unit.get("abbreviation", "")]
     return frozenset(key(word) for word in words if word) | frozenset(STANDARD_UNIT_WORDS)
 
 
@@ -68,13 +73,17 @@ def find_food(rest: str, foods: dict[str, IngredientFoodOut]) -> tuple[Ingredien
 
 
 def parse_shopping_line(
-    text: str, units: dict[str, IngredientUnitOut], foods: dict[str, IngredientFoodOut]
+    text: str,
+    units: dict[str, IngredientUnitOut],
+    foods: dict[str, IngredientFoodOut],
+    locale: str = DEFAULT_LOCALE,
 ) -> ShoppingLine:
-    """Reads TEXT; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher. Percentages and other digits go to
+    """Reads TEXT; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher, LOCALE says how numbers are
+    written. Percentages and other digits go to
     the note, a unit word the group lacks is split off too (a standard one as abbreviation, any other into the note).
     Raises ValueError when no article is left."""
     notes = [f"{value.replace('.', ',')} %" for value in PERCENT.findall(text)]
-    parsed = parse_ingredient(PERCENT.sub(" ", text), units, foods)
+    parsed = parse_ingredient(PERCENT.sub(" ", text), units, foods, locale)
     unit, abbreviation, rest = parsed.unit, None, parsed.note
     food = parsed.food
     if food is None and parsed.quantity is not None and unit is None:

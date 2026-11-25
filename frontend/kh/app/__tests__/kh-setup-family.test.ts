@@ -52,6 +52,23 @@ describe("createAll", () => {
     expect(post).not.toHaveBeenCalled();
   });
 
+  test("the account kind sets the user flags, family being the default", async () => {
+    khFamily.rows = [person("Anna"), person("Berta", { kind: "manager" })];
+    createOne.mockResolvedValue(created("1"));
+    await useKhSetupFamily().createAll();
+    expect(createOne.mock.calls[0]![0]).toMatchObject({ admin: false, canOrganize: true, canInvite: false });
+    expect(createOne.mock.calls[1]![0]).toMatchObject({ admin: false, canOrganize: true, canInvite: true, canManageHousehold: true });
+  });
+
+  test("a person's intolerances are stored for them, and a failure names the person", async () => {
+    khFamily.rows = [person("Cora", { intolerances: ["milk"] }), person("Dora")];
+    createOne.mockResolvedValue(created("7"));
+    put.mockResolvedValueOnce({ error: new Error("x") });
+    expect(await useKhSetupFamily().createAll()).toEqual([{ name: "Cora", failed: "intolerances" }]);
+    expect(put).toHaveBeenCalledTimes(1); // Dora has no intolerances: nothing is stored, she is asked at her first sign-in
+    expect(put).toHaveBeenCalledWith("/api/kh/admin/onboarding/7/intolerances", { allergens: ["milk"] }, expect.anything());
+  });
+
   test("blank rows are ignored", async () => {
     khFamily.rows = [emptyRow(), person("Anna", { tour: false })];
     createOne.mockResolvedValueOnce(created("1"));

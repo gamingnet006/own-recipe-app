@@ -48,6 +48,8 @@ class Fake:
         self.requests: list[Request] = []
         self.routes: list[tuple[str, Callable[[Request], tuple[int, bytes]]]] = []
         self.on("/sendMessage", lambda _: (200, json.dumps({"ok": True, "result": {}}).encode()))
+        self.on("/api/kh/navigation", lambda _: (200, b'{"hidden": [], "locale": null}'))
+        self.on("/api/kh/onboarding/locale", lambda _: (200, b'{"locale": null}'))
         self.on("/api/users/self", lambda _: (200, json.dumps({"groupSlug": "home"}).encode()))
 
     def on(self, part: str, answer: Callable[[Request], tuple[int, bytes]]) -> None:
@@ -331,3 +333,31 @@ def test_the_end_to_end_multipart_is_accepted_by_the_real_drafts_api(api_client:
     draft_id = fake.replies()[0].rsplit("/", 1)[1]
     draft = api_client.get(f"/api/kh/drafts/{draft_id}", headers=unique_user.token).json()
     assert draft["sourceType"] == "text" and draft["sourceUrl"] == REEL
+
+
+def test_the_bot_answers_in_the_language_of_its_person_else_the_installation_else_german(fake: Fake):
+    fake.on("/api/kh/navigation", mealie_answer(200, {"hidden": [], "locale": "en-US"}))
+    bot_with(fake).handle_message(message("x"))
+    assert fake.replies() == ["Draft created: https://kochbuch.example.org/g/home/drafts/d1"]
+    fake.on("/api/kh/navigation", mealie_answer(200, {"hidden": [], "locale": None}))
+    fake.on("/api/kh/onboarding/locale", mealie_answer(200, {"locale": "en-US"}))
+    bot_with(fake).handle_message(message("x", chat=999))
+    assert fake.replies()[-1] == "This chat ID is not allowed: 999"
+    fake.on("/api/kh/onboarding/locale", mealie_answer(500, {}))
+    bot_with(fake).handle_message(message("x", chat=999))
+    assert fake.replies()[-1] == "Diese Chat-ID ist nicht freigeschaltet: 999"
+
+
+def test_english_errors_of_the_bot(fake: Fake):
+    fake.on("/api/kh/onboarding/locale", mealie_answer(200, {"locale": "en-US"}))
+    fake.on("/api/kh/drafts", mealie_answer(400, {"detail": {"code": "video_link"}}))
+    bot_with(fake).handle_message(message(REEL))
+    fake.on("/api/kh/drafts", mealie_answer(403, {}))
+    bot_with(fake).handle_message(message("x"))
+    fake.on("/api/kh/drafts", mealie_answer(500, {}))
+    bot_with(fake).handle_message(message("x"))
+    assert fake.replies() == [
+        "Cookbook does not download videos. Paste the description or upload a screenshot.",
+        "The Telegram bot is switched off in Cookbook. An admin can switch it on under More → Add-ons.",
+        "Cookbook did not accept the draft (error 500).",
+    ]

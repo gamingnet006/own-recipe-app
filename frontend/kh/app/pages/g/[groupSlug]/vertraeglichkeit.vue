@@ -20,16 +20,7 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
       </template>
     </v-alert>
     <div v-else class="mb-6">
-      <v-checkbox
-        v-for="key in KH_ALLERGENS"
-        :key="key"
-        :model-value="selected.includes(key)"
-        :label="$t(`kh.allergens.names.${key}`)"
-        color="primary"
-        density="compact"
-        hide-details
-        @update:model-value="toggle(key, !!$event)"
-      />
+      <KhAllergenChoices :selected="selected" @toggle="toggle" />
     </div>
 
     <template v-if="khOn.substitutions && !loadFailed">
@@ -84,7 +75,7 @@ and the household's own substitution rules (ingredient, replacement, allergen) t
 
 <script setup lang="ts">
 import { refreshKhAllergenWarnings } from "~~/kh/app/composables/use-kh-allergens";
-import { KH_ALLERGENS, KhAllergensApi, type KhAllergenKey, type KhSubstitutionRule } from "~~/kh/app/lib/api/allergens";
+import { KH_ALLERGENS, KhAllergensApi, toggleAllergen, type KhAllergenKey, type KhSubstitutionRule } from "~~/kh/app/lib/api/allergens";
 import { latestRequest } from "~~/kh/app/lib/duplicates";
 import { useKhOn } from "~~/kh/app/composables/use-kh-addons";
 import { useRequests } from "~/composables/api/api-client";
@@ -135,7 +126,7 @@ const startSave = latestRequest();
  * Only the newest save's answer counts: two quick ticks must not let the older answer undo the newer one. */
 async function toggle(key: KhAllergenKey, on: boolean) {
   const before = selected.value;
-  selected.value = KH_ALLERGENS.filter(k => (k === key ? on : before.includes(k)));
+  selected.value = toggleAllergen(before, key, on);
   const isCurrent = startSave();
   const { data } = await api.putAllergies(selected.value);
   if (!isCurrent()) return;

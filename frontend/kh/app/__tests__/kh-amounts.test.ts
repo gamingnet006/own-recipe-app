@@ -224,3 +224,14 @@ test("scaleTitle follows the servings a section title names (v1.3)", () => {
   expect(scaleTitle("Für den Teig", 2, "de-DE")).toBe("Für den Teig");
   expect(scaleTitle("Zutaten für 6 Portionen:", 1, "de-DE")).toBe("Zutaten für 6 Portionen:");
 });
+
+test("English pans, inches read as centimetres", () => {
+  expect(parsePan("26 cm springform pan")).toEqual({ shape: "round", diameter: 26 });
+  expect(parsePan("round cake tin 22 cm")).toEqual({ shape: "round", diameter: 22 });
+  expect(parsePan("9-inch springform pan")).toEqual({ shape: "round", diameter: 9 * 2.54 });
+  expect(parsePan("a 10 inch round")).toEqual({ shape: "round", diameter: 10 * 2.54 });
+  expect(parsePan("9 x 13 inch baking dish")).toEqual({ shape: "rect", length: 9 * 2.54, width: 13 * 2.54 });
+  expect(parsePan("loaf pan 25 x 11 cm")).toEqual({ shape: "rect", length: 25, width: 11 });
+  expect(parsePan("a baking dish")).toBeNull();
+  expect(parsePan("Serves 4")).toBeNull();
+});

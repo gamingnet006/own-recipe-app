@@ -10,7 +10,7 @@ const setToken = vi.hoisted(() => vi.fn());
 vi.mock("~/composables/api/api-client", () => ({ useRequests: () => ({ get: getMock, post: postMock }) }));
 vi.mock("~/composables/use-auth-backend", () => ({ useAuthBackend: () => ({ setToken }) }));
 
-const status = (mustChangePassword: boolean, needsEmail: boolean) => ({ mustChangePassword, needsEmail, pendingEmail: null, tour: false, newsSeen: null });
+const status = (mustChangePassword: boolean, needsEmail: boolean) => ({ mustChangePassword, needsEmail, pendingEmail: null, tour: false, newsSeen: null, intolerancesAsked: true });
 
 beforeEach(() => {
   getMock.mockReset();

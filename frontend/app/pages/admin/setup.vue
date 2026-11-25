@@ -123,6 +123,7 @@
             </v-container>
 
             <KhSetupLanguage v-model:chosen="languageChosen" :rerun="rerun" /> <!-- KH: language first (wave 2) -->
+            <KhSetupAccent /> <!-- KH: then the installation's colour (wave 2) -->
 
             <v-stepper-actions
               class="justify-end"

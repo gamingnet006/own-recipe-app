@@ -31,7 +31,7 @@ vi.mock("~/composables/store/use-food-store", async () => {
 vi.mock("~/composables/store/use-label-store", () => ({ useLabelStore: () => ({ store: { value: [] } }) }));
 vi.mock("~/composables/store/use-unit-store", () => ({ useUnitStore: () => ({ store: { value: [] } }) }));
 vi.mock("~/composables/use-toast", () => ({ alert: toast }));
-vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key }) }));
+vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key, locale: { value: "de-DE" } }) }));
 vi.stubGlobal("useMealieAuth", () => ({ user: { value: { id: "u1", householdSlug: "home" } } }));
 
 const change = (itemId: string, changes: Record<string, unknown>): QueuedOp => ({ kind: "change", itemId, changes });

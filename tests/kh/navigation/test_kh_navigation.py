@@ -40,6 +40,7 @@ def test_default_hides_nothing(api_client: TestClient, unique_user: TestUser):
         "hidden": [],
         "simple": False,
         "locale": None,
+        "accent": None,
     }
 
 
@@ -49,9 +50,10 @@ def test_round_trip_without_duplicates_in_the_menus_order(api_client: TestClient
         "hidden": ["finder", "timeline"],
         "simple": False,
         "locale": None,
+        "accent": None,
     }
     assert hidden_of(api_client, unique_user) == ["finder", "timeline"]
-    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": False, "locale": None}
+    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": False, "locale": None, "accent": None}
 
 
 @pytest.mark.parametrize("key", ["recipes", "more", "nonsense", ""])
@@ -71,9 +73,10 @@ def test_simple_view_is_stored_and_kept_by_a_hidden_only_request(api_client: Tes
         "hidden": ["finder"],
         "simple": True,
         "locale": None,
+        "accent": None,
     }
     # an older client sends no "simple": the stored switch stays
-    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": True, "locale": None}
+    assert put(api_client, unique_user, []).json() == {"hidden": [], "simple": True, "locale": None, "accent": None}
     assert api_client.get(NAVIGATION, headers=unique_user.token).json()["simple"] is True
 
 

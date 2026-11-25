@@ -67,3 +67,29 @@ test("written fractions and mixed numbers (v1.1)", () => {
   expect(parseTimes("1 1/2 Stunden schmoren")[0]!.text).toBe("1 1/2 Stunden");
   expect(minutes("20 Minuten")).toEqual([20]);
 });
+
+describe("English durations", () => {
+  const seconds = (text: string) => parseTimes(text).map(time => [time.text, time.seconds, time.upperSeconds]);
+
+  test("phrases without a number", () => {
+    expect(seconds("Bake for half an hour.")).toEqual([["half an hour", 1800, null]]);
+    expect(seconds("Rest an hour and a half.")).toEqual([["an hour and a half", 5400, null]]);
+    expect(seconds("Chill a quarter of an hour.")).toEqual([["a quarter of an hour", 900, null]]);
+    expect(seconds("three quarters of an hour")).toEqual([["three quarters of an hour", 2700, null]]);
+  });
+
+  test("number words and a range with to", () => {
+    expect(seconds("Simmer for two hours")).toEqual([["two hours", 7200, null]]);
+    expect(seconds("Fry one minute per side")).toEqual([["one minute", 60, null]]);
+    expect(seconds("Boil 10 to 15 minutes")).toEqual([["10 to 15 minutes", 600, 900]]);
+    expect(seconds("Cook for an hour")).toEqual([["an hour", 3600, null]]);
+  });
+
+  test("hours and minutes with and are one timer", () => {
+    expect(seconds("1 hour and 20 minutes")).toEqual([["1 hour and 20 minutes", 4800, null]]);
+  });
+
+  test("a stray article is no duration", () => {
+    expect(seconds("Add a pinch of salt")).toEqual([]);
+  });
+});

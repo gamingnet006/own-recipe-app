@@ -1,14 +1,15 @@
 // KH: the side-menu entries a person hid (D58) and their simple view switch (D79) as one shared state, loaded once per
 // user like the add-on switches. The menus read khSidebar.hidden and .simple; nothing hidden and simple off until the
-// answer has arrived. The language the person chose (null: none yet) travels with them.
+// answer has arrived. The language and the colour the person chose (null: none yet) travel with them.
 import type { Composer } from "vue-i18n";
 import { KhNavigationApi } from "../lib/api/navigation";
+import { asKhAccent, type KhAccent } from "../lib/accent-colours";
 import { asKhLocale, type KhLocale } from "../lib/locale";
 import { useRequests } from "~/composables/api/api-client";
 import { useGlobalI18n } from "~/composables/use-global-i18n";
 import { alert } from "~/composables/use-toast";
 
-export const khSidebar = reactive({ hidden: [] as string[], simple: false, locale: null as KhLocale | null, userId: null as string | null });
+export const khSidebar = reactive({ hidden: [] as string[], simple: false, locale: null as KhLocale | null, accent: null as KhAccent | null, userId: null as string | null });
 
 // When the last load failed, and for whom: every navigation runs the route guard, and a down server should not be
 // asked on each of them.
@@ -24,6 +25,7 @@ export function resetKhSidebar(): void {
   khSidebar.hidden = [];
   khSidebar.simple = false;
   khSidebar.locale = null;
+  khSidebar.accent = null;
   khSidebar.userId = null;
   failedLoad = null;
 }
@@ -40,6 +42,7 @@ export async function loadKhSidebarFor(userId: string, i18n?: Composer): Promise
     khSidebar.hidden = data.hidden;
     khSidebar.simple = data.simple;
     khSidebar.locale = asKhLocale(data.locale);
+    khSidebar.accent = asKhAccent(data.accent);
     khSidebar.userId = userId;
   }
   else {
@@ -92,6 +95,21 @@ export function saveKhLocale(locale: KhLocale): Promise<void> {
     if (!data) {
       alert.error(useGlobalI18n().t("events.something-went-wrong"));
       khSidebar.locale = previous;
+    }
+  });
+  return saves;
+}
+
+/** Keeps the person's own colour on their account (null: follow the installation's); shown at once, a failure is
+ * reported and the old colour comes back. */
+export function saveKhAccent(accent: KhAccent | null): Promise<void> {
+  const previous = khSidebar.accent;
+  khSidebar.accent = accent;
+  saves = saves.then(async () => {
+    const { data } = await new KhNavigationApi(useRequests()).put(khSidebar.hidden, undefined, undefined, accent ?? "installation");
+    if (!data) {
+      alert.error(useGlobalI18n().t("events.something-went-wrong"));
+      khSidebar.accent = previous;
     }
   });
   return saves;

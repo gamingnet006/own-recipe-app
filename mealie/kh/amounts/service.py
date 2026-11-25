@@ -9,9 +9,10 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from mealie.kh.amounts.models import KhIngredientExtra, KhStepAmount
-from mealie.kh.amounts.parse import ensure_german_units, parse_ingredient
+from mealie.kh.amounts.parse import ensure_extra_units, parse_ingredient
 from mealie.kh.amounts.schemas import AmountsOut, DraftAmounts, DraftStepAmount, IngredientExtraOut, StepAmountOut
 from mealie.kh.amounts.steps import link_quantities, link_steps, recheck_link, yield_from_steps
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, installation_locale
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
@@ -34,10 +35,13 @@ def text_only(ingredient: RecipeIngredient) -> bool:
     return not ingredient.quantity and not ingredient.unit and not ingredient.food and bool(ingredient.note)
 
 
-def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut) -> ReadAmounts:
+def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut, locale: str | None = None) -> ReadAmounts:
     """Reads the recipe's text-only lines in place, with the group's units and foods, and links the steps' amounts
-    to the lines; adds the German units once first. A line without an amount stays as it was."""
-    ensure_german_units(repos)
+    to the lines; adds the extra units of the group's language once first. LOCALE says how numbers are written
+    ("1,000" is a thousand in English); without one the installation's language counts, else German. A line without
+    an amount stays as it was."""
+    ensure_extra_units(repos)
+    locale = locale or installation_locale(repos.session) or DEFAULT_LOCALE
     yield_from_steps(recipe)
     matcher = DataMatcher(repos)
     extras: list[IngredientExtraOut] = []
@@ -46,7 +50,7 @@ def read_amounts(repos: AllRepositories, recipe: RecipeDraft | RecipeOut) -> Rea
         if not text_only(ingredient):
             continue
         line = ingredient.note or ""
-        parsed = parse_ingredient(line, matcher.units_by_alias, matcher.foods_by_alias)
+        parsed = parse_ingredient(line, matcher.units_by_alias, matcher.foods_by_alias, locale)
         if parsed.upper is not None or parsed.fixed:
             extras.append(
                 IngredientExtraOut(reference_id=ingredient.reference_id, upper=parsed.upper, fixed=parsed.fixed)

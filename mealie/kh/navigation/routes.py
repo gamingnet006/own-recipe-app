@@ -26,7 +26,7 @@ class KhNavigationController(BaseUserController):
     @router.put("", response_model=NavigationSettings)
     def put_navigation(self, data: NavigationSettings) -> NavigationSettings:
         """Stores the given parts and returns the result (no duplicates, in the menu's order)."""
-        save_navigation(self.session, self.user.id, data.hidden, data.simple, data.locale)
+        save_navigation(self.session, self.user.id, data.hidden, data.simple, data.locale, data.accent)
         return load_navigation(self.session, self.user.id)
 
 

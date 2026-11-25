@@ -9,7 +9,7 @@ from pydantic import UUID4
 
 from mealie.core.root_logger import get_logger
 from mealie.db.models._model_utils.datetime import get_utc_now
-from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError, classify, pause_until
+from mealie.kh.ai.errors import AIUnavailableError, QuotaUsedUpError, classify, is_input_error, pause_until
 from mealie.kh.ai.state import ProviderState, in_order, load_states, save_state
 from mealie.kh.features.settings import KhSettings, get_kh_settings
 from mealie.kh.notices.service import NoticeKind, newest_of, notify
@@ -70,9 +70,11 @@ async def ask_ai[T: OpenAIBase](
     """Sends one request to the group's providers in order until one answers. If none does: when every provider asked
     rejected just this request (skip), the request failed, not the AI, so its error goes on as it is; otherwise raises
     QuotaUsedUpError when one has used up its quota, else AIUnavailableError. Without providers, as Mealie did,
-    OpenAINotEnabledException. The list is the retry: only the last provider asked keeps the openai package's own
-    retries, as Mealie's single provider had them. Commits the caller's session, so states and notices stay even if
-    the request fails. PROVIDERS are the group's, as Mealie's AI service loaded them."""
+    OpenAINotEnabledException. The list is the retry: no provider keeps the openai package's own
+    retries (a 300 s timeout would be paid three times). An error that says the request itself is the problem (too
+    long, refused as malformed) is raised at once: another provider would only be sent the same request. Commits the
+    caller's session, so states and notices stay even if the request fails. PROVIDERS are the group's, as Mealie's AI
+    service loaded them."""
     repos = service.repos
     if repos.scoped_group_id is None:  # Mealie's repositories without a group see every group's providers and keys
         raise ValueError("The AI priority list needs the repositories of one group")
@@ -87,9 +89,7 @@ async def ask_ai[T: OpenAIBase](
     for index, provider in enumerate(queue):
         later = queue[index + 1 :]
         try:
-            answer = await service._get_raw_response(
-                prompt, content, response_schema, provider, max_retries=0 if later else None
-            )
+            answer = await service._get_raw_response(prompt, content, response_schema, provider, max_retries=0)
         except Exception as error:
             last_error = error
             if classify(error, settings).kind == "skip":
@@ -98,6 +98,8 @@ async def ask_ai[T: OpenAIBase](
                 outage = True
             next_name = later[0].name if later else None
             states[provider.id] = record_failure(repos, provider, states[provider.id], error, next_name, settings)
+            if is_input_error(error):
+                raise
             continue
         record_answer(repos, provider, states[provider.id])
         if newest_of(repos.session, _group_id(repos), OUTAGE_MARKS) == "ai_none":

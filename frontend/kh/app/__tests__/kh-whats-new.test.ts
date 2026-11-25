@@ -68,8 +68,16 @@ test("every card has a title and a text in both languages", () => {
 });
 
 describe("startDialog", () => {
-  const status = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: false, newsSeen: null };
-  const facts = { status, signedIn: true, hasNews: true, addressChanged: true, askDevice: true };
+  const status = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: false, newsSeen: null, intolerancesAsked: true };
+  const facts = { status, signedIn: true, hasNews: true, addressChanged: true, askDevice: true, allergensOn: true };
+
+  test("tour first, then the intolerance question (once, only with the allergen add-on), then news", () => {
+    const open = { ...status, tour: true, intolerancesAsked: false };
+    expect(startDialog({ ...facts, status: open })).toBe("tour");
+    expect(startDialog({ ...facts, status: { ...open, tour: false } })).toBe("intolerances");
+    expect(startDialog({ ...facts, status: { ...open, tour: false }, allergensOn: false })).toBe("news");
+    expect(startDialog(facts)).toBe("news");
+  });
 
   test("tour first, then news, then the device question", () => {
     expect(startDialog({ ...facts, status: { ...status, tour: true } })).toBe("tour");

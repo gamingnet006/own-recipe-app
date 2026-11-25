@@ -6,10 +6,35 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Fewer AI requests: a link page without recipe data is read by the AI once (not twice, and never as an empty stub),
+  a long recognition no longer counts as interrupted and cannot be retried while it runs, tag suggestions survive
+  an unusable answer or a used-up quota and remember in your browser which recipes were asked ("Ask again" clears
+  the list), a too-long or malformed request is not sent on to the next provider, and no provider retries on its own.
+
+- English food knowledge: nutrition aliases and piece/density weights know English food names and units (tbsp, tsp,
+  cup, oz, lb, clove, ...), the season calendar has English names, and amount reading understands "about", "to" and
+  "some" next to the German words.
+
+- Settings: one page (More → Settings, also from your name and the Settings entry of the side menu) with the parts
+  Me, On this device, Family & administration and Advanced. Language, design and the simple view moved there from More;
+  Mealie's profile hub is only linked for admins. Four texts of Mealie's profile hub that were English or named Mealie
+  are now Kochheft's own, in German and English.
+- Account types: Family (default, incl. collections, categories, tags), Administration and Admin replace the tick
+  list when an admin creates or edits a person and in the setup assistant's family step; single ticks stay under
+  "Set individually", other mixes show "Custom selection". People who join through an invite link are Family accounts
+  (they can organize categories and tags). In the simple view, Settings is shown directly under More.
+- "Is there anything you cannot eat?" is asked once per account (with the add-on Allergens) after the tour and before
+  the news; the setup assistant can fill it in for each new person.
+- Colour: ten accent colours (Sage, Forest green, Teal, Blue, Indigo, Purple, Berry, Tomato red, Terracotta, Mustard), each
+  readable in light and dark. The first setup picks the installation's colour (also used on the sign-in page); every
+  person can choose their own under Settings → Colour, kept on their account for all devices. The logo follows the
+  colour; the home-screen icon keeps the installation's, and so does the manifest's theme colour.
 - Tags: 24 starter tags (German or English, by the installation's language) are made once per family; own and deleted
   tags are respected. Adding a recipe suggests tags from the existing ones (rules without AI: quick, vegetarian,
   vegan, with meat, with fish), shown as removable chips in the review. New button "Suggest tags" on the tags page
-  proposes tags for recipes without any; only what is ticked is saved.
+  proposes tags for recipes without any (rules, and on request the AI, 10 recipes at a time); only what is ticked is
+  saved. The allergen rules and substitution hints now know English ingredient words too (so English recipes are not
+  called vegan with eggs or fish).
 - Everything the server says (Siri and share-shortcut answers, push messages, "switched off" refusals, the first shopping
   list's name) comes in the person's language: account choice, then browser language, then the installation's, then German.
   Siri in English: "Milk and butter are on your Aldi list." The ready-made shortcut links are per language

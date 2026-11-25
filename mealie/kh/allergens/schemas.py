@@ -6,24 +6,43 @@ from pydantic import UUID4, StringConstraints, field_validator
 
 from mealie.schema._mealie import MealieModel
 
-# The 14 EU allergens in the order the app lists them, with the German names of the spec (used in variant names).
-ALLERGEN_NAMES_DE = {
-    "gluten": "Gluten",
-    "crustaceans": "Krebstiere",
-    "eggs": "Ei",
-    "fish": "Fisch",
-    "peanuts": "Erdnüsse",
-    "soy": "Soja",
-    "milk": "Milch",
-    "nuts": "Schalenfrüchte",
-    "celery": "Sellerie",
-    "mustard": "Senf",
-    "sesame": "Sesam",
-    "sulphites": "Sulfite",
-    "lupin": "Lupinen",
-    "molluscs": "Weichtiere",
+# The 14 EU allergens in the order the app lists them, with their names per language (used in variant names). A test
+# keeps them equal to the names the frontend shows (frontend/kh/lang, kh.allergens.names).
+ALLERGEN_NAMES: dict[str, dict[str, str]] = {
+    "de-DE": {
+        "gluten": "Gluten",
+        "crustaceans": "Krebstiere",
+        "eggs": "Ei",
+        "fish": "Fisch",
+        "peanuts": "Erdnüsse",
+        "soy": "Soja",
+        "milk": "Milch",
+        "nuts": "Schalenfrüchte",
+        "celery": "Sellerie",
+        "mustard": "Senf",
+        "sesame": "Sesam",
+        "sulphites": "Sulfite",
+        "lupin": "Lupinen",
+        "molluscs": "Weichtiere",
+    },
+    "en-US": {
+        "gluten": "Gluten",
+        "crustaceans": "Crustaceans",
+        "eggs": "Eggs",
+        "fish": "Fish",
+        "peanuts": "Peanuts",
+        "soy": "Soy",
+        "milk": "Milk",
+        "nuts": "Tree nuts",
+        "celery": "Celery",
+        "mustard": "Mustard",
+        "sesame": "Sesame",
+        "sulphites": "Sulphites",
+        "lupin": "Lupin",
+        "molluscs": "Molluscs",
+    },
 }
-ALLERGENS = tuple(ALLERGEN_NAMES_DE)
+ALLERGENS = tuple(ALLERGEN_NAMES["de-DE"])
 
 
 def allergen_key(value: str) -> str:

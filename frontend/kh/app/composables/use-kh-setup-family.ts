@@ -1,7 +1,8 @@
 // KH: the setup wizard's "Familie" step (D83) as one shared state, so the summary can name the people: the rows being
 // typed, the people created so far (with the temporary password, kept only until the wizard is left), and the creation
-// itself with Mealie's admin API, the tour (D59) and the simple view (D79).
+// itself with Mealie's admin API, the account kind, the tour (D59), the simple view (D79) and what the person does not tolerate.
 import { emptyRow, generatePassword, isBlankRow, rowProblems, type FamilyRow, type RowProblem } from "../lib/setup-wizard";
+import { flagsOfKind } from "../lib/account-kind";
 import { KhNavigationApi } from "../lib/api/navigation";
 import { KhOnboardingApi } from "../lib/api/onboarding";
 import { OWN_ERRORS } from "../lib/api/own-errors";
@@ -24,10 +25,10 @@ export const khFamily = reactive({
   failures: {} as Record<number, "taken" | "failed">,
 });
 
-/** A person who exists, but whose tour (D59) or simple view (D79) could not be set. */
+/** A person who exists, but whose tour (D59), simple view (D79) or intolerances could not be set. */
 export interface FollowUpFailure {
   name: string;
-  failed: "tour" | "simple";
+  failed: "tour" | "simple" | "intolerances";
 }
 
 /** How many filled rows are waiting to be created. */
@@ -84,14 +85,20 @@ export function useKhSetupFamily() {
       group: user.group,
       household: user.household,
       authMethod: "Mealie",
+      ...flagsOfKind(row.kind),
     } as UserIn, OWN_ERRORS);
     if (response?.status !== 201 || !data) {
       return (error as { response?: { status?: number } } | null)?.response?.status === 409 ? "taken" : "failed";
     }
     const tour = row.tour ? await new KhOnboardingApi(useRequests()).setTour(data.id, true) : null;
     const simple = row.simple ? await new KhNavigationApi(useRequests()).putSimple(data.id, true) : null;
+    const intolerances = row.intolerances.length ? await new KhOnboardingApi(useRequests()).setIntolerances(data.id, row.intolerances) : null;
     khFamily.created.push({ name: row.name.trim(), username: row.username.trim(), password });
-    return [...(tour?.error ? ["tour" as const] : []), ...(simple?.error ? ["simple" as const] : [])];
+    return [
+      ...(tour?.error ? ["tour" as const] : []),
+      ...(simple?.error ? ["simple" as const] : []),
+      ...(intolerances?.error ? ["intolerances" as const] : []),
+    ];
   }
 
   /** Creates every filled row one after the other. Created rows leave the list, failed ones stay with their reason.

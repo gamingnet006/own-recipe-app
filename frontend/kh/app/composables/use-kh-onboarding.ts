@@ -66,6 +66,14 @@ export function useKhOnboarding(i18n?: Composer) {
     if (error) alert.error(failureText(error, fallback));
   }
 
+  /** The question "Verträgst du etwas nicht?" was answered or skipped: tells the server and takes it out of the cached
+   * status, so the start page does not ask again. A failed request is reported. */
+  async function finishIntolerances(fallback: string): Promise<void> {
+    if (khOnboarding.status) khOnboarding.status = { ...khOnboarding.status, intolerancesAsked: true };
+    const { error } = await api().intolerancesAsked();
+    if (error) alert.error(failureText(error, fallback));
+  }
+
   /** The admin who just finished the first setup is new to Kochheft too: the tour at the start page instead of news
    * about versions they never knew (D83). Failures are reported; the status is read again either way. */
   async function introduceFirstAdmin(userId: string, newsVersion: string, fallback: string): Promise<void> {
@@ -77,5 +85,5 @@ export function useKhOnboarding(i18n?: Composer) {
     await refresh();
   }
 
-  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour, finishNews, introduceFirstAdmin };
+  return { refresh, loadFor, reset, setPassword, requestEmail, finishTour, finishNews, finishIntolerances, introduceFirstAdmin };
 }

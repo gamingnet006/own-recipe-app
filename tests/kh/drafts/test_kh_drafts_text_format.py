@@ -114,3 +114,49 @@ def test_servings_with_a_yield_word():
     recipe = parse_kochheft_text(EXPORT.replace("Portionen: 4", "Portionen: 13 Muffins"))
     assert recipe
     assert (recipe.recipe_servings, recipe.recipe_yield_quantity, recipe.recipe_yield) == (13, 13, "Muffins")
+
+
+EXPORT_EN = """Test cake
+Servings: 12 Muffins · Prep time: 15 min · Cook time: 30 min · Total time: 45 min
+
+Ingredients:
+For the dough
+- 200 g flour
+- 3 eggs
+
+Instructions:
+1. Heat the oven.
+Bake
+2. Bake for 30 minutes.
+
+Notes:
+Good cold, too.
+
+Our note: Less sugar
+
+Source: https://example.org/cake
+
+Exported from Cookbook
+"""
+
+
+def test_the_english_export_is_read_like_the_german_one():
+    recipe = parse_kochheft_text(EXPORT_EN)
+    assert recipe
+    assert (recipe.name, recipe.recipe_servings, recipe.recipe_yield) == ("Test cake", 12, "Muffins")
+    assert (recipe.prep_time, recipe.perform_time, recipe.total_time) == ("15 min", "30 min", "45 min")
+    assert [(line.title, line.note) for line in recipe.recipe_ingredient] == [
+        ("For the dough", "200 g flour"),
+        (None, "3 eggs"),
+    ]
+    assert [(step.title, step.text) for step in recipe.recipe_instructions] == [
+        ("", "Heat the oven."),
+        ("Bake", "Bake for 30 minutes."),
+    ]
+    assert [note.text for note in recipe.notes] == ["Good cold, too.\n\nLess sugar"]
+    assert recipe.org_url == "https://example.org/cake"
+
+
+def test_labels_of_one_language_do_not_read_in_the_other():
+    assert parse_kochheft_text(EXPORT_EN.replace("Ingredients:", "Zutaten:")) is None
+    assert parse_kochheft_text(EXPORT.replace("Zutaten:", "Ingredients:")) is None

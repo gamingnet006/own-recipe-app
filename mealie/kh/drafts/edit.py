@@ -9,6 +9,7 @@ from mealie.kh.amounts.parse import parse_ingredient
 from mealie.kh.amounts.schemas import DraftAmounts, DraftStepAmount, IngredientExtraOut
 from mealie.kh.amounts.service import amount_key
 from mealie.kh.amounts.steps import recheck_link
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.services.parser_services._base import DataMatcher
 
@@ -36,12 +37,14 @@ def edit_name(recipe: dict[str, Any], name: str) -> None:
     recipe["name"] = name
 
 
-def edit_ingredient(recipe: dict[str, Any], index: int, text: str, matcher: DataMatcher) -> None:
+def edit_ingredient(
+    recipe: dict[str, Any], index: int, text: str, matcher: DataMatcher, locale: str = DEFAULT_LOCALE
+) -> None:
     """Reads TEXT the way the recognition reads a line and replaces the line at INDEX, keeping its reference ID and
     title; a text without an amount stays whole as the note. Its range end or fixed
     mark is replaced too, and its step links go when its amount changed."""
     line = _line(recipe, "recipeIngredient", index)
-    parsed = parse_ingredient(text, matcher.units_by_alias, matcher.foods_by_alias)
+    parsed = parse_ingredient(text, matcher.units_by_alias, matcher.foods_by_alias, locale)
     if parsed.quantity is None:
         changes: dict[str, Any] = {"quantity": None, "unit": None, "food": None, "note": text}
     else:

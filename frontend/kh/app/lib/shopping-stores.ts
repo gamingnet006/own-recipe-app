@@ -1,4 +1,5 @@
 // KH: the stores of the shopping page's picker (D60) and the walking order of departments in each kind of store.
+import { canonicalDepartment } from "./departments";
 
 export type StoreKind = "supermarket" | "discounter" | "drugstore" | "market";
 
@@ -19,7 +20,7 @@ export const STORE_PRESETS: StorePreset[] = [
 
 export const STORE_KINDS: StoreKind[] = ["supermarket", "discounter", "drugstore", "market"];
 
-// The departments (names of the seed labels) of each kind in walking order; what is not listed keeps its order at the end.
+// The departments (names of the German seed labels; the English seed's names count the same) of each kind in walking order; what is not listed keeps its order at the end.
 const ORDER: Record<StoreKind, string[]> = {
   supermarket: [
     "Obst & Gemüse", "Backwaren", "Fleisch", "Fleischprodukte", "Meeresfrüchte", "Milchprodukte",
@@ -38,7 +39,7 @@ const ORDER: Record<StoreKind, string[]> = {
 /** The ids of LABELS in the walking order of a kind of store; labels the order does not know follow in their own order. */
 export function labelOrderFor(kind: StoreKind, labels: { id: string; name: string }[]): string[] {
   const rank = (name: string) => {
-    const index = ORDER[kind].findIndex(entry => entry.toLowerCase() === name.toLowerCase());
+    const index = ORDER[kind].findIndex(entry => canonicalDepartment(entry) === canonicalDepartment(name));
     return index < 0 ? ORDER[kind].length : index;
   };
   return [...labels].sort((a, b) => rank(a.name) - rank(b.name)).map(label => label.id);

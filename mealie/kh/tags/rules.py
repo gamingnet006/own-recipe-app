@@ -11,12 +11,28 @@ QUICK_MAX_SECONDS = 30 * 60  # the starter tag "schnell (bis 30 Min.)"
 # word with a leading "="). Plain "fleisch" is a substring, so Hackfleisch and Fleischbrühe count.
 MEAT_WORDS = tuple(
     (
-        "fleisch =hack huhn hühn hähnchen haehnchen puten =pute =truthahn =ente =gans rinder =rind schwein "
-        "=kalb kalbs lamm =wild =hase schinken speck wurst würstchen salami bratwurst =bacon chorizo =leber "
-        "gelatine schmalz =chicken =beef =pork =ham =sausage =lamb =turkey "
+        "fleisch =hack huhn hühn hähnchen haehnchen puten =pute =truthahn =ente enten =gans gänse rinder rindsfilet "
+        "schwein =kalb kalbs lamm =wild =hase =reh rehrücken rehkeule rehfilet hirsch schinken speck wurst "
+        "würstchen salami bratwurst chorizo =leber leberkäse schmalz =steak =steaks =gulasch =mett "
+        "kassler kasseler =gyros roastbeef pancetta prosciutto mortadella pastrami "
+        "meat =mince beef pork chicken turkey =duck =goose =lamb mutton =veal venison bacon =ham hamburger sausage "
+        "pepperoni brisket sirloin tenderloin meatball =liver gelatin =lard tallow =suet rabbit =quail =oxtail =tripe"
     ).split()
 )
-NOT_MEAT = ("fleischtomate", "fleischkraut", "hühnerei")  # cut out before matching: a tomato, a herb and an egg
+# cut out before matching: a tomato, a herb, an egg, fruit and vegetable "flesh", a spice mix, crab meat (that is fish)
+NOT_MEAT = (
+    "fleischtomate", "fleischkraut", "hühnerei", "fruchtfleisch", "kürbisfleisch", "kokosfleisch", "weizenteig",
+    "steakgewürz", "steak-gewürz", "gulaschgewürz", "beefsteak tomato", "beef tomato", "beefsteak", "lamb's lettuce",
+    "lamb’s lettuce", "lambs lettuce", "coconut meat", "fruit meat", "nut meat", "walnut meat", "crab meat",
+    "crabmeat", "lobster meat", "hirschhornsalz", "wild rice", "wildreis", "wild garlic", "wilder reis",
+    "wildkräuter", "wild herbs", "wild salmon", "wildlachs", "wild berries", "wildbeeren", "wild mushroom",
+    "wildpilze", "steak seasoning", "steak spice", "cauliflower steak", "tofu steak",
+)  # fmt: skip
+# a line with one of these is a plant-based product, not meat: "veganes Hack", "Sojahack", "Fleischersatz"
+NOT_MEAT_CANCEL = (
+    "vegan", "vegetarisch", "veggie", "soja", "ersatz", "pflanzlich", "plant-based", "plant based", "meatless",
+    "meat-free", "meat free", "meat substitute", "meat alternative", "tofu", "seitan", "tempeh", "vegetarian",
+)  # fmt: skip
 # Animal products besides meat, fish, milk and eggs (those the allergen rules know) that make a dish not vegan
 ANIMAL_WORDS = ("honig", "=honey")
 ANIMAL_ALLERGENS = {"milk", "eggs", "fish", "crustaceans", "molluscs"}
@@ -24,7 +40,10 @@ FISH_ALLERGENS = {"fish", "crustaceans", "molluscs"}
 
 
 def _is_meat(text: str) -> bool:
+    """Whether an ingredient text names meat, unless it is plant-based or one of the look-alike words."""
     cleaned = text.lower()
+    if any(word in cleaned for word in NOT_MEAT_CANCEL):
+        return False
     for word in NOT_MEAT:
         cleaned = cleaned.replace(word, " ")
     return any(text_has(cleaned, word) for word in MEAT_WORDS)

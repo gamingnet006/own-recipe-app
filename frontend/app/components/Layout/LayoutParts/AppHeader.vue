@@ -16,11 +16,7 @@
         color="primary"
       >
         <!-- KH: Kochheft's logo replaces Mealie's icon when no custom logo is set (D49) -->
-        <v-img
-          :src="$appInfo.brandingLogoUrl || '/icons/kochheft-logo.svg'"
-          width="40"
-          height="40"
-        />
+        <KhLogo :size="40" /> <!-- KH: drawn in the accent colour (wave 2) -->
       </v-btn>
     </RouterLink>
 

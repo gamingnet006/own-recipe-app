@@ -1,5 +1,6 @@
 // KH: the tiles of the shopping page (D60): which emoji a food gets, the everyday items Mealie's recipe foods lack, and
 // the catalog of tiles grouped by department in the order of the list.
+import { canonicalDepartment, OTHER_KEY, otherDepartment } from "./departments";
 import { itemTitle, type ShopUnit } from "./shopping-items";
 
 export interface TileFood {
@@ -17,6 +18,8 @@ export interface TileLabel {
 
 export interface Basic {
   name: string;
+  /** The English name, shown in the English interface */
+  en: string;
   department: string;
   emoji: string;
 }
@@ -40,9 +43,6 @@ export interface Department {
 /** Whether the household (by slug) always has the food in the house. */
 export const isOnHand = (food: Pick<TileFood, "householdsWithIngredientFood"> | undefined, householdSlug: string): boolean =>
   !!householdSlug && !!food?.householdsWithIngredientFood?.includes(householdSlug);
-
-/** The department that takes every item without a label, as in Mealie's seed. */
-export const OTHER_DEPARTMENT = "Sonstiges";
 
 // Emoji by food name (German here, English below), lower case; plural forms are found by tileEmoji's suffix rules, only umlaut plurals are listed.
 const GERMAN_EMOJI: Record<string, string> = {
@@ -112,7 +112,8 @@ const ENGLISH_EMOJI: Record<string, string> = {
 
 const NAME_EMOJI = { ...GERMAN_EMOJI, ...ENGLISH_EMOJI };
 
-// The emoji of a department, for a food that has none of its own; keyed by the names of Mealie's German seed labels.
+// The emoji of a department, for a food that has none of its own; keyed by the names of Mealie's German seed labels
+// (the English seed's names are mapped to them by canonicalDepartment).
 const DEPARTMENT_EMOJI: Record<string, string> = {
   "obst & gemüse": "🥬", "getreide": "🌾", "fleisch": "🥩", "fleischprodukte": "🥓", "meeresfrüchte": "🐟",
   "milchprodukte": "🥛", "backwaren": "🥖", "konserven": "🥫", "tiefkühlware": "🧊", "würzmittel & saucen": "🍶",
@@ -143,48 +144,48 @@ export function tileEmoji(name: string, departmentName = ""): string {
     const emoji = wordEmoji(candidate ?? "");
     if (emoji) return emoji;
   }
-  return DEPARTMENT_EMOJI[departmentName.trim().toLowerCase()] ?? "";
+  return DEPARTMENT_EMOJI[canonicalDepartment(departmentName)] ?? "";
 }
 
 /** Everyday items Mealie's recipe foods lack; the department names are those of the seed labels. */
 export const BASICS: Basic[] = [
-  { name: "Brötchen", department: "Backwaren", emoji: "🥖" },
-  { name: "Toast", department: "Backwaren", emoji: "🍞" },
-  { name: "Croissants", department: "Backwaren", emoji: "🥐" },
-  { name: "Brot", department: "Backwaren", emoji: "🍞" },
-  { name: "Joghurt", department: "Milchprodukte", emoji: "🥣" },
-  { name: "Quark", department: "Milchprodukte", emoji: "🥣" },
-  { name: "Aufschnitt", department: "Fleischprodukte", emoji: "🥓" },
-  { name: "Wasser", department: "Getränke", emoji: "💧" },
-  { name: "Mineralwasser", department: "Getränke", emoji: "💧" },
-  { name: "Saft", department: "Getränke", emoji: "🧃" },
-  { name: "Cola", department: "Getränke", emoji: "🥤" },
-  { name: "Chips", department: "Snacks", emoji: "🥔" },
-  { name: "Kekse", department: "Süßigkeiten", emoji: "🍪" },
-  { name: "Eis", department: "Tiefkühlware", emoji: "🍦" },
-  { name: "Tiefkühlpizza", department: "Tiefkühlware", emoji: "🍕" },
-  { name: "Pommes", department: "Tiefkühlware", emoji: "🍟" },
-  { name: "Fischstäbchen", department: "Tiefkühlware", emoji: "🐟" },
-  { name: "Toilettenpapier", department: "Haushalt", emoji: "🧻" },
-  { name: "Küchenrolle", department: "Haushalt", emoji: "🧻" },
-  { name: "Taschentücher", department: "Haushalt", emoji: "🤧" },
-  { name: "Spülmittel", department: "Haushalt", emoji: "🧴" },
-  { name: "Spülmaschinentabs", department: "Haushalt", emoji: "🧼" },
-  { name: "Waschmittel", department: "Haushalt", emoji: "🧺" },
-  { name: "Müllbeutel", department: "Haushalt", emoji: "🗑️" },
-  { name: "Zahnpasta", department: "Haushalt", emoji: "🪥" },
-  { name: "Duschgel", department: "Haushalt", emoji: "🧴" },
-  { name: "Shampoo", department: "Haushalt", emoji: "🧴" },
-  { name: "Batterien", department: "Haushalt", emoji: "🔋" },
-  { name: "Alufolie", department: "Haushalt", emoji: "📦" },
-  { name: "Frischhaltefolie", department: "Haushalt", emoji: "📦" },
-  { name: "Katzenfutter", department: "Haushalt", emoji: "🐱" },
-  { name: "Hundefutter", department: "Haushalt", emoji: "🐶" },
+  { name: "Brötchen", en: "Bread rolls", department: "Backwaren", emoji: "🥖" },
+  { name: "Toast", en: "Toast", department: "Backwaren", emoji: "🍞" },
+  { name: "Croissants", en: "Croissants", department: "Backwaren", emoji: "🥐" },
+  { name: "Brot", en: "Bread", department: "Backwaren", emoji: "🍞" },
+  { name: "Joghurt", en: "Yogurt", department: "Milchprodukte", emoji: "🥣" },
+  { name: "Quark", en: "Quark", department: "Milchprodukte", emoji: "🥣" },
+  { name: "Aufschnitt", en: "Cold cuts", department: "Fleischprodukte", emoji: "🥓" },
+  { name: "Wasser", en: "Water", department: "Getränke", emoji: "💧" },
+  { name: "Mineralwasser", en: "Mineral water", department: "Getränke", emoji: "💧" },
+  { name: "Saft", en: "Juice", department: "Getränke", emoji: "🧃" },
+  { name: "Cola", en: "Cola", department: "Getränke", emoji: "🥤" },
+  { name: "Chips", en: "Chips", department: "Snacks", emoji: "🥔" },
+  { name: "Kekse", en: "Cookies", department: "Süßigkeiten", emoji: "🍪" },
+  { name: "Eis", en: "Ice cream", department: "Tiefkühlware", emoji: "🍦" },
+  { name: "Tiefkühlpizza", en: "Frozen pizza", department: "Tiefkühlware", emoji: "🍕" },
+  { name: "Pommes", en: "Fries", department: "Tiefkühlware", emoji: "🍟" },
+  { name: "Fischstäbchen", en: "Fish fingers", department: "Tiefkühlware", emoji: "🐟" },
+  { name: "Toilettenpapier", en: "Toilet paper", department: "Haushalt", emoji: "🧻" },
+  { name: "Küchenrolle", en: "Paper towels", department: "Haushalt", emoji: "🧻" },
+  { name: "Taschentücher", en: "Tissues", department: "Haushalt", emoji: "🤧" },
+  { name: "Spülmittel", en: "Dish soap", department: "Haushalt", emoji: "🧴" },
+  { name: "Spülmaschinentabs", en: "Dishwasher tabs", department: "Haushalt", emoji: "🧼" },
+  { name: "Waschmittel", en: "Laundry detergent", department: "Haushalt", emoji: "🧺" },
+  { name: "Müllbeutel", en: "Trash bags", department: "Haushalt", emoji: "🗑️" },
+  { name: "Zahnpasta", en: "Toothpaste", department: "Haushalt", emoji: "🪥" },
+  { name: "Duschgel", en: "Shower gel", department: "Haushalt", emoji: "🧴" },
+  { name: "Shampoo", en: "Shampoo", department: "Haushalt", emoji: "🧴" },
+  { name: "Batterien", en: "Batteries", department: "Haushalt", emoji: "🔋" },
+  { name: "Alufolie", en: "Aluminum foil", department: "Haushalt", emoji: "📦" },
+  { name: "Frischhaltefolie", en: "Plastic wrap", department: "Haushalt", emoji: "📦" },
+  { name: "Katzenfutter", en: "Cat food", department: "Haushalt", emoji: "🐱" },
+  { name: "Hundefutter", en: "Dog food", department: "Haushalt", emoji: "🐶" },
 ];
 
 /**
  * The tiles by department: departments in the list's order (LABEL_ORDER holds label ids; labels without a position
- * follow, items without a label go to "Sonstiges"), foods and basics merged without duplicates (by name, ignoring
+ * follow, items without a label go to "Sonstiges" / "Other"), foods and basics merged without duplicates (by name, ignoring
  * case; a food wins over a basic), tiles by name, the ones always in the house (for HOUSEHOLD-SLUG) after the others.
  * Departments without a tile are left out.
  */
@@ -194,13 +195,14 @@ export function catalog(
   basics: Basic[],
   labelOrder: string[],
   householdSlug = "",
+  locale = "de-DE",
 ): Department[] {
   const position = (id: string) => (labelOrder.includes(id) ? labelOrder.indexOf(id) : labelOrder.length);
   const ordered = [...labels].sort((a, b) => position(a.id) - position(b.id)); // stable: the rest keeps its order
-  const other = labels.find(label => label.name.toLowerCase() === OTHER_DEPARTMENT.toLowerCase());
+  const other = labels.find(label => canonicalDepartment(label.name) === OTHER_KEY);
   const known = new Set(labels.map(label => label.id));
   const byId = new Map<string | null, Department>(ordered.map(label => [label.id, { labelId: label.id, name: label.name, tiles: [] }]));
-  if (!other) byId.set(null, { labelId: null, name: OTHER_DEPARTMENT, tiles: [] });
+  if (!other) byId.set(null, { labelId: null, name: otherDepartment(locale), tiles: [] });
   const target = (labelId: string | null) => byId.get(labelId && known.has(labelId) ? labelId : (other?.id ?? null))!;
 
   const seen = new Set<string>();
@@ -215,11 +217,11 @@ export function catalog(
     add({ name: food.name, emoji: tileEmoji(food.name, label?.name), foodId: food.id, labelId: food.labelId, onHand: isOnHand(food, householdSlug) });
   }
   for (const basic of basics) {
-    const label = labels.find(candidate => candidate.name.toLowerCase() === basic.department.toLowerCase());
-    add({ name: basic.name, emoji: basic.emoji, labelId: label?.id ?? null });
+    const label = labels.find(candidate => canonicalDepartment(candidate.name) === canonicalDepartment(basic.department));
+    add({ name: locale.startsWith("en") ? basic.en : basic.name, emoji: basic.emoji, labelId: label?.id ?? null });
   }
   const departments = [...byId.values()].filter(department => department.tiles.length);
-  departments.forEach(department => department.tiles.sort((a, b) => Number(!!a.onHand) - Number(!!b.onHand) || a.name.localeCompare(b.name, "de")));
+  departments.forEach(department => department.tiles.sort((a, b) => Number(!!a.onHand) - Number(!!b.onHand) || a.name.localeCompare(b.name, locale)));
   return departments;
 }
 

@@ -70,7 +70,7 @@ def test_other_household_reads_but_cannot_write(api_client: TestClient, unique_u
     assert api_client.get(print_url(cookbook), headers=h2_user.token).status_code == 200
     denied = api_client.put(print_url(cookbook), json={"title": "Fremd"}, headers=h2_user.token)
     assert denied.status_code == 403
-    assert denied.json()["detail"] == "Nur der eigene Haushalt kann dieses Kochbuch ändern"
+    assert denied.json()["detail"] == "Nur der eigene Haushalt kann diese Sammlung ändern"
     assert api_client.get(print_url(cookbook), headers=unique_user.token).json()["title"] is None
 
 

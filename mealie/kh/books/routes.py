@@ -1,11 +1,12 @@
 """KH: the family cookbook's routes under /api/kh (D43): print settings per cookbook, and the own-photo flag per
 recipe."""
 
-from fastapi import HTTPException, Query, status
+from fastapi import HTTPException, Query, Request, status
 from pydantic import UUID4
 
 from mealie.kh.books.schemas import BookSettings, RecipeFlags
 from mealie.kh.books.service import load_settings, own_photo_slugs, save_settings, set_own_photo
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.repos.all_repositories import get_repositories
 from mealie.routes._base import BaseUserController, controller
 from mealie.routes._base.routers import UserAPIRouter
@@ -44,10 +45,13 @@ class KhBooksController(BaseUserController):
         return load_settings(self.session, self.group_id, cookbook_id)
 
     @router.put("/cookbooks/{cookbook_id}/print", response_model=BookSettings)
-    def put_print(self, cookbook_id: UUID4, data: BookSettings) -> BookSettings:
+    def put_print(self, cookbook_id: UUID4, data: BookSettings, request: Request) -> BookSettings:
         """Stores the settings, only for the cookbook's own household, and returns them as stored."""
         if self._cookbook(cookbook_id).household_id != self.household_id:
-            raise HTTPException(status.HTTP_403_FORBIDDEN, "Nur der eigene Haushalt kann dieses Kochbuch ändern")
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN,
+                say("collection_own_household", request_locale(self.session, self.user.id, request)),
+            )
         return save_settings(self.session, self.group_id, cookbook_id, data)
 
     @router.get("/recipes/flags", response_model=dict[str, RecipeFlags])
@@ -57,10 +61,12 @@ class KhBooksController(BaseUserController):
         return {slug: RecipeFlags(own_photo=own) for slug, own in found.items()}
 
     @router.put("/recipes/{slug}/flags", response_model=RecipeFlags)
-    def put_flags(self, slug: str, data: RecipeFlags) -> RecipeFlags:
+    def put_flags(self, slug: str, data: RecipeFlags, request: Request) -> RecipeFlags:
         """Sets a recipe's flags, for whoever may edit the recipe."""
         recipe = self._recipe(slug)
         if not RecipeService(self.repos, self.user, self.household, self.translator).can_update([slug]):
-            raise HTTPException(status.HTTP_403_FORBIDDEN, "Dieses Rezept darfst du nicht ändern")
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, say("recipe_not_yours", request_locale(self.session, self.user.id, request))
+            )
         set_own_photo(self.session, recipe.id, data.own_photo)
         return data

@@ -144,6 +144,23 @@
       "dark": "Dunkel",
       "hint": "System folgt der Einstellung dieses Geräts. Die Wahl gilt nur für dieses Gerät."
     },
+    "accent": {
+      "title": "Farbe",
+      "salbei": "Salbei",
+      "waldgruen": "Waldgrün",
+      "petrol": "Petrol",
+      "blau": "Blau",
+      "indigo": "Indigo",
+      "lila": "Lila",
+      "beere": "Beere",
+      "tomatenrot": "Tomatenrot",
+      "terrakotta": "Terrakotta",
+      "senf": "Senf",
+      "installation": "Wie die Installation",
+      "hint": "Die Wahl gilt auf allen deinen Geräten. Das App-Symbol auf dem Home-Bildschirm behält die Farbe der Installation.",
+      "setup": "Welche Farbe soll Kochheft haben?",
+      "setup-hint": "Sie gilt für alle, die keine eigene Farbe wählen, und für die Anmeldeseite. Das App-Symbol auf dem Home-Bildschirm bekommt sie beim Hinzufügen."
+    },
     "nav": {
       "customize": "Anpassen",
       "intake": "Eingang",
@@ -443,6 +460,12 @@
       }
     },
     "allergens": {
+      "ask": {
+        "title": "Verträgst du etwas nicht?",
+        "text": "Kreuze an, was du nicht verträgst. Die Rezepte warnen dich dann. Du kannst das später unter Einstellungen ändern.",
+        "skip": "Überspringen",
+        "save": "Speichern"
+      },
       "names": {
         "gluten": "Gluten",
         "crustaceans": "Krebstiere",
@@ -1136,6 +1159,36 @@
           "title": "Einrichtungs-Assistent",
           "text": "Die erste Einrichtung kennt jetzt Kochheft: Zusatzfunktionen, Familie anlegen, kurze Prüfung. Du kannst sie jederzeit wieder öffnen."
         }
+      },
+      "v1-5": {
+        "language": {
+          "title": "Deutsch oder English",
+          "text": "Jede Person wählt ihre Sprache unter Einstellungen. Die Wahl gilt auf allen Geräten, auch für Siri und die Mitteilungen."
+        },
+        "settings": {
+          "title": "Alles auf einer Seite",
+          "text": "Die Einstellungen sind jetzt eine Seite: Ich, Auf diesem Gerät und für Admins Familie & Verwaltung. Oben links führt ein Pfeil zurück."
+        },
+        "colour": {
+          "title": "Deine Farbe",
+          "text": "Zehn Farben zur Wahl, für jede Person einzeln. Dazu Hell, Dunkel oder wie das System."
+        },
+        "siri": {
+          "title": "Siri versteht ganze Sätze",
+          "text": "Zum Beispiel: „Zweimal Butter und Milch auf die Aldi-Liste und Tampons auf die DM-Liste.“ Einkaufslisten lassen sich jetzt auch umbenennen."
+        },
+        "tags": {
+          "title": "Schlagworte",
+          "text": "Kochheft bringt 24 Schlagworte mit und schlägt beim Import passende vor. Gespeichert wird nur, was du bestätigst."
+        },
+        "offline": {
+          "title": "Auch ohne Netz",
+          "text": "Rezepte, Wochenplan und Einkaufsliste sind auch ohne Verbindung da. Ein Hinweis oben zeigt, wenn das Netz fehlt."
+        },
+        "kinds": {
+          "title": "Kontoarten",
+          "text": "Beim Anlegen einer Person wählst du nur noch Familie, Verwaltung oder Admin. Eingeladene bekommen „Familie“."
+        }
       }
     },
     "notifications": {
@@ -1231,6 +1284,8 @@
           "taken": "Benutzername oder E-Mail ist schon vergeben",
           "failed": "Anlegen hat nicht geklappt"
         },
+        "intolerances": "Verträgt etwas nicht (freiwillig)",
+        "intolerances-failed": "{name} ist angelegt, aber „Verträgt etwas nicht“ konnte nicht gespeichert werden.",
         "tour-failed": "{name} ist angelegt, aber die Einführung konnte nicht eingeschaltet werden.",
         "simple-failed": "{name} ist angelegt, aber die Einfache Ansicht konnte nicht eingeschaltet werden.",
         "pending-title": "Eine Person ist noch nicht angelegt. Jetzt anlegen? | {n} Personen sind noch nicht angelegt. Jetzt anlegen?",
@@ -1273,11 +1328,40 @@
       "name": "Name der Sammlung",
       "household-name": "{0} Sammlung {1}"
     },
+    "settings": {
+      "me": "Ich",
+      "device": "Auf diesem Gerät",
+      "family": "Familie & Verwaltung",
+      "advanced": "Erweitert",
+      "mealie": "Mealie-Einstellungen",
+      "profile-edit": "Name, Foto, Passwort, E-Mail",
+      "household": "Haushalt verwalten",
+      "people": "Personen und Kontoarten",
+      "back": "Zurück zu den Einstellungen"
+    },
+    "kind": {
+      "title": "Kontoart",
+      "family": "Familie",
+      "family-hint": "Alltag: Rezepte, Einkauf, Plan, Sammlungen, Kategorien und Schlagworte",
+      "manager": "Verwaltung",
+      "manager-hint": "wie Familie, dazu einladen und den Haushalt verwalten",
+      "admin": "Admin",
+      "admin-hint": "alles, auch Einstellungen und Zusatzfunktionen",
+      "custom": "Eigene Auswahl",
+      "individual": "Einzeln einstellen"
+    },
+    "hub": {
+      "household-statistics-description": "Deine Haushaltsstatistik zeigt dir, wie du @:{'kh.app.name'} nutzt.",
+      "household-settings-description": "Verwalte die Einstellungen deines Haushalts, etwa Essensplan und Privatsphäre.",
+      "webhooks-description": "Richte Webhooks ein, die an Tagen mit geplantem Essensplan ausgelöst werden.",
+      "manage-data-description": "Verwalte die Daten von @:{'kh.app.name'}: Lebensmittel, Einheiten, Kategorien, Schlagworte und mehr."
+    },
     "tag-suggest": {
       "title": "Schlagworte vorschlagen",
       "description": "Für Rezepte ohne Schlagworte. Es wird nichts gespeichert, bevor du es bestätigst.",
       "search": "Vorschläge suchen",
-      "search-ai": "Mit KI weitersuchen (bis zu 20 Rezepte)",
+      "search-ai": "Mit KI weitersuchen (je 10 Rezepte)",
+      "ask-again": "Erneut fragen",
       "none": "Keine Vorschläge gefunden. Entweder haben alle Rezepte schon Schlagworte, oder es passt keins der vorhandenen.",
       "left": "Für {n} weitere Rezepte ohne Schlagworte gibt es keinen Vorschlag.",
       "apply": "{n} Rezepte übernehmen",

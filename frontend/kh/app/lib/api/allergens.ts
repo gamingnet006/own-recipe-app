@@ -12,6 +12,11 @@ export const KH_ALLERGENS = [
 
 export type KhAllergenKey = typeof KH_ALLERGENS[number];
 
+/** The list with KEY ticked or unticked, in the app's order and without duplicates. */
+export function toggleAllergen(list: readonly KhAllergenKey[], key: KhAllergenKey, on: boolean): KhAllergenKey[] {
+  return KH_ALLERGENS.filter(k => (k === key ? on : list.includes(k)));
+}
+
 export interface KhAllergenHit {
   allergen: KhAllergenKey;
   /** The ingredient lines the allergen was recognised from. */

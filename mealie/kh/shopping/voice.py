@@ -7,7 +7,7 @@ from datetime import datetime
 from pydantic import UUID4
 
 from mealie.kh.amounts.line import ShoppingLine, parse_shopping_line
-from mealie.kh.amounts.parse import ensure_german_units
+from mealie.kh.amounts.parse import ensure_extra_units
 from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
 from mealie.kh.i18n.messages import say
 from mealie.kh.shopping.service import ensure_food, ensure_unit
@@ -203,13 +203,15 @@ def spoken_summary(results: list[tuple[str, list[str]]], locale: Locale = DEFAUL
     return " ".join(spoken_confirmation(names, list_name, locale) for list_name, names in results)
 
 
-def parse_articles(group_repos: AllRepositories, articles: list[str]) -> list[ShoppingLine]:
+def parse_articles(
+    group_repos: AllRepositories, articles: list[str], locale: Locale = DEFAULT_LOCALE
+) -> list[ShoppingLine]:
     """Reads ARTICLES (spoken amounts become digits) without writing any item. GROUP_REPOS is group-scoped. Raises
-    ValueError when an article is not understood."""
-    ensure_german_units(group_repos)
+    ValueError when an article is not understood; LOCALE says how amounts are written."""
+    ensure_extra_units(group_repos)
     matcher = DataMatcher(group_repos)
     return [
-        parse_shopping_line(spoken_amount_to_digits(part), matcher.units_by_alias, matcher.foods_by_alias)
+        parse_shopping_line(spoken_amount_to_digits(part), matcher.units_by_alias, matcher.foods_by_alias, locale)
         for part in articles
     ]
 

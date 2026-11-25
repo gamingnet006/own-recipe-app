@@ -9,6 +9,7 @@ from mealie.db.models.users.users import User
 from mealie.kh.accounts import removal, service
 from mealie.kh.accounts.schemas import AccountOut, DeleteIn, DeletePreviewOut, HeirOut, LinkIn, PersonOut, SwitchIn
 from mealie.kh.accounts.sessions import new_session, session_payload
+from mealie.kh.i18n.messages import request_locale, say
 from mealie.routes._base import BaseAdminController, BaseUserController, controller
 from mealie.routes._base.routers import AdminAPIRouter, UserAPIRouter
 from mealie.routes.auth.auth import SESSION_COOKIE_NAME, session_cookie_attrs
@@ -71,10 +72,10 @@ class KhOwnAccountController(BaseUserController):
         return self.session.get(User, self.user.id)
 
     @own_router.get("/delete-preview", response_model=DeletePreviewOut)
-    def delete_preview(self) -> DeletePreviewOut:
+    def delete_preview(self, request: Request) -> DeletePreviewOut:
         """Who would inherit, how many recipes and lists that is, and why deleting is not possible (or None)."""
         user = self._orm_user()
-        plan = removal.plan_own_deletion(self.session, user)
+        plan = removal.plan_own_deletion(self.session, user, request_locale(self.session, self.user.id, request))
         heir_id = plan.heirs[user.id]
         return DeletePreviewOut(
             heir=removal.as_heir(self.session.get(User, heir_id) if heir_id else None),
@@ -91,10 +92,11 @@ class KhOwnAccountController(BaseUserController):
         tokens (400), and 409 with the reason when the person is the last admin or the last one in a household."""
         session_payload(token)
         user = self._orm_user()
+        locale = request_locale(self.session, self.user.id, request)
         if data.confirm.strip().lower() != (user.username or "").lower():
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Der Benutzername stimmt nicht.")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, say("name_mismatch", locale))
         try:
-            removal.delete_own_accounts(self.session, user)
+            removal.delete_own_accounts(self.session, user, locale)
         except ValueError as error:
             raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from error
         # same attributes as /api/auth/logout, or the browser keeps the cookie

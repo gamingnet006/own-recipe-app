@@ -5,7 +5,9 @@ from fastapi import Response
 
 from mealie.core.config import get_app_settings
 from mealie.db.db_setup import session_context  # KH: the installation language names the app
-from mealie.kh.i18n.locale import installation_app_name  # KH: wave 2
+from mealie.kh.accent import manifest_theme_color  # KH: wave 2
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, installation_app_name, installation_locale  # KH: wave 2
+from mealie.kh.i18n.messages import say  # KH: the shopping shortcut's name in the installation's language
 
 
 def build_manifest() -> dict:  # KH: a function of its own, so the shopping page's manifest reuses it (D60)
@@ -13,6 +15,8 @@ def build_manifest() -> dict:  # KH: a function of its own, so the shopping page
     sub_path = urlparse(settings.BASE_URL).path or "/"
     with session_context() as session:  # KH: "Cookbook" for an English installation (wave 2)
         app_name = installation_app_name(session, settings.branding.name)
+        locale = installation_locale(session) or DEFAULT_LOCALE  # KH: names and "lang" follow the installation
+        theme_color = manifest_theme_color(session, settings.theme.light_primary)  # KH: the installation's colour
 
     manifest = {
         "name": app_name,  # KH: wave 2
@@ -22,9 +26,9 @@ def build_manifest() -> dict:  # KH: a function of its own, so the shopping page
         "scope": sub_path,
         "display": "standalone",
         "background_color": "#1E1E1E",
-        "theme_color": settings.theme.light_primary,
+        "theme_color": theme_color,  # KH: follows the installation's colour (wave 2)
         "description": f"{app_name} is a recipe management and meal planning app",  # KH: app name (D49, wave 2)
-        "lang": "en",
+        "lang": locale[:2],  # KH: "de" or "en"
         "display_override": ["standalone", "minimal-ui", "browser", "window-controls-overlay"],
         "categories": ["food", "lifestyle"],
         "prefer_related_applications": False,
@@ -107,8 +111,8 @@ def build_manifest() -> dict:  # KH: a function of its own, so the shopping page
         "shortcuts": [
             {
                 # KH: Kochheft's tile shopping page instead of Mealie's list overview (D60)
-                "name": "Einkaufsliste",
-                "short_name": "Einkauf",
+                "name": say("manifest_shopping_name", locale),
+                "short_name": say("manifest_shopping_short", locale),
                 "description": "Open the shopping list",
                 "url": "/einkauf",
                 "icons": [

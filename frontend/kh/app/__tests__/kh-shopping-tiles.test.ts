@@ -92,9 +92,9 @@ describe("catalog", () => {
     { id: "f4", name: "Mysteriös", labelId: null },
   ];
   const basics = [
-    { name: "milch", department: "Getränke", emoji: "x" },
-    { name: "Toast", department: "Backwaren", emoji: "🍞" },
-    { name: "Dings", department: "Gibt es nicht", emoji: "?" },
+    { name: "milch", en: "milk", department: "Getränke", emoji: "x" },
+    { name: "Toast", en: "Toast", department: "Backwaren", emoji: "🍞" },
+    { name: "Dings", en: "Thing", department: "Gibt es nicht", emoji: "?" },
   ];
 
   test("follows the list's order, labels without a position last", () => {
@@ -408,5 +408,31 @@ describe("amount and note helpers", () => {
     expect(joinNote(["Bio", "vegan"], " große Packung ")).toBe("Bio, vegan, große Packung");
     expect(joinNote([], "")).toBe("");
     expect(joinNote(["Bio"], "")).toBe("Bio");
+  });
+});
+
+describe("Mealie's English seed departments", () => {
+  const english = ["Produce", "Grains", "Meat", "Meat Products", "Seafood", "Dairy Products", "Baked Goods", "Canned Goods",
+    "Frozen Foods", "Condiments", "Spices", "Oils", "Baking", "Sweets", "Snacks", "Beverages", "Alcohol", "Health Foods",
+    "Household", "Other"];
+  const englishLabels = english.map((name, index) => ({ id: `e${index}`, name }));
+
+  test("every English seed department has an emoji and a place in the store orders", () => {
+    for (const name of english) expect(tileEmoji("Xyz", name), name).not.toBe("");
+    expect(labelOrderFor("drugstore", englishLabels)[0]).toBe("e18"); // Household first
+    expect(labelOrderFor("market", englishLabels)[0]).toBe("e0"); // Produce first
+  });
+
+  test("the basics follow the English labels and show their English names", () => {
+    const departments = catalog([], englishLabels, BASICS, [], "", "en-US");
+    const dairy = departments.find(department => department.name === "Dairy Products")!;
+    expect(dairy.tiles.map(tile => tile.name)).toEqual(["Quark", "Yogurt"]);
+    expect(dairy.tiles[0]!.labelId).toBe("e5");
+  });
+
+  test("items without a label go to Other, which is also made when the labels lack it", () => {
+    const some = englishLabels.filter(label => label.name !== "Other");
+    const result = catalog([{ id: "f", name: "Thing", labelId: null }], some, [], [], "", "en-US");
+    expect(result.at(-1)).toMatchObject({ name: "Other", labelId: null });
   });
 });

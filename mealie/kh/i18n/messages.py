@@ -17,6 +17,45 @@ MESSAGES: dict[str, dict[Locale, str]] = {
     "on_list_plain": {"de-DE": "auf der Liste {name}", "en-US": "on your {name}"},  # the name already says "list"
     "listed_one": {"de-DE": "{what} steht {where}.", "en-US": "{what} is {where}."},
     "listed_many": {"de-DE": "{what} stehen {where}.", "en-US": "{what} are {where}."},
+    # web manifests (the names on the home screen)
+    "manifest_shopping_name": {"de-DE": "Einkaufsliste", "en-US": "Shopping list"},
+    "manifest_shopping_short": {"de-DE": "Einkauf", "en-US": "Shopping"},
+    # refusals and reasons shown to people
+    "name_mismatch": {"de-DE": "Der Benutzername stimmt nicht.", "en-US": "The username does not match."},
+    "collection_own_household": {
+        "de-DE": "Nur der eigene Haushalt kann diese Sammlung ändern",
+        "en-US": "Only your own household can change this collection",
+    },
+    "recipe_not_yours": {"de-DE": "Dieses Rezept darfst du nicht ändern", "en-US": "You may not change this recipe"},
+    "heir_same_household": {
+        "de-DE": "Der Erbe muss im selben Haushalt wohnen.",
+        "en-US": "The heir must live in the same household.",
+    },
+    "removal_alone": {
+        "de-DE": "Diese Person ist allein im Haushalt. Wähle, wer die Rezepte übernimmt, "
+        "oder verschiebe sie zuerst in einen anderen Haushalt.",
+        "en-US": "This person is alone in the household. Choose who takes over the recipes, "
+        "or move them to another household first.",
+    },
+    "removal_last_person": {
+        "de-DE": "Du bist die letzte Person in diesem Haushalt. Bitte den Admin, dein Konto zu löschen.",
+        "en-US": "You are the last person in this household. Ask the admin to delete your account.",
+    },
+    "removal_last_admin": {
+        "de-DE": "Du bist die letzte Admin-Person. Mach zuerst jemand anderen zum Admin.",
+        "en-US": "You are the last admin. Make someone else an admin first.",
+    },
+    "removal_no_heir": {
+        "de-DE": "Dein Zugang im Haushalt „{household}“ hat dort niemanden, der die Rezepte übernimmt. "
+        "Bitte den Admin, ihn zu löschen.",
+        "en-US": "Your access in the household “{household}” has nobody there to take over the recipes. "
+        "Ask the admin to delete it.",
+    },
+    "verify_cooldown": {
+        "de-DE": "Die letzte Bestätigungsmail ist gerade erst unterwegs. Warte {seconds} Sekunden und versuche es "
+        "dann noch einmal.",
+        "en-US": "The last confirmation mail was only just sent. Wait {seconds} seconds and try again.",
+    },
     # share shortcut
     "share_nothing_usable": {
         "de-DE": "Damit kann Kochheft nichts anfangen.",
@@ -75,6 +114,78 @@ MESSAGES: dict[str, dict[Locale, str]] = {
     "addon_telegram": {"de-DE": "Telegram-Bot", "en-US": "Telegram bot"},
     "addon_share_links": {"de-DE": "Öffentliche Teilen-Links", "en-US": "Public share links"},
     "addon_season": {"de-DE": "Saison", "en-US": "Season"},
+    # Telegram bot
+    "tg_draft_made": {"de-DE": "Entwurf angelegt{where}", "en-US": "Draft created{where}"},
+    "tg_video_link": {
+        "de-DE": "Videos lädt Kochheft nicht herunter. Füge die Beschreibung ein oder lade einen Screenshot hoch.",
+        "en-US": "Cookbook does not download videos. Paste the description or upload a screenshot.",
+    },
+    "tg_no_source": {
+        "de-DE": "Schick mir einen Link, einen Text oder ein Foto.",
+        "en-US": "Send me a link, a text or a photo.",
+    },
+    "tg_several_sources": {
+        "de-DE": "Nur eins auf einmal: ein Link, ein Text oder ein Foto.",
+        "en-US": "Only one at a time: a link, a text or a photo.",
+    },
+    "tg_too_many_images": {"de-DE": "Zu viele Fotos auf einmal.", "en-US": "Too many photos at once."},
+    "tg_too_large": {"de-DE": "Das Foto ist zu groß.", "en-US": "The photo is too large."},
+    "tg_not_an_image": {"de-DE": "Das ist kein Foto.", "en-US": "That is not a photo."},
+    "tg_text_too_long": {"de-DE": "Der Text ist zu lang.", "en-US": "The text is too long."},
+    "tg_unknown_chat": {
+        "de-DE": "Diese Chat-ID ist nicht freigeschaltet: {id}",
+        "en-US": "This chat ID is not allowed: {id}",
+    },
+    "tg_bad_api_token": {
+        "de-DE": "Der API-Token des Bots ist ungültig. Leg in Kochheft unter Profil → API-Tokens einen neuen an.",
+        "en-US": "The bot's API token is invalid. Create a new one in Cookbook under Profile → API tokens.",
+    },
+    "tg_bot_off": {
+        "de-DE": "Der Telegram-Bot ist in Kochheft ausgeschaltet. Ein Admin kann ihn unter Mehr → Zusatzfunktionen "
+        "einschalten.",
+        "en-US": "The Telegram bot is switched off in Cookbook. An admin can switch it on under More → Add-ons.",
+    },
+    "tg_down": {
+        "de-DE": "Kochheft ist gerade nicht erreichbar. Versuch es gleich noch einmal.",
+        "en-US": "Cookbook cannot be reached right now. Try again in a moment.",
+    },
+    "tg_rejected": {
+        "de-DE": "Kochheft hat den Entwurf nicht angenommen (Fehler {status}).",
+        "en-US": "Cookbook did not accept the draft (error {status}).",
+    },
+    "tg_photo_limit": {
+        "de-DE": "Das Foto ist zu groß (höchstens {mb} MB).",
+        "en-US": "The photo is too large (at most {mb} MB).",
+    },
+    "tg_photo_failed": {
+        "de-DE": "Das Foto konnte nicht von Telegram geladen werden.",
+        "en-US": "The photo could not be loaded from Telegram.",
+    },
+    # account mails (D53)
+    "mail_welcome_subject": {"de-DE": "Dein Kochheft-Konto", "en-US": "Your Cookbook account"},
+    "mail_welcome_header": {"de-DE": "Willkommen bei Kochheft", "en-US": "Welcome to Cookbook"},
+    "mail_welcome_top": {
+        "de-DE": "Für dich wurde ein Konto angelegt. Benutzername: {username}. Adresse: {site}. "
+        "Lege mit dem Knopf dein eigenes Passwort fest.",
+        "en-US": "An account was created for you. Username: {username}. Address: {site}. "
+        "Use the button to choose your own password.",
+    },
+    "mail_welcome_bottom": {
+        "de-DE": "Der Link gilt {hours} Stunden. Falls du das Konto nicht erwartest, ignoriere diese Mail.",
+        "en-US": "The link is valid for {hours} hours. If you do not expect this account, ignore this mail.",
+    },
+    "mail_welcome_button": {"de-DE": "Eigenes Passwort festlegen", "en-US": "Choose your password"},
+    "mail_verify_subject": {"de-DE": "Bestätige deine E-Mail-Adresse", "en-US": "Confirm your e-mail address"},
+    "mail_verify_header": {"de-DE": "E-Mail bestätigen", "en-US": "Confirm e-mail"},
+    "mail_verify_top": {
+        "de-DE": "Bestätige mit dem Knopf, dass diese Adresse zu deinem Kochheft-Konto gehört.",
+        "en-US": "Use the button to confirm that this address belongs to your Cookbook account.",
+    },
+    "mail_verify_bottom": {
+        "de-DE": "Der Link gilt {hours} Stunden. Falls du das nicht angefordert hast, ignoriere diese Mail.",
+        "en-US": "The link is valid for {hours} hours. If you did not ask for this, ignore this mail.",
+    },
+    "mail_verify_button": {"de-DE": "E-Mail bestätigen", "en-US": "Confirm e-mail"},
     # push messages
     "someone": {"de-DE": "Jemand", "en-US": "Someone"},
     "device_unknown": {"de-DE": "Gerät", "en-US": "Device"},

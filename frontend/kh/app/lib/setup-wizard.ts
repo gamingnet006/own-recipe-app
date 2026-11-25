@@ -2,6 +2,8 @@
 // temporary password, the text for a new person, what to seed, and the compact system check.
 import type { KhCheck } from "./api/system";
 import type { KhPreset } from "./addons";
+import type { KhAccountKind } from "./account-kind";
+import type { KhAllergenKey } from "./api/allergens";
 
 /** Where Mealie's setup wizard lives; the news card and Mehr → Einstellungen open it again. */
 export const WIZARD_PATH = "/admin/setup";
@@ -22,6 +24,10 @@ export interface FamilyRow {
   tour: boolean;
   /** Start with the simple view (D79). */
   simple: boolean;
+  /** The kind of account (Familie by default). */
+  kind: KhAccountKind;
+  /** What this person does not tolerate (optional, only asked with the add-on Allergene). */
+  intolerances: KhAllergenKey[];
 }
 
 export type RowProblem = "name" | "username" | "spaces" | "twice" | "email";
@@ -29,7 +35,7 @@ export type RowProblem = "name" | "username" | "spaces" | "twice" | "email";
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export function emptyRow(): FamilyRow {
-  return { name: "", username: "", email: "", tour: true, simple: false };
+  return { name: "", username: "", email: "", tour: true, simple: false, kind: "family", intolerances: [] };
 }
 
 /** A row nobody typed into is left out instead of reported. */

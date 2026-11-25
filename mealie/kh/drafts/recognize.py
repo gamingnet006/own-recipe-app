@@ -1,6 +1,7 @@
 """KH: recognizing a draft in the background (phase 2): Mealie's web page reader for links, Mealie's AI for
 text, images and links without recipe data. Runs after the response, with its own database session."""
 
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import sqlalchemy as sa
@@ -38,7 +39,9 @@ from mealie.schema.user.user import PrivateUser
 from mealie.services.openai.openai import OpenAINotEnabledException, OpenAIService
 from mealie.services.recipe.ai_recipe_service import AIProviderNotEnabledError, AIRecipeService
 from mealie.services.recipe.import_workflow.exceptions import NoRecipeDataError
-from mealie.services.scraper.scraper import create_from_html, finalize_scraped_recipe
+from mealie.services.scraper.recipe_scraper import RecipeScraper
+from mealie.services.scraper.scraper import finalize_scraped_recipe
+from mealie.services.scraper.scraper_strategies import RecipeScraperPackage
 
 logger = get_logger()
 
@@ -103,8 +106,30 @@ def ai_model_used(repos: AllRepositories, *, images: bool) -> str | None:
     return f"{provider.name} ({provider.model})" if provider else None
 
 
+def heartbeat(session: Session, draft_id: UUID4) -> Callable[[str], Awaitable[None]]:
+    """A progress callback for the AI workflow that refreshes the draft's update time before every step, so a
+    recognition of several slow AI calls is not taken for an interrupted one by the stale check."""
+
+    async def beat(_step: str) -> None:
+        set_fields(session, draft_id, update_at=get_utc_now())
+
+    return beat
+
+
+async def read_page_recipe(url: str, repos: AllRepositories, translator: Translator) -> RecipeDraft | None:
+    """The recipe a page carries as structured data, or None. Only that strategy runs: Mealie's default list would
+    ask the AI itself (unlabelled, and again below) or accept an OpenGraph stub as a recipe."""
+    page = RecipeScraper(repos, translator, scrapers=[RecipeScraperPackage])
+    recipe, _ = await page.scrape(url)
+    return await finalize_scraped_recipe(recipe, translator) if recipe else None
+
+
 async def build(
-    draft: DraftOut, ai: AIRecipeService, repos: AllRepositories, translator: Translator
+    draft: DraftOut,
+    ai: AIRecipeService,
+    repos: AllRepositories,
+    translator: Translator,
+    on_progress: Callable[[str], Awaitable[None]] | None = None,
 ) -> tuple[RecipeDraft, bool]:
     """Recognizes the draft's source without saving a recipe; returns the recipe and whether the AI was used.
     What the AI reads comes out in the recipe language; a page's own recipe data stays as the page wrote it."""
@@ -113,24 +138,25 @@ async def build(
         url = draft.source_url or ""  # always set for links: create() refuses a link draft without one
         if is_video_link(url):  # drafts from before D5 may still hold one; they are never fetched
             raise VideoLinkError(url)
+        found = await read_page_recipe(url, repos, translator)
+        if found:
+            return found, False
         try:
-            recipe, _ = await create_from_html(url, repos, translator)
-            return recipe, False
-        except HTTPException as ex:
-            if ex.status_code != 400:  # 400: the page has no recipe data, the AI may still read it
-                raise
-        try:
-            return await ai.build_recipe(url=url, translate_language=language), True
+            return await ai.build_recipe(url=url, translate_language=language, on_progress=on_progress), True
         except NO_AI as ex:
             raise NoRecipeDataError() from ex  # no recipe data on the page and no AI to read it
     if draft.source_type == DraftSource.text:
         own = parse_kochheft_text(draft.source_text or "")  # Kochheft's own export format needs no AI (D62)
         if own:
             return await finalize_scraped_recipe(own, translator), False
-        return await ai.build_recipe(content=draft.source_text, translate_language=language), True
+        return await ai.build_recipe(
+            content=draft.source_text, translate_language=language, on_progress=on_progress
+        ), True
     images = [original_path(draft.id, name) for name in draft.original_files]
     # the text that came with the photos (a shared note) is read together with them
-    return await ai.build_recipe(content=draft.source_text, images=images, translate_language=language), True
+    return await ai.build_recipe(
+        content=draft.source_text, images=images, translate_language=language, on_progress=on_progress
+    ), True
 
 
 async def transcribe_recording(draft: DraftOut, session: Session) -> DraftOut:
@@ -161,7 +187,7 @@ async def recognize(draft_id: UUID4, *, user: PrivateUser, household: HouseholdO
         try:
             if draft.source_type == DraftSource.text and not draft.source_text and media_path(draft_id).exists():
                 draft = await transcribe_recording(draft, session)
-            recipe, used_ai = await build(draft, ai, repos, translator)
+            recipe, used_ai = await build(draft, ai, repos, translator, heartbeat(session, draft_id))
             add_rule_tags(recipe, repos.tags.get_all())  # tags from the rules, only the group's existing ones
             amounts = read_amounts(repos, recipe)  # German amounts, without AI (D39)
             recognized = recipe.model_dump(mode="json", by_alias=True)

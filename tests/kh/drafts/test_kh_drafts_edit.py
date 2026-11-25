@@ -154,3 +154,15 @@ def test_edit_never_writes_into_an_approved_draft(
     monkeypatch.setattr(service.DraftService, "get", get_then_approve)
     assert edit(api_client, unique_user, ready["id"], {"name": "Zu spät"}).status_code == 409
     assert get_draft(api_client, unique_user, ready["id"]).json()["recipe"]["name"] == ready["recipe"]["name"]
+
+
+def test_ingredient_numbers_are_read_in_the_persons_language(
+    api_client: TestClient, unique_user: TestUser, ready: dict[str, Any]
+):
+    """ "1,000 g" is a thousand grams for an English person and one gram for a German one ("1,5" = one and a half)."""
+    url = f"{DRAFTS}/{ready['id']}/recipe"
+    body = {"ingredient": {"index": 2, "text": "1,000 g Mehl"}}
+    in_english = api_client.patch(url, json=body, headers={**unique_user.token, "Accept-Language": "en-US"})
+    assert in_english.json()["recipe"]["recipeIngredient"][2]["quantity"] == 1000
+    in_german = api_client.patch(url, json=body, headers={**unique_user.token, "Accept-Language": "de-DE"})
+    assert in_german.json()["recipe"]["recipeIngredient"][2]["quantity"] == 1

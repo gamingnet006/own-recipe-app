@@ -17,6 +17,8 @@ from mealie.kh.accounts.schemas import HeirOut
 from mealie.kh.accounts.service import delete_links, person_of
 from mealie.kh.allergens.service import delete_user_allergies
 from mealie.kh.drafts.models import KhDraft
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale
+from mealie.kh.i18n.messages import say
 from mealie.kh.navigation.service import delete_user_navigation
 from mealie.kh.notes.models import KhRecipeNote
 from mealie.kh.notices.models import KhNoticeRead
@@ -40,13 +42,6 @@ _HANDED_OVER = (
 
 # What belongs to recipes of the whole group, not to the household: it may go to someone in another household.
 _GROUP_WIDE = (RecipeComment.user_id, RecipeTimelineEvent.user_id)
-
-ALONE_IN_HOUSEHOLD = (
-    "Diese Person ist allein im Haushalt. Wähle, wer die Rezepte übernimmt, "
-    "oder verschiebe sie zuerst in einen anderen Haushalt."
-)
-LAST_PERSON = "Du bist die letzte Person in diesem Haushalt. Bitte den Admin, dein Konto zu löschen."
-LAST_ADMIN = "Du bist die letzte Admin-Person. Mach zuerst jemand anderen zum Admin."
 
 
 @dataclass
@@ -90,7 +85,9 @@ def as_heir(user: User | None) -> HeirOut | None:
     return HeirOut(id=user.id, name=user.full_name or user.username or "") if user else None
 
 
-def admin_heir(session: Session, user_id: UUID4, transfer_to: UUID4 | None) -> UUID4 | None:
+def admin_heir(
+    session: Session, user_id: UUID4, transfer_to: UUID4 | None, locale: Locale = DEFAULT_LOCALE
+) -> UUID4 | None:
     """The heir for an admin deleting USER_ID: the chosen TRANSFER_TO (422 unless it is another person of the same
     household), else the default heir. None only when the user owns nothing or is the last one of the group; otherwise
     409, so nothing is lost."""
@@ -100,12 +97,12 @@ def admin_heir(session: Session, user_id: UUID4, transfer_to: UUID4 | None) -> U
     if transfer_to is not None:
         chosen = session.get(User, transfer_to)
         if chosen is None or chosen.id == user.id or chosen.household_id != user.household_id:
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Der Erbe muss im selben Haushalt wohnen.")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, say("heir_same_household", locale))
         return chosen.id
     heir = default_heir(session, user)
     # nobody left in the whole group (Mealie's teardown of a group): nothing can inherit, so it is deleted as before
     if heir is None and owned_by(session, user_id) and default_heir(session, user, group_wide=True):
-        raise HTTPException(status.HTTP_409_CONFLICT, ALONE_IN_HOUSEHOLD)
+        raise HTTPException(status.HTTP_409_CONFLICT, say("removal_alone", locale))
     return heir.id if heir else None
 
 
@@ -170,7 +167,9 @@ class OwnDeletion:
     blocked: str | None
 
 
-def _blocked_reason(session: Session, user: User, person: list[User], heirs: dict[UUID4, UUID4 | None]) -> str | None:
+def _blocked_reason(
+    session: Session, user: User, person: list[User], heirs: dict[UUID4, UUID4 | None], locale: Locale
+) -> str | None:
     """Why the person cannot delete themselves, or None: the last admin of a group, or an account that has nobody to
     leave its recipes to."""
     ids = {account.id for account in person}
@@ -178,19 +177,16 @@ def _blocked_reason(session: Session, user: User, person: list[User], heirs: dic
         if account.admin and not session.scalar(
             sa.select(User.id).where(User.group_id == account.group_id, User.admin.is_(True), User.id.not_in(ids))
         ):
-            return LAST_ADMIN
+            return say("removal_last_admin", locale)
     for account in person:
         if heirs[account.id] is None:
             if account.id == user.id:
-                return LAST_PERSON
-            return (
-                f"Dein Zugang im Haushalt „{account.household.name}“ hat dort niemanden, der die Rezepte "
-                "übernimmt. Bitte den Admin, ihn zu löschen."
-            )
+                return say("removal_last_person", locale)
+            return say("removal_no_heir", locale, household=account.household.name)
     return None
 
 
-def plan_own_deletion(session: Session, user: User) -> OwnDeletion:
+def plan_own_deletion(session: Session, user: User, locale: Locale = DEFAULT_LOCALE) -> OwnDeletion:
     """Heirs, totals and the blocking reason for USER deleting themselves with all their linked accounts."""
     person = person_of(session, user.id)
     heirs = {}
@@ -200,13 +196,13 @@ def plan_own_deletion(session: Session, user: User) -> OwnDeletion:
         heirs[account.id] = heir.id if heir else None
         mine = owned_by(session, account.id)
         owned = Owned(owned.recipes + mine.recipes, owned.lists + mine.lists, owned.plans + mine.plans)
-    return OwnDeletion(heirs, owned, _blocked_reason(session, user, person, heirs))
+    return OwnDeletion(heirs, owned, _blocked_reason(session, user, person, heirs, locale))
 
 
-def delete_own_accounts(session: Session, user: User) -> None:
+def delete_own_accounts(session: Session, user: User, locale: Locale = DEFAULT_LOCALE) -> None:
     """Deletes USER and their linked accounts, each with its own household's heir; the primary account goes last, so
     the links of the others are gone by then. Raises ValueError when the deletion is blocked."""
-    plan = plan_own_deletion(session, user)
+    plan = plan_own_deletion(session, user, locale)
     if plan.blocked:
         raise ValueError(plan.blocked)
     for account in reversed(person_of(session, user.id)):

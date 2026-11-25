@@ -125,7 +125,7 @@ export function useKhShopping() {
   );
   const departments = computed(() => {
     const order = [...(list.value?.labelSettings ?? [])].sort((a, b) => a.position - b.position).map(setting => setting.labelId);
-    return catalog(foods.value, labels.value, BASICS, order, householdSlug());
+    return catalog(foods.value, labels.value, BASICS, order, householdSlug(), i18n.locale.value);
   });
 
   // Answers can arrive out of order (a slow refresh after a quick tap); only the newest request counts.

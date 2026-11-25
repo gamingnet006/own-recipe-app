@@ -34,7 +34,9 @@ Gemessen am 9.11.2026 mit `v1.0` · measured on 9 Nov 2026 with `v1.0`:
 
 ## Installieren
 
-Kochheft spricht Deutsch und Englisch (auf Englisch heißt die App „Cookbook“). Der erste Einrichtungsschritt ist die Sprache der Installation; jede Person ändert ihre unter **Mehr → Sprache**, sie wird im Konto gespeichert und gilt auf allen Geräten. Mealies „Kochbücher“ heißen hier **Sammlungen**.
+Kochheft spricht Deutsch und Englisch (auf Englisch heißt die App „Cookbook“). Der erste Einrichtungsschritt ist die Sprache der Installation; jede Person ändert ihre unter **Mehr → Einstellungen → Sprache**, sie wird im Konto gespeichert und gilt auf allen Geräten. Mealies „Kochbücher“ heißen hier **Sammlungen**.
+
+Farbe: Zehn Farben (Salbei, Waldgrün, Petrol, Blau, Indigo, Lila, Beere, Tomatenrot, Terrakotta, Senf), jede hell und dunkel auf Lesbarkeit geprüft. Der erste Einrichtungsschritt legt die Farbe der Installation fest (Anmeldeseite und alle ohne eigene Wahl); jede Person wählt ihre eigene unter **Einstellungen → Farbe** oder bleibt bei „Wie die Installation“. Das Logo in der Kopfzeile und auf den Anmeldeseiten hat diese Farbe. Das App-Symbol auf dem Home-Bildschirm behält die Farbe der Installation (iOS merkt es sich beim Hinzufügen); die Farbe der Browserleiste folgt ihr.
 
 ### Voraussetzungen
 
@@ -92,6 +94,8 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 1. Öffne die angezeigte Adresse und melde dich mit dem Standard-Konto an, das `install.sh` nennt.
 2. Ändere sofort unter **Profil** E-Mail und Passwort.
 3. Erscheint Mealies Einrichtungs-Assistent, lass **Öffentlichen Zugriff aktivieren** aus.
+
+**Anmeldung und Passwort:** Wer das Passwort ändert, wird auf allen Geräten abgemeldet. Sonst bleibt eine Anmeldung bis zu 30 Tage gültig (`KH_TOKEN_TIME`, 720 Stunden). Ist ein Handy verloren, ändere also das Passwort.
 
 ### 5. Familie einladen
 
@@ -154,7 +158,7 @@ Am Handy und am iPad hochkant steht unten eine Leiste:
 - **Rezepte:** suchen und stöbern. Warten Entwürfe auf Prüfung, steht darüber ein Hinweis.
 - **Eingang:** neue Rezepte hinzufügen und die Entwürfe prüfen; die Zahl zeigt, wie viele warten.
 - **Einkaufsliste:** die Kachel-Seite (siehe „Einkaufsliste mit Kacheln“ unten).
-- **Mehr** in fünf Gruppen: **Planen** (Essensplan, Kochbücher, „Was kann ich kochen?“), **Sammlung** (Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Doppelte, Nährwerte, „Ich vertrage nicht“), **Einstellungen** (eine Zeile; darin Profil, Daten, Zusatzfunktionen, Haushalte, Familie einladen, Mitteilungen, Ofen, Nährwerte zeigen, Timer und ab 840 Pixeln die Seitenleiste), **Hilfe** (Einführung, Kochheft einrichten, Neuigkeiten, Über Kochheft) und **Konto** (Sprache, Darstellung System/Hell/Dunkel für dieses Gerät, Abmelden). Auf jeder Unterseite führt oben links ein Pfeil zurück (zu **Mehr**, wenn die Seite direkt geöffnet wurde), denn die installierte App hat keine Zurück-Taste. In der Seitenleiste ab 840 Pixeln öffnet **Anpassen** die Auswahl, was dort steht.
+- **Mehr** in fünf Gruppen: **Planen** (Essensplan, Sammlungen, „Was kann ich kochen?“), **Sammlung** (Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Doppelte, Nährwerte, „Ich vertrage nicht“), **Einstellungen** (ein eigener Block mit einer Zeile zur Einstellungsseite, siehe „Eine Einstellungsseite“), **Hilfe** (Einführung, Kochheft einrichten, Neuigkeiten, Über Kochheft) und **Konto** (Abmelden, Konto löschen). In der Einfachen Ansicht steht **Einstellungen** gleich sichtbar unter **Mehr**. Auf jeder Unterseite führt oben links ein Pfeil zurück (zu **Mehr**, wenn die Seite direkt geöffnet wurde), denn die installierte App hat keine Zurück-Taste. In der Seitenleiste ab 840 Pixeln öffnet **Anpassen** die Auswahl, was dort steht.
 
 Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
 
@@ -253,7 +257,7 @@ Aus den Zutaten erkennt Kochheft die 14 Allergen-Gruppen der EU. Das ist immer �
 Kochheft legt beim ersten Mal 24 Start-Schlagworte an (Frühstück, Suppe, vegetarisch, schnell und so weiter), in der Sprache der Installation. Eigene Schlagworte bleiben unberührt, ein gelöschtes kommt nicht zurück.
 
 - Beim Hinzufügen eines Rezepts schlägt Kochheft Schlagworte vor, aber nur aus denen, die es schon gibt. Ohne KI geht das nach Regeln: „schnell“ bis 30 Minuten, „vegetarisch“, „vegan“, „mit Fleisch“ und „mit Fisch“ aus den Zutaten. In der Prüfung kannst du jedes Schlagwort entfernen oder mit **Schlagwort hinzufügen** ein anderes wählen.
-- **Schlagworte vorschlagen** (Knopf auf der Seite der Schlagworte): macht Vorschläge für Rezepte ohne Schlagworte. Du hakst an, was stimmt; nur das wird gespeichert. Ist eine KI eingerichtet, kann sie für bis zu 20 Rezepte pro Mal weitersuchen. Die Regeln für vegetarisch und vegan sind eine Hilfe, kein Versprechen: prüfe sie.
+- **Schlagworte vorschlagen** (Knopf auf der Seite der Schlagworte): macht Vorschläge für Rezepte ohne Schlagworte. Du hakst an, was stimmt; nur das wird gespeichert. Ist eine KI eingerichtet, kann sie jeweils 10 Rezepte ansehen und die Vorschläge der Regeln ergänzen. Die Regeln für vegetarisch und vegan sind eine Hilfe, kein Versprechen: prüfe sie. Rezepte, nach denen die KI schon gefragt wurde, fragt sie in diesem Browser nicht noch einmal; **Erneut fragen** setzt das zurück.
 
 ### Familienkochbuch drucken
 
@@ -389,9 +393,22 @@ Auf einem neuen Handy, iPad oder (in Safari, Chrome, Edge) Computer fragt Kochhe
 
 Nach einem Update zeigt die Startseite einmal ein paar Karten mit den Neuerungen (Vollbild am Handy, Karte auf iPad und Computer; „Überspringen“ unten links). Wer neu angelegt wird, sieht stattdessen die Einführung. Unter **Mehr → Hilfe → Neuigkeiten** lassen sich alle Versionen jederzeit ansehen. Die Karten stehen in `frontend/kh/app/lib/whats-new.ts` (Texte unter `kh.news.*`); Entwickler ergänzen sie vor jedem Release mit neuen Funktionen und heben `NEWS_VERSION` in `mealie/kh/onboarding/news.py` an, ein Test prüft, dass beide übereinstimmen.
 
+### Eine Einstellungsseite
+
+Alles, was du einstellen kannst, steht auf **einer** Seite: **Mehr → Einstellungen** (auch über deinen Namen oben in der Seitenleiste und den Eintrag **Einstellungen** unten dort). Sie hat vier Teile:
+
+- **Ich:** Name, Foto, Passwort, E-Mail; Sprache; Design (System/Hell/Dunkel); Einfache Ansicht; „Ich vertrage nicht“; Mitteilungen; ab 840 Pixeln die Seitenleiste.
+- **Auf diesem Gerät:** Kochheft einrichten, Ofen, Nährwerte zeigen, Timer.
+- **Familie & Verwaltung** (für Admins; wer einladen darf, sieht „Familie einladen“): Personen und Kontoarten, Haushalt verwalten (wer ihn verwalten darf), Familie einladen, Zusatzfunktionen, Haushalte freigeben, Systemprüfung, Einrichtungs-Assistent.
+- **Erweitert:** Daten verwalten (wer ordnen darf); die Mealie-Einstellungen (Mitglieder, Gruppe, API-Schlüssel) für Admins und Konten mit „Verwalten“ oder „Erweitert“; für Admins außerdem die Administration.
+
+**Kontoarten:** Beim Anlegen und Bearbeiten einer Person (Mealies Benutzerverwaltung und der Schritt „Familie“ im Einrichtungs-Assistenten) wählst du eine Art statt vieler Häkchen: **Familie** (Alltag inklusive Sammlungen, Kategorien und Schlagworte; keine Verwaltung), **Verwaltung** (zusätzlich einladen und den Haushalt verwalten) oder **Admin** (alles). Unter **Einzeln einstellen** bleiben die einzelnen Häkchen; ein Konto mit anderer Mischung zeigt **Eigene Auswahl**. Eingeladene Personen (Einladungslink) sind automatisch **Familie**; eine andere Art stellst du danach in der Benutzerverwaltung ein.
+
+**Verträgst du etwas nicht?** Jede Person wird beim ersten Besuch der Startseite einmal gefragt (nur mit der Zusatzfunktion Allergene). Mit **Speichern** oder **Überspringen** ist die Frage erledigt; die Auswahl lässt sich jederzeit unter **Einstellungen → Ich vertrage nicht** ändern. Im Einrichtungs-Assistenten kannst du es auch gleich für jede neue Person eintragen.
+
 ### Einfache Ansicht (D79)
 
-Für Menschen, die mit Apps nicht zu Hause sind: Unter **Mehr → Konto → Einfache Ansicht** wird die Schrift größer und es gibt weniger Knöpfe. Die Leiste unten zeigt nur Rezepte, Einkaufsliste, Woche und Mehr (der Eingang steckt unter Mehr), die Startseite zeigt Suche, die Reihen „Oft gekocht“ und „Lange nicht gekocht“ und die Rezepte, aber keine Filter. **Mehr** zeigt zuerst Planen, Hilfe und Konto; Sammlung und Einstellungen stehen hinter „Mehr anzeigen“. Die Wahl gilt pro Person auf allen Geräten. Admins stellen sie für jemand anderen unter **Admin → Benutzer → (Person)** ein.
+Für Menschen, die mit Apps nicht zu Hause sind: Unter **Mehr → Einstellungen → Einfache Ansicht** wird die Schrift größer und es gibt weniger Knöpfe. Die Leiste unten zeigt nur Rezepte, Einkaufsliste, Woche und Mehr (der Eingang steckt unter Mehr), die Startseite zeigt Suche, die Reihen „Oft gekocht“ und „Lange nicht gekocht“ und die Rezepte, aber keine Filter. **Mehr** zeigt zuerst Planen, Hilfe und Konto; Sammlung und Einstellungen stehen hinter „Mehr anzeigen“. Die Wahl gilt pro Person auf allen Geräten. Admins stellen sie für jemand anderen unter **Admin → Benutzer → (Person)** ein.
 
 ### Saison (D80)
 
@@ -537,7 +554,9 @@ Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 
 ## Install (English)
 
-In English the app is called **Cookbook** (in German: Kochheft). It speaks German or English: the first setup starts with the choice of the language for the installation, and each person can change theirs under **More → Language**; the choice is kept on their account and follows them to every device. Mealie's cookbooks are called **Collections** here.
+In English the app is called **Cookbook** (in German: Kochheft). It speaks German or English: the first setup starts with the choice of the language for the installation, and each person can change theirs under **More → Settings → Language**; the choice is kept on their account and follows them to every device. Mealie's cookbooks are called **Collections** here.
+
+Colour: ten colours (Sage, Forest green, Teal, Blue, Indigo, Purple, Berry, Tomato red, Terracotta, Mustard), each checked for readability in light and dark. The first setup step sets the installation's colour (sign-in page and everybody without their own choice); each person picks their own under **Settings → Colour** or stays with "Like the installation". The logo in the header and on the sign-in pages is drawn in that colour. The app icon on the home screen keeps the installation's colour (iOS remembers it when the app is added); the browser bar colour follows it.
 
 ### Requirements
 
@@ -595,6 +614,8 @@ It then starts everything, creates the key for the backups and shows the first l
 1. Open the address shown and log in with the default account that `install.sh` names.
 2. Change e-mail and password right away under **Profile**.
 3. If Mealie's setup wizard appears, leave **Enable public access** off.
+
+**Sign-in and password:** Changing your password signs you out on all devices. Otherwise a sign-in stays valid for up to 30 days (`KH_TOKEN_TIME`, 720 hours), so if a phone is lost, change the password.
 
 ### 5. Invite the family
 
@@ -657,7 +678,7 @@ On a phone and an upright iPad there is a bar at the bottom:
 - **Recipes:** search and browse. When drafts wait for a review, a hint shows above.
 - **Intake:** add new recipes and review the drafts; the number shows how many wait.
 - **Shopping list:** the tile page (see "Shopping list with tiles" below).
-- **More:** meal planner, cookbooks, "What can I cook?", favorites, categories, tags, tools, timeline, settings, language, appearance (system/light/dark, per device), invite family and log out. Every sub-page has a back arrow at the top left (to **More** when opened directly), because the installed app has no back button; in the side menu, **Customize** opens the choice of what it shows.
+- **More** in five groups: **Plan** (meal plan, collections, "What can I cook?"), **Collection** (favorites, categories, tags, tools, timeline, duplicates, nutrition, "I do not tolerate"), **Settings** (a block of its own with one row to the settings page, see "One settings page"), **Help** (introduction, set up Cookbook, news, about Cookbook) and **Account** (log out, delete account). In the simple view, **Settings** shows directly under **More**. Every sub-page has a back arrow at the top left (to **More** when opened directly), because the installed app has no back button; in the side menu from 840 pixels, **Customize** opens the choice of what it shows.
 
 On an iPad in landscape and on a computer, the same destinations are in the side menu on the left.
 
@@ -757,7 +778,7 @@ Cookbook detects the 14 EU allergen groups from the ingredients. This is always 
 On first start Cookbook creates 24 starter tags (Breakfast, Soup, Vegetarian, Quick and so on) in the installation's language. Your own tags stay untouched, and a tag you delete does not come back.
 
 - When you add a recipe, Cookbook suggests tags, but only from those that already exist. Without AI it uses rules: "Quick" up to 30 minutes, "Vegetarian", "Vegan", "With meat" and "With fish" from the ingredients. In the review you can remove any tag or pick another with **Add tag**.
-- **Suggest tags** (button on the tags page): proposes tags for recipes that have none. You tick what is right; only that is saved. If an AI is set up, it can keep looking at up to 20 recipes at a time. The vegetarian and vegan rules are a help, not a promise: check them.
+- **Suggest tags** (button on the tags page): proposes tags for recipes that have none. You tick what is right; only that is saved. If an AI is set up, it can look at 10 recipes at a time and add to the rules' suggestions. The vegetarian and vegan rules are a help, not a promise: check them. Recipes the AI was already asked about are not asked again in this browser; **Ask again** resets that.
 
 ### Print the family cookbook
 
@@ -885,9 +906,22 @@ Under **More → Set up Cookbook** (address `/aufs-handy`) a page walks through 
 
 After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
 
+### One settings page
+
+Everything you can set lives on **one** page: **More → Settings** (also via your name at the top of the side menu and the **Settings** entry at its bottom). It has four parts:
+
+- **Me:** name, photo, password, e-mail; language; design (System/Light/Dark); simple view; "I do not tolerate"; notifications; from 840 pixels the side menu.
+- **On this device:** set up Cookbook, oven, show nutrition, timer.
+- **Family & administration** (for admins; whoever may invite also sees "Invite family"): people and account types, manage household (whoever may manage it), invite family, add-ons, share households, system check, setup assistant.
+- **Advanced:** manage data (for those who organize); the Mealie settings (members, group, API tokens) for admins and accounts that manage the group or have "advanced"; for admins also the administration.
+
+**Account types:** when you create or edit a person (Mealie's user management and the "Family" step of the setup assistant) you choose one type instead of many ticks: **Family** (everyday use including collections, categories and tags; no administration), **Administration** (plus inviting and managing the household) or **Admin** (everything). The single ticks stay under **Set individually**; an account with another mix shows **Custom selection**. People who join through an invite link are **Family** automatically; set another type afterwards in the user management.
+
+**Is there anything you cannot eat?** Each person is asked once when they first open the start page (only with the add-on Allergens). **Save** or **Skip** ends the question; the choice can be changed any time under **Settings → I do not tolerate**. In the setup assistant you can also enter it right away for each new person.
+
 ### Simple view (D79)
 
-For people who are not at home with apps: under **More → Account → Simple view** the text gets larger and there are fewer buttons. The bar at the bottom shows only Recipes, Shopping list, Week and More (the inbox sits under More), the start page shows the search, the "Often cooked" and "Not cooked for a while" rows and the recipes, but no filters. **More** shows Plan, Help and Account first; Collection and Settings are behind "Show more". The choice is per person on all devices. Admins set it for someone else under **Admin → Users → (person)**.
+For people who are not at home with apps: under **More → Settings → Simple view** the text gets larger and there are fewer buttons. The bar at the bottom shows only Recipes, Shopping list, Week and More (the inbox sits under More), the start page shows the search, the "Often cooked" and "Not cooked for a while" rows and the recipes, but no filters. **More** shows Plan, Help and Account first; Collection and Settings are behind "Show more". The choice is per person on all devices. Admins set it for someone else under **Admin → Users → (person)**.
 
 ### Season (D80)
 

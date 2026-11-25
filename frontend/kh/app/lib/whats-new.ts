@@ -22,6 +22,18 @@ export interface KhNewsVersion {
 
 export const WHATS_NEW: KhNewsVersion[] = [
   {
+    version: "1.5",
+    cards: [
+      { icon: "translate", key: "language" },
+      { icon: "cog", key: "settings" },
+      { icon: "palette", key: "colour" },
+      { icon: "microphone", key: "siri", addon: "shopping" },
+      { icon: "tags", key: "tags" },
+      { icon: "download", key: "offline" },
+      { icon: "group", key: "kinds", admin: true },
+    ],
+  },
+  {
     version: "1.4",
     cards: [
       { icon: "eye", key: "simple" },

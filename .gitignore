@@ -24,6 +24,8 @@ dev/data/templates/*
 dev/data/users/*
 dev/data/groups/*
 dev/data/postgres/*
+# KH: runtime state of a dev run (news and starter-tag markers)
+dev/data/kh/*
 
 .DS_Store
 node_modules

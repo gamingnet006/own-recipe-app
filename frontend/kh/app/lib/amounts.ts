@@ -126,7 +126,14 @@ const ROUND_PAN = [
   new RegExp(`(?:Springform|Tarteform|rund)\\D*${NUMBER}\\s*cm`, "i"), // "Springform 26 cm"
   // Mealie's import moves a yield's number in front of its text: "26" and "Springform Ø cm" joined
   new RegExp(`${NUMBER}\\s+(?:Spring|Tarte|Back)?form`, "i"),
+  // English: "9-inch springform pan", "26 cm round cake tin", "9 inch round", "springform pan, 9 inch"
+  new RegExp(`${NUMBER}\\s+spring-?form`, "i"),
+  new RegExp(`${NUMBER}[\\s-]*(?:inch(?:es)?|in\\b|"|cm)\\s*(?:round\\s+)?(?:spring-?form|tart|cake|pie|pizza|bundt)\\b`, "i"),
+  new RegExp(`${NUMBER}[\\s-]*(?:inch(?:es)?|in\\b|"|cm)\\s+round\\b`, "i"),
+  new RegExp(`(?:spring-?form|tart|cake|pie)\\s*(?:pan|tin)?\\D*${NUMBER}[\\s-]*(?:inch(?:es)?|in\\b|"|cm)`, "i"),
 ];
+const INCHES = /\d[\s-]*(?:inch(?:es)?|in\b|")/i; // a pan written in inches is read in centimetres
+const CM_PER_INCH = 2.54;
 
 /** A positive, finite number, else null. */
 function usable(value: number): number | null {
@@ -163,9 +170,10 @@ export function panFactor(from: KhPan, to: KhPan): number | null {
   return old && area ? area / old : null;
 }
 
-/** The pan a yield names, such as "Springform Ø 26 cm", "26er Springform" or "24 x 30 cm"; null for anything else. */
+/** The pan a yield names, such as "Springform Ø 26 cm", "26er Springform", "24 x 30 cm", "9-inch springform pan" or "9 x 13 inch baking dish" (inches become cm); null for anything else. */
 export function parsePan(text: string | null | undefined): KhPan | null {
-  const number = (value: string) => Number(value.replace(",", "."));
+  const unit = text && INCHES.test(text) ? CM_PER_INCH : 1;
+  const number = (value: string) => Number(value.replace(",", ".")) * unit;
   const rect = text?.match(RECT_PAN);
   if (rect) return { shape: "rect", length: number(rect[1]!), width: number(rect[2]!) };
   const round = ROUND_PAN.map(pattern => text?.match(pattern)).find(Boolean);

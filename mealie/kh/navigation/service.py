@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
+from mealie.kh.accent import FOLLOW_INSTALLATION, known_accent
 from mealie.kh.i18n.locale import known_locale
 from mealie.kh.navigation.models import KhUserNavigation
 from mealie.kh.navigation.schemas import NavigationSettings
@@ -14,12 +15,13 @@ def _row(session: Session, user_id: UUID4) -> KhUserNavigation | None:
 
 
 def load_navigation(session: Session, user_id: UUID4) -> NavigationSettings:
-    """The user's hidden entries, simple view switch and chosen language (nothing hidden, off, none, when never set)."""
+    """The user's hidden entries, simple view switch, language and colour (nothing hidden, off, none, none if unset)."""
     row = _row(session, user_id)
     return NavigationSettings(
         hidden=list(row.hidden) if row else [],
         simple=bool(row and row.simple),
         locale=known_locale(row.locale if row else None),
+        accent=known_accent(row.accent if row else None),
     )
 
 
@@ -29,6 +31,7 @@ def save_navigation(
     hidden: list[str] | None = None,
     simple: bool | None = None,
     locale: str | None = None,
+    accent: str | None = None,
 ) -> None:
     """Stores the given parts for the user (None keeps the stored part). Commits."""
     row = _row(session, user_id)
@@ -41,6 +44,8 @@ def save_navigation(
         row.simple = simple
     if locale is not None:
         row.locale = locale
+    if accent is not None:
+        row.accent = None if accent == FOLLOW_INSTALLATION else accent
     session.commit()
 
 

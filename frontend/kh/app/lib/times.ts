@@ -1,5 +1,5 @@
 // KH: finds durations ("10 Min.", "20–30 Minuten", "eine halbe Stunde") in a step text so they can become
-// timers (D42, cook mode). Pure function, German and English units.
+// timers (D42, cook mode). Pure function, German and English units, number words and phrases.
 
 /** A duration found in a text; START/END cut it from the text, UPPERSECONDS is the end of a range. */
 export interface KhTime {
@@ -12,10 +12,14 @@ export interface KhTime {
 
 const NUMBER_WORDS: Record<string, number> = {
   ein: 1, eine: 1, einer: 1, zwei: 2, drei: 3, vier: 4, fünf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwölf: 12,
+  a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11,
+  twelve: 12,
 };
 const FRACTIONS: Record<string, number> = { "½": 0.5, "¼": 0.25, "¾": 0.75 };
 // Fixed phrases whose duration needs no number.
-const PHRASES: Record<string, number> = { "halbe stunde": 1800, "viertelstunde": 900, "dreiviertelstunde": 2700, "anderthalb stunden": 5400 };
+const PHRASES: Record<string, number> = { "halbe stunde": 1800, "viertelstunde": 900, "dreiviertelstunde": 2700, "anderthalb stunden": 5400,
+  "half an hour": 1800, "a quarter of an hour": 900, "three quarters of an hour": 2700, "an hour and a half": 5400,
+};
 
 const SECOND_UNIT = "Sekunden?|Sek\\.?|seconds?|secs?";
 const MINUTE_UNIT = "Minuten?|Min\\.?|minutes?|mins?";
@@ -23,12 +27,12 @@ const HOUR_UNIT = "Stunden?|Std\\.?|hours?|hrs?";
 const NOT_WORD = "(?![\\p{L}\\d])";
 const unit = (alternatives: string) => `(?:${alternatives})${NOT_WORD}`;
 const AMOUNT = `(?:\\d+\\s+\\d+/[1-9]\\d*|\\d+/[1-9]\\d*|\\d+(?:[.,]\\d+)?(?:\\s?[½¼¾])?|[½¼¾]|(?:${Object.keys(NUMBER_WORDS).join("|")})${NOT_WORD})`;
-const RANGE_SEPARATOR = "(?:\\s*[-–]\\s*|\\s+bis\\s+)";
+const RANGE_SEPARATOR = "(?:\\s*[-–]\\s*|\\s+(?:bis|to)\\s+)";
 const START = "(?<![\\p{L}\\d/])"; // not inside "1/2", which would read as 2
 const flags = "giu";
 
 // "1 Std. 20 Min." as one timer; hours group first, minutes second.
-const COMBINATION = new RegExp(`${START}(${AMOUNT})\\s*${unit(HOUR_UNIT)}\\s+(?:und\\s+)?(${AMOUNT})\\s*${unit(MINUTE_UNIT)}`, flags);
+const COMBINATION = new RegExp(`${START}(${AMOUNT})\\s*${unit(HOUR_UNIT)}\\s+(?:(?:und|and)\\s+)?(${AMOUNT})\\s*${unit(MINUTE_UNIT)}`, flags);
 // "10 Min.", "20–30 Minuten": amount, optional range end, unit.
 const SINGLE = new RegExp(`${START}(${AMOUNT})(?:${RANGE_SEPARATOR}(${AMOUNT}))?\\s*(${unit(`${SECOND_UNIT}|${MINUTE_UNIT}|${HOUR_UNIT}`)})`, flags);
 const PHRASE = new RegExp(`${START}(?:eine?\\s+)?(${Object.keys(PHRASES).join("|").replace(/ /g, "\\s+")})${NOT_WORD}`, flags);

@@ -39,6 +39,14 @@ created; every created person gets a card with the address, user name and the te
         density="comfortable"
         @update:model-value="clearFailure(index)"
       />
+      <KhAccountKind kind-only :flags="flagsOfKind(row.kind)" @update:flags="row.kind = kindOfFlags($event) as KhAccountKind" />
+      <v-expansion-panels v-if="khOn.allergens" variant="accordion" class="my-2">
+        <v-expansion-panel :title="$t('kh.wizard.family.intolerances')">
+          <v-expansion-panel-text>
+            <KhAllergenChoices :selected="row.intolerances" @toggle="(key, on) => row.intolerances = toggleAllergen(row.intolerances, key, on)" />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
       <v-checkbox v-model="row.tour" :label="$t('kh.tour.with-tour')" color="primary" hide-details density="compact" />
       <v-checkbox v-model="row.simple" :label="$t('kh.simple.title')" color="primary" hide-details density="compact" />
       <div v-if="khFamily.rows.length > 1" class="d-flex justify-end">
@@ -79,12 +87,16 @@ created; every created person gets a card with the address, user name and the te
 </template>
 
 <script setup lang="ts">
+import { flagsOfKind, kindOfFlags, type KhAccountKind } from "../lib/account-kind";
+import { toggleAllergen } from "../lib/api/allergens";
 import { welcomeAddress } from "../lib/setup-wizard";
+import { useKhOn } from "../composables/use-kh-addons";
 import { khFamily, useKhSetupFamily, type CreatedPerson } from "../composables/use-kh-setup-family";
 
 const i18n = useI18n();
 const { $globals, $khFeatures } = useNuxtApp();
 const { problems, filled, canCreate, addRow, removeRow, clearFailure, create: createRows } = useKhSetupFamily();
+const khOn = useKhOn();
 const busy = ref(false);
 
 // Which field shows which problem; "failed" (the call did not work) sits under the username

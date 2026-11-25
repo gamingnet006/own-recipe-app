@@ -1,6 +1,7 @@
 // KH: the API of a person's own side menu (D58) as a Mealie API class; the type is written by hand
 // (mealie/kh/navigation).
 import { BaseAPI } from "~/lib/api/base/base-clients";
+import type { KhAccent } from "../accent-colours";
 import type { KhLocale } from "../locale";
 
 export interface KhNavigationSettings {
@@ -10,6 +11,8 @@ export interface KhNavigationSettings {
   simple: boolean;
   /** The language the person chose; null: they never did, the device decides. */
   locale: KhLocale | null;
+  /** The own accent colour; null: the installation's. */
+  accent: KhAccent | null;
 }
 
 export class KhNavigationApi extends BaseAPI {
@@ -18,11 +21,12 @@ export class KhNavigationApi extends BaseAPI {
     return await this.requests.get<KhNavigationSettings>("/api/kh/navigation");
   }
 
-  /** Stores the own hidden entries; without SIMPLE or LOCALE the stored switch and language stay. */
-  async put(hidden: string[], simple?: boolean, locale?: KhLocale) {
-    return await this.requests.put<KhNavigationSettings, { hidden: string[]; simple?: boolean; locale?: KhLocale }>(
+  /** Stores the own hidden entries; without SIMPLE, LOCALE or ACCENT the stored parts stay ("installation" gives the
+   * own colour up). */
+  async put(hidden: string[], simple?: boolean, locale?: KhLocale, accent?: KhAccent | "installation") {
+    return await this.requests.put<KhNavigationSettings, { hidden: string[]; simple?: boolean; locale?: KhLocale; accent?: KhAccent | "installation" }>(
       "/api/kh/navigation",
-      { hidden, simple, locale },
+      { hidden, simple, locale, accent },
     );
   }
 

@@ -18,7 +18,7 @@ class KhTagsController(BaseUserController):
     @router.post("/suggest", response_model=SuggestOut, dependencies=[require(Perm.GROUP_ORGANIZE)])
     async def suggest(self, data: SuggestIn) -> SuggestOut:
         """Proposes tags (the group's existing ones) for recipes without any; saves nothing."""
-        return await service.suggest(self.repos, self.translator, data.use_ai)
+        return await service.suggest(self.repos, self.translator, data)
 
     @router.post("/apply", dependencies=[require(Perm.GROUP_ORGANIZE)])
     def apply(self, data: ApplyIn) -> dict[str, int]:

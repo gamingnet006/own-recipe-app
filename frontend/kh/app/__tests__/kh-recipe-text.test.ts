@@ -93,6 +93,20 @@ Exportiert aus Kochheft
   });
 });
 
+describe("recipeText in English", () => {
+  test("uses English labels and the Cookbook signature", () => {
+    const full = { ...recipe, orgURL: "https://example.org/kuchen" } as unknown as RecipeOut;
+    const text = recipeText(full, 1, "en-US", read, "Less sugar");
+    expect(text).toContain("\n\nIngredients:\n");
+    expect(text).toContain("\n\nInstructions:\n1. ");
+    expect(text).toContain("Servings: 4 · Prep time: ");
+    expect(text).toContain("\n\nNotes:\nSchmeckt auch kalt.");
+    expect(text).toContain("\n\nOur note: Less sugar");
+    expect(text).toContain("\n\nSource: https://example.org/kuchen\n\nExported from Cookbook\n");
+    expect(text).not.toMatch(/Zutaten:|Zubereitung:|Kochheft|Quelle:|Portionen:|Notizen:/);
+  });
+});
+
 describe("photoExtension", () => {
   test("from the media type", () => {
     expect(photoExtension("image/webp")).toBe("webp");

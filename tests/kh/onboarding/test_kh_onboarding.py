@@ -13,7 +13,8 @@ from fastapi.testclient import TestClient
 from mealie.core.settings.settings import AppSettings
 from mealie.kh.accounts.models import KhAccountLink
 from mealie.kh.features.settings import get_kh_settings
-from mealie.kh.onboarding.models import KhAccountToken, KhUserOnboarding
+from mealie.kh.onboarding.mails import send_account_mail
+from mealie.kh.onboarding.models import KhAccountSettings, KhAccountToken, KhUserOnboarding
 from mealie.services.email import EmailService
 from tests import utils
 from tests.utils import api_routes
@@ -162,7 +163,11 @@ def test_account_settings(api_client: TestClient, smtp, admin_token, unique_user
     smtp(True)
     assert api_client.put(SETTINGS, json={"emailRequired": True}, headers=unique_user.token).status_code == 403
     assert api_client.put(SETTINGS, json={"emailRequired": True}, headers=admin_token).status_code == 200
-    assert api_client.get(SETTINGS, headers=admin_token).json() == {"emailRequired": True, "locale": None}
+    assert api_client.get(SETTINGS, headers=admin_token).json() == {
+        "emailRequired": True,
+        "locale": None,
+        "accent": None,
+    }
     api_client.put(SETTINGS, json={"emailRequired": False}, headers=admin_token)
 
 
@@ -301,3 +306,45 @@ def test_api_token_cannot_change_the_first_password(api_client: TestClient, make
     api = bearer(created.json()["token"])
     assert api_client.post(PASSWORD, json={"password": NEW_PASSWORD}, headers=api).status_code == 400
     sign_in(api_client, user["username"], "useruser")  # the password did not change
+
+
+def test_account_mails_are_in_the_persons_language_and_call_the_app_by_its_name(smtp):
+    smtp(True)
+    send_account_mail("verify", "a@example.com", "tok", "en-US")
+    send_account_mail("verify", "a@example.com", "tok", "de-DE")
+    (_, english), (_, german) = smtp.sent  # type: ignore[attr-defined]
+    assert "Cookbook account" in english.message_top and "Kochheft" not in english.message_top
+    assert "Kochheft-Konto" in german.message_top
+
+
+def test_the_welcome_mail_uses_the_installation_language_first(smtp, make_user, session):
+    smtp(True)
+    row = session.execute(sa.select(KhAccountSettings)).scalars().first() or KhAccountSettings(session=session)
+    row.locale = "en-US"
+    session.add(row)
+    session.commit()
+    try:
+        make_user(utils.random_email())
+        assert smtp.sent[0][1].subject == "Your Cookbook account"  # type: ignore[attr-defined]
+    finally:
+        row.locale = None
+        session.commit()
+    make_user(utils.random_email())  # no installation language: German
+    assert smtp.sent[1][1].subject == "Dein Kochheft-Konto"  # type: ignore[attr-defined]
+
+
+def test_a_second_confirmation_mail_within_the_cooldown_is_refused_in_the_persons_language(
+    api_client: TestClient, smtp, email_required, make_user, monkeypatch: pytest.MonkeyPatch
+):
+    smtp(True)
+    headers = sign_in(api_client, make_user(utils.random_email())["username"], "useruser")
+    address = utils.random_email()
+    assert api_client.post(EMAIL, json={"email": address}, headers=headers).status_code == 200
+    again = api_client.post(EMAIL, json={"email": address}, headers={**headers, "Accept-Language": "en-US"})
+    assert again.status_code == 429
+    assert "Wait 60 seconds" in again.json()["detail"]
+    german = api_client.post(EMAIL, json={"email": address}, headers={**headers, "Accept-Language": "de-DE"})
+    assert german.status_code == 429 and "Warte 60 Sekunden" in german.json()["detail"]
+    assert len(smtp.sent) == 2  # type: ignore[attr-defined]  # the welcome mail and the first confirmation
+    monkeypatch.setattr(get_kh_settings(), "verify_mail_cooldown_seconds", 0)
+    assert api_client.post(EMAIL, json={"email": address}, headers=headers).status_code == 200

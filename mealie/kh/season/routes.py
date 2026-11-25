@@ -12,6 +12,7 @@ from mealie.routes._base.routers import UserAPIRouter
 
 router = UserAPIRouter(prefix="/recipes")
 
+MAX_TERMS = 240  # one month's German and English names, with room to grow
 FoodName = Annotated[str, StringConstraints(max_length=40)]
 
 
@@ -20,6 +21,6 @@ class KhSeasonController(BaseUserController):
     """The recipes that use what is in season."""
 
     @router.get("/season", response_model=SeasonOut)
-    def season(self, food: Annotated[list[FoodName], Query(max_length=120)] = []) -> SeasonOut:  # noqa: B006
+    def season(self, food: Annotated[list[FoodName], Query(max_length=MAX_TERMS)] = []) -> SeasonOut:  # noqa: B006
         """Up to eight recipes of the group using one of the FOOD names (the frontend sends this month's foods)."""
         return season_recipes(self.session, self.group_id, food)

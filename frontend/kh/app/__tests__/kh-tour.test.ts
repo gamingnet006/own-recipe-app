@@ -6,7 +6,7 @@ import { shouldShowTour, TOUR_STEPS, tourSteps } from "../lib/tour";
 import khTexts from "../../lang/en-US.json";
 import khTextsDe from "../../lang/de-DE.json";
 
-const open = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: true, newsSeen: null };
+const open = { mustChangePassword: false, needsEmail: false, pendingEmail: null, tour: true, newsSeen: null, intolerancesAsked: true };
 
 describe("tourSteps", () => {
   test("has the eight steps in order", () => {

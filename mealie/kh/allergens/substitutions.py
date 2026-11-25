@@ -12,8 +12,9 @@ from pydantic import UUID4
 
 from mealie.db.models.recipe import IngredientFoodModel
 from mealie.kh.allergens.rules import allergens_of_line, line_text, text_has
-from mealie.kh.allergens.schemas import ALLERGEN_NAMES_DE, AllergenHit, LineSubstitution
+from mealie.kh.allergens.schemas import ALLERGEN_NAMES, ALLERGENS, AllergenHit, LineSubstitution
 from mealie.kh.allergens.service import set_correction
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.repos.all_repositories import AllRepositories
 from mealie.schema.recipe.recipe import RecipeDraft, RecipeOut
 from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut, IngredientFoodSave, RecipeIngredient
@@ -31,6 +32,7 @@ class Substitution:
     replacement: str
     allergen: str
     own: bool
+    lang: str = "de"  # the language of the rule's words: a rule in the person's language comes first
 
 
 @cache
@@ -39,9 +41,13 @@ def standard_rules() -> list[Substitution]:
     return [Substitution(**rule, own=False) for rule in json.loads(SUBSTITUTIONS_JSON.read_text(encoding="utf-8"))]
 
 
-def _plan(recipe: RecipeOut, allergens: list[str], own_rules: list[Substitution]) -> list[tuple[int, LineSubstitution]]:
-    """For each line (by index) and each of ALLERGENS the line has: the first rule that fits, own rules first."""
-    rules = [*own_rules, *standard_rules()]
+def _plan(
+    recipe: RecipeOut, allergens: list[str], own_rules: list[Substitution], locale: str = DEFAULT_LOCALE
+) -> list[tuple[int, LineSubstitution]]:
+    """For each line (by index) and each of ALLERGENS the line has: the first rule that fits, own rules first, then
+    the standard rules in the person's language (so "Pasta" gets a German hint for German and an English one for
+    English), then the other language's."""
+    rules = [*own_rules, *sorted(standard_rules(), key=lambda rule: rule.lang != locale[:2])]
     plan = []
     for index, line in enumerate(recipe.recipe_ingredient):
         shown, text = line_text(line)
@@ -54,11 +60,11 @@ def _plan(recipe: RecipeOut, allergens: list[str], own_rules: list[Substitution]
 
 
 def substitutions_for(
-    recipe: RecipeOut, hits: list[AllergenHit], own_rules: list[Substitution]
+    recipe: RecipeOut, hits: list[AllergenHit], own_rules: list[Substitution], locale: str = DEFAULT_LOCALE
 ) -> list[LineSubstitution]:
     """A hint per ingredient line and allergen of the recipe (one a correction took out is left out)."""
     allergens = [hit.allergen for hit in hits if hit.corrected is not False]
-    return [sub for _, sub in _plan(recipe, allergens, own_rules)]
+    return [sub for _, sub in _plan(recipe, allergens, own_rules, locale)]
 
 
 def _food_named(repos: AllRepositories, group_id: UUID4, name: str) -> IngredientFoodOut:
@@ -79,7 +85,14 @@ def _removed(recipe: RecipeOut, plan: dict[int, LineSubstitution]) -> list[str]:
         plan[i].replacement if i in plan else line_text(line)[1] for i, line in enumerate(recipe.recipe_ingredient)
     ]
     left = {allergen for text in after for allergen in allergens_of_line(text)}
-    return [a for a in ALLERGEN_NAMES_DE if a in {sub.allergen for sub in plan.values()} and a not in left]
+    return [a for a in ALLERGENS if a in {sub.allergen for sub in plan.values()} and a not in left]
+
+
+def variant_name(name: str, removed: list[str], locale: str) -> str:
+    """The name of a variant: "Kuchen (ohne Milch, Ei)" in German, "Cake (without milk, eggs)" in English."""
+    if locale.startswith("en"):
+        return f"{name} (without {', '.join(ALLERGEN_NAMES['en-US'][a].lower() for a in removed)})"
+    return f"{name} (ohne {', '.join(ALLERGEN_NAMES['de-DE'][a] for a in removed)})"
 
 
 def save_variant(
@@ -89,14 +102,16 @@ def save_variant(
     hits: list[AllergenHit],
     allergens: list[str],
     own_rules: list[Substitution],
+    locale: str = DEFAULT_LOCALE,
 ) -> RecipeOut:
-    """Saves a copy of RECIPE named "<Name> (ohne <allergens>)" whose lines with one of ALLERGENS use the replacement
-    food; quantity and unit stay. A line without a food carries its text in the note, so the note is replaced. The
-    name lists only the allergens the copy really has no more, and the corrections that added an allergen go along.
+    """Saves a copy of RECIPE named "<Name> (ohne <allergens>)" ("(without ...)" in English, see variant_name) whose
+    lines with one of ALLERGENS use the replacement food; quantity and unit stay. A line without a food carries its
+    text in the note, so the note is replaced. The name lists only the allergens the copy really has no more, and the
+    corrections that added an allergen go along.
     ValueError when no line can be replaced or no allergen is gone. The original is not touched."""
     present = [hit.allergen for hit in hits if hit.corrected is not False and hit.allergen in allergens]
     plan: dict[int, LineSubstitution] = {}
-    for index, sub in _plan(recipe, present, own_rules):
+    for index, sub in _plan(recipe, present, own_rules, locale):
         plan.setdefault(index, sub)  # one replacement per line
     if not plan:
         raise ValueError("No ingredient line can be replaced")
@@ -104,8 +119,7 @@ def save_variant(
     if not removed:
         raise ValueError("The replacements leave every chosen allergen in the recipe")
 
-    names = ", ".join(ALLERGEN_NAMES_DE[a] for a in removed)
-    new = service.duplicate_one(recipe.slug, RecipeDuplicate(name=f"{recipe.name} (ohne {names})"))
+    new = service.duplicate_one(recipe.slug, RecipeDuplicate(name=variant_name(recipe.name or "", removed, locale)))
     lines = list(new.recipe_ingredient)
     for index, sub in plan.items():
         lines[index] = _replaced(lines[index], sub.replacement, repos, recipe.group_id)

@@ -1,6 +1,8 @@
 // KH: the API of accounts without e-mail, first sign-in and the welcome and verification mails (D53) as a Mealie API
 // class; the types are written by hand like the accounts' (mealie/kh/onboarding).
 import { BaseAPI } from "~/lib/api/base/base-clients";
+import type { KhAccent } from "../accent-colours";
+import type { KhAllergenKey } from "./allergens";
 import type { KhLocale } from "../locale";
 import { OWN_ERRORS } from "./own-errors";
 
@@ -12,6 +14,8 @@ export interface KhOnboardingStatus {
   tour: boolean;
   /** The newest "Neu in Kochheft" version the person has seen; null: none yet (D69). */
   newsSeen: string | null;
+  /** "Verträgst du etwas nicht?" was answered or skipped; asked once per account. */
+  intolerancesAsked: boolean;
 }
 
 export interface KhWelcomeInfo {
@@ -23,6 +27,8 @@ export interface KhAccountSettings {
   emailRequired: boolean;
   /** The installation's language from the first setup; null until one was chosen. */
   locale: KhLocale | null;
+  /** The installation's colour from the first setup; null until one was chosen. */
+  accent: KhAccent | null;
 }
 
 const prefix = "/api/kh/onboarding";
@@ -68,6 +74,16 @@ export class KhOnboardingApi extends BaseAPI {
     return await this.requests.post<unknown>(`${prefix}/news-seen`, { version }, OWN_ERRORS);
   }
 
+  /** The person answered or skipped "Verträgst du etwas nicht?". */
+  async intolerancesAsked() {
+    return await this.requests.post<unknown>(`${prefix}/intolerances-asked`, {}, OWN_ERRORS);
+  }
+
+  /** Admin: what a new person does not tolerate; the person is not asked again. */
+  async setIntolerances(userId: string, allergens: KhAllergenKey[]) {
+    return await this.requests.put<unknown>(`/api/kh/admin/onboarding/${userId}/intolerances`, { allergens }, OWN_ERRORS);
+  }
+
   /** Admin: shows or hides the first-sign-in tour of a user. */
   async setTour(userId: string, tour: boolean) {
     return await this.requests.post<unknown>(`/api/kh/admin/onboarding/${userId}/tour`, { tour }, OWN_ERRORS);
@@ -86,6 +102,11 @@ export class KhOnboardingApi extends BaseAPI {
   /** Admin: saves the installation's language (the e-mail switch stays as it is). */
   async putLocale(locale: KhLocale) {
     return await this.requests.put<KhAccountSettings>("/api/kh/admin/account-settings", { locale }, OWN_ERRORS);
+  }
+
+  /** Admin: saves the installation's colour. */
+  async putAccent(accent: KhAccent) {
+    return await this.requests.put<KhAccountSettings>("/api/kh/admin/account-settings", { accent }, OWN_ERRORS);
   }
 
   /** Public: the installation's language, null until the first setup chose one. */

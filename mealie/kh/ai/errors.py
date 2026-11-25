@@ -90,6 +90,14 @@ def classify(error: BaseException, settings: KhSettings) -> Failure:
     return Failure("skip")
 
 
+def is_input_error(error: BaseException) -> bool:
+    """Whether the request itself is the problem (the answer was cut off at the length limit, or the provider
+    refused the request as malformed): no other provider would do better with it. Broken JSON and outages are not."""
+    import openai
+
+    return isinstance(error, openai.LengthFinishReasonError | openai.BadRequestError)
+
+
 def pause_until(failure: Failure, now: datetime, settings: KhSettings) -> datetime | None:
     """Until when the provider is skipped. A key or model error has no end: it waits for a save or a green test."""
     if failure.kind == "short" and failure.wait_seconds is not None:

@@ -144,6 +144,7 @@ import {
   mdiTranslate,
   mdiUndo,
   mdiWeatherNight,
+  mdiPalette, // KH: the colour row of the settings (wave 2)
   mdiWeatherSunny,
   mdiWebhook,
   mdiWindowClose,
@@ -281,6 +282,7 @@ export const icons = {
   translate: mdiTranslate,
   upload: mdiCloudUpload,
   weatherNight: mdiWeatherNight,
+  palette: mdiPalette, // KH: wave 2
   weatherSunny: mdiWeatherSunny,
   webhook: mdiWebhook,
   windowClose: mdiWindowClose,

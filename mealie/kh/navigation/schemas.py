@@ -1,7 +1,10 @@
 """KH: the answer and request of a person's own side menu (D58) and simple view (D79)."""
 
+from typing import Literal
+
 from pydantic import field_validator
 
+from mealie.kh.accent import Accent
 from mealie.kh.i18n.locale import Locale
 from mealie.schema._mealie import MealieModel
 
@@ -13,11 +16,13 @@ HIDEABLE_ENTRIES = ("intake", "shopping", "mealplan", "cookbooks", "finder", "or
 class NavigationSettings(MealieModel):
     """The hidden side-menu entries; stored without duplicates, in the menu's order. In a request, simple None keeps
     the stored switch, so a client that only knows the hidden list stays compatible. The same holds for locale: the
-    person's chosen language (None: they never chose, follow the device)."""
+    person's chosen language (None: they never chose, follow the device) and the same for accent, the own colour (None:
+    the installation's; a request says "installation" to give the own colour up)."""
 
     hidden: list[str]
     simple: bool | None = None
     locale: Locale | None = None
+    accent: Accent | Literal["installation"] | None = None
 
     @field_validator("hidden")
     @classmethod

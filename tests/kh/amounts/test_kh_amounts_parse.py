@@ -43,6 +43,11 @@ CASES = [  # line, quantity, upper, unit name, food name, note, fixed
     ("1.5 l Milch", 1.5, None, "Liter", None, "Milch", False),
     # "about" before the amount still leaves an amount to scale (v1.1)
     ("ca. 200 g Mehl", 200, None, "Gramm", "Mehl", "", False),
+    # English words around the amount (English throughout)
+    ("about 200 g Mehl", 200, None, "Gramm", "Mehl", "", False),
+    ("2 to 3 EL Zucker", 2, 3, "Esslöffel", "Zucker", "", False),
+    ("some Öl", None, None, None, None, "some Öl", True),
+    ("salt to taste", None, None, None, None, "salt to taste", True),
     ("etwa 2 EL Zucker", 2, None, "Esslöffel", "Zucker", "", False),
     ("circa 2-3 EL Zucker", 2, 3, "Esslöffel", "Zucker", "", False),
 ]

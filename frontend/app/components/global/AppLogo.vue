@@ -1,18 +1,15 @@
 <template>
   <div class="icon-container">
     <v-divider class="icon-divider" />
+    <!-- KH: the tint of the accent colour instead of a fixed green (wave 2) -->
     <v-avatar
       :class="['pa-2', 'icon-avatar']"
-      color="#E6F2EC"
+      color="kh-hint"
       :size="size"
     >
       <slot>
         <!-- KH: Kochheft's logo replaces Mealie's icon when no custom logo is set (D49) -->
-        <v-img
-          :src="$appInfo.brandingLogoUrl || '/icons/kochheft-logo.svg'"
-          :width="size"
-          :height="size"
-        />
+        <KhLogo :size="size" /> <!-- KH: drawn in the accent colour (wave 2) -->
       </slot>
     </v-avatar>
   </div>

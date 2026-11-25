@@ -1,5 +1,6 @@
 // KH: tests for the shared list of destinations (D38): the bar at the bottom, Mealie's side menu and the More
 // page read from one list, every destination has a real icon and text, and every path belongs to one tab.
+import { flagsOfKind, type KhAccountKind } from "../lib/account-kind";
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref, type Ref } from "vue";
@@ -9,7 +10,7 @@ import {
   type KhNavTarget,
   moreLayout,
   moreSections,
-  settingsTargets,
+  settingsSections,
   sidebarChoices,
   sidebarTargets,
   useKhSidebar,
@@ -33,7 +34,7 @@ function everyTarget(): KhNavTarget[] {
   const { plan, collection, settings, help } = moreSections("familie", "u1");
   const all = [...barTargets("familie"), ...sidebarTargets("familie"), ...plan,
     ...collection, ...settings, ...help];
-  all.push(...settingsTargets({ canOrganize: true, admin: true, linked: true }, "familie"));
+  all.push(...Object.values(settingsSections({ canOrganize: true, admin: true, linked: true }, "familie")).flat());
   return all.flatMap(target => [target, ...(target.children ?? [])]);
 }
 
@@ -71,11 +72,40 @@ describe("destinations", () => {
     expect(collection[0]!.to).toBe("/user/u1/favorites");
   });
 
-  test("the settings follow the user's rights", () => {
-    expect(settingsTargets({}, "familie").map(target => target.key)).toEqual(["profile", "addons"]);
-    expect(settingsTargets({ canOrganize: true, admin: true }, "familie").map(target => target.key))
-      .toEqual(["profile", "data", "addons", "admin", "households", "system", "wizard"]);
-    expect(settingsTargets({ admin: true }, "familie").map(target => target.to).slice(-3))
+  test("the settings page lists what each person may open (wave 2)", () => {
+    const keys = (user: Parameters<typeof settingsSections>[0], on = DEFAULT_ADDONS) =>
+      Object.fromEntries(Object.entries(settingsSections(user, "familie", on)).map(([part, list]) => [part, list.map(target => target.key)]));
+    expect(keys({})).toEqual({ me: ["profileEdit", "tolerance", "notifications"], device: ["setup"], family: [], advanced: [] });
+    expect(keys({ canOrganize: true })).toMatchObject({ family: [], advanced: ["data"] });
+    expect(keys({ canInvite: true }).family).toEqual(["invite"]);
+    expect(keys({ canOrganize: true, admin: true, linked: true })).toEqual({
+      me: ["profileEdit", "tolerance", "notifications", "switch"],
+      device: ["setup"],
+      family: ["people", "household", "invite", "addons", "households", "system", "wizard"],
+      advanced: ["data", "profile", "admin"],
+    });
+    expect(keys({}, { ...DEFAULT_ADDONS, allergens: false }).me).not.toContain("tolerance");
+  });
+
+  test("each account kind finds Mealie's household and hub pages it needs", () => {
+    const flags = (kind: KhAccountKind) => ({ ...flagsOfKind(kind), linked: false });
+    const rows = (kind: KhAccountKind) => {
+      const { family, advanced } = settingsSections(flags(kind), "familie");
+      return [family.map(target => target.key), advanced.map(target => target.key)];
+    };
+    expect(rows("family")).toEqual([[], ["data"]]);
+    expect(rows("manager")).toEqual([["household", "invite"], ["data"]]);
+    expect(rows("admin")).toEqual([["people", "household", "invite", "addons", "households", "system", "wizard"], ["data", "profile", "admin"]]);
+    // an account with its own selection: group management or "advanced" (API tokens) needs the hub
+    expect(settingsSections({ canManage: true }, "familie").advanced.map(target => target.key)).toEqual(["profile"]);
+    expect(settingsSections({ advanced: true }, "familie").advanced.map(target => target.key)).toEqual(["profile"]);
+  });
+
+  test("Mealie's profile hub and administration are linked for admins only", () => {
+    const advanced = (admin: boolean) => settingsSections({ admin }, "familie").advanced.map(target => target.to);
+    expect(advanced(true)).toEqual(["/user/profile", "/admin/site-settings"]);
+    expect(advanced(false)).toEqual([]);
+    expect(settingsSections({ admin: true }, "familie").family.map(target => target.to).slice(-3))
       .toEqual(["/g/familie/haushalte", "/g/familie/systempruefung", "/admin/setup"]);
   });
 
@@ -136,8 +166,8 @@ describe("destinations", () => {
     expect(keys(more.collection)).toContain("timeline");
   });
 
-  test("the simple view's More shows planning, help and account first and folds the rest (D79)", () => {
-    expect(moreLayout(true)).toEqual({ first: ["plan", "help", "account"], folded: ["collection", "settings"] });
+  test("the simple view's More shows planning, settings, help and account first and folds the collection (D79)", () => {
+    expect(moreLayout(true)).toEqual({ first: ["plan", "settings", "help", "account"], folded: ["collection"] });
     expect(moreLayout(false).folded).toEqual([]);
     expect(moreLayout(false).first).toHaveLength(5);
   });

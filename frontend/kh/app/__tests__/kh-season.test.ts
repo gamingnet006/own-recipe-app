@@ -1,7 +1,7 @@
 // KH: tests for the season calendar (D80): months inside a range and over New Year, the food names sent to the
 // server, and a calendar that is complete (every month has something, every item has valid months).
 import { describe, expect, test } from "vitest";
-import { inSeason, monthOf, SEASON, seasonTerms } from "../lib/season";
+import { inSeason, monthOf, SEASON, seasonName, seasonTerms } from "../lib/season";
 
 const names = (month: number) => inSeason(month).map(item => item.names[0]);
 
@@ -33,6 +33,27 @@ describe("seasonTerms", () => {
     const terms = seasonTerms(11);
     expect(terms).toEqual(expect.arrayContaining(["Kürbis", "Kürbisse", "Äpfel", "Apfel", "Rote Bete"]));
     expect(terms).not.toContain("Spargel");
+  });
+});
+
+describe("English names", () => {
+  test("every item has one and the terms hold both languages", () => {
+    for (const item of SEASON) expect(item.en.length).toBeGreaterThan(0);
+    expect(seasonTerms(5)).toEqual(expect.arrayContaining(["Spargel", "asparagus", "strawberries"]));
+  });
+
+  test("the name follows the interface language", () => {
+    const asparagus = SEASON.find(item => item.names[0] === "Spargel")!;
+    expect(seasonName(asparagus, "en-US")).toBe("asparagus");
+    expect(seasonName(asparagus, "de-DE")).toBe("Spargel");
+  });
+
+  test("the terms of a month fit the server's limits (240 terms of 40 characters)", () => {
+    for (let month = 1; month <= 12; month++) {
+      const terms = seasonTerms(month);
+      expect(terms.length).toBeLessThanOrEqual(240);
+      expect(Math.max(...terms.map(term => term.length))).toBeLessThanOrEqual(40);
+    }
   });
 });
 

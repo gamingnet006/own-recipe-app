@@ -23,7 +23,7 @@ vi.mock("~/composables/store/use-food-store", () => ({ useFoodStore: () => ({ st
 vi.mock("~/composables/store/use-label-store", () => ({ useLabelStore: () => ({ store: stores.labels }) }));
 vi.mock("~/composables/store/use-unit-store", () => ({ useUnitStore: () => ({ store: stores.units }) }));
 vi.mock("~/composables/use-toast", () => ({ alert: toast }));
-vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key }) }));
+vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key, locale: { value: "de-DE" } }) }));
 vi.stubGlobal("useMealieAuth", () => ({ user: { value: { id: "u1", householdSlug: "home" } } }));
 
 const listWith = (name: string) => ({ id: "l1", name, listItems: [{ id: "i1" }], labelSettings: [], recipeReferences: [] });

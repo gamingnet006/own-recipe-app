@@ -58,6 +58,161 @@
   "Zehen": {
    "piece": 1,
    "piece_default": 4
+  },
+  "gram": {
+   "g": 1
+  },
+  "grams": {
+   "g": 1
+  },
+  "kilogram": {
+   "g": 1000
+  },
+  "kilograms": {
+   "g": 1000
+  },
+  "milligram": {
+   "g": 0.001
+  },
+  "milligrams": {
+   "g": 0.001
+  },
+  "mg": {
+   "g": 0.001
+  },
+  "milliliters": {
+   "ml": 1
+  },
+  "millilitre": {
+   "ml": 1
+  },
+  "millilitres": {
+   "ml": 1
+  },
+  "centiliter": {
+   "ml": 10
+  },
+  "centiliters": {
+   "ml": 10
+  },
+  "centilitre": {
+   "ml": 10
+  },
+  "centilitres": {
+   "ml": 10
+  },
+  "cl": {
+   "ml": 10
+  },
+  "liters": {
+   "ml": 1000
+  },
+  "litre": {
+   "ml": 1000
+  },
+  "litres": {
+   "ml": 1000
+  },
+  "teaspoon": {
+   "ml": 5
+  },
+  "teaspoons": {
+   "ml": 5
+  },
+  "tsp": {
+   "ml": 5
+  },
+  "tablespoon": {
+   "ml": 15
+  },
+  "tablespoons": {
+   "ml": 15
+  },
+  "tbsp": {
+   "ml": 15
+  },
+  "cup": {
+   "ml": 240
+  },
+  "cups": {
+   "ml": 240
+  },
+  "c": {
+   "ml": 240
+  },
+  "fluid ounce": {
+   "ml": 30
+  },
+  "fluid ounces": {
+   "ml": 30
+  },
+  "fl oz": {
+   "ml": 30
+  },
+  "pint": {
+   "ml": 473
+  },
+  "pints": {
+   "ml": 473
+  },
+  "pt": {
+   "ml": 473
+  },
+  "quart": {
+   "ml": 946
+  },
+  "quarts": {
+   "ml": 946
+  },
+  "qt": {
+   "ml": 946
+  },
+  "gallon": {
+   "ml": 3785
+  },
+  "gallons": {
+   "ml": 3785
+  },
+  "gal": {
+   "ml": 3785
+  },
+  "ounce": {
+   "g": 28.35
+  },
+  "ounces": {
+   "g": 28.35
+  },
+  "oz": {
+   "g": 28.35
+  },
+  "pound": {
+   "g": 453.6
+  },
+  "pounds": {
+   "g": 453.6
+  },
+  "lb": {
+   "g": 453.6
+  },
+  "lbs": {
+   "g": 453.6
+  },
+  "piece": {
+   "piece": 1
+  },
+  "pieces": {
+   "piece": 1
+  },
+  "pcs": {
+   "piece": 1
+  },
+  "clove": {
+   "piece": 1,
+   "piece_default": 4
+  },
+  "cloves": {
+   "piece": 1,
+   "piece_default": 4
   }
  },
  "foods": {
@@ -261,6 +416,243 @@
   },
   "Knoblauch": {
    "piece": 4
+  },
+  "water": {
+   "density": 1.0
+  },
+  "milk": {
+   "density": 1.03
+  },
+  "cream": {
+   "density": 1.0
+  },
+  "heavy cream": {
+   "density": 1.0
+  },
+  "yogurt": {
+   "density": 1.03
+  },
+  "yoghurt": {
+   "density": 1.03
+  },
+  "oil": {
+   "density": 0.92
+  },
+  "olive oil": {
+   "density": 0.92
+  },
+  "vegetable oil": {
+   "density": 0.92
+  },
+  "vinegar": {
+   "density": 1.0
+  },
+  "honey": {
+   "density": 1.4
+  },
+  "flour": {
+   "density": 0.55
+  },
+  "sugar": {
+   "density": 0.85
+  },
+  "powdered sugar": {
+   "density": 0.55
+  },
+  "icing sugar": {
+   "density": 0.55
+  },
+  "confectioners sugar": {
+   "density": 0.55
+  },
+  "salt": {
+   "density": 1.2
+  },
+  "rice": {
+   "density": 0.8
+  },
+  "oats": {
+   "density": 0.35
+  },
+  "rolled oats": {
+   "density": 0.35
+  },
+  "cornstarch": {
+   "density": 0.6
+  },
+  "corn starch": {
+   "density": 0.6
+  },
+  "semolina": {
+   "density": 0.7
+  },
+  "breadcrumbs": {
+   "density": 0.45
+  },
+  "bread crumbs": {
+   "density": 0.45
+  },
+  "panko": {
+   "density": 0.45
+  },
+  "cocoa": {
+   "density": 0.5
+  },
+  "baking powder": {
+   "density": 0.9
+  },
+  "soy sauce": {
+   "density": 1.15
+  },
+  "tomato paste": {
+   "density": 1.1
+  },
+  "mustard": {
+   "density": 1.05
+  },
+  "syrup": {
+   "density": 1.4
+  },
+  "maple syrup": {
+   "density": 1.4
+  },
+  "raisins": {
+   "density": 0.6
+  },
+  "almonds": {
+   "density": 0.6
+  },
+  "wine": {
+   "density": 1.0
+  },
+  "broth": {
+   "density": 1.0
+  },
+  "stock": {
+   "density": 1.0
+  },
+  "egg": {
+   "piece": 55
+  },
+  "egg yolk": {
+   "piece": 20
+  },
+  "egg white": {
+   "piece": 35
+  },
+  "onion": {
+   "piece": 80
+  },
+  "garlic": {
+   "piece": 4
+  },
+  "garlic clove": {
+   "piece": 4
+  },
+  "apple": {
+   "piece": 150
+  },
+  "potato": {
+   "piece": 120
+  },
+  "lemon": {
+   "piece": 100
+  },
+  "lime": {
+   "piece": 70
+  },
+  "carrot": {
+   "piece": 80
+  },
+  "tomato": {
+   "piece": 100
+  },
+  "bell pepper": {
+   "piece": 160
+  },
+  "red bell pepper": {
+   "piece": 160
+  },
+  "yellow bell pepper": {
+   "piece": 160
+  },
+  "green bell pepper": {
+   "piece": 160
+  },
+  "sweet pepper": {
+   "piece": 160
+  },
+  "cucumber": {
+   "piece": 350
+  },
+  "courgette": {
+   "piece": 250
+  },
+  "pear": {
+   "piece": 160
+  },
+  "banana": {
+   "piece": 120
+  },
+  "leek": {
+   "piece": 200
+  },
+  "eggplant": {
+   "piece": 300
+  },
+  "mushroom": {
+   "piece": 20
+  },
+  "bread roll": {
+   "piece": 50
+  },
+  "spring onion": {
+   "piece": 15
+  },
+  "scallion": {
+   "piece": 15
+  },
+  "green onion": {
+   "piece": 15
+  },
+  "chili": {
+   "piece": 10
+  },
+  "chilli": {
+   "piece": 10
+  },
+  "chili pepper": {
+   "piece": 10
+  },
+  "chile pepper": {
+   "piece": 10
+  },
+  "sweet potato": {
+   "piece": 250
+  },
+  "fennel": {
+   "piece": 250
+  },
+  "peach": {
+   "piece": 150
+  },
+  "plum": {
+   "piece": 40
+  },
+  "radish": {
+   "piece": 15
+  },
+  "shallot": {
+   "piece": 25
+  },
+  "pineapple": {
+   "piece": 900
+  },
+  "horseradish": {
+   "piece": 100
+  },
+  "turmeric": {
+   "density": 0.6
   }
  }
 }

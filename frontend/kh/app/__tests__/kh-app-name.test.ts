@@ -18,12 +18,10 @@ test("the two languages name the app Kochheft and Cookbook", () => {
 });
 
 test("English texts use the name key, not the German name", () => {
-  const allowed = ["Kochheft files"]; // the name of a file; the shortcuts are called "Import to Cookbook" etc. in English
   const literal = JSON.stringify(en)
     .split(/"[^"]*":/)
     .join("\n")
-    .match(/[^\n]*Kochheft[^\n]*/g)
-    ?.filter(text => !allowed.some(name => text.includes(name)) && text !== "\"Kochheft\"");
+    .match(/[^\n]*Kochheft[^\n]*/g); // not one literal German name is allowed in the English texts
   expect(en.kh.app.name).not.toBe("Kochheft");
   expect(literal ?? []).toEqual([]);
 });

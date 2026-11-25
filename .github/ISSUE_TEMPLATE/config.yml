@@ -1,4 +1,9 @@
+# KH: Kochheft's own issue forms (kh-fehler, kh-idee); Mealie's forms and its sponsor link are removed in the fork.
+blank_issues_enabled: false
 contact_links:
-  - name: Feature Requests
-    url: https://github.com/mealie-recipes/mealie/discussions/new?category=feature-request
-    about: Please add any Feature Requests as a Github Discussion using the form in this issue.
+  - name: Security problem / Sicherheitslücke
+    url: https://github.com/gamingnet006/own-recipe-app/security/advisories/new
+    about: Please report vulnerabilities privately. / Bitte Sicherheitslücken vertraulich melden.
+  - name: Problem in Mealie itself
+    url: https://github.com/mealie-recipes/mealie/issues
+    about: Kochheft is an independent fork; bugs in Mealie's own code also belong to the Mealie project.

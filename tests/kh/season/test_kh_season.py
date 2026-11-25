@@ -58,3 +58,10 @@ def test_at_most_eight_and_nothing_without_terms(api_client: TestClient, unique_
 def test_closed_while_off(api_client: TestClient, unique_user: TestUser, season):
     season(False)
     assert api_client.get(SEASON, params={"food": ["Kürbis"]}, headers=unique_user.token).status_code == 403
+
+
+def test_english_food_names_match_whole_words(api_client: TestClient, unique_user: TestUser, season):
+    season(True)
+    recipe = new_recipe(api_client, unique_user, [(2, None, "red onions", "")])
+    assert [r["slug"] for r in ask(api_client, unique_user, "onions", "onion")] == [recipe["slug"]]
+    assert ask(api_client, unique_user, "ion") == []

@@ -136,7 +136,9 @@
             </v-badge>
           </template>
         </v-list-item>
-        <v-menu location="end bottom" :offset="15">
+        <!-- KH: one settings page for everything (wave 2); the menu stays for visitors of another group -->
+        <v-list-item v-if="loggedIn && isOwnGroup" :prepend-icon="$globals.icons.cog" :title="$t('general.settings')" :to="userProfileLink" />
+        <v-menu v-else location="end bottom" :offset="15">
           <template #activator="{ props: hoverProps }">
             <v-list-item v-bind="hoverProps" :prepend-icon="$globals.icons.cog" :title="$t('general.settings')" />
           </template>
@@ -189,7 +191,8 @@ const isAdmin = computed(() => auth.user.value?.admin);
 const canOrganize = computed(() => auth.user.value?.canOrganize);
 
 const userFavoritesLink = computed(() => auth.user.value ? `/user/${auth.user.value.id}/favorites` : undefined);
-const userProfileLink = computed(() => auth.user.value ? "/user/profile" : undefined);
+// KH: the person's name at the top and the "Einstellungen" entry lead to Kochheft's settings page (wave 2)
+const userProfileLink = computed(() => auth.user.value ? `/g/${auth.user.value.groupSlug}/einstellungen` : undefined);
 
 const toggleDark = useToggleDarkMode();
 

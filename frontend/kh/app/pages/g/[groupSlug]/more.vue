@@ -26,6 +26,9 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
       </section>
 
       <section v-else-if="key === 'settings'" class="mb-4">
+        <h2 class="text-subtitle-1 font-weight-bold text-medium-emphasis mb-1">
+          {{ $t("kh.nav.settings") }}
+        </h2>
         <v-list rounded="lg" class="py-0">
           <v-list-item
             v-for="target in lists.settings"
@@ -61,30 +64,7 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
           {{ $t("kh.nav.account") }}
         </h2>
         <v-list rounded="lg" class="py-0">
-          <!-- KH: the simple view (D79) -->
-          <v-list-item :title="$t('kh.simple.title')" :subtitle="$t('kh.simple.text')">
-            <template #append>
-              <v-switch
-                :model-value="khSidebar.simple"
-                :aria-label="$t('kh.simple.title')"
-                color="primary"
-                hide-details
-                density="compact"
-                @update:model-value="saveKhSimple(!!$event)"
-              />
-            </template>
-          </v-list-item>
-          <v-list-item
-            :prepend-icon="$globals.icons.translate"
-            :title="$t('sidebar.language')"
-            @click="languageDialog = true"
-          />
-          <!-- KH: System / Light / Dark instead of Mealie's one toggle -->
-          <v-list-item :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherNight : $globals.icons.weatherSunny" :title="$t('kh.theme.title')">
-            <template #append>
-              <KhThemeChoice />
-            </template>
-          </v-list-item>
+          <!-- KH: simple view, language and theme moved to the settings page (wave 2) -->
           <v-list-item
             :prepend-icon="$globals.icons.logout"
             :title="$t('user.logout')"
@@ -111,7 +91,6 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
       <a :href="$khFeatures.sourceUrl" target="_blank" rel="noopener">{{ $t("kh.nav.source") }}</a>
     </p>
 
-    <LanguageDialog v-model="languageDialog" />
     <KhDeleteAccountDialog v-model="deleteOpen" />
     <KhTour v-model="tourOpen" />
     <KhNews v-model="newsOpen" :news="allNews" />
@@ -122,7 +101,7 @@ and the account, so a phone reaches everything the side menu holds on bigger scr
 import { useKhAppName } from "~~/kh/app/composables/use-kh-app-name";
 import { moreLayout, moreSections } from "~~/kh/app/composables/use-kh-navigation";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
-import { khSidebar, saveKhSimple } from "~~/kh/app/composables/use-kh-sidebar";
+import { khSidebar } from "~~/kh/app/composables/use-kh-sidebar";
 import { SETUP_PATH } from "~~/kh/app/lib/device-setup";
 import { forAddons, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 import { alert } from "~/composables/use-toast";
@@ -142,7 +121,6 @@ const auth = useMealieAuth();
 useSeoMeta({ title: i18n.t("kh.nav.more") });
 
 const appName = useKhAppName();
-const languageDialog = ref(false);
 const deleteOpen = ref(false);
 const tourOpen = ref(false); // shown again any time, without a call to the server (D59)
 const newsOpen = ref(false); // all versions any time, without a call to the server (D69)

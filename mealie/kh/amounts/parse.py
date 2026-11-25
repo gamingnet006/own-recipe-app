@@ -1,6 +1,6 @@
-"""KH: reads German ingredient lines without AI (D39, A1): amount, range and unit, and the food when the group has it
-exactly. Mealie's NLP library leaves German units in the name, so only Mealie's matching of the group's units and
-foods is used. Also adds the German units Mealie's German set lacks, once per group."""
+"""KH: reads ingredient lines without AI (D39, A1), German and English: amount, range and unit, and the food when
+the group has it exactly. Mealie's NLP library leaves German units in the name, so only Mealie's matching of the
+group's units and foods is used. Also adds the units Mealie's German or English set lacks, once per group."""
 
 import re
 import unicodedata
@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from mealie.db.models.recipe.ingredient import IngredientFoodModel, IngredientUnitModel
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe.recipe_ingredient import (
     IngredientFoodOut,
@@ -20,12 +21,14 @@ from mealie.services.parser_services._base import DataMatcher
 VULGAR = "¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞"  # fraction characters, read as written in a step's text
 # 1 1/2, 1/2, 1½ or 1 ½, 1.5, 3; never x/0. Lines are cleaned first; steps keep their characters, so links fit the text
 NUMBER = rf"\d+\s+\d+/[1-9]\d*|\d+/[1-9]\d*|(?:\d+ ?)?[{VULGAR}]|\d+(?:\.\d+)?"
-QUANTITY = re.compile(rf"(?P<value>{NUMBER})(?:\s*(?:-|–|—|bis)\s*(?P<upper>{NUMBER}))?")
+QUANTITY = re.compile(rf"(?P<value>{NUMBER})(?:\s*(?:-|–|—|bis|to)\s*(?P<upper>{NUMBER}))?")
 WORD = re.compile(r"\S+")
 
-FIXED_UNITS = {"prise", "messerspitze"}  # normalized unit names that never scale
-FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack)\b", re.IGNORECASE)
-ABOUT = re.compile(r"^(?:ca\.?|circa|etwa|ungefähr|rund)\s+(?=\d)", re.IGNORECASE)  # "ca. 200 g": the amount follows
+FIXED_UNITS = {"prise", "messerspitze", "pinch", "dash"}  # normalized unit names that never scale
+FIXED_WORDS = re.compile(r"\b(?:etwas|nach geschmack|some|to taste|as needed)\b", re.IGNORECASE)
+ABOUT = re.compile(
+    r"^(?:ca\.?|circa|etwa|ungefähr|rund|about|approx\.?|approximately|around)\s+(?=\d)", re.IGNORECASE
+)  # "ca. 200 g": the amount follows
 THOUSANDS = re.compile(r"(?<![\d.])([1-9]\d{0,2})((?:\.\d{3})+)(?![\d.])")  # "1.000" and "1.250,5", never "1.5"
 PLURAL_MARKER = re.compile(r"(?<=[^\W\d_])\((?:n|en|e|er|s|nen)\)")  # a plural ending in brackets, glued on
 ENDINGS = ("en", "er", "e", "n", "s")  # up to two are cut off by stem(), the longest first
@@ -41,6 +44,18 @@ GERMAN_UNITS = (
     ("Blatt", "Blätter", ""),
 )
 PACK_ALIASES = ("Pck.", "Päckchen")
+# the same for a group using Mealie's English units: name, plural, abbreviation
+ENGLISH_UNITS = (
+    ("piece", "pieces", "pc."),
+    ("slice", "slices", ""),
+    ("pot", "pots", ""),
+    ("jar", "jars", ""),
+    ("cube", "cubes", ""),
+    ("sheet", "sheets", ""),
+)
+ENGLISH_PACK_ALIASES = ("pkg.", "packet", "package")
+# English writes a comma between thousands ("1,000 g"), German a point ("1.000 g") and a comma for decimals
+ENGLISH_THOUSANDS = re.compile(r"(?<![\d,.])([1-9]\d{0,2})((?:,\d{3})+)(?![\d,])")
 
 
 @dataclass(frozen=True)
@@ -55,9 +70,15 @@ class ParsedLine:
     fixed: bool  # never scaled: Prise, Messerspitze, "etwas", "nach Geschmack"
 
 
-def clean(text: str) -> str:
-    """The line in a form QUANTITY reads: plain spaces, fractions as 1/2 ("1½" → "1 1/2"), a decimal point instead of
-    a comma (thousands points dropped), a space between a number and a unit written onto it ("250g" → "250 g"), and
+def is_english(locale: str) -> bool:
+    """Whether numbers are written the English way (comma between thousands, point for decimals) in LOCALE."""
+    return locale.startswith("en")
+
+
+def clean(text: str, locale: str = DEFAULT_LOCALE) -> str:
+    """The line in a form QUANTITY reads: plain spaces, fractions as 1/2 ("1½" → "1 1/2"), in German a decimal point
+    instead of a comma (thousands points dropped), in English the thousands commas dropped, a space between a
+    number and a unit written onto it ("250g" → "250 g"), and
     no plural endings in brackets ("Birne(n)" → "Birne")."""
     chars = []
     for index, char in enumerate(text):
@@ -68,8 +89,12 @@ def clean(text: str) -> str:
             chars.append(f"{space}{fraction.numerator}/{fraction.denominator}")
         else:
             chars.append(" " if char.isspace() else char)
-    text = THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(".", ""), "".join(chars))  # German: point groups
-    text = re.sub(r"(?<=\d),(?=\d)", ".", text)
+    text = "".join(chars)
+    if is_english(locale):
+        text = ENGLISH_THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(",", ""), text)
+    else:
+        text = THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(".", ""), text)  # German: point groups
+        text = re.sub(r"(?<=\d),(?=\d)", ".", text)
     text = re.sub(r"(?<=\d)(?=[^\W\d_])", " ", text)
     text = PLURAL_MARKER.sub("", text)  # Chefkoch writes "Birne(n)", "Ei(er)", "Prise(n)"
     return re.sub(r" {2,}", " ", text).strip()
@@ -124,10 +149,12 @@ def food_and_note(rest: str, foods: dict[str, IngredientFoodOut]) -> tuple[Ingre
     return food, rest[split.start() :].lstrip(",").strip() if split else ""
 
 
-def parse_ingredient(line: str, units: dict[str, IngredientUnitOut], foods: dict[str, IngredientFoodOut]) -> ParsedLine:
-    """Reads one ingredient line; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher. A line without an
-    amount stays as it was, as note."""
-    text = ABOUT.sub("", clean(line))
+def parse_ingredient(
+    line: str, units: dict[str, IngredientUnitOut], foods: dict[str, IngredientFoodOut], locale: str = DEFAULT_LOCALE
+) -> ParsedLine:
+    """Reads one ingredient line; UNITS and FOODS are the group's, keyed like Mealie's DataMatcher, LOCALE decides
+    how numbers are written. A line without an amount stays as it was, as note."""
+    text = ABOUT.sub("", clean(line, locale))
     match = QUANTITY.match(text)
     if match is None:  # "etwas Öl": only a line without an amount is fixed by its words
         return ParsedLine(None, None, None, None, line, bool(FIXED_WORDS.search(line)))
@@ -143,6 +170,27 @@ def parse_ingredient(line: str, units: dict[str, IngredientUnitOut], foods: dict
     return ParsedLine(quantity, upper, unit, food, note, fixed)
 
 
+def _add_units(
+    repos: AllRepositories, extras: tuple[tuple[str, str, str], ...], known: dict[str, IngredientUnitOut]
+) -> None:
+    """Creates the units of EXTRAS the group does not have."""
+    for name, plural, abbreviation in extras:
+        if IngredientUnitModel.normalize(name) not in known:
+            repos.ingredient_units.create(
+                IngredientUnitSave(name=name, plural_name=plural, abbreviation=abbreviation, group_id=repos.group_id)
+            )
+
+
+def _add_pack_aliases(repos: AllRepositories, pack: IngredientUnitOut | None, wanted: tuple[str, ...]) -> None:
+    """Adds the aliases WANTED to the group's pack unit (if it has one) that it does not know yet."""
+    if pack is None:
+        return
+    known = {alias.name for alias in pack.aliases}
+    aliases = [*pack.aliases, *(IngredientUnitAliasCreate(name=a) for a in wanted if a not in known)]
+    data = pack.model_dump() | {"aliases": [alias.model_dump() for alias in aliases], "group_id": repos.group_id}
+    repos.ingredient_units.update(pack.id, IngredientUnitSave.model_validate(data))
+
+
 def ensure_german_units(repos: AllRepositories) -> None:
     """Adds Messerspitze, Stück, Scheibe, Becher, Glas, Würfel and Blatt, and the aliases "Pck." and "Päckchen" of
     Packung, to a group using Mealie's German units (it has "Esslöffel"). Once: a group with a Messerspitze is done,
@@ -150,15 +198,21 @@ def ensure_german_units(repos: AllRepositories) -> None:
     units = DataMatcher(repos).units_by_alias
     if "essloffel" not in units or "messerspitze" in units:
         return
-    for name, plural, abbreviation in GERMAN_UNITS:
-        if IngredientUnitModel.normalize(name) not in units:
-            repos.ingredient_units.create(
-                IngredientUnitSave(name=name, plural_name=plural, abbreviation=abbreviation, group_id=repos.group_id)
-            )
-    pack = units.get("packung")
-    if pack is None:
+    _add_units(repos, GERMAN_UNITS, units)
+    _add_pack_aliases(repos, units.get("packung"), PACK_ALIASES)
+
+
+def ensure_english_units(repos: AllRepositories) -> None:
+    """Adds piece, slice, pot, jar, cube and sheet, and the aliases "pkg.", "packet" and "package" of pack, to a group
+    using Mealie's English units (it has "teaspoon" and no "Esslöffel"). Once: a group with a piece is done."""
+    units = DataMatcher(repos).units_by_alias
+    if "teaspoon" not in units or "essloffel" in units or "piece" in units:
         return
-    known = {alias.name for alias in pack.aliases}
-    aliases = [*pack.aliases, *(IngredientUnitAliasCreate(name=a) for a in PACK_ALIASES if a not in known)]
-    data = pack.model_dump() | {"aliases": [alias.model_dump() for alias in aliases], "group_id": repos.group_id}
-    repos.ingredient_units.update(pack.id, IngredientUnitSave.model_validate(data))
+    _add_units(repos, ENGLISH_UNITS, units)
+    _add_pack_aliases(repos, units.get("pack"), ENGLISH_PACK_ALIASES)
+
+
+def ensure_extra_units(repos: AllRepositories) -> None:
+    """Adds Kochheft's extra units for the group's language, German or English, once."""
+    ensure_german_units(repos)
+    ensure_english_units(repos)

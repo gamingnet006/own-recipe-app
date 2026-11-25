@@ -205,17 +205,18 @@
       > {{
         $t('profile.looking-for-privacy-settings') }} </nuxt-link>
       <div class="d-flex flex-wrap justify-center mt-5">
+        <!-- KH: back to Kochheft's settings page instead of Mealie's profile hub (wave 2) -->
         <v-btn
           variant="outlined"
           class="rounded-xl my-1 mx-1"
-          :to="`/user/profile`"
+          :to="`/g/${auth.user.value?.groupSlug}/einstellungen`"
           nuxt
           exact
         >
           <v-icon start>
             {{ $globals.icons.backArrow }}
           </v-icon>
-          {{ $t('profile.back-to-profile') }}
+          {{ $t('kh.settings.back') }}
         </v-btn>
       </div>
     </section>

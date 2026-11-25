@@ -14,9 +14,11 @@ class TagRef(MealieModel):
 
 
 class SuggestIn(MealieModel):
-    """use_ai: also ask the AI about recipes the rules found nothing for (a few at a time)."""
+    """use_ai: also ask the AI about tagless recipes (a few at a time); skip_ids: recipes already asked this visit,
+    which are not asked again."""
 
     use_ai: bool = False
+    skip_ids: list[UUID4] = Field(default_factory=list, max_length=1000)
 
 
 class TagProposal(MealieModel):
@@ -29,11 +31,14 @@ class TagProposal(MealieModel):
 
 
 class SuggestOut(MealieModel):
-    """The proposals, whether an AI provider is set, and how many tagless recipes have no proposal yet."""
+    """The proposals, whether an AI provider is set, how many tagless recipes have no proposal, which recipes the AI
+    was asked about in this call and how many tagless recipes it has not been asked about yet."""
 
     proposals: list[TagProposal]
     ai_available: bool
     without_proposal: int
+    asked_ids: list[UUID4]
+    ai_left: int
 
 
 class ApplyItem(MealieModel):

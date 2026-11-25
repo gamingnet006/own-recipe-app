@@ -1,8 +1,9 @@
-<!-- KH: the one dialog the start page may open for a signed-in person (D59 tour, D69 news, D85 new address, D68 setup question); see
+<!-- KH: the one dialog the start page may open for a signed-in person (D59 tour, the question about intolerances, D69 news, D85 new address, D68 setup question); see
 startDialog() for the order. The setup question is asked once per person and device. -->
 <template>
   <div>
     <KhTour v-model="showTour" @done="onTourDone" />
+    <KhIntolerancesDialog v-if="showIntolerances" v-model="showIntolerances" />
     <KhNews v-model="showNews" :news="news" @done="onNewsDone" />
     <KhCards
       v-model="showAddress"
@@ -79,11 +80,13 @@ function storedSeen() {
 const chosen = startDialog({
   status: khOnboarding.status,
   signedIn: !!userId,
+  allergensOn: khAddons.enabled.allergens,
   hasNews: news.length > 0,
   addressChanged: addressCardDue($khFeatures.addressChangedAt, storedSeen()),
   askDevice: shouldAskDevice(storedAnswer(), device, navigator.userAgent, Date.now()),
 });
 const showTour = ref(chosen === "tour");
+const showIntolerances = ref(chosen === "intolerances");
 const showNews = ref(chosen === "news");
 const showAddress = ref(chosen === "address");
 const showDevice = ref(chosen === "device");

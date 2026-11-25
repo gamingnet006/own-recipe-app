@@ -1,14 +1,17 @@
 """KH: substitutions and variants (D44): own rules before the standard ones, a variant with replaced foods whose
 original stays untouched, two variants in a row, and that a household's rules stay its own."""
 
+import json
+from pathlib import Path
+
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from mealie.kh.allergens.models import KhSubstitution
 from mealie.kh.allergens.rules import allergens_of_line
-from mealie.kh.allergens.schemas import ALLERGEN_NAMES_DE, ALLERGENS
-from mealie.kh.allergens.substitutions import standard_rules
+from mealie.kh.allergens.schemas import ALLERGEN_NAMES, ALLERGENS
+from mealie.kh.allergens.substitutions import standard_rules, variant_name
 from tests.kh.nutrition.helpers import new_recipe
 from tests.utils import api_routes, random_string
 from tests.utils.fixture_schemas import TestUser
@@ -186,8 +189,8 @@ def test_variant_of_a_line_without_food_replaces_its_note(api_client: TestClient
 
 
 def test_variant_names_are_the_spec_names_from_one_dict():
-    assert tuple(ALLERGEN_NAMES_DE) == ALLERGENS
-    assert list(ALLERGEN_NAMES_DE.values()) == [
+    assert tuple(ALLERGEN_NAMES["de-DE"]) == ALLERGENS
+    assert list(ALLERGEN_NAMES["de-DE"].values()) == [
         "Gluten", "Krebstiere", "Ei", "Fisch", "Erdnüsse", "Soja", "Milch", "Schalenfrüchte", "Sellerie", "Senf",
         "Sesam", "Sulfite", "Lupinen", "Weichtiere",
     ]  # fmt: skip
@@ -225,3 +228,28 @@ def test_a_variant_keeps_added_corrections_but_not_removed_ones(api_client: Test
     new_slug = variant(api_client, unique_user, slug, ["milk"]).json()["slug"]
     hits = {h["allergen"]: h["corrected"] for h in report(api_client, unique_user, new_slug)["hits"]}
     assert hits == {"sesame": True}
+
+
+def test_variant_name_follows_the_language(api_client: TestClient, unique_user: TestUser):
+    clear_rules(api_client, unique_user)
+    slug = dairy_recipe(api_client, unique_user)["slug"]
+    response = api_client.post(
+        f"{KH}/recipes/{slug}/variant",
+        json={"allergens": ["milk"]},
+        headers={**unique_user.token, "Accept-Language": "en-US,en;q=0.9"},
+    )
+    assert response.status_code == 201
+    new = api_client.get(api_routes.recipes_slug(response.json()["slug"]), headers=unique_user.token).json()
+    assert new["name"].endswith("(without milk)")
+
+
+def test_variant_name_lists_several_allergens() -> None:
+    assert variant_name("Cake", ["milk", "eggs"], "en-US") == "Cake (without milk, eggs)"
+    assert variant_name("Kuchen", ["eggs", "milk"], "de-DE") == "Kuchen (ohne Ei, Milch)"
+
+
+def test_allergen_names_equal_the_ones_the_frontend_shows() -> None:
+    lang = Path(__file__).parents[3] / "frontend" / "kh" / "lang"
+    for locale, names in ALLERGEN_NAMES.items():
+        shown = json.loads((lang / f"{locale}.json").read_text(encoding="utf-8"))["kh"]["allergens"]["names"]
+        assert names == shown

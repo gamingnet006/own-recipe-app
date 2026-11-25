@@ -13,8 +13,11 @@ per tag; only what the person confirms is saved, nothing is tagged silently. -->
       <v-btn color="primary" :loading="loading" @click="search(false)">
         {{ $t("kh.tag-suggest.search") }}
       </v-btn>
-      <v-btn v-if="result?.aiAvailable && result.withoutProposal" variant="outlined" :loading="loading" @click="search(true)">
+      <v-btn v-if="result?.aiAvailable && result.aiLeft" variant="outlined" :loading="loading" @click="search(true)">
         {{ $t("kh.tag-suggest.search-ai") }}
+      </v-btn>
+      <v-btn v-if="asked.length" variant="text" @click="askAgain">
+        {{ $t("kh.tag-suggest.ask-again") }}
       </v-btn>
     </div>
 
@@ -53,6 +56,7 @@ per tag; only what the person confirms is saved, nothing is tagged silently. -->
 <script setup lang="ts">
 import type { KhTagSuggestions } from "../../../lib/api/tags";
 import { KhTagsApi } from "../../../lib/api/tags";
+import { clearAsked, loadAsked, saveAsked } from "../../../lib/asked-tags";
 import { confirmedItems } from "../../../lib/draft-tags";
 import { useRequests } from "~/composables/api/api-client";
 import { alert } from "~/composables/use-toast";
@@ -66,6 +70,7 @@ const groupSlug = useRoute().params.groupSlug as string;
 const api = new KhTagsApi(useRequests());
 
 const result = ref<KhTagSuggestions | null>(null);
+const asked = ref<string[]>(loadAsked(groupSlug)); // recipes the AI was asked about, kept in this browser; not asked again
 const unticked = ref(new Set<string>()); // "recipeId:tagId" of the tags a person took away
 const loading = ref(false);
 const saving = ref(false);
@@ -77,13 +82,21 @@ useSeoMeta({ title: () => i18n.t("kh.tag-suggest.title") });
 /** Looks for proposals again; USEAI also asks the AI about a few recipes the rules found nothing for. */
 async function search(useAi: boolean) {
   loading.value = true;
-  const { data } = await api.suggest(useAi);
+  const { data } = await api.suggest(useAi, asked.value);
   loading.value = false;
   failed.value = !data;
   if (data) {
     result.value = data;
+    asked.value = [...asked.value, ...data.askedIds];
+    saveAsked(groupSlug, asked.value);
     unticked.value = new Set();
   }
+}
+
+/** Forgets which recipes were asked, so the AI may look at them again. */
+function askAgain() {
+  clearAsked(groupSlug);
+  asked.value = [];
 }
 
 function toggle(recipeId: string, tagId: string) {

@@ -1,3 +1,4 @@
+<!-- KH: four descriptions read kh.hub.* instead of profile.*: they were English in German or named Mealie (wave 2) -->
 <template>
   <v-container v-if="user" class="mb-8">
     <section class="d-flex flex-column align-center mt-4">
@@ -50,7 +51,7 @@
               {{ $t('profile.household-statistics') }}
             </v-card-title>
             <v-card-text class="py-0">
-              {{ $t('profile.household-statistics-description') }}
+              {{ $t('kh.hub.household-statistics-description') }}
             </v-card-text>
             <v-card-text
               class="d-flex flex-wrap justify-center align-center"
@@ -140,7 +141,7 @@
             <template #title>
               {{ $t('profile.household-settings') }}
             </template>
-            {{ $t('profile.household-settings-description') }}
+            {{ $t('kh.hub.household-settings-description') }}
           </UserProfileLinkCard>
         </v-col>
         <v-col
@@ -188,7 +189,7 @@
               <template #title>
                 {{ $t('settings.webhooks.webhooks') }}
               </template>
-              {{ $t('profile.webhooks-description') }}
+              {{ $t('kh.hub.webhooks-description') }}
             </UserProfileLinkCard>
           </v-col>
         </AdvancedOnly>
@@ -250,7 +251,7 @@
             <template #title>
               {{ $t('profile.manage-data') }}
             </template>
-            {{ $t('profile.manage-data-description') }}
+            {{ $t('kh.hub.manage-data-description') }}
           </UserProfileLinkCard>
         </v-col>
         <AdvancedOnly>

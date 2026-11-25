@@ -144,6 +144,23 @@
       "dark": "Dark",
       "hint": "System follows the setting of this device. The choice applies to this device only."
     },
+    "accent": {
+      "title": "Colour",
+      "salbei": "Sage",
+      "waldgruen": "Forest green",
+      "petrol": "Teal",
+      "blau": "Blue",
+      "indigo": "Indigo",
+      "lila": "Purple",
+      "beere": "Berry",
+      "tomatenrot": "Tomato red",
+      "terrakotta": "Terracotta",
+      "senf": "Mustard",
+      "installation": "Like the installation",
+      "hint": "The choice applies on all your devices. The app icon on the home screen keeps the installation’s colour.",
+      "setup": "Which colour should @:{'kh.app.name'} have?",
+      "setup-hint": "It applies to everyone who does not choose their own colour, and to the sign-in page. The app icon on the home screen gets it when it is added."
+    },
     "nav": {
       "customize": "Customize",
       "intake": "Intake",
@@ -443,6 +460,12 @@
       }
     },
     "allergens": {
+      "ask": {
+        "title": "Is there anything you cannot eat?",
+        "text": "Tick what you cannot tolerate. Recipes will then warn you. You can change this later under Settings.",
+        "skip": "Skip",
+        "save": "Save"
+      },
       "names": {
         "gluten": "Gluten",
         "crustaceans": "Crustaceans",
@@ -1136,6 +1159,36 @@
           "title": "Setup assistant",
           "text": "The first-time setup now knows @:{'kh.app.name'}: add-ons, adding the family, a short check. You can open it again any time."
         }
+      },
+      "v1-5": {
+        "language": {
+          "title": "Deutsch or English",
+          "text": "Everyone picks their language under Settings. The choice applies on all devices, for Siri and notifications too."
+        },
+        "settings": {
+          "title": "Everything on one page",
+          "text": "Settings are now one page: Me, On this device and, for admins, Family & administration. The arrow at the top left takes you back."
+        },
+        "colour": {
+          "title": "Your colour",
+          "text": "Ten colours to choose from, for each person. Plus light, dark or like the system."
+        },
+        "siri": {
+          "title": "Siri understands whole sentences",
+          "text": "For example: “Two butter and milk on the Aldi list and tampons on the DM list.” Shopping lists can now be renamed too."
+        },
+        "tags": {
+          "title": "Tags",
+          "text": "@:{'kh.app.name'} comes with 24 tags and suggests fitting ones on import. Only what you confirm is saved."
+        },
+        "offline": {
+          "title": "Without a connection too",
+          "text": "Recipes, the week plan and the shopping list are there without a connection. A note at the top shows when the network is gone."
+        },
+        "kinds": {
+          "title": "Account types",
+          "text": "When you add a person you only choose Family, Management or Admin. Invited people get “Family”."
+        }
       }
     },
     "notifications": {
@@ -1202,7 +1255,7 @@
       "open": "Open",
       "later": "Later",
       "seed": "Create foods, units and departments (needed for the shopping list tiles)",
-      "ai-hint": "Optional. Links with recipe data and Kochheft files work without AI. For photos, text and speech you need a provider; free keys are listed further down.",
+      "ai-hint": "Optional. Links with recipe data and @:{'kh.app.name'} files work without AI. For photos, text and speech you need a provider; free keys are listed further down.",
       "addons": {
         "intro": "What do you need? You can change this any time under More → Add-ons.",
         "recipes": "Collect and cook recipes, without shopping list and meal plan.",
@@ -1231,6 +1284,8 @@
           "taken": "Username or e-mail is already taken",
           "failed": "Could not add the person"
         },
+        "intolerances": "Cannot tolerate something (optional)",
+        "intolerances-failed": "{name} was added, but what they cannot tolerate could not be saved.",
         "tour-failed": "{name} was added, but the introduction could not be switched on.",
         "simple-failed": "{name} was added, but the simple view could not be switched on.",
         "pending-title": "One person has not been added yet. Add now? | {n} people have not been added yet. Add now?",
@@ -1255,7 +1310,7 @@
       },
       "welcome": "Welcome to @:{'kh.app.name'}! Let’s get started",
       "previous": "Do you already have a backup of @:{'kh.app.name'} or Mealie?",
-      "seed-hint": "@:{'kh.app.name'} adds foods, units and departments, so the shopping list is sorted by department. You can change or add to them at any time.",
+      "seed-hint": "@:{'kh.app.name'} adds English foods, units and departments, so the shopping list is sorted by department. You can change or add to them at any time.",
       "language": "Choose your language"
     },
     "app": {
@@ -1273,11 +1328,40 @@
       "name": "Collection name",
       "household-name": "{0} Collection {1}"
     },
+    "settings": {
+      "me": "Me",
+      "device": "On this device",
+      "family": "Family & administration",
+      "advanced": "Advanced",
+      "mealie": "Mealie settings",
+      "profile-edit": "Name, photo, password, e-mail",
+      "household": "Manage household",
+      "people": "People and account types",
+      "back": "Back to settings"
+    },
+    "kind": {
+      "title": "Account type",
+      "family": "Family",
+      "family-hint": "Everyday use: recipes, shopping, plan, collections, categories and tags",
+      "manager": "Administration",
+      "manager-hint": "like Family, plus inviting and managing the household",
+      "admin": "Admin",
+      "admin-hint": "everything, including settings and add-ons",
+      "custom": "Custom selection",
+      "individual": "Set individually"
+    },
+    "hub": {
+      "household-statistics-description": "Your household statistics give you an insight into how you use @:{'kh.app.name'}.",
+      "household-settings-description": "Manage your household settings, like meal plan and privacy settings.",
+      "webhooks-description": "Set up webhooks that trigger on days that you have meal plans scheduled.",
+      "manage-data-description": "Manage your @:{'kh.app.name'} data: foods, units, categories, tags and more."
+    },
     "tag-suggest": {
       "title": "Suggest tags",
       "description": "For recipes without tags. Nothing is saved until you confirm it.",
       "search": "Find suggestions",
-      "search-ai": "Keep looking with AI (up to 20 recipes)",
+      "search-ai": "Keep looking with AI (10 recipes at a time)",
+      "ask-again": "Ask again",
       "none": "No suggestions found. Either all recipes have tags already, or none of the existing tags fits.",
       "left": "There is no suggestion for {n} more recipes without tags.",
       "apply": "Apply to {n} recipes",

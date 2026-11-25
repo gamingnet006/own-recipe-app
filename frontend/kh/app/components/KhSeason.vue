@@ -7,8 +7,8 @@ of the group that use such a food. Only with the add-on "season" on; a failed re
         {{ $t("kh.season.title") }}
       </h2>
       <div class="d-flex flex-wrap ga-2">
-        <v-chip v-for="item in items" :key="item.names[0]" color="primary" variant="tonal" @click="searchFor(item.names[0]!)">
-          {{ item.names[0] }}
+        <v-chip v-for="item in items" :key="item.names[0]" color="primary" variant="tonal" @click="searchFor(seasonName(item, locale))">
+          {{ seasonName(item, locale) }}
         </v-chip>
       </div>
     </section>
@@ -20,10 +20,11 @@ of the group that use such a food. Only with the add-on "season" on; a failed re
 import { computed, ref, watch } from "vue";
 import { khAddons } from "../composables/use-kh-addons";
 import { KhSeasonApi, type KhSeasonRecipe } from "../lib/api/season";
-import { inSeason, monthOf, seasonTerms } from "../lib/season";
+import { inSeason, monthOf, seasonName, seasonTerms } from "../lib/season";
 import { useRequests } from "~/composables/api/api-client";
 import { useRecipeExplorerSearch } from "~/composables/use-recipe-explorer-search";
 
+const { locale } = useI18n();
 const MAX_CHIPS = 12;
 const month = monthOf(new Date());
 const items = inSeason(month).slice(0, MAX_CHIPS);

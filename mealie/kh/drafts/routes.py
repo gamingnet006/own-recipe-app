@@ -155,9 +155,10 @@ class KhDraftsController(_DraftsBase):
         return draft
 
     @router.patch("/{draft_id}/recipe", response_model=DraftOut)
-    def edit_recipe(self, draft_id: UUID4, data: DraftEditIn) -> DraftOut:
-        """Changes the name, one ingredient line or one step of a ready draft's recipe."""
-        return self.service.edit(draft_id, data)
+    def edit_recipe(self, draft_id: UUID4, data: DraftEditIn, request: Request) -> DraftOut:
+        """Changes the name, one ingredient line or one step of a ready draft's recipe; numbers are read in the
+        person's language ("1,000" is a thousand in English, "1,5" one and a half in German)."""
+        return self.service.edit(draft_id, data, request_locale(self.session, self.user.id, request))
 
     @router.post("/{draft_id}/approve", response_model=ApproveOut)
     def approve(self, draft_id: UUID4, data: ApproveIn | None = None) -> ApproveOut:

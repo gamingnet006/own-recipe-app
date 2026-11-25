@@ -46,6 +46,8 @@ EXPECTED_ROUTE_PERMISSIONS: dict[Perm, set[str]] = {
         "PUT     /api/units/{item_id}",
         "DELETE  /api/units/{item_id}",
         "PUT     /api/kh/nutrition/foods/{food_id}",  # KH: like editing a food (D44)
+        "POST    /api/kh/tags/suggest",  # KH: tag proposals for recipes without tags (wave 2)
+        "POST    /api/kh/tags/apply",  # KH
     },
     Perm.GROUP_MANAGE: {
         "POST    /api/groups/ai-providers/providers",

@@ -16,7 +16,8 @@ export default defineNuxtRouteMiddleware(async () => {
   }
   const i18n = useNuxtApp().$i18n as unknown as Composer;
   await loadKhSidebarFor(user.id, i18n);
-  if (localeShownFor !== user.id) {
+  // only once the settings really loaded: after a failed (offline) start the retry still applies the account's language
+  if (khSidebar.userId === user.id && localeShownFor !== user.id) {
     localeShownFor = user.id;
     await applyKhLocale(khSidebar.locale, i18n);
   }

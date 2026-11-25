@@ -5,6 +5,8 @@ import math
 import re
 from uuid import UUID
 
+from mealie.kh.amounts.parse import is_english
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.kh.nutrition.bls import SALT_PER_SODIUM, BlsFood
 from mealie.kh.nutrition.grams import grams_of
 from mealie.kh.nutrition.mapping import resolve_code
@@ -28,6 +30,7 @@ MEALIE_FIELDS = {
 # German thousands first ("1.200" is twelve hundred, "1.250,5"), then plain numbers with a comma or point decimal
 THOUSANDS = r"\d{1,3}(?:\.\d{3})+(?:,\d+)?"
 NUMBER = re.compile(rf"{THOUSANDS}|\d+(?:[.,]\d+)?")
+ENGLISH_NUMBER = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?")  # "1,250" is twelve hundred fifty
 KCAL_STEP = 10
 
 
@@ -51,8 +54,11 @@ def _is_title(ingredient: RecipeIngredient) -> bool:
     return bool(ingredient.title) and not (ingredient.note or ingredient.food or ingredient.unit or ingredient.quantity)
 
 
-def _number(text: str | None) -> float | None:
-    """The first number in TEXT ("12,5 g" gives 12.5), or None."""
+def _number(text: str | None, locale: str = DEFAULT_LOCALE) -> float | None:
+    """The first number in TEXT ("12,5 g" gives 12.5 in German, "1,250 kcal" 1250 in English), or None."""
+    if is_english(locale):
+        found = ENGLISH_NUMBER.search(text or "")
+        return float(found.group().replace(",", "")) if found else None
     match = NUMBER.search(text or "")
     if not match:
         return None
@@ -62,14 +68,14 @@ def _number(text: str | None) -> float | None:
     return float(digits.replace(",", "."))
 
 
-def _manual(nutrition: Nutrition | None) -> dict[str, float | None] | None:
+def _manual(nutrition: Nutrition | None, locale: str = DEFAULT_LOCALE) -> dict[str, float | None] | None:
     """The values a person entered in Mealie's nutrition fields, or None if the fields are all empty or none holds a
     number (then the calculation is better than a card of dashes). Text without a number gives None for that value;
     sodium (mg) becomes salt."""
     if nutrition is None or not any(value and value.strip() for value in nutrition.model_dump().values()):
         return None
-    values = {name: _number(getattr(nutrition, field)) for name, field in MEALIE_FIELDS.items()}
-    sodium = _number(nutrition.sodium_content)
+    values = {name: _number(getattr(nutrition, field), locale) for name, field in MEALIE_FIELDS.items()}
+    sodium = _number(nutrition.sodium_content, locale)
     values["salt"] = None if sodium is None else sodium * SALT_PER_SODIUM / 1000
     return values if any(value is not None for value in values.values()) else None
 
@@ -79,13 +85,14 @@ def calculate(
     mappings: dict[UUID, KhFoodNutrition],
     bls: dict[str, BlsFood],
     aliases: dict[str, str],
+    locale: str = DEFAULT_LOCALE,
 ) -> NutritionOut:
     """The recipe's nutrition. MAPPINGS holds the stored food mappings by food ID, BLS the table and ALIASES the
     common foods' codes. A line counts when it has grams and a BLS entry; a suggested entry makes the result
-    "estimated"."""
+    "estimated". LOCALE says how hand-entered numbers are written."""
     servings = recipe.recipe_servings if recipe.recipe_servings and recipe.recipe_servings > 0 else None
     per = "serving" if servings else "recipe"
-    manual = _manual(recipe.nutrition)
+    manual = _manual(recipe.nutrition, locale)
     if manual is not None:
         return NutritionOut(
             per="serving",

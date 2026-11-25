@@ -16,7 +16,8 @@ from mealie.db.models.recipe import RecipeComment, RecipeModel, RecipeTimelineEv
 from mealie.db.models.users.user_to_recipe import UserToRecipe
 from mealie.db.models.users.users import User
 from mealie.kh.accounts.models import KhAccountLink
-from mealie.kh.accounts.removal import ALONE_IN_HOUSEHOLD, LAST_ADMIN, LAST_PERSON, default_heir
+from mealie.kh.accounts.removal import default_heir
+from mealie.kh.i18n.messages import say
 from mealie.kh.notes.models import KhRecipeNote
 from mealie.kh.wishes.models import KhRecipeWish
 from mealie.repos.all_repositories import get_repositories
@@ -259,7 +260,7 @@ def test_admin_delete_alone_with_recipes_is_refused(
     response = api_client.delete(api_routes.admin_users_item_id(alone.user_id), headers=admin_token)
 
     assert response.status_code == 409
-    assert ALONE_IN_HOUSEHOLD in response.text
+    assert say("removal_alone") in response.text
     assert owner_of(session, slug) == alone.user_id
 
 
@@ -319,8 +320,8 @@ def test_self_delete_refused_for_the_last_admin(api_client: TestClient, session:
     last_admin = person(admin=True)
     response = api_client.post(DELETE, json={"confirm": last_admin.username}, headers=last_admin.token)
     assert response.status_code == 409
-    assert LAST_ADMIN in response.text
-    assert api_client.get(PREVIEW, headers=last_admin.token).json()["blocked"] == LAST_ADMIN
+    assert say("removal_last_admin") in response.text
+    assert api_client.get(PREVIEW, headers=last_admin.token).json()["blocked"] == say("removal_last_admin")
     assert user_exists(session, last_admin.user_id)
 
 
@@ -330,7 +331,7 @@ def test_self_delete_refused_when_alone_in_the_household(
     alone = person(new_household())
     response = api_client.post(DELETE, json={"confirm": alone.username}, headers=alone.token)
     assert response.status_code == 409
-    assert LAST_PERSON in response.text
+    assert say("removal_last_person") in response.text
     assert user_exists(session, alone.user_id)
 
 
@@ -421,3 +422,16 @@ def test_the_last_user_of_a_group_can_be_deleted_with_recipes(
 
     assert api_client.delete(api_routes.admin_users_item_id(last.user_id), headers=admin_token).status_code == 200
     assert not user_exists(session, last.user_id)
+
+
+def test_the_refusals_come_in_english_for_english_people(api_client: TestClient, session: Session, person: Person):
+    last_admin = person(admin=True)
+    english = {**last_admin.token, "Accept-Language": "en-US"}
+    response = api_client.post(DELETE, json={"confirm": last_admin.username}, headers=english)
+    assert response.status_code == 409 and say("removal_last_admin", "en-US") in response.text
+    assert (
+        api_client.get(PREVIEW, headers=english).json()["blocked"]
+        == "You are the last admin. Make someone else an admin first."
+    )
+    wrong = api_client.post(DELETE, json={"confirm": "nobody"}, headers=english)
+    assert wrong.status_code == 422 and wrong.json()["detail"] == "The username does not match."

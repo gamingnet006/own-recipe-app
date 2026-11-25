@@ -35,7 +35,30 @@ IMPERIAL_WORDS = re.compile(
     re.IGNORECASE,
 )
 LETTERS = re.compile(r"[^\W\d_]{2,}")  # words of two letters or more, without numbers
-FILLERS = {stem(word) for word in ("etwas", "und", "oder", "nach", "Geschmack", "zum", "für", "eine", "ein")}
+FILLERS = {
+    stem(word)
+    for word in (
+        "etwas",
+        "und",
+        "oder",
+        "nach",
+        "Geschmack",
+        "zum",
+        "für",
+        "eine",
+        "ein",
+        "some",
+        "and",
+        "or",
+        "to",
+        "taste",
+        "for",
+        "a",
+        "an",
+        "of",
+        "the",
+    )
+}
 
 
 def unit_name(ingredient: RecipeIngredient) -> str:

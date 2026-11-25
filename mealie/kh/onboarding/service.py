@@ -11,16 +11,20 @@ from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
-from mealie.core.config import get_app_settings
+from mealie.core.config import get_app_dirs, get_app_settings
 from mealie.core.root_logger import get_logger
 from mealie.core.security import hash_password
 from mealie.db.models.users.users import User
 from mealie.kh.accounts.models import KhAccountLink
+from mealie.kh.allergens.profile import save_allergies
 from mealie.kh.features.settings import get_kh_settings
+from mealie.kh.i18n.locale import DEFAULT_LOCALE, Locale, accept_language_locale, installation_locale, person_locale
+from mealie.kh.i18n.messages import say
 from mealie.kh.onboarding.mails import send_account_mail
 from mealie.kh.onboarding.models import KhAccountSettings, KhAccountToken, KhUserOnboarding
 from mealie.kh.onboarding.news import NEWS_VERSION
 from mealie.kh.onboarding.schemas import OnboardingStatus, WelcomeInfo
+from mealie.kh.tags.starter import seed_all_groups
 
 logger = get_logger()
 
@@ -135,6 +139,7 @@ def status_of(session: Session, user: User) -> OnboardingStatus:
         pending_email=pending,
         tour=bool(row and row.tour),
         news_seen=row.news_seen if row else None,
+        intolerances_asked=bool(row and row.intolerances_asked),
     )
 
 
@@ -161,9 +166,22 @@ def set_own_password(session: Session, user: User, password: str) -> None:
     session.commit()
 
 
+def _refuse_while_cooling_down(session: Session, user_id: UUID4, locale: Locale) -> None:
+    """429 (in LOCALE) when the user's open confirm link was made less than the cooldown ago."""
+    cooldown = get_kh_settings().verify_mail_cooldown_seconds
+    made = session.scalar(
+        sa.select(sa.func.max(KhAccountToken.created_at)).where(
+            KhAccountToken.user_id == user_id, KhAccountToken.kind == "verify"
+        )
+    )
+    if made is not None and (datetime.now(UTC) - made).total_seconds() < cooldown:
+        raise _fail(status.HTTP_429_TOO_MANY_REQUESTS, say("verify_cooldown", locale, seconds=cooldown))
+
+
 def request_verification(session: Session, user: User, email: str, accept_language: str | None) -> None:
-    """Mails a confirm link to the address; 400 for a bad address, 409 when another account has it, 503 when the
-    mail cannot be sent."""
+    """Mails a confirm link to the address; 400 for a bad address, 409 when another account has it, 429 while the
+    last confirm mail is younger than the cooldown, 503 when the mail cannot be sent."""
+    locale = person_locale(session, user.id, accept_language)
     address = email.strip().lower()
     if not EMAIL_PATTERN.fullmatch(address) or is_placeholder(address):
         raise _fail(status.HTTP_400_BAD_REQUEST, "This is not a valid e-mail address")
@@ -171,9 +189,10 @@ def request_verification(session: Session, user: User, email: str, accept_langua
         raise _fail(status.HTTP_409_CONFLICT, "This e-mail address is already used by another account")
     if not get_app_settings().SMTP_ENABLE:
         raise _fail(status.HTTP_503_SERVICE_UNAVAILABLE, "Mail sending is not set up")
+    _refuse_while_cooling_down(session, user.id, locale)
     token = issue_token(session, user.id, "verify", address)
     try:
-        sent = send_account_mail("verify", address, token, accept_language)
+        sent = send_account_mail("verify", address, token, locale)
     except Exception:
         logger.exception("failed to send the confirm e-mail")
         sent = False
@@ -221,7 +240,9 @@ def after_admin_create(
         return
     try:
         token = issue_token(session, user_id, "welcome", email)
-        if not send_account_mail("welcome", email, token, accept_language, username):
+        # the new person has not chosen a language yet: the installation's, else the admin's browser's
+        locale = installation_locale(session) or accept_language_locale(accept_language) or DEFAULT_LOCALE
+        if not send_account_mail("welcome", email, token, locale, username):
             logger.error("the welcome e-mail was not accepted by the mail server")
     except Exception:
         logger.exception("failed to send the welcome e-mail")
@@ -250,6 +271,21 @@ def set_news_seen(session: Session, user_id: UUID4, version: str) -> None:
     session.commit()
 
 
+def set_intolerances_asked(session: Session, user_id: UUID4) -> None:
+    """Remembers that the person answered or skipped "Verträgst du etwas nicht?". Commits."""
+    _row_for(session, user_id).intolerances_asked = True
+    session.commit()
+
+
+def set_intolerances_for(session: Session, user_id: UUID4, allergens: list[str]) -> None:
+    """The admin's choice of what a new person does not tolerate (setup wizard); counts as asked. 404 for an unknown
+    user. Commits."""
+    if session.get(User, user_id) is None:
+        raise _fail(status.HTTP_404_NOT_FOUND, "User not found")
+    save_allergies(session, user_id, allergens)
+    set_intolerances_asked(session, user_id)
+
+
 def delete_user_rows(session: Session, user_id: UUID4) -> None:
     """Deletes a deleted user's onboarding row and tokens; SQLite in Mealie skips cascades. Commits."""
     session.execute(sa.delete(KhUserOnboarding).where(KhUserOnboarding.user_id == user_id))
@@ -262,7 +298,9 @@ def get_email_required(session: Session) -> bool:
     return _email_required(session)
 
 
-def save_account_settings(session: Session, email_required: bool | None = None, locale: str | None = None) -> None:
+def save_account_settings(
+    session: Session, email_required: bool | None = None, locale: str | None = None, accent: str | None = None
+) -> None:
     """Saves the given parts (None keeps the stored one); turning "e-mail required" on needs working mail,
     otherwise nobody could confirm an address (400)."""
     if email_required and not get_app_settings().SMTP_ENABLE:
@@ -275,4 +313,8 @@ def save_account_settings(session: Session, email_required: bool | None = None, 
         row.email_required = email_required
     if locale is not None:
         row.locale = locale
+    if accent is not None:
+        row.accent = accent
     session.commit()
+    if locale is not None:
+        seed_all_groups(session, get_app_dirs().DATA_DIR)  # KH: the starter tags in the new language right away

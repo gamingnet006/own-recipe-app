@@ -8,6 +8,7 @@ import httpx
 import openai
 import pytest
 import sqlalchemy as sa
+from openai.types.chat import ChatCompletion
 
 from mealie.core.exceptions import RateLimitError
 from mealie.db.models._model_utils.datetime import get_utc_now
@@ -98,12 +99,25 @@ async def test_short_wait_brings_no_notice(unique_user: TestUser, providers, fak
 
 @pytest.mark.asyncio
 async def test_skip_changes_nothing(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
-    fake_ai_calls.behavior["A"] = status_error(openai.BadRequestError, 400)
+    fake_ai_calls.behavior["A"] = ValueError("broken JSON")
     assert await ask(unique_user) == ANSWER
     a = state(unique_user, providers["A"])
     assert (a.status, a.paused_until) == ("ready", None)
     assert notices(unique_user) == []
     assert fake_ai_calls.calls == ["A", "B"]
+
+
+@pytest.mark.asyncio
+async def test_an_error_about_the_request_is_not_sent_on(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
+    for error in (
+        status_error(openai.BadRequestError, 400),
+        openai.LengthFinishReasonError(completion=ChatCompletion.model_construct(choices=[])),
+    ):
+        fake_ai_calls.calls.clear()
+        fake_ai_calls.behavior["A"] = error
+        with pytest.raises(type(error)):
+            await ask(unique_user)
+        assert fake_ai_calls.calls == ["A"]
 
 
 @pytest.mark.asyncio
@@ -186,12 +200,12 @@ async def test_pause_counts_from_the_failure(
 
 @pytest.mark.asyncio
 async def test_the_list_retries_not_the_openai_package(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
-    # the last provider asked keeps the package's retries, as Mealie's one provider had them
+    # the list asks the next provider; no provider keeps the package's own retries
     fake_ai_calls.behavior.update(
         A=openai.APIConnectionError(request=REQUEST), B=openai.APIConnectionError(request=REQUEST)
     )
     assert await ask(unique_user) == ANSWER
-    assert fake_ai_calls.retries == [0, 0, None]
+    assert fake_ai_calls.retries == [0, 0, 0]
 
 
 @pytest.mark.asyncio
@@ -204,7 +218,7 @@ async def test_two_requests_note_one_change(unique_user: TestUser, providers, fa
 @pytest.mark.asyncio
 async def test_a_request_error_does_not_hide_an_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
     fake_ai_calls.behavior.update(
-        A=status_error(openai.BadRequestError, 400),
+        A=ValueError("broken JSON"),
         B=status_error(openai.RateLimitError, 429),
         C=openai.APIConnectionError(request=REQUEST),
     )
@@ -215,10 +229,10 @@ async def test_a_request_error_does_not_hide_an_outage(unique_user: TestUser, pr
 
 @pytest.mark.asyncio
 async def test_request_errors_are_no_outage(unique_user: TestUser, providers, fake_ai_calls: FakeAI):
-    # every provider rejects just this request (e.g. an answer form it cannot give): no outage, the error goes on
+    # every provider fails on just this request (e.g. an answer that is no JSON): no outage, the error goes on
     for name in providers:
-        fake_ai_calls.behavior[name] = status_error(openai.BadRequestError, 400)
-    with pytest.raises(openai.BadRequestError):
+        fake_ai_calls.behavior[name] = ValueError("broken JSON")
+    with pytest.raises(ValueError):
         await ask(unique_user)
     assert notices(unique_user) == []
     assert fake_ai_calls.calls == ["A", "B", "C"]

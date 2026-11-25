@@ -59,7 +59,7 @@ class KhShoppingController(BaseUserController):
         # all or nothing: every list is found and every article understood before anything is written
         targets = [self._existing_list(lists, list_name or data.list, locale) for list_name, _ in groups]
         try:
-            parsed = [parse_articles(group_repos, articles) for _, articles in groups]
+            parsed = [parse_articles(group_repos, articles, locale) for _, articles in groups]
         except ValueError:
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(say("no_article", locale))

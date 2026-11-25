@@ -1,8 +1,9 @@
 """KH: the nutrition routes under /api/kh (D44): the food to BLS mapping and the BLS search."""
 
-from fastapi import HTTPException, Query, status
+from fastapi import HTTPException, Query, Request, status
 from pydantic import UUID4
 
+from mealie.kh.i18n.messages import request_locale
 from mealie.kh.nutrition.bls import BLS_SEARCH_LIMIT, load_bls, search_bls
 from mealie.kh.nutrition.calculate import calculate
 from mealie.kh.nutrition.mapping import food_mapping, list_mappings, load_aliases, mappings_for, save_mapping
@@ -49,9 +50,12 @@ class KhNutritionController(BaseUserController):
         return [BlsHitOut(code=f.code, name=f.name, kcal=f.kcal) for f in search_bls(q, load_bls(), BLS_SEARCH_LIMIT)]
 
     @router.get("/recipes/{slug}/nutrition", response_model=NutritionOut)
-    def get_nutrition(self, slug: str) -> NutritionOut:
+    def get_nutrition(self, slug: str, request: Request) -> NutritionOut:
         """The nutrition of any recipe of the user's group (also another household's); 404 for other groups."""
         recipe = get_repositories(self.session, group_id=self.group_id, household_id=None).recipes.get_one(slug, "slug")
         if recipe is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond("Recipe not found"))
-        return calculate(recipe, mappings_for(self.session, recipe), load_bls(), load_aliases())
+        locale = request_locale(
+            self.session, self.user.id, request
+        )  # hand-entered numbers follow the person's language
+        return calculate(recipe, mappings_for(self.session, recipe), load_bls(), load_aliases(), locale)

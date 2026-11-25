@@ -83,6 +83,8 @@ class KhSettings(BaseSettings):
     notice_poll_minutes: int = Field(5, ge=1)
     # Accounts without e-mail (D53): hours the mailed welcome and confirm-e-mail links stay valid
     account_link_hours: int = Field(72, ge=1)
+    # Seconds before the same person may ask for another confirmation mail (keeps the mail server from being flooded)
+    verify_mail_cooldown_seconds: int = Field(60, ge=0)
     # About and system check (P8): the running image (its tag is the version), where the source can be read (AGPL),
     # the third-party notices shipped in the image, and the optional modules (only whether they are set is ever shown)
     image: str | None = None

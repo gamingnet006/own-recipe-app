@@ -4,15 +4,14 @@ stored web page instead of the internet."""
 import json
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from fastapi import HTTPException
 
-from mealie.kh.drafts import recognize
 from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.recipe.ai_recipe_service import AIRecipeService
-from mealie.services.scraper import scraper
+from mealie.services.scraper import recipe_scraper, scraper
 
 DATA = Path(__file__).parent / "data"
 
@@ -26,6 +25,9 @@ def fake_ai(monkeypatch: pytest.MonkeyPatch) -> Callable[[str | Exception], list
         calls: list[dict[str, Any]] = []
 
         async def build_recipe(self: AIRecipeService, **kwargs: Any) -> RecipeDraft:
+            progress = kwargs.pop("on_progress", None)  # the heartbeat; it runs like the workflow's steps do
+            if progress:
+                await progress("step")
             calls.append(kwargs)
             if isinstance(result, Exception):
                 raise result
@@ -40,15 +42,15 @@ def fake_ai(monkeypatch: pytest.MonkeyPatch) -> Callable[[str | Exception], list
 
 @pytest.fixture
 def fake_page(monkeypatch: pytest.MonkeyPatch) -> Callable[[str | None], None]:
-    """Replaces fetching a page with a stored one from data/; None stands for a page without recipe data."""
+    """Replaces the internet with a stored page from data/ (None: a page without recipe data), so Mealie's
+    real structured-data reader runs on it."""
 
     def use(html_file: str | None) -> None:
-        async def create_from_html(url: str, repos: Any, translator: Any, **kwargs: Any):
-            if html_file is None:
-                raise HTTPException(400, {"details": "BAD_RECIPE_DATA"})
-            html = (DATA / html_file).read_text()
-            return await scraper.create_from_html(url, repos, translator, html, **kwargs)
+        html = (DATA / (html_file or "page-no-recipe.html")).read_text()
 
-        monkeypatch.setattr(recognize, "create_from_html", create_from_html)
+        async def resilient_fetch(url: str, **kwargs: Any) -> Any:
+            return SimpleNamespace(text=html, url=url, via_flaresolverr=True)  # True: no second try via FlareSolverr
+
+        monkeypatch.setattr(recipe_scraper, "resilient_fetch", resilient_fetch)
 
     return use

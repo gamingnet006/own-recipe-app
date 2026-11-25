@@ -1,6 +1,7 @@
 // KH: the destinations of Kochheft's navigation (D38) in one list. The bar at the bottom on phones, Mealie's
 // side menu from 840 px and the More page all read from here, so a destination is added or renamed in one place.
 import type { KhAddonFlags } from "../lib/addons";
+import { SETUP_PATH } from "../lib/device-setup";
 import { WIZARD_PATH } from "../lib/setup-wizard";
 import { khAddons } from "./use-kh-addons";
 import { khSidebar } from "./use-kh-sidebar";
@@ -10,7 +11,7 @@ const SHOPPING_PAGE = "/einkauf";
 const CLASSIC_SHOPPING = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "wizard" | "switch" | "households";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "wizard" | "switch" | "households" | "profileEdit" | "notifications" | "setup" | "people" | "invite" | "household";
 
 /** The side-menu entries a person may hide (D58), in the menu's order; the server holds the same keys
  * (mealie/kh/navigation/schemas.py). Recipes and More always stay. */
@@ -59,14 +60,20 @@ function allTargets(groupSlug: string, userId: string): Targets {
     nutrition: target("nutrition", `${group}/naehrwerte`, "foods", "kh.nav.nutrition"),
     tolerance: target("tolerance", `${group}/vertraeglichkeit`, "alertOutline", "kh.nav.tolerance"),
     settings: target("settings", `${group}/einstellungen`, "cog", "kh.nav.settings"),
-    profile: target("profile", "/user/profile", "cog", "profile.user-settings"),
+    profile: target("profile", "/user/profile", "cog", "kh.settings.mealie"), // Mealie's profile hub, for admins only
+    profileEdit: target("profileEdit", "/user/profile/edit", "user", "kh.settings.profile-edit"),
+    notifications: target("notifications", "/mitteilungen", "bellOutline", "kh.notifications.title"), // D75
+    setup: target("setup", SETUP_PATH, "cellphone", "kh.setup.title"), // D68
+    people: target("people", "/admin/manage/users", "group", "kh.settings.people"),
     data: target("data", "/group/data", "manageData", "data-pages.data-management"),
     admin: target("admin", "/admin/site-settings", "wrench", "settings.admin-settings"),
     about: target("about", `${group}/ueber`, "informationOutline", "kh.nav.about"),
     system: target("system", `${group}/systempruefung`, "clipboardCheck", "kh.nav.system"),
     addons: target("addons", `${group}/zusatzfunktionen`, "tools", "kh.nav.addons"),
     wizard: target("wizard", WIZARD_PATH, "autoFix", "kh.nav.wizard"), // D83: Mealie's setup wizard, opened again
-    // not a page: the settings page opens a dialog for it
+    // not pages: the settings page opens a dialog for them
+    household: target("household", "/household", "household", "kh.settings.household"), // Mealie's household pages
+    invite: target("invite", `${group}/more`, "accountPlusOutline", "kh.nav.invite"),
     switch: target("switch", `${group}/more`, "swapHorizontal", "kh.accounts.switch"),
     households: target("households", `${group}/haushalte`, "household", "kh.nav.households"),
   };
@@ -161,28 +168,44 @@ export function moreSections(
   };
 }
 
-/** The order of the More page's sections (D79): the simple view shows planning, help and the account first and folds
- * the collection and the settings row away behind "Show more"; otherwise all five show in the usual order. */
+/** The order of the More page's sections (D79): the simple view shows planning, settings (the way out of the simple view),
+ * help and the account first and folds the collection away behind "Show more"; otherwise all five show in the usual order. */
 export function moreLayout(simple: boolean): { first: MoreSection[]; folded: MoreSection[] } {
   return simple
-    ? { first: ["plan", "help", "account"], folded: ["collection", "settings"] }
+    ? { first: ["plan", "settings", "help", "account"], folded: ["collection"] }
     : { first: ["plan", "collection", "settings", "help", "account"], folded: [] };
 }
 
-/** The pages of the settings page (D76) this user may open, as in Mealie's side menu, plus our add-ons, the household
- * switch (only with linked accounts, D52), households and system check (admins). */
-export function settingsTargets(
-  user: { canOrganize?: boolean; admin?: boolean; linked?: boolean },
+/** The rows of the settings page's lists (wave 2, one page): "Ich" (me), "Auf diesem Gerät" (device), "Familie &
+ * Verwaltung" (family: admins; whoever may manage the household or invite sees those rows) and "Erweitert" (advanced:
+ * Mealie's own data management for those who organize, Mealie's profile hub (members, group settings, API tokens) for
+ * admins and accounts that manage the group or have "advanced", the administration for admins). The oven, nutrition and
+ * timer rows and the dialogs are the page's own; rows of switched-off add-ons are missing. */
+export function settingsSections(
+  user: {
+    canOrganize?: boolean; canInvite?: boolean; canManage?: boolean; canManageHousehold?: boolean; advanced?: boolean;
+    admin?: boolean; linked?: boolean;
+  },
   groupSlug: string,
-): KhNavTarget[] {
+  on: KhAddonFlags = khAddons.enabled,
+): { me: KhNavTarget[]; device: KhNavTarget[]; family: KhNavTarget[]; advanced: KhNavTarget[] } {
   const all = allTargets(groupSlug, "");
-  return [
-    all.profile,
-    ...(user.canOrganize ? [all.data] : []),
-    all.addons,
-    ...(user.linked ? [all.switch] : []),
-    ...(user.admin ? [all.admin, all.households, all.system, all.wizard] : []),
-  ];
+  const admin = !!user.admin;
+  return {
+    me: [all.profileEdit, ...(on.allergens ? [all.tolerance] : []), all.notifications, ...(user.linked ? [all.switch] : [])],
+    device: [all.setup],
+    family: [
+      ...(admin ? [all.people] : []),
+      ...(admin || user.canManageHousehold ? [all.household] : []),
+      ...(admin || user.canInvite ? [all.invite] : []),
+      ...(admin ? [all.addons, all.households, all.system, all.wizard] : []),
+    ],
+    advanced: [
+      ...(user.canOrganize ? [all.data] : []),
+      ...(admin || user.canManage || user.advanced ? [all.profile] : []),
+      ...(admin ? [all.admin] : []),
+    ],
+  };
 }
 
 /** The tab of the bar a page belongs to; whatever is not recipes, intake, shopping list or week sits under More. */

@@ -1,9 +1,11 @@
 """KH: tests for the two web manifests (D60): the main one gets the shopping shortcut, the shopping page's one starts
 at /einkauf, and both are served without signing in."""
 
+import sqlalchemy as sa
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from mealie.kh.onboarding.models import KhAccountSettings
 from mealie.kh.shopping.manifest import serve_shopping_manifest
 from mealie.routes.spa.manifest import serve_manifest
 
@@ -32,3 +34,20 @@ def test_shopping_manifest_starts_at_the_shopping_page():
     assert (manifest["name"], manifest["short_name"]) == ("Einkauf", "Einkauf")
     assert manifest["scope"] == "/"
     assert manifest["icons"] == client().get("/manifest.webmanifest").json()["icons"]
+
+
+def test_manifests_follow_the_installation_language(session):
+    row = session.execute(sa.select(KhAccountSettings)).scalars().first() or KhAccountSettings(session=session)
+    row.locale = "en-US"
+    session.add(row)
+    session.commit()
+    try:
+        main = client().get("/manifest.webmanifest").json()
+        shortcut = next(item for item in main["shortcuts"] if item["url"] == "/einkauf")
+        assert (main["lang"], shortcut["name"], shortcut["short_name"]) == ("en", "Shopping list", "Shopping")
+        shopping = client().get("/einkauf.webmanifest").json()
+        assert (shopping["name"], shopping["short_name"]) == ("Shopping", "Shopping")
+    finally:
+        row.locale = None
+        session.commit()
+    assert client().get("/manifest.webmanifest").json()["lang"] == "de"

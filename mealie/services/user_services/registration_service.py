@@ -34,13 +34,13 @@ class RegistrationService:
             username=self.registration.username,
             password=hash_password(self.registration.password),
             full_name=self.registration.full_name,
-            advanced=self.registration.advanced,
+            advanced=self.registration.advanced and new_group,  # KH: an invited person gets no API tokens by ticking it
             group=group,
             household=household,
             can_invite=new_group,
             can_manage=new_group,
             can_manage_household=new_group,
-            can_organize=new_group,
+            can_organize=True,  # KH: an invited person is a "Familie" account, which organizes categories and tags
         )
 
         # TODO: problem with repository type, not type here

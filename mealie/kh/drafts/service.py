@@ -46,6 +46,7 @@ from mealie.kh.drafts.share import ShareDecision, ShareKind
 from mealie.kh.drafts.video import is_video_link
 from mealie.kh.drafts.whisper import RECORDING_STALE_AFTER, media_path, store_media
 from mealie.kh.features.settings import get_kh_settings
+from mealie.kh.i18n.locale import DEFAULT_LOCALE
 from mealie.lang.providers import Translator
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.household.household import HouseholdOut
@@ -286,7 +287,7 @@ class DraftService:
         recipe = self._all_repos().recipes.get_one(draft.recipe_id, "id") if draft.recipe_id else None
         return conflict("already_approved", slug=recipe.slug if recipe else None)
 
-    def edit(self, draft_id: UUID4, data: DraftEditIn) -> DraftOut:
+    def edit(self, draft_id: UUID4, data: DraftEditIn, locale: str = DEFAULT_LOCALE) -> DraftOut:
         """Applies one edit from the review's preview to a ready draft's recipe and returns the draft."""
         draft = self.get(draft_id)
         if draft.status != DraftStatus.ready:
@@ -296,7 +297,7 @@ class DraftService:
             edit_name(recipe, data.name)
         elif data.ingredient is not None:
             matcher = DataMatcher(self._household_repos())
-            edit_ingredient(recipe, data.ingredient.index, data.ingredient.text, matcher)
+            edit_ingredient(recipe, data.ingredient.index, data.ingredient.text, matcher, locale)
         elif data.step is not None:
             edit_step(recipe, data.step.index, data.step.text)
         # written only while the draft is still ready, so an edit racing an approval never lands in an approved draft

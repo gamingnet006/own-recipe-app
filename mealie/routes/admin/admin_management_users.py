@@ -6,6 +6,7 @@ from pydantic import UUID4
 from mealie.core import security
 from mealie.kh.accounts.removal import admin_heir, transfer_and_delete  # KH: recipes stay when a user goes (D78)
 from mealie.kh.accounts.service import sync_linked_rights  # KH: a user's account links (D52)
+from mealie.kh.i18n.locale import person_locale  # KH: the refusals are in the admin's language
 from mealie.kh.onboarding.service import (  # KH: accounts without e-mail (D53)
     after_admin_create,
     email_or_stored,
@@ -89,7 +90,11 @@ class AdminUserManagementRoutes(BaseAdminController):
         deleted = self.mixins.get_one(item_id)
         # KH: the recipes, lists and plans go to a person of the household and the person's own rows are cleaned up
         # (D78, which holds the former D44/D52/D53/D58/D75 clean-up); SQLite in Mealie skips cascades
-        transfer_and_delete(self.session, item_id, admin_heir(self.session, item_id, transfer_to))
+        transfer_and_delete(
+            self.session,
+            item_id,
+            admin_heir(self.session, item_id, transfer_to, person_locale(self.session, self.user.id, None)),
+        )  # KH: the admin's language
         return deleted
 
     @router.post("/password-reset-token", response_model=PasswordResetToken, status_code=201)
