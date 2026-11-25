@@ -1,6 +1,6 @@
 #!/bin/sh
 # KH: tests the logic of release.sh without git pushes, GitHub or Docker: version check,
-# repo name from the remote URL, image names, CHANGELOG entry, list lookups and argument checks.
+# repo name from the remote URL, image names, CHANGELOG entry and argument checks.
 set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -37,8 +37,17 @@ check "https URL without .git" "$(repo_slug https://github.com/gamingnet006/own-
 check "ssh URL in lower case" "$(repo_slug git@github.com:GamingNet006/Own-Recipe-App.git)" "gamingnet006/own-recipe-app"
 check "non-GitHub URL is rejected" "$(repo_slug https://gitlab.com/a/b.git 2>/dev/null && echo ok || echo failed)" "failed"
 
-# --- image names (CI pushes <version>-amd64 under the same name) ---
+# --- image names (CI pushes <version>-amd64, <version>-arm64 and the plain multi-arch <version>) ---
 check "image name carries version and architecture" "$(image_ref gamingnet006/own-recipe-app v0.1 arm64)" "ghcr.io/gamingnet006/own-recipe-app:v0.1-arm64"
+check "image name without architecture is the multi-arch tag" "$(image_ref gamingnet006/own-recipe-app v0.1)" "ghcr.io/gamingnet006/own-recipe-app:v0.1"
+
+# --- multi-arch check, with a fake docker that prints $FAKE_INSPECT ---
+mkdir -p "$tmp/bin"
+printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$FAKE_INSPECT"' > "$tmp/bin/docker"
+chmod +x "$tmp/bin/docker"
+both=$(printf '%s\n' 'Manifests:' '  Platform:    linux/amd64' '  Platform:    linux/arm64')
+check "both platforms are found" "$(PATH="$tmp/bin:$PATH" FAKE_INSPECT="$both" yes_no has_both_platforms x)" "yes"
+check "one platform is not enough" "$(PATH="$tmp/bin:$PATH" FAKE_INSPECT='  Platform:    linux/amd64' yes_no has_both_platforms x)" "no"
 
 # --- CHANGELOG entry ---
 changelog="$tmp/CHANGELOG.md"
@@ -48,14 +57,9 @@ check "missing CHANGELOG has no entry" "$(yes_no changelog_has v0.0-rc.1 "$tmp/n
 check "mention outside a heading does not count" "$(yes_no changelog_has v0.0-rc.2 "$changelog")" "no"
 printf '%s\n' '## [v0.0-rc.10] - 2026-11-02' > "$tmp/only10.md"
 check "rc.10 is not rc.1" "$(yes_no changelog_has v0.0-rc.1 "$tmp/only10.md")" "no"
-
-# --- list lookups: token scopes (comma separated) and published tags (one per line) ---
-check "scope is listed" "$(yes_no list_has 'admin:public_key, gist, repo, workflow, write:packages' write:packages)" "yes"
-check "read scope is not write scope" "$(yes_no list_has 'read:packages, repo' write:packages)" "no"
-check "empty list has nothing" "$(yes_no list_has '' write:packages)" "no"
-tags=$(printf '%s\n' v0.0-rc.1-amd64 v0.0-rc.10-arm64)
-check "published tag is found" "$(yes_no list_has "$tags" v0.0-rc.1-amd64)" "yes"
-check "similar tag does not count" "$(yes_no list_has "$tags" v0.0-rc.1-arm64)" "no"
+printf '%s\n' '## [v0.2] - 2026-11-03' '' '**Kurz gesagt:**' '- Neu' '' '- New' '' '## [v0.1] - 2026-11-01' '- Old' > "$tmp/notes.md"
+check "release notes are the section body" "$(changelog_section v0.2 "$tmp/notes.md")" "$(printf '%s\n' '**Kurz gesagt:**' '- Neu' '' '- New')"
+check "release notes of the last section" "$(changelog_section v0.1 "$tmp/notes.md")" "- Old"
 
 # --- argument checks (stop before touching git, GitHub or Docker) ---
 check "no version is a usage error" "$(sh "$here/release.sh" >/dev/null 2>&1 && echo 0 || echo $?)" "2"

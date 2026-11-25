@@ -160,6 +160,8 @@ look), "Auf diesem Gerät" (setup, oven, nutrition, timer), "Familie & Verwaltun
           @click="openDialog(target)"
         />
       </v-list>
+      <!-- the same checkbox as in Admin → Site settings, where admins look for it first -->
+      <KhAutoUpdate v-if="user?.admin" />
     </section>
 
     <section v-if="sections.advanced.length" class="mb-6">

@@ -6,7 +6,33 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+**Kurz gesagt:**
+- Auf GitHub steht jetzt zu jeder Version, was neu ist, mit einer deutschen Kurzfassung.
+- Die Warnzeichen für Unverträglichkeiten auf den Rezeptkarten laden schneller.
+- Admins finden „Automatische Updates“ jetzt auch unter Einstellungen → Familie & Verwaltung.
+- Ein Image-Name für alle Geräte (Raspberry Pi, Mac, PC).
+
+- One image name for every machine: CI now builds amd64 and arm64 itself (arm64 on GitHub's arm64 runner, with its own
+  upgrade test) and joins them under the plain tag `vX.Y`. `vX.Y-amd64` and `vX.Y-arm64` still exist, installs on
+  them update as before; an install on the plain tag updates along plain tags. `release.sh` no longer builds anything
+  on the Mac, it sets the tag, waits for CI and checks the three tags.
+- Release notes on GitHub: every changelog section starts with a short German summary ("Kurz gesagt"), and
+  `release.sh` creates the GitHub release with that section as its notes. The releases from v0.0-rc.1 to v1.5 were
+  added afterwards.
+- Settings: admins find the "Automatic updates" checkbox under Family & administration as well (it stays in the
+  admin site settings).
+- The allergen marks on the recipe cards load faster: only the ingredient lines are read, not whole recipes, and each
+  ingredient text is checked once.
+
 ## [v1.5] - 2026-11-25
+
+**Kurz gesagt:**
+- Kochheft gibt es jetzt auf Deutsch und Englisch; die Sprache wählt jede Person selbst und sie gilt auf allen Geräten.
+- Alle Einstellungen stehen auf einer Seite („Mehr“ → Einstellungen), dazu zehn Farben: eine gilt für die ganze Installation, und jede Person kann sich eine eigene aussuchen.
+- Neu: Schlagworte für Rezepte – beim Hinzufügen werden passende vorgeschlagen, und „Schlagworte vorschlagen“ ordnet schon vorhandene Rezepte zu.
+- Siri versteht ganze Sätze („zweimal Butter auf die Aldi-Liste und Tampons auf die dm-Liste“), auf Deutsch und Englisch.
+- Ohne Verbindung zum Server bleiben alle Rezepte, der Wochenplan und die Wünsche lesbar; Änderungen an der Einkaufsliste werden später nachgeschickt.
+- Außerdem: Fotos beim Rezept-Import lassen sich umsortieren, die Einkaufsliste lässt sich umbenennen, und es gibt viele kleine Korrekturen an Texten und Anzeigen.
 
 Kochheft in German and English (in English: Cookbook), one settings page, own colours, tags, Siri with whole
 sentences and use without a connection. Checked with a security, an AI-usage and a code review and on a fresh install
@@ -89,11 +115,19 @@ in both languages.
 
 ## [v1.4.4] - 2026-11-23
 
+**Kurz gesagt:**
+- Fehlerbehebung: Teilt man eine Notiz mit mehreren Fotos und Text (z. B. aus der Notizen-App) in Kochheft, kommt jetzt alles zusammen an und das Rezept wird richtig erkannt. Vorher kam nur das erste Foto an.
+
 - Share shortcut: a note shared with its photos (e.g. from the Notes app) becomes one draft with all its photos (up
   to `KH_DRAFT_MAX_IMAGES`, more are named as skipped) and its text, which the AI reads together with the photos.
   Before, only the first photo arrived and the text was dropped, so the AI found no recipe.
 
 ## [v1.4.3] - 2026-11-20
+
+**Kurz gesagt:**
+- Fehlerbehebung: Die erste Einrichtung wurde auf einer frischen Installation durchgespielt; Einführung und Texte der Einrichtung sind stimmiger.
+- Siri: Beim ersten „Auf die Einkaufsliste“ einer neuen Familie wird die Liste „Einkaufsliste“ einfach angelegt.
+- Auf Android wird nicht mehr der Apple-Kurzbefehl zum Teilen angezeigt, weil Kochheft dort direkt im Teilen-Menü steht.
 
 - First run checked on a fresh install: the admin gets the tour after the setup wizard instead of the "New in
   Kochheft" cards; the wizard says Kochheft instead of Mealie and keeps its short header up to 1280 px.
@@ -103,6 +137,11 @@ in both languages.
   key step names the button as it is labelled ("Schlüssel erstellen").
 
 ## [v1.4.2] - 2026-11-20
+
+**Kurz gesagt:**
+- Die Kurzbefehle zum Importieren und für Siri lassen sich auf jeder Installation direkt hinzufügen; Adresse und Schlüssel dafür kann man auf der Einrichtungsseite kopieren.
+- Siri und der Import antworten immer mit einem gesprochenen deutschen Satz, auch bei Fehlern.
+- Mit Siri genügt „Milch und Butter bei Rewe“: Die Artikel landen auf der richtigen Einkaufsliste, ein einziger Kurzbefehl reicht für alle Listen.
 
 - The share-import and Siri shortcuts are built in like the clock timer: "Add shortcut" works on every install;
   both ask for address and key when added.
@@ -118,6 +157,11 @@ in both languages.
 
 ## [v1.4.1] - 2026-11-20
 
+**Kurz gesagt:**
+- Ändert sich die Adresse von Kochheft, bekommt die Familie einmal einen Hinweis und der Admin eine Warnung.
+- Ein einziger Kurzbefehl „In Kochheft importieren“ nimmt Fotos, PDFs, ZIP-Dateien, Textdateien, Links und Texte an und erkennt selbst, was es ist.
+- PDFs mit Text oder gescannte PDFs werden zu Rezeptentwürfen.
+
 - Address change (D85): Kochheft notices a new `BASE_URL`; the system check warns the admin for 60 days, everyone gets
   a "New address" card once (and a push message) pointing to the phone setup page, which now names the address the
   shortcuts ask for.
@@ -128,6 +172,13 @@ in both languages.
   the file import and inside ZIPs (new library pypdf 7.1.0, BSD-3-Clause; `KH_PDF_MAX_PAGES`, default 20).
 
 ## [v1.4] - 2026-11-19
+
+**Kurz gesagt:**
+- Einfache Ansicht: Für jede Person gibt es größere Schrift, eine kurze Leiste und ein kurzes Menü (Rezepte, Einkaufsliste, Woche, Mehr).
+- Neu (als Zusatzfunktion): „Saison“ zeigt auf der Startseite, was gerade Saison hat, samt passenden Rezepten.
+- Die Einkaufsliste lässt sich über einen QR-Code oder einen NFC-Sticker öffnen.
+- „Unsere Notiz“: zu jedem Rezept kann der Haushalt eine eigene Notiz schreiben, auch im Kochmodus.
+- Die erste Einrichtung kennt jetzt Kochheft: Zusatzfunktionen, Familienmitglieder und eine kurze Systemprüfung.
 
 - Simple view (D79): per person (More > Account, or the admin on the user page) larger text, a short bar and side menu
   (Recipes, Shopping list, Week, More), no filters on the start page, More with Show more; new column `simple`
@@ -145,6 +196,14 @@ in both languages.
   opens it again without touching what is set. News cards can be for admins only (`admin: true`).
 
 ## [v1.3] - 2026-11-19
+
+**Kurz gesagt:**
+- Neue Einkaufsliste mit Kacheln, eine Liste pro Laden; sie funktioniert auch ohne Netz, Änderungen werden später gesendet. Mit „Immer im Haus“ merkt sich Kochheft, was immer da ist.
+- „Hey Siri, setz Milch auf die Einkaufsliste“ und ein Kurzbefehl zum Importieren aus jeder App über das Teilen-Menü.
+- Wochenplan: „Woche vorschlagen“, Wunschliste („Das wünsche ich mir“) und Teilen der Woche als Text.
+- Mitteilungen aufs Handy: Wochenplan, Erinnerung am Abend (z. B. Auftauen), Einkaufsliste, Wünsche.
+- Neues Einrichten für jedes Gerät, „Neuigkeiten“ nach einem Update, Einführung für neue Personen und viele Vereinfachungen bei Kochmodus, Menü und Rezeptprüfung.
+- Rezepte lassen sich als Text teilen und exportieren, Konten ohne E-Mail sind möglich, und beim Löschen eines Kontos bleiben die Rezepte der Familie erhalten.
 
 - Flows simplified (D76): the bar at the bottom gets a "Week" tab (meal plan, only with the add-on), cook mode uses
   the whole screen, the inbox lists waiting drafts first and folds the add form, no-AI drafts offer "Type it yourself",
@@ -225,12 +284,21 @@ in both languages.
 
 ## [v1.2.1] - 2026-11-18
 
+**Kurz gesagt:**
+- Fehlerbehebung: Nach einem Update werden alte Programmdateien gelöscht, damit der Speicher nicht vollläuft.
+- Vor einem Update wird geprüft, ob genug Platz frei ist; sonst wird nichts verändert und es wird in der nächsten Nacht erneut versucht.
+
 - An update now deletes the older Kochheft images and keeps only the new one and the fallback. Every release is
   about 1.5 GB and they used to pile up until Docker's disk was full; on the Mac mini that stopped the restore test.
 - Before an update Kochheft checks that Docker has at least 4 GB free (`KH_UPDATE_MIN_FREE_GB`). With less it
   stops before changing anything and says so; automatic updates report it and try again the next night.
 
 ## [v1.2] - 2026-11-17
+
+**Kurz gesagt:**
+- Der Kurzbefehl für den Uhr-Timer heißt jetzt „Kochheft Timer“ und lässt sich ohne Einstellungen hinzufügen (nur iPhone und iPad).
+- Haushalt wechseln: Eine Person kann mehreren Haushalten angehören und ohne neues Passwort zwischen ihnen wechseln.
+- Anleitung für den KI-Anbieter Gemini Schritt für Schritt; die Anmeldeseite heißt jetzt „Kochheft“.
 
 - The clock timer shortcut is now called "Kochheft Timer" (was "KH Timer"), so it is clear in the Shortcuts app what
   it belongs to. A device that already uses "KH Timer" keeps its stored name.
@@ -250,6 +318,12 @@ in both languages.
   they have no Shortcuts app.
 
 ## [v1.1] - 2026-11-15
+
+**Kurz gesagt:**
+- Kochheft baut auf der neueren Mealie-Version 3.31 auf, mit 23 veröffentlichten Sicherheitskorrekturen und neuen Funktionen wie Zubereitungsdauern bei Schritten.
+- Viele Fehlerbehebungen nach einer gründlichen Prüfung: Zeiten und Mengen werden richtig gelesen, Allergene werden genauer erkannt, und große Fotos bremsen kleine Server nicht mehr.
+- Das Menü „Mehr“ ist auch auf dem iPad quer und am Computer erreichbar; Tasten und Beschriftungen sind größer und besser lesbar.
+- Updates und Backups auf USB-Stick sind robuster.
 
 - Based on Mealie v3.31.0 (was v3.29.0): 23 published security fixes, newer libraries (Pillow 13, SQLAlchemy 2.1 and
   others with known vulnerabilities fixed), instruction durations and weekly meal plans. Mealie's migrations run beside
@@ -277,6 +351,9 @@ in both languages.
 
 ## [v1.0.1] - 2026-11-10
 
+**Kurz gesagt:**
+- Kleine Verbesserungen bei den KI-Einstellungen: ein kurzer Hinweis erklärt, wie man einen Anbieter hinzufügt, und die Liste der kostenlosen Schlüssel zeigt an, was schon eingerichtet ist.
+
 - AI settings: Mealie's audio provider select is gone (it only served Mealie's video import, which Kochheft refuses);
   instead a short note explains how to add a provider with a key, that the top provider of the list does text and the
   top one that reads images does photos and screenshots, and that recordings go to the local Whisper add-on.
@@ -285,6 +362,14 @@ in both languages.
   the key).
 
 ## [v1.0] - 2026-11-09
+
+**Kurz gesagt:**
+- Aus Küchenhelfer wird Kochheft, mit neuem Logo und neuen App-Symbolen.
+- Nährwerte pro Portion stehen auf der Rezeptseite.
+- Allergene werden aus den Zutaten erkannt („wahrscheinlich, ohne Gewähr“); jede Person kann angeben, was sie nicht verträgt, und bekommt eine Warnung. Dazu Austauschvorschläge.
+- Zusatzfunktionen lassen sich einzeln ein- und ausschalten, z. B. Einkaufsliste und Wochenplan.
+- Neu: optionaler Telegram-Bot, Sprachbefehle im Kochmodus (Test), Rezepte aus Audio- und Videodateien über Whisper; Videolinks von Instagram, TikTok & Co. werden nie heruntergeladen.
+- Unter „Mehr“ gibt es eine Systemprüfung und die Einstellung für automatische Updates.
 
 The big update (D45 to D49): phase 6 plus everything of phases 7 and 8 that needs no decision, under the new name.
 
@@ -335,6 +420,12 @@ Operation and publishing (Phase 8, D45):
 
 ## [v0.4] - 2026-11-08
 
+**Kurz gesagt:**
+- Familienkochbuch: „Als Buch drucken“ mit Vorschau, Titelseite, Inhaltsverzeichnis und eigenen Einstellungen; Einzelrezepte lassen sich als Rezeptkarte drucken.
+- Fotos kommen nur ins Buch, wenn „Das Foto ist von uns“ angehakt ist.
+- Bei Backofen-Temperaturen steht automatisch die Umluft-Temperatur in Klammern.
+- „Doppelte Rezepte“ zeigt mögliche Doppelungen, etwa nach einem Umzug aus einer anderen App.
+
 Family cookbook and moving house (Phase 5, D43):
 
 - "Print as book" on a Mealie cookbook opens an editor with a live preview: title, subtitle, title page, contents with
@@ -351,6 +442,13 @@ Family cookbook and moving house (Phase 5, D43):
 - Docs: how to move from another app with Mealie's migrations.
 
 ## [v0.3] - 2026-11-08
+
+**Kurz gesagt:**
+- Kochmodus: ein Schritt nach dem anderen in großer Schrift, mit den Zutaten des Schritts, und der Bildschirm bleibt an.
+- Mengen stehen direkt bei den Zutaten im Schritt und passen sich der gewählten Portionszahl an.
+- Zeiten in den Schritten lassen sich antippen und starten einen Timer; mehrere Timer laufen gleichzeitig und klingeln.
+- Optional kann ein Timer an die Uhr-App des iPhones übergeben werden.
+- Die zuletzt geöffneten 30 Rezepte sind auch ohne Verbindung lesbar.
 
 Cook mode (Phase 4, D41, D42):
 
@@ -371,6 +469,14 @@ Cook mode (Phase 4, D41, D42):
 - The last 30 recipes you opened and their photos open offline, with a hint; signing out deletes them.
 
 ## [v0.2] - 2026-11-08
+
+**Kurz gesagt:**
+- Neue, ruhige Oberfläche in Grün und eine übersichtlichere Rezeptseite mit Foto, Zeiten und Portionen zum Anpassen.
+- Unten gibt es eine Leiste: Rezepte, Eingang, Einkaufsliste, Mehr.
+- Rezepte hinzufügen und Entwürfe prüfen ist jetzt eine einzige Seite („Eingang“).
+- Mengen werden ohne KI richtig gelesen und schön angezeigt; „Skalieren“ rechnet auch für Backformen und „Ich habe nur …“.
+- Mehrere KI-Anbieter lassen sich in einer Reihenfolge einstellen; bei einer Störung geht es mit dem nächsten weiter, und eine Glocke meldet es.
+- Backups erklären sich selbst, und der Ort der Sicherungskopie lässt sich später ändern.
 
 The new interface (D38): everyday use first, in the look "Salbei", with a calm recipe page.
 
@@ -427,6 +533,11 @@ Backups explain themselves, and their copy can move:
 
 ## [v0.1.1] - 2026-11-01
 
+**Kurz gesagt:**
+- Rezepte lassen sich über einen Kurzbefehl im Teilen-Menü von iPhone und iPad direkt an Kochheft schicken.
+- Ohne Verbindung wird jetzt klar gesagt, dass keine Verbindung besteht, statt „keine Entwürfe“ zu zeigen.
+- Gewählte Fotos erscheinen als kleine Vorschau und lassen sich wieder entfernen.
+
 Recipes from the share menu, and clearer messages when the connection drops.
 
 - Share shortcut for iPhone and iPad (D37): links, texts and photos from the share menu go straight to the
@@ -436,6 +547,13 @@ Recipes from the share menu, and clearer messages when the connection drops.
 - Chosen photos show as small previews on the intake page and can be removed again.
 
 ## [v0.1] - 2026-11-01
+
+**Kurz gesagt:**
+- Neue Rezepte werden vor dem Speichern geprüft: Kochheft liest Link, Text oder Fotos im Hintergrund, und man vergleicht das Original mit dem Ergebnis und speichert, bearbeitet oder verwirft.
+- Mögliche doppelte Rezepte werden angezeigt, nie automatisch gelöscht.
+- Gespeicherte Rezepte zeigen, woher sie stammen, mit Weg zurück zum Original.
+- Rezepte können automatisch ins Deutsche übersetzt werden.
+- Backups bringen Entwürfe auch auf einer neuen Installation vollständig zurück.
 
 Phase 2: every new recipe gets a review before it is saved (D35).
 
@@ -457,6 +575,9 @@ Phase 2: every new recipe gets a review before it is saved (D35).
 
 ## [v0.0.2] - 2026-10-31
 
+**Kurz gesagt:**
+- Die Sicherungskopie auf den USB-Stick geht jetzt auch ohne Passwort; bei der Einrichtung wird einmal gefragt.
+
 The copy to a USB stick also works without a password (D33).
 
 - `backup_copy.sh on` asks once whether the copies get a password (j/n). Without one they are
@@ -464,6 +585,9 @@ The copy to a USB stick also works without a password (D33).
 - The guide says what to do when a stick without a password gets lost.
 
 ## [v0.0.1] - 2026-10-31
+
+**Kurz gesagt:**
+- Neu: nächtliche, verschlüsselte Kopie der Backups auf einen USB-Stick oder ein anderes Laufwerk, damit die Rezepte auch bei einem Defekt des Rechners erhalten bleiben.
 
 Second backup location on a removable drive (D32, D33).
 
@@ -481,6 +605,12 @@ Second backup location on a removable drive (D32, D33).
   `kh/ops/backup_copy.sh`; `check_bundle.sh` refuses an image without them.
 
 ## [v0.0] - 2026-10-31
+
+**Kurz gesagt:**
+- Erste Version für die Familie: läuft auf dem Mac mini, auch von unterwegs erreichbar, mit täglichen Backups und automatischen Updates.
+- Anmeldungen bleiben 30 Tage gültig, ohne dass man die App öffnen muss.
+- Rezepte werden nicht über öffentliche Links geteilt, solange das nicht eingeschaltet ist; Familienkonten werden per Einladungslink angelegt.
+- Mit einem Installationsskript lässt sich Kochheft neu einrichten.
 
 First release for the family (phase 1, PLAN.md section 5). It runs on the Mac mini with access from
 outside, daily backups and automatic updates; new installs follow the guide in `docs/kh/README.md`.
@@ -517,6 +647,9 @@ The install test on a fresh Raspberry Pi follows later (D30).
 
 ## [v0.0-rc.2] - 2026-10-30
 
+**Kurz gesagt:**
+- Vorabversion zum Ausprobieren des Update-Tests; noch nicht für die Familie gedacht.
+
 Second release candidate, to try out the upgrade test in CI. Not meant for the family yet.
 
 - Upgrade test (D23): the release workflow installs the previous release with self-made test
@@ -526,6 +659,9 @@ Second release candidate, to try out the upgrade test in CI. Not meant for the f
   replaces the rollback image of the real one.
 
 ## [v0.0-rc.1] - 2026-10-30
+
+**Kurz gesagt:**
+- Vorabversion zum Ausprobieren der Veröffentlichung; noch nicht für die Familie gedacht.
 
 First release candidate, to try out the release pipeline. Not meant for the family yet:
 phase 1 is not finished (no tunnel, no install guide, not tried on the Pi).

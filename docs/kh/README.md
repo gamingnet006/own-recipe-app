@@ -68,11 +68,11 @@ Das ist nur nötig, solange die Images privat sind.
 
 ### 2. Betriebsdateien holen
 
-Die Dateien kommen aus dem Release-Image. Die zweite Zeile wählt das passende Image für den Prozessor: `arm64` für Pi und Apple Silicon, `amd64` für Intel und AMD.
+Die Dateien kommen aus dem Release-Image. Der Name ohne Zusatz gilt für jeden Rechner (Pi, Apple Silicon, Intel, AMD); Docker holt selbst die passende Fassung. Die Namen mit Zusatz (`-arm64`, `-amd64`) gibt es weiterhin, bestehende Installationen bleiben dabei und aktualisieren sich entlang davon.
 
 ```bash
 mkdir -p ~/kuechenhelfer && cd ~/kuechenhelfer
-image=ghcr.io/gamingnet006/own-recipe-app:v0.1-$(docker version -f '{{.Server.Arch}}')
+image=ghcr.io/gamingnet006/own-recipe-app:v0.1
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/out --entrypoint sh "$image" -c 'cp -R /app/kh-bundle/. /out/'
 ```
 
@@ -493,7 +493,7 @@ Mit einer eigenen Aufnahme von etwa 1 Minute misst es auch die Spracherkennung: 
 
 ```bash
 # Update von Hand: Backup, Wechsel, Prüfung, bei Fehler zurück
-kh/ops/update.sh ghcr.io/gamingnet006/own-recipe-app:<version>-<arm64|amd64>
+kh/ops/update.sh ghcr.io/gamingnet006/own-recipe-app:<version>
 # Backup sofort, vorhandene Backups anzeigen, eines wiederherstellen
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [datei.zip]
@@ -588,11 +588,11 @@ This is only needed while the images are private.
 
 ### 2. Get the ops files
 
-The files come from the release image. The second line picks the image for your CPU: `arm64` for the Pi and Apple Silicon, `amd64` for Intel and AMD.
+The files come from the release image. The name without a suffix works on every machine (Pi, Apple Silicon, Intel, AMD); Docker fetches the matching build itself. The names with a suffix (`-arm64`, `-amd64`) still exist, existing installs keep them and update along them.
 
 ```bash
 mkdir -p ~/kuechenhelfer && cd ~/kuechenhelfer
-image=ghcr.io/gamingnet006/own-recipe-app:v0.1-$(docker version -f '{{.Server.Arch}}')
+image=ghcr.io/gamingnet006/own-recipe-app:v0.1
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/out --entrypoint sh "$image" -c 'cp -R /app/kh-bundle/. /out/'
 ```
 
@@ -1006,7 +1006,7 @@ With your own recording of about 1 minute it also measures speech recognition: `
 
 ```bash
 # Update by hand: backup, switch, check, roll back on failure
-kh/ops/update.sh ghcr.io/gamingnet006/own-recipe-app:<version>-<arm64|amd64>
+kh/ops/update.sh ghcr.io/gamingnet006/own-recipe-app:<version>
 # Backup right now, list backups, restore one
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh
 docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup restore.sh [file.zip]

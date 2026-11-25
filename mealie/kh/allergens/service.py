@@ -3,11 +3,12 @@ deleted."""
 
 import sqlalchemy as sa
 from pydantic import UUID4
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
+from mealie.db.models.recipe.ingredient import RecipeIngredientModel, RecipeIngredientSubstitutionModel
 from mealie.db.models.recipe.recipe import RecipeModel
 from mealie.kh.allergens.models import KhRecipeAllergen, KhSubstitution, KhUserAllergies
-from mealie.schema.recipe.recipe import RecipeOut
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodOut, IngredientUnitOut, RecipeIngredient
 
 
 def delete_recipe_allergens(session: Session, recipe_ids: list[UUID4]) -> None:
@@ -54,13 +55,28 @@ def set_correction(session: Session, recipe_id: UUID4, allergen: str, present: b
     session.commit()
 
 
-def group_recipes(session: Session, group_id: UUID4) -> list[RecipeOut]:
-    """All recipes of the group with their ingredients, of every household (the repository's list gives summaries
-    without ingredients)."""
+def group_ingredient_lines(session: Session, group_id: UUID4) -> list[tuple[UUID4, str, list[RecipeIngredient]]]:
+    """Every recipe of the group, of every household, as (id, slug, ingredient lines in order): the warnings read
+    nothing else, so the full RecipeOut (tags, instructions, nutrition, ...) is not loaded. Recipes without
+    ingredients are kept, a correction can still mark them."""
+    recipes = session.execute(sa.select(RecipeModel.id, RecipeModel.slug).where(RecipeModel.group_id == group_id))
+    lines: dict[UUID4, list[RecipeIngredient]] = {}
     rows = session.execute(
-        sa.select(RecipeModel).where(RecipeModel.group_id == group_id).options(*RecipeOut.loader_options())
+        sa.select(RecipeIngredientModel)
+        .join(RecipeModel, RecipeModel.id == RecipeIngredientModel.recipe_id)
+        .where(RecipeModel.group_id == group_id)
+        .order_by(RecipeIngredientModel.recipe_id, RecipeIngredientModel.position)
+        .options(
+            joinedload(RecipeIngredientModel.unit).options(*IngredientUnitOut.loader_options()),
+            joinedload(RecipeIngredientModel.food).options(*IngredientFoodOut.loader_options()),
+            selectinload(RecipeIngredientModel.substitutions).joinedload(
+                RecipeIngredientSubstitutionModel.substitute_food
+            ),
+        )
     )
-    return [RecipeOut.model_validate(row) for row in rows.unique().scalars()]
+    for row in rows.unique().scalars():
+        lines.setdefault(row.recipe_id, []).append(RecipeIngredient.model_validate(row))
+    return [(recipe_id, slug, lines.get(recipe_id, [])) for recipe_id, slug in recipes]
 
 
 def delete_household_substitutions(session: Session, household_id: UUID4) -> None:

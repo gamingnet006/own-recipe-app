@@ -4,7 +4,8 @@ The rules are data in data/rules.json; this module only applies them."""
 import json
 import re
 import unicodedata
-from functools import cache
+from collections.abc import Iterable
+from functools import cache, lru_cache
 from pathlib import Path
 
 from mealie.kh.allergens.schemas import ALLERGENS, AllergenHit
@@ -42,9 +43,11 @@ def text_has(text: str, key: str) -> bool:
     return key in lowered
 
 
-def allergens_of_line(text: str) -> set[str]:
+@lru_cache(maxsize=4096)  # the rules are static data and "Butter", "Salz", "Mehl" repeat across hundreds of recipes
+def allergens_of_line(text: str) -> frozenset[str]:
     """The allergens an ingredient text probably contains: a keyword matches in the text with the allergen's
-    exception compounds cut out (Kokosmilch is no milk, Kakaomilch is), unless a cancel word is in the text."""
+    exception compounds cut out (Kokosmilch is no milk, Kakaomilch is), unless a cancel word is in the text.
+    A frozenset, because the result is cached."""
     found = set()
     for allergen, rule in _rules().items():
         cut = _normalized(text)
@@ -52,7 +55,7 @@ def allergens_of_line(text: str) -> set[str]:
             cut = cut.replace(compound, " ")
         if any(text_has(cut, key) for key in rule["match"]) and not any(text_has(text, key) for key in rule["cancel"]):
             found.add(allergen)
-    return found
+    return frozenset(found)
 
 
 def line_text(line: RecipeIngredient) -> tuple[str, str]:
@@ -63,15 +66,21 @@ def line_text(line: RecipeIngredient) -> tuple[str, str]:
 
 
 def recipe_allergens(recipe: RecipeDraft | RecipeOut, corrections: dict[str, bool]) -> list[AllergenHit]:
-    """The recipe's allergens in spec order with the ingredient lines they come from. A correction False keeps the
-    allergen in the list with corrected=False (so it can be undone); True adds one the rules did not find."""
-    lines: dict[str, list[str]] = {}
-    for line in recipe.recipe_ingredient:
+    """The recipe's allergens, see lines_allergens."""
+    return lines_allergens(recipe.recipe_ingredient, corrections)
+
+
+def lines_allergens(lines: Iterable[RecipeIngredient], corrections: dict[str, bool]) -> list[AllergenHit]:
+    """The allergens of ingredient LINES in spec order with the lines they come from (so a caller that has only the
+    lines need not load a whole recipe). A correction False keeps the allergen in the list with corrected=False (so
+    it can be undone); True adds one the rules did not find."""
+    found_in: dict[str, list[str]] = {}
+    for line in lines:
         shown, text = line_text(line)
         for allergen in allergens_of_line(text):
-            lines.setdefault(allergen, []).append(shown or text)
+            found_in.setdefault(allergen, []).append(shown or text)
     return [
-        AllergenHit(allergen=allergen, lines=lines.get(allergen, []), corrected=corrections.get(allergen))
+        AllergenHit(allergen=allergen, lines=found_in.get(allergen, []), corrected=corrections.get(allergen))
         for allergen in ALLERGENS
-        if allergen in lines or allergen in corrections
+        if allergen in found_in or allergen in corrections
     ]

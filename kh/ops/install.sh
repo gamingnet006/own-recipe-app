@@ -1,7 +1,7 @@
 #!/bin/sh
 # KH: sets up a new Kochheft install (PLAN.md phase 1, D32). Asks where the backups go and under
 # which address the family opens the app, writes .env, starts everything and creates the backup key.
-# Usage: kh/ops/install.sh <image>   e.g. ghcr.io/gamingnet006/own-recipe-app:v0.0-arm64
+# Usage: kh/ops/install.sh <image>   e.g. ghcr.io/gamingnet006/own-recipe-app:v0.0
 set -eu
 
 # Loads update.sh's helpers (valid_image, set_env_value, setting, wait_healthy, create_token,
@@ -14,7 +14,7 @@ load_update_helpers
 
 usage() {
   echo "Aufruf: kh/ops/install.sh <image>" >&2
-  echo "  zum Beispiel: kh/ops/install.sh ghcr.io/gamingnet006/own-recipe-app:v0.0-arm64" >&2
+  echo "  zum Beispiel: kh/ops/install.sh ghcr.io/gamingnet006/own-recipe-app:v0.0" >&2
   exit 2
 }
 

@@ -1,6 +1,7 @@
-# KH: release images (PLAN.md phase 1, D20, D23). A version tag builds the amd64 app image, runs the
-# upgrade test from the previous release and only then pushes it to GHCR as <tag>-amd64.
-# kh/ops/release.sh on the Mac waits for this run and adds <tag>-arm64.
+# KH: release images (PLAN.md phase 1, D20, D23). A version tag builds the app image natively for
+# amd64 and arm64, runs the bundle check and the upgrade test from the previous release of the same
+# architecture, and only then pushes <tag>-amd64 and <tag>-arm64 to GHCR. A last job joins both into
+# the plain multi-arch tag <tag>, the one name for every machine. kh/ops/release.sh waits for this run.
 name: KH Release
 
 on:
@@ -11,13 +12,24 @@ permissions:
   contents: read
   packages: write
 
+env:
+  TAG: ${{ github.ref_name }}
+  IMAGE: ghcr.io/${{ github.repository }}
+
 jobs:
-  amd64:
-    name: amd64 image
-    runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.ref_name }}
-      IMAGE: ghcr.io/${{ github.repository }}
+  image:
+    name: ${{ matrix.arch }} image
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          # ubuntu-24.04-arm is GitHub's free arm64 runner, but only for PUBLIC repos: the repo must
+          # be public before the first release that runs this job (a private repo has no arm64 runner).
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,26 +40,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v4
-      - name: Build amd64 image
+      - name: Build ${{ matrix.arch }} image
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
           target: production
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch }}
           load: true
           # Plain image without attestation manifests (they would show up as extra untagged versions).
           provenance: false
           sbom: false
-          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}-amd64
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}-${{ matrix.arch }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ github.ref_name }}
           build-args: |
             COMMIT=${{ github.sha }}
       - name: Check the ops files in the image (complete, no .env or data)
-        run: sh kh/ops/check_bundle.sh "$IMAGE:$TAG-amd64"
+        run: sh kh/ops/check_bundle.sh "$IMAGE:$TAG-${{ matrix.arch }}"
+      # upgrade_test.sh pulls the previous release of the architecture this runner has.
       - name: Upgrade test from the previous release
-        run: sh kh/ops/upgrade_test.sh --previous-release "$TAG" "$IMAGE" "$IMAGE:$TAG-amd64"
-      - name: Push amd64 image
-        run: docker push "$IMAGE:$TAG-amd64"
+        run: sh kh/ops/upgrade_test.sh --previous-release "$TAG" "$IMAGE" "$IMAGE:$TAG-${{ matrix.arch }}"
+      - name: Push ${{ matrix.arch }} image
+        run: docker push "$IMAGE:$TAG-${{ matrix.arch }}"
+
+  multiarch:
+    name: multi-arch tag
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v4
+      - name: Join both architectures under the plain tag
+        run: docker buildx imagetools create -t "$IMAGE:$TAG" "$IMAGE:$TAG-amd64" "$IMAGE:$TAG-arm64"
+      - name: Show the platforms of the plain tag
+        run: |
+          docker buildx imagetools inspect "$IMAGE:$TAG" | tee inspect.txt
+          grep -q "Platform: *linux/amd64" inspect.txt && grep -q "Platform: *linux/arm64" inspect.txt

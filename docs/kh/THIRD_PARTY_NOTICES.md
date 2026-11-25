@@ -70,7 +70,7 @@ docker run --rm --entrypoint apk kuechenhelfer-backup:dev list --installed
 |---|---|---|---|---|
 | actions/checkout | v6 | MIT | `.github/workflows/kh-ci.yml`, `kh-release.yml` | Gets the code for tests and the release build. |
 | docker/setup-buildx-action | v4 | Apache-2.0 | `kh-release.yml` | Sets up the image build. |
-| docker/build-push-action | v7 | Apache-2.0 | `kh-release.yml` | Builds the amd64 image. |
+| docker/build-push-action | v7 | Apache-2.0 | `kh-release.yml` | Builds the amd64 and arm64 images. |
 | docker/login-action | v4 | Apache-2.0 | `kh-release.yml` | Logs in to the GitHub Container Registry to push the image. |
 
 ## Not part of Kochheft

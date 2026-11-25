@@ -3,7 +3,9 @@ German compounds that must not trigger (Buchweizenmehl, Kokosmilch, Muskatnuss) 
 
 import pytest
 
-from mealie.kh.allergens.rules import ALLERGENS, allergens_of_line
+from mealie.kh.allergens.rules import ALLERGENS, allergens_of_line, lines_allergens, recipe_allergens
+from mealie.schema.recipe.recipe import RecipeDraft
+from mealie.schema.recipe.recipe_ingredient import IngredientFoodCreate, RecipeIngredient
 
 
 def test_the_fourteen_keys_in_spec_order():
@@ -158,3 +160,15 @@ def test_case_and_decomposed_umlauts_do_not_matter():
 )
 def test_exceptions_cut_a_compound_not_the_whole_text(text: str, expected: set[str]):
     assert allergens_of_line(text) == expected
+
+
+def test_lines_allergens_equals_recipe_allergens():
+    lines = [
+        RecipeIngredient(note="200 ml Milch"),
+        RecipeIngredient(note="Salz", food=IngredientFoodCreate(name="Haselnüsse")),
+        RecipeIngredient(note="1 Prise Salz"),
+    ]
+    corrections = {"milk": False, "sesame": True}
+    recipe = RecipeDraft(name="x", recipe_ingredient=lines)
+    assert lines_allergens(lines, corrections) == recipe_allergens(recipe, corrections)
+    assert [hit.allergen for hit in lines_allergens(lines, corrections)] == ["milk", "nuts", "sesame"]

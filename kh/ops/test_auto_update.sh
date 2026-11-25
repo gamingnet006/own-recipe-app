@@ -32,7 +32,9 @@ copy_scripts() {  # dir
 check "parse ghcr rc" "$(parse_image ghcr.io/gamingnet006/own-recipe-app:v0.0-rc.2-amd64)" "ghcr.io gamingnet006/own-recipe-app v0.0-rc.2 amd64"
 check "parse patch" "$(parse_image ghcr.io/x/y:v0.1.2-arm64)" "ghcr.io x/y v0.1.2 arm64"
 check "parse registry with port" "$(parse_image 127.0.0.1:5000/x/y:v1.0-amd64)" "127.0.0.1:5000 x/y v1.0 amd64"
-for ref in kuechenhelfer:dev ghcr.io/x/y:latest ghcr.io/x/y:v0.1 ghcr.io/x/y:v0.1-s390x ghcr.io/x/y@sha256:0000 x/y:v0.1-amd64; do
+check "parse plain multi-arch tag" "$(parse_image ghcr.io/x/y:v0.1)" "ghcr.io x/y v0.1 multi"
+check "parse plain patch tag" "$(parse_image ghcr.io/x/y:v1.5.2)" "ghcr.io x/y v1.5.2 multi"
+for ref in kuechenhelfer:dev ghcr.io/x/y:latest ghcr.io/x/y:v1 ghcr.io/x/y:v0.1-s390x ghcr.io/x/y@sha256:0000 x/y:v0.1-amd64; do
   check "no release image: $ref" "$(yes_no parse_image "$ref")" "no"
 done
 
@@ -42,6 +44,11 @@ check "stable patch" "$(yes_no is_stable_tag v0.1.3-amd64 amd64)" "yes"
 check "rc is not stable" "$(yes_no is_stable_tag v0.1-rc.1-amd64 amd64)" "no"
 check "other arch" "$(yes_no is_stable_tag v0.1-arm64 amd64)" "no"
 check "suffix after arch" "$(yes_no is_stable_tag v0.1-amd64-old amd64)" "no"
+check "plain tag is stable for multi" "$(yes_no is_stable_tag v0.1 multi)" "yes"
+check "plain patch tag is stable for multi" "$(yes_no is_stable_tag v0.1.3 multi)" "yes"
+check "plain rc is not stable" "$(yes_no is_stable_tag v0.1-rc.1 multi)" "no"
+check "arch tag is not stable for multi" "$(yes_no is_stable_tag v0.1-amd64 multi)" "no"
+check "plain tag is not stable for an arch" "$(yes_no is_stable_tag v0.1 amd64)" "no"
 
 # --- version order ---
 check "v0.1 > v0.0" "$(yes_no version_gt v0.1 v0.0)" "yes"
@@ -66,6 +73,11 @@ check "newest stable" "$(newest_stable "$tags" amd64 v0.0-rc.2)" "v0.10-amd64"
 check "already newest" "$(newest_stable "$tags" amd64 v0.10)" ""
 check "skip failed" "$(newest_stable "$tags" amd64 v0.0-rc.2 v0.10-amd64)" "v0.9-amd64"
 check "other arch" "$(newest_stable "$tags" arm64 v0.0)" "v0.1-arm64"
+plain="v0.0 v0.1-amd64 v0.2-rc.1 v0.9 v0.10 v0.10-arm64 latest"
+check "multi: newest plain tag" "$(newest_stable "$plain" multi v0.0)" "v0.10"
+check "multi: already newest" "$(newest_stable "$plain" multi v0.10)" ""
+check "multi: skip failed" "$(newest_stable "$plain" multi v0.0 v0.10)" "v0.9"
+check "multi: candidate install moves to final" "$(newest_stable "v0.2-rc.1 v0.2" multi v0.2-rc.1)" "v0.2"
 
 # --- switch in .env (missing means on) ---
 ENV_FILE="$tmp/.env"; : > "$ENV_FILE"; unset KH_AUTO_UPDATE

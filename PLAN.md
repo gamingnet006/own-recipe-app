@@ -300,11 +300,11 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 - [x] Neuer Name und Logo (nach T7); Mealie-Hinweis, Lizenz und Quellcode-Link in der Oberfläche. (Kochheft/Cookbook, Quellcode-Link unter Mehr → Über, D95.)
 - [ ] Erststart-Assistent (Hardware-Test, Profil, KI-Anbindung, Backup-Test) und Systemprüfung.
-- [ ] Häkchen „Automatische Updates“ in den Admin-Einstellungen; schaltet `KH_AUTO_UPDATE` (D29).
+- [x] Häkchen „Automatische Updates“ in den Admin-Einstellungen; schaltet `KH_AUTO_UPDATE` (D29). (Seit v0.5 unter Admin → Website-Einstellungen, D45; ab 25.11.2026 auch unter Einstellungen → Familie & Verwaltung.)
 - [ ] Nicht benötigte Mealie-Tabellen per Migration entfernen (Stufe 2 der Fork-Regeln).
 - [ ] README mit „Was geht wohin“ (Abschnitt 8), Installationsanleitung Deutsch und Englisch, Wartungs-Checkliste.
 - [ ] Rechts-Checkliste (Abschnitt 9), Lizenz-Scan, Name geprüft.
-- [ ] Ein gemeinsamer Image-Tag für amd64 und arm64, sobald die CI beide Architekturen selbst baut (öffentliches Repo, D20).
+- [x] Ein gemeinsamer Image-Tag für amd64 und arm64, sobald die CI beide Architekturen selbst baut (öffentliches Repo, D20). Erledigt 25.11.2026: `kh-release.yml` baut beide Architekturen (arm64 auf `ubuntu-24.04-arm`, braucht das öffentliche Repo) und setzt `vX.Y`; `release.sh` baut nichts mehr auf dem Mac.
 - [ ] Release `v1.0`, Issue-Vorlagen.
 - **Fertig wenn:** Eine fremde Person installiert es nur mit dem README auf einem frischen Raspberry Pi.
 

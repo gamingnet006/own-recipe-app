@@ -37,7 +37,7 @@ The plan with phases, tasks and decisions lives in `PLAN.md` (English: `PLAN.en.
 - Change the database only through Alembic migrations; take a backup before every migration.
 - Upstream: take security fixes individually via `cherry-pick`, new Mealie features only after agreement.
 - Never remove Mealie's license and copyright notices.
-- GitHub Actions: only our workflows trigger on their own: `kh-ci.yml` on every push (calls Mealie's `test-backend.yml` and `test-frontend.yml`) and `kh-release.yml` on version tags (builds the amd64 image, runs the upgrade test from the previous release, then pushes). All other Mealie workflows are disabled in the repo. After every upstream sync, disable new workflows with `gh workflow disable <name>`.
+- GitHub Actions: only our workflows trigger on their own: `kh-ci.yml` on every push (calls Mealie's `test-backend.yml` and `test-frontend.yml`) and `kh-release.yml` on version tags (builds amd64 and arm64, runs the upgrade test per architecture from the previous release, then pushes and sets the joint tag `vX.Y`). All other Mealie workflows are disabled in the repo. After every upstream sync, disable new workflows with `gh workflow disable <name>`.
 
 ## Phase rules
 
@@ -92,7 +92,7 @@ kh/ops/auto_update.sh on|off|status|check|run
 # Copy of the backups on a USB stick, nightly at 3:45 am; "on" asks the first time whether with a password
 # (then encrypted with age), "decrypt" opens an encrypted copy. Tested, not yet tried with a real stick
 kh/ops/backup_copy.sh on <folder>|off|status|run|decrypt <file.zip.age>
-# Publish a release (Mac only): build arm64, set the tag, CI builds amd64, push arm64
+# Publish a release: set the tag, CI builds amd64 and arm64 and sets the joint tag; the script waits and checks the three tags
 kh/ops/release.sh <version>
 # Upgrade test by hand: old version with test recipes, update, compare (throwaway install on port 9191)
 kh/ops/upgrade_test.sh <old-image> <new-image>

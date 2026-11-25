@@ -239,7 +239,8 @@ run_cmd() {  # [--scheduled]
   finish_update "$rc" "$next"
 }
 
-# Splits a release image name into "registry repo version arch". Fails for anything else
+# Splits a release image name into "registry repo version arch". Arch is amd64 or arm64 for
+# vX.Y-<arch> tags and "multi" for the plain multi-arch vX.Y tag. Fails for anything else
 # (local dev images, digests, other tags), so only released installs update themselves.
 parse_image() {  # ref
   case "$1" in *@*) return 1 ;; esac
@@ -251,15 +252,23 @@ parse_image() {  # ref
   repo=${name#*/}
   [ "$repo" != "$name" ] || return 1
   case "$registry" in *.*|*:*) ;; *) return 1 ;; esac
-  case "$tag" in *-amd64) arch=amd64 ;; *-arm64) arch=arm64 ;; *) return 1 ;; esac
-  version=${tag%-"$arch"}
+  case "$tag" in *-amd64) arch=amd64 ;; *-arm64) arch=arm64 ;; *) arch=multi ;; esac
+  version=$(tag_version "$tag" "$arch")
   printf '%s\n' "$version" | grep -Eq '^v[0-9]+\.[0-9]+(\.[0-9]+)?(-rc\.[0-9]+)?$' || return 1
   echo "$registry $repo $version $arch"
 }
 
-# True if TAG is a stable release for ARCH: vX.Y or vX.Y.Z with the arch suffix, never -rc.
+# Version part of a tag: the arch suffix is cut off, except for the plain multi-arch tag.
+tag_version() {  # tag arch
+  if [ "$2" = multi ]; then echo "$1"; else echo "${1%-"$2"}"; fi
+}
+
+# True if TAG is a stable release for ARCH: vX.Y or vX.Y.Z with the arch suffix (none for
+# "multi", the plain tag), never -rc.
 is_stable_tag() {  # tag arch
-  printf '%s\n' "$1" | grep -Eq "^v[0-9]+\.[0-9]+(\.[0-9]+)?-$2\$"
+  suffix="-$2"
+  [ "$2" != multi ] || suffix=""
+  printf '%s\n' "$1" | grep -Eq "^v[0-9]+\.[0-9]+(\.[0-9]+)?$suffix\$"
 }
 
 # True if version A is newer than B (vX.Y[.Z][-rc.N]; a final release beats its candidates).
@@ -287,8 +296,8 @@ newest_stable() {  # tags arch current [skip]
   for t in $1; do
     is_stable_tag "$t" "$2" || continue
     [ "$t" != "${4:-}" ] || continue
-    version_gt "${t%-"$2"}" "$3" || continue
-    [ -z "$best" ] || version_gt "${t%-"$2"}" "${best%-"$2"}" || continue
+    version_gt "$(tag_version "$t" "$2")" "$3" || continue
+    [ -z "$best" ] || version_gt "$(tag_version "$t" "$2")" "$(tag_version "$best" "$2")" || continue
     best=$t
   done
   [ -z "$best" ] || echo "$best"

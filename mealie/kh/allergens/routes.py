@@ -12,7 +12,7 @@ from mealie.kh.allergens.profile import (
     save_allergies,
     warnings_for,
 )
-from mealie.kh.allergens.rules import recipe_allergens
+from mealie.kh.allergens.rules import lines_allergens, recipe_allergens
 from mealie.kh.allergens.schemas import (
     AllergenCorrectionIn,
     AllergenProfile,
@@ -28,7 +28,7 @@ from mealie.kh.allergens.service import (
     corrections_by_recipe,
     corrections_of,
     delete_rule,
-    group_recipes,
+    group_ingredient_lines,
     household_rules,
     set_correction,
 )
@@ -107,17 +107,18 @@ class KhAllergensController(BaseUserController):
     @router.get("/allergens/warnings", response_model=dict[str, list[str]])
     def get_warnings(self) -> dict[str, list[str]]:
         """For every recipe of the group with a warning for the user's household: its slug and the allergens
-        concerned. ponytail: computed on request over all recipes; cache when a group passes about 2,000 recipes."""
+        concerned. ponytail: computed on request from the ingredient lines of all recipes (no full recipes loaded,
+        the rules cached per line text); cache the result when a group passes about 5,000 recipes."""
         members = household_members(self.session, self.household_id)
         if not members:
             return {}
         found = {}
-        recipes = group_recipes(self.session, self.group_id)
-        corrections = corrections_by_recipe(self.session, [recipe.id for recipe in recipes])
-        for recipe in recipes:
-            warnings = warnings_for(members, recipe_allergens(recipe, corrections.get(recipe.id, {})))
+        recipes = group_ingredient_lines(self.session, self.group_id)
+        corrections = corrections_by_recipe(self.session, [recipe_id for recipe_id, _, _ in recipes])
+        for recipe_id, slug, lines in recipes:
+            warnings = warnings_for(members, lines_allergens(lines, corrections.get(recipe_id, {})))
             if warnings:
-                found[recipe.slug] = [w.allergen for w in warnings]
+                found[slug] = [w.allergen for w in warnings]
         return found
 
     @router.get(

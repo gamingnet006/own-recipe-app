@@ -98,6 +98,18 @@ def test_warnings_map_holds_only_recipes_with_warnings(
     assert found[nuts] == ["nuts"] and found[other] == ["nuts"] and plain not in found
 
 
+def test_warnings_map_covers_plain_text_lines_and_recipes_without_ingredients(
+    api_client: TestClient, unique_user: TestUser, household_member: TestUser
+):
+    plain_text = new_recipe(api_client, unique_user, [(None, None, None, "100 g Haselnüsse")])["slug"]
+    empty = new_recipe(api_client, unique_user, [])["slug"]
+    corrected = new_recipe(api_client, unique_user, [])["slug"]
+    api_client.put(f"{KH}/recipes/{corrected}/allergens/nuts", json={"present": True}, headers=unique_user.token)
+    set_allergies(api_client, household_member, ["nuts"])
+    found = api_client.get(f"{KH}/allergens/warnings", headers=unique_user.token).json()
+    assert found[plain_text] == ["nuts"] and found[corrected] == ["nuts"] and empty not in found
+
+
 def test_warnings_map_reads_the_corrections_in_one_query(api_client: TestClient, unique_user: TestUser):
     """Not one query per recipe (N+1) for the corrections."""
     for _ in range(3):

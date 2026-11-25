@@ -35,7 +35,7 @@ Der Plan mit Phasen, Aufgaben und Entscheidungen steht in `PLAN.md`. Er wird nic
 - Die Datenbank nur über Alembic-Migrationen ändern; vor jeder Migration ein Backup.
 - Upstream: Sicherheitsfixes einzeln per `cherry-pick` übernehmen, neue Mealie-Funktionen nur nach Absprache.
 - Mealies Lizenz- und Copyright-Hinweise nie entfernen.
-- GitHub Actions: Nur unsere Workflows starten von selbst: `kh-ci.yml` bei jedem Push (ruft Mealies `test-backend.yml` und `test-frontend.yml` auf) und `kh-release.yml` bei Versions-Tags (baut das amd64-Image, Upgrade-Test vom vorigen Release, erst dann hochladen). Alle anderen Mealie-Workflows sind im Repo deaktiviert. Nach jedem Upstream-Abgleich neue Workflows mit `gh workflow disable <name>` abschalten.
+- GitHub Actions: Nur unsere Workflows starten von selbst: `kh-ci.yml` bei jedem Push (ruft Mealies `test-backend.yml` und `test-frontend.yml` auf) und `kh-release.yml` bei Versions-Tags (baut amd64 und arm64, Upgrade-Test je Architektur vom vorigen Release, erst dann hochladen und den gemeinsamen Tag `vX.Y` setzen). Alle anderen Mealie-Workflows sind im Repo deaktiviert. Nach jedem Upstream-Abgleich neue Workflows mit `gh workflow disable <name>` abschalten.
 
 ## Phasen-Regeln
 
@@ -94,7 +94,7 @@ kh/ops/auto_update.sh on|off|status|check|run
 kh/ops/backup_copy.sh on [<ordner>]|off|status|run|decrypt <datei.zip.age>
 # Passendes Profil vorschlagen; mit --audio <datei> (etwa 1 Minute) auch die Whisper-Geschwindigkeit messen (Phase 7)
 sh kh/ops/hardware_test.sh [--audio <datei> [--seconds <länge>]]
-# Release veröffentlichen (nur auf dem Mac): arm64 bauen, Tag setzen, CI baut amd64, arm64 hochladen
+# Release veröffentlichen: Tag setzen, CI baut amd64 und arm64 und setzt den gemeinsamen Tag; das Skript wartet und prüft die drei Tags
 kh/ops/release.sh <version>
 # Upgrade-Test von Hand: alte Version mit Testrezepten, Update, Vergleich (Wegwerf-Installation auf Port 9191)
 kh/ops/upgrade_test.sh <altes-image> <neues-image>
