@@ -11,6 +11,7 @@ Notable changes per release. Every release is a git tag with the app image in GH
 - Die Warnzeichen für Unverträglichkeiten auf den Rezeptkarten laden schneller.
 - Admins finden „Automatische Updates“ jetzt auch unter Einstellungen → Familie & Verwaltung.
 - Ein Image-Name für alle Geräte (Raspberry Pi, Mac, PC).
+- Die fertigen Kurzbefehle gibt es jetzt auch auf Englisch: „Import to Cookbook“, „Add to shopping list“ und „Cookbook timer“.
 
 - One image name for every machine: CI now builds amd64 and arm64 itself (arm64 on GitHub's arm64 runner, with its own
   upgrade test) and joins them under the plain tag `vX.Y`. `vX.Y-amd64` and `vX.Y-arm64` still exist, installs on
@@ -21,6 +22,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
   added afterwards.
 - Settings: admins find the "Automatic updates" checkbox under Family & administration as well (it stays in the
   admin site settings).
+- Ready-made English shortcuts: "Import to Cookbook", "Add to shopping list" and "Cookbook timer" are built in as
+  the `KH_*_SHORTCUT_URL_EN` defaults, so English people get "Add shortcut" instead of the manual steps.
 - The allergen marks on the recipe cards load faster: only the ingredient lines are read, not whole recipes, and each
   ingredient text is checked once.
 

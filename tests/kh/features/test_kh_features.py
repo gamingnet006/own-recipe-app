@@ -59,7 +59,11 @@ def test_features_report_the_switch(api_client: TestClient, share_links):
                     "import": DEFAULT_SHORTCUT_URLS["import_shortcut_url"],
                     "siri": DEFAULT_SHORTCUT_URLS["siri_shortcut_url"],
                 },
-                "en-US": {"clock": None, "import": None, "siri": None},  # no English shortcuts are shared yet
+                "en-US": {
+                    "clock": DEFAULT_SHORTCUT_URLS["clock_shortcut_url_en"],
+                    "import": DEFAULT_SHORTCUT_URLS["import_shortcut_url_en"],
+                    "siri": DEFAULT_SHORTCUT_URLS["siri_shortcut_url_en"],
+                },
             },
             "emailReady": get_app_settings().SMTP_ENABLE,  # CI sets up a test mail server
             "draftMaxText": get_kh_settings().draft_max_text,
@@ -171,6 +175,19 @@ def test_english_shortcut_urls_come_from_their_own_settings(monkeypatch: pytest.
     assert settings.shortcut_urls()["de-DE"][field] != VALID_SHORTCUT  # the German link is untouched
     monkeypatch.setenv(f"KH_{field.upper()}_SHORTCUT_URL_EN", "https://example.com/x")
     assert KhSettings().shortcut_urls()["en-US"][field] is None
+
+
+@pytest.mark.parametrize(
+    "field, url",
+    [
+        ("import", "https://www.icloud.com/shortcuts/647f18573b364b2c883ee0d2d5e70fcf"),
+        ("clock", "https://www.icloud.com/shortcuts/0b52561241d441cd8581de23b5250166"),
+        ("siri", "https://www.icloud.com/shortcuts/7df86c46bd414d50a8c8355d8267405b"),
+    ],
+)
+def test_english_shortcuts_are_built_in(monkeypatch: pytest.MonkeyPatch, field: str, url: str):
+    monkeypatch.delenv(f"KH_{field.upper()}_SHORTCUT_URL_EN", raising=False)
+    assert KhSettings().shortcut_urls()["en-US"][field] == url
 
 
 @pytest.mark.parametrize("name", ["KH_IMPORT_SHORTCUT_URL", "KH_SIRI_SHORTCUT_URL"])

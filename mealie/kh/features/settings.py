@@ -20,15 +20,15 @@ CLOCK_SHORTCUT_URL = re.compile(r"https://www\.icloud\.com/shortcuts/[A-Za-z0-9]
 # The "Kochheft Timer" shortcut the maintainer shared (no personal data in it), so every install offers it unconfigured
 DEFAULT_CLOCK_SHORTCUT_URL = "https://www.icloud.com/shortcuts/c6b533e1ee864389831f5a2d7801a9c9"
 # The share-import, Siri and Clock shortcuts the maintainer shared (D42, D68, D84, D87); they ask for address and key
-# when added and carry neither, so every install offers them unconfigured. The English ones ("..._en") are not shared
-# yet: None, and the setup page then shows the manual English steps.
+# when added and carry neither, so every install offers them unconfigured. The English ones ("..._en") are "Import to
+# Cookbook", "Add to shopping list" and "Cookbook timer"; set to nothing, the setup page shows the manual steps.
 DEFAULT_SHORTCUT_URLS: dict[str, str | None] = {
     "clock_shortcut_url": DEFAULT_CLOCK_SHORTCUT_URL,
     "import_shortcut_url": "https://www.icloud.com/shortcuts/3fd264e8918848f7b1022edd57e2210c",
     "siri_shortcut_url": "https://www.icloud.com/shortcuts/28389dd5c63c42d2bfb983ba09201d04",
-    "clock_shortcut_url_en": None,
-    "import_shortcut_url_en": None,
-    "siri_shortcut_url_en": None,
+    "clock_shortcut_url_en": "https://www.icloud.com/shortcuts/0b52561241d441cd8581de23b5250166",
+    "import_shortcut_url_en": "https://www.icloud.com/shortcuts/647f18573b364b2c883ee0d2d5e70fcf",
+    "siri_shortcut_url_en": "https://www.icloud.com/shortcuts/7df86c46bd414d50a8c8355d8267405b",
 }
 
 # Cloudflare's free plan cuts uploads at 100 MB, so a bigger recording could never reach the app through the tunnel
@@ -50,9 +50,9 @@ class KhSettings(BaseSettings):
     clock_shortcut_url: str | None = DEFAULT_SHORTCUT_URLS["clock_shortcut_url"]
     import_shortcut_url: str | None = DEFAULT_SHORTCUT_URLS["import_shortcut_url"]
     siri_shortcut_url: str | None = DEFAULT_SHORTCUT_URLS["siri_shortcut_url"]
-    clock_shortcut_url_en: str | None = None
-    import_shortcut_url_en: str | None = None
-    siri_shortcut_url_en: str | None = None
+    clock_shortcut_url_en: str | None = DEFAULT_SHORTCUT_URLS["clock_shortcut_url_en"]
+    import_shortcut_url_en: str | None = DEFAULT_SHORTCUT_URLS["import_shortcut_url_en"]
+    siri_shortcut_url_en: str | None = DEFAULT_SHORTCUT_URLS["siri_shortcut_url_en"]
 
     # Drafts (phase 2): what one draft may bring, and after how long a stuck recognition counts as interrupted
     draft_max_images: int = 5
