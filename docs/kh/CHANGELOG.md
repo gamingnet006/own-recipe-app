@@ -6,6 +6,8 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.6] - 2026-11-25
+
 **Kurz gesagt:**
 - Auf GitHub steht jetzt zu jeder Version, was neu ist, mit einer deutschen Kurzfassung.
 - Die Warnzeichen für Unverträglichkeiten auf den Rezeptkarten laden schneller.
