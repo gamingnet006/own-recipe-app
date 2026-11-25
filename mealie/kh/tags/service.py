@@ -30,7 +30,7 @@ async def _ask_ai(repos: AllRepositories, translator: Translator, recipe: Recipe
     again in this run); no tags when the answer for this one recipe failed, so it still counts as asked."""
     try:
         return await ai_tags(repos, translator, recipe)
-    except (OpenAINotEnabledException, AIUnavailableError, QuotaUsedUpError):
+    except OpenAINotEnabledException, AIUnavailableError, QuotaUsedUpError:
         logger.info("KH: no AI provider answered for the tag suggestions")
         return None
     except Exception:  # an answer that cannot be used must not become a 500 that makes the page ask again
