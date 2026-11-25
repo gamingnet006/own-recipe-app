@@ -42,7 +42,7 @@ import { addressCardDue, addressSeenKey } from "~~/kh/app/lib/address-change";
 import { khAddons } from "~~/kh/app/composables/use-kh-addons";
 import { khOnboarding, useKhOnboarding } from "~~/kh/app/composables/use-kh-onboarding";
 import { detectDevice, familyOf, parseAnswer, SETUP_PATH, shouldAskDevice } from "~~/kh/app/lib/device-setup";
-import { startDialog } from "~~/kh/app/lib/start-dialog";
+import { type KhStartDialog, startDialog } from "~~/kh/app/lib/start-dialog";
 import { unseenNews, WHATS_NEW } from "~~/kh/app/lib/whats-new";
 
 const i18n = useI18n();
@@ -62,7 +62,7 @@ function storedAnswer() {
   }
 }
 
-// Decided once when the start page opens, so a finished dialog does not make the next one pop up
+// The news are read once when the start page opens; a finished dialog is skipped by startDialog() and the next follows
 const news = unseenNews(khOnboarding.status?.newsSeen ?? null, WHATS_NEW, khAddons.enabled, !!useMealieAuth().user.value?.admin);
 const { $khFeatures, $globals } = useNuxtApp();
 const seenKey = addressSeenKey(userId);
@@ -77,19 +77,35 @@ function storedSeen() {
   }
 }
 
-const chosen = startDialog({
+const finished: KhStartDialog[] = [];
+/** The dialog due now, given what was answered on this page already. */
+const dueDialog = () => startDialog({
   status: khOnboarding.status,
   signedIn: !!userId,
   allergensOn: khAddons.enabled.allergens,
   hasNews: news.length > 0,
   addressChanged: addressCardDue($khFeatures.addressChangedAt, storedSeen()),
   askDevice: shouldAskDevice(storedAnswer(), device, navigator.userAgent, Date.now()),
+  done: finished,
 });
-const showTour = ref(chosen === "tour");
-const showIntolerances = ref(chosen === "intolerances");
-const showNews = ref(chosen === "news");
-const showAddress = ref(chosen === "address");
-const showDevice = ref(chosen === "device");
+const current = ref(dueDialog());
+
+/** v-model of one dialog: open while it is the due one; closing it moves on to the next due dialog at once. */
+function shown(name: KhStartDialog) {
+  return computed({
+    get: () => current.value === name,
+    set: (open: boolean) => {
+      if (open || current.value !== name) return;
+      finished.push(name);
+      current.value = dueDialog();
+    },
+  });
+}
+const showTour = shown("tour");
+const showIntolerances = shown("intolerances");
+const showNews = shown("news");
+const showAddress = shown("address");
+const showDevice = shown("device");
 const addressCards = [{
   icon: ($globals.icons as Record<string, string>).cellphone ?? "",
   title: i18n.t("kh.address.title"),
@@ -114,13 +130,13 @@ function onAddressDone() {
 /** Stores the answer on this device ("later" asks again after a week, "never" and "yes" not at all) and opens the
  * setup page on yes. */
 function answerDevice(answer: "later" | "never" | "yes") {
-  showDevice.value = false;
   try {
     localStorage.setItem(answerKey, JSON.stringify({ answer, at: Date.now() }));
   }
   catch {
     // storage blocked: the question may come back, which is harmless
   }
+  showDevice.value = false;
   if (answer === "yes") void navigateTo(SETUP_PATH);
 }
 </script>

@@ -6,6 +6,12 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+- Browser-check fixes: the first setup starts with the language, then the colour; the long "already set up" button wraps
+  at phone width; the setup summary shows language and colour; menu paths in texts and the README match the current
+  menus; the dialogs of the start page follow one another at once (tour, then the intolerance question); the settings
+  page lists "Suggest tags" for people who organize and keeps the appearance label readable on phones; More calls its
+  group "Browse" (was "Collection"); Siri: a list named in the sentence ("Aldi list", "at Aldi") that does not exist is
+  answered with "no such list" instead of using the default list.
 - Fewer AI requests: a link page without recipe data is read by the AI once (not twice, and never as an empty stub),
   a long recognition no longer counts as interrupted and cannot be retried while it runs, tag suggestions survive
   an unusable answer or a used-up quota and remember in your browser which recipes were asked ("Ask again" clears

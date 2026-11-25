@@ -92,7 +92,7 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 ### 4. Erste Anmeldung
 
 1. Öffne die angezeigte Adresse und melde dich mit dem Standard-Konto an, das `install.sh` nennt.
-2. Ändere sofort unter **Profil** E-Mail und Passwort.
+2. Ändere sofort unter **Mehr → Einstellungen → Name, Foto, Passwort, E-Mail** dein Passwort und deine E-Mail.
 3. Erscheint Mealies Einrichtungs-Assistent, lass **Öffentlichen Zugriff aktivieren** aus.
 
 **Anmeldung und Passwort:** Wer das Passwort ändert, wird auf allen Geräten abgemeldet. Sonst bleibt eine Anmeldung bis zu 30 Tage gültig (`KH_TOKEN_TIME`, 720 Stunden). Ist ein Handy verloren, ändere also das Passwort.
@@ -101,7 +101,7 @@ Danach startet es alles, legt den Schlüssel für die Backups an und zeigt die e
 
 Jede Person bekommt einen Einladungslink und legt ihr Konto selbst an. Oder du legst es unter **Admin → Benutzer** selbst an, auch ohne E-Mail; dann wählt die Person beim ersten Anmelden ihr eigenes Passwort. Beides steht in [familienkonten.md](familienkonten.md).
 
-**Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Einstellungen → Haushalte freigeben** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
+**Mehrere Haushalte:** Wohnt jemand in zwei Haushalten, gibst du ihm unter **Mehr → Einstellungen → Haushalte freigeben** einen weiteren frei, auch in einer anderen Gruppe. Kochheft legt dafür ein verbundenes Konto an; die Person schaltet unter **Mehr → Einstellungen → Haushalt wechseln** um, ohne Passwort. Was sie dort anlegt, gehört zu diesem Haushalt. Die Rechte sind überall dieselben wie beim Hauptkonto (D52).
 
 ### 6. Automatische Updates
 
@@ -120,7 +120,7 @@ Jede Nacht um 4 Uhr holt Kochheft die neueste stabile Version und spielt sie mit
 Eine KI liest Fotos, Screenshots, Texte und Links ohne Rezeptdaten. Links mit Rezeptdaten gehen auch ohne sie. Kochheft nutzt dafür Google Gemini mit einem kostenlosen Schlüssel (D35). Ein Google-Konto genügt, eine Kreditkarte nicht.
 
 1. Melde dich in [Google AI Studio](https://aistudio.google.com) an und leg unter **Get API key** einen Schlüssel an. Hinterleg dort **kein Bezahlkonto**. Ohne Bezahlkonto entstehen keine Kosten; ist das Tageskontingent aufgebraucht, meldet Kochheft „Das KI-Kontingent ist aufgebraucht“.
-2. Öffne in Kochheft **Profil → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit: Ist das des ersten aufgebraucht, nimmt Kochheft das zweite (Schritt 5).
+2. Öffne in Kochheft **Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → Gruppen-Einstellungen → KI-Anbieter-Einstellungen → Anbieter erstellen** und leg zwei Anbieter mit demselben Schlüssel an. Jedes Modell hat sein eigenes Tageslimit: Ist das des ersten aufgebraucht, nimmt Kochheft das zweite (Schritt 5).
    - **Gemini:** Basis-URL `https://generativelanguage.googleapis.com/v1beta/openai/`, API-Key aus AI Studio, Modell `gemini-3.5-flash-lite`
    - **Gemini Reserve:** dieselbe Basis-URL und derselbe Schlüssel, Modell `gemini-3.1-flash-lite`
 
@@ -158,7 +158,7 @@ Am Handy und am iPad hochkant steht unten eine Leiste:
 - **Rezepte:** suchen und stöbern. Warten Entwürfe auf Prüfung, steht darüber ein Hinweis.
 - **Eingang:** neue Rezepte hinzufügen und die Entwürfe prüfen; die Zahl zeigt, wie viele warten.
 - **Einkaufsliste:** die Kachel-Seite (siehe „Einkaufsliste mit Kacheln“ unten).
-- **Mehr** in fünf Gruppen: **Planen** (Essensplan, Sammlungen, „Was kann ich kochen?“), **Sammlung** (Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Doppelte, Nährwerte, „Ich vertrage nicht“), **Einstellungen** (ein eigener Block mit einer Zeile zur Einstellungsseite, siehe „Eine Einstellungsseite“), **Hilfe** (Einführung, Kochheft einrichten, Neuigkeiten, Über Kochheft) und **Konto** (Abmelden, Konto löschen). In der Einfachen Ansicht steht **Einstellungen** gleich sichtbar unter **Mehr**. Auf jeder Unterseite führt oben links ein Pfeil zurück (zu **Mehr**, wenn die Seite direkt geöffnet wurde), denn die installierte App hat keine Zurück-Taste. In der Seitenleiste ab 840 Pixeln öffnet **Anpassen** die Auswahl, was dort steht.
+- **Mehr** in fünf Gruppen: **Planen** (Essensplan, Sammlungen, „Was kann ich kochen?“), **Stöbern** (Favoriten, Kategorien, Schlagworte, Utensilien, Zeitstrahl, Doppelte, Nährwerte, „Ich vertrage nicht“), **Einstellungen** (ein eigener Block mit einer Zeile zur Einstellungsseite, siehe „Eine Einstellungsseite“), **Hilfe** (Einführung, Kochheft einrichten, Neuigkeiten, Über Kochheft) und **Konto** (Abmelden, Konto löschen). In der Einfachen Ansicht steht **Einstellungen** gleich sichtbar unter **Mehr**. Auf jeder Unterseite führt oben links ein Pfeil zurück (zu **Mehr**, wenn die Seite direkt geöffnet wurde), denn die installierte App hat keine Zurück-Taste. In der Seitenleiste ab 840 Pixeln öffnet **Anpassen** die Auswahl, was dort steht.
 
 Am iPad quer und am Computer stehen dieselben Ziele im Seitenmenü links.
 
@@ -325,7 +325,7 @@ Auf dem Handy (Touch, kürzere Bildschirmseite unter 500 px) deckt ein Hinweis d
 
 Mit einem Kurzbefehl im Teilen-Menü kommen Links, Texte, Fotos, PDFs und Dateien aus Safari, Instagram, Fotos, Dateien, Notizen oder Nachrichten direkt als Entwurf an (D37, D84). Der Kurzbefehl schickt alles in **einer** Anfrage; ob es ein Foto, ein PDF, ein Text oder ein Link ist, entscheidet Kochheft selbst. Ein PDF mit Text wird gelesen wie ein Text, ein eingescanntes PDF über die Bilder darin (die ersten 20 Seiten, mit `KH_PDF_MAX_PAGES` einstellbar); ein PDF mit Passwort wird übersprungen.
 
-1. **Ein Schlüssel je Gerät:** In Kochheft unter **Profil → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
+1. **Ein Schlüssel je Gerät:** In Kochheft unter **Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens** einen Token anlegen, zum Beispiel „iPhone Anna“, und kopieren. Geht ein Gerät verloren, löschst du dort nur seinen Token.
 2. **Kurzbefehl bauen**, einmal in der App **Kurzbefehle** über **+**, Name „In Kochheft importieren“:
    - Unter **ⓘ** „Im Share-Sheet anzeigen“ einschalten, mit den Typen **Text**, **Formatierter Text**, **Safari-Webseiten**, **URLs**, **Bilder**, **Dateien** und **PDFs**. Ohne Eingabe: **Zwischenablage abrufen**.
    - Aktion **Text** mit der Adresse, `https://<eure-adresse>` (Name „Adresse“).
@@ -375,7 +375,7 @@ Danach steht neben jedem laufenden Timer „Auf Uhr-Timer legen“. Ein Tipp öf
 
 ### Sprache der Antworten und Kurzbefehle
 
-Alles, was der Server vorliest oder als Mitteilung schickt (Antworten von Siri und vom Teilen-Kurzbefehl, Push-Nachrichten, „ist ausgeschaltet“), kommt in der Sprache der Person: ihre Kontosprache, sonst die `Accept-Language` der Anfrage (Deutsch oder Englisch), sonst die Sprache der Installation aus der Ersteinrichtung, sonst Deutsch (bestehende Installationen bleiben deutsch). Die fertigen iCloud-Kurzbefehle gibt es bisher nur auf Deutsch; Englisch sprechende Personen sehen unter **Mehr → Kochheft einrichten** die Schritte zum Selbstbauen. Sind englische Versionen geteilt, kommen ihre Links in `.env` als `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` und `KH_CLOCK_SHORTCUT_URL_EN` (nur `https://www.icloud.com/shortcuts/…`).
+Alles, was der Server vorliest oder als Mitteilung schickt (Antworten von Siri und vom Teilen-Kurzbefehl, Push-Nachrichten, „ist ausgeschaltet“), kommt in der Sprache der Person: ihre Kontosprache, sonst die `Accept-Language` der Anfrage (Deutsch oder Englisch), sonst die Sprache der Installation aus der Ersteinrichtung, sonst Deutsch (bestehende Installationen bleiben deutsch). Die fertigen iCloud-Kurzbefehle gibt es bisher nur auf Deutsch; Englisch sprechende Personen sehen unter **Mehr → Hilfe → Kochheft einrichten** die Schritte zum Selbstbauen. Sind englische Versionen geteilt, kommen ihre Links in `.env` als `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` und `KH_CLOCK_SHORTCUT_URL_EN` (nur `https://www.icloud.com/shortcuts/…`).
 
 ### Kochheft einrichten (D68)
 
@@ -383,7 +383,7 @@ Unter **Mehr → Hilfe → Kochheft einrichten** (Adresse `/aufs-handy`) führt 
 
 - **Kochheft auf den Home-Bildschirm oder ins Dock:** iPhone und iPad über Safari → Teilen → „Zum Home-Bildschirm“, Android über das Menü ⋮ → „App installieren“, Mac über Safari (macOS Sonoma oder neuer) Ablage → „Zum Dock hinzufügen“ oder das Installieren-Symbol in Chrome und Edge. Läuft Kochheft schon als App, gilt die Karte als erledigt.
 - **Einkaufsliste als eigenes Symbol:** „Einkaufsliste öffnen“ öffnet `/einkauf` im Browser (nicht in der installierten App), dann dieselben Schritte; auf Android hältst du das Kochheft-Symbol gedrückt und ziehst „Einkaufsliste“ heraus.
-- **Schlüssel für Kurzbefehle:** „Schlüssel für dieses Gerät erstellen“ legt einen API-Token „Kurzbefehle <Gerät> <Datum>“ an und zeigt ihn einmal mit Kopieren-Taste. Er wird nirgends gespeichert; geht das Gerät verloren, löschst du ihn unter Profil → API-Tokens. Am Mac kannst du einen eigenen Schlüssel erstellen.
+- **Schlüssel für Kurzbefehle:** „Schlüssel für dieses Gerät erstellen“ legt einen API-Token „Kurzbefehle <Gerät> <Datum>“ an und zeigt ihn einmal mit Kopieren-Taste. Er wird nirgends gespeichert; geht das Gerät verloren, löschst du ihn Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens. Am Mac kannst du einen eigenen Schlüssel erstellen.
 - **Rezepte aus anderen Apps importieren** und **„Hey Siri, Auf die Einkaufsliste“** (iPhone, iPad, am Mac über die iCloud-Synchronisierung der Kurzbefehle): der Knopf „Kurzbefehl hinzufügen“ holt die fertigen Kurzbefehle (fest eingebaut; eigene über `KH_IMPORT_SHORTCUT_URL` und `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env`, iCloud-Links wie `KH_CLOCK_SHORTCUT_URL`). Auf Android steht Kochheft direkt im Teilen-Menü; für „Auf die Einkaufsliste“ gibt es dort keinen Assistenten. Beim Hinzufügen fragt der Kurzbefehl nach Adresse und Schlüssel: Unter dem Knopf „Kurzbefehl hinzufügen“ stehen beide zum Kopieren bereit (den Schlüssel erstellst du dort mit einem Klick; für jeden Kurzbefehl kannst du einen eigenen nehmen und ihn einzeln löschen).
 - **Uhr-Timer** (nur iPhone, iPad und Mac): Verweis auf Mehr → Einstellungen → Timer.
 
@@ -416,7 +416,7 @@ Ein Zusatz (aus; **Mehr → Einstellungen → Zusatzfunktionen → Saison**): Di
 
 ### Einkaufsliste per QR-Code und NFC (D81)
 
-Auf **Mehr → Kochheft einrichten** gibt es „Für die Küche“: einen QR-Code der Adresse `…/einkauf` zum Ausdrucken (Kühlschrank; Kamera scannen, Liste öffnet sich) und für NFC-Sticker. In Chrome auf Android schreibt „Auf NFC-Sticker schreiben“ die Adresse auf einen leeren Sticker. iPhone kann Sticker lesen, aber nicht von einer Website beschreiben: Dort die kostenlose App „NFC Tools“ nutzen oder in Kurzbefehle → Automation → NFC einen Sticker auf „URL öffnen“ legen. Sticker sind freiwillig und kosten etwa 1 € pro Stück.
+Auf **Mehr → Hilfe → Kochheft einrichten** gibt es „Für die Küche“: einen QR-Code der Adresse `…/einkauf` zum Ausdrucken (Kühlschrank; Kamera scannen, Liste öffnet sich) und für NFC-Sticker. In Chrome auf Android schreibt „Auf NFC-Sticker schreiben“ die Adresse auf einen leeren Sticker. iPhone kann Sticker lesen, aber nicht von einer Website beschreiben: Dort die kostenlose App „NFC Tools“ nutzen oder in Kurzbefehle → Automation → NFC einen Sticker auf „URL öffnen“ legen. Sticker sind freiwillig und kosten etwa 1 € pro Stück.
 
 ### Unsere Notiz am Rezept (D82)
 
@@ -445,7 +445,7 @@ Unter **Mehr → Einstellungen → Mitteilungen** entscheidet jede Person, welch
 Optional und standardmäßig aus: Wer Links, Texte oder Fotos lieber an einen Telegram-Chat schickt, bekommt sie als Entwurf im **Eingang** (P7.1). Der Bot fragt Telegram selbst nach Nachrichten, es wird kein Port geöffnet.
 
 1. In Telegram den Chat mit **@BotFather** öffnen, `/newbot` senden und die Fragen beantworten. Den Token, den er nennt, trägst du in `kh/ops/.env` als `KH_TELEGRAM_TOKEN` ein.
-2. In Kochheft unter **Profil → API-Tokens** einen eigenen Token anlegen, zum Beispiel „Telegram-Bot“, und als `KH_TELEGRAM_API_TOKEN` eintragen.
+2. In Kochheft unter **Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens** einen eigenen Token anlegen, zum Beispiel „Telegram-Bot“, und als `KH_TELEGRAM_API_TOKEN` eintragen.
 3. Starte den Bot mit `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, schreib ihm eine Nachricht und trag die Chat-ID, die er zurückschickt („Diese Chat-ID ist nicht freigeschaltet: …“), in `KH_TELEGRAM_ALLOWED_IDS` ein (mehrere mit Komma). Dann startest du den Bot mit demselben Befehl neu.
 
 Danach legt jeder Link, Text oder jedes Foto aus einem freigeschalteten Chat einen Entwurf an; der Bot antwortet mit „Entwurf angelegt“ und dem Link zur Prüfansicht. Bei Fotos zählt das größte, höchstens `KH_DRAFT_MAX_IMAGE_MB` groß. Videolinks (Instagram, TikTok, YouTube, Facebook) werden nicht abgerufen: Schick die Beschreibung als Text dazu oder einen Screenshot. Im Profil `lokal` startet der Bot nicht. Ausschalten: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
@@ -487,7 +487,7 @@ Mit einer eigenen Aufnahme von etwa 1 Minute misst es auch die Spracherkennung: 
   - Zurückholen: Mit Passwort fragt `kh/ops/backup_copy.sh decrypt <Stick>/Kuechenhelfer-Backups/<backup>.zip.age` danach und legt das Backup in den Backup-Ordner; am Mac im Terminal am Gerät selbst aufrufen, nicht über SSH. Ohne Passwort die `.zip` vom Stick nach `kh/ops/backups` kopieren. Danach `restore.sh <backup>.zip` wie unter „Alltag“.
   - Anleitung neben den Backups: Auf dem Stick und im Backup-Ordner liegen `LIESMICH.txt` mit allen Schritten, auch zum Neuinstallieren, und `CLAUDE.md` für Claude: Wer Claude Code in diesem Ordner startet, bekommt beim Wiederherstellen Hilfe. Beide erneuern sich, wenn sich die Anleitung ändert.
   - Backup-Ort ändern: genauso wie in Schritt 2, am Mac also per Doppelklick auf `kh/ops/backup-ort-aendern.command`, bequem als Verweis auf dem Schreibtisch (im Finder mit gedrückter ⌥⌘-Taste dorthin ziehen). Passwort-Wahl und Schlüssel bleiben, die erste Kopie kommt samt `LIESMICH.txt` und `CLAUDE.md` sofort an den neuen Ort, und am Mac steht danach das Ergebnis da. Am alten Ort bleiben die Kopien liegen. Das geht absichtlich nur am Gerät selbst oder über SSH, nicht über die Webseite.
-  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Kochheft unter Profil → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an. Auch der KI-Schlüssel steckt im Backup: Leg in Google AI Studio einen neuen an, trag ihn unter Gruppen-Einstellungen → KI-Anbieter ein und lösch den alten in AI Studio.
+  - Stick ohne Passwort verloren: Wer ihn hat, kommt mit dem Backup-Schlüssel darin in die App. Lösch dann in Kochheft Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens den Token des Backup-Dienstes (bei neuen Installationen `kh-backup`), leg einen neuen an, trag ihn als `KH_BACKUP_API_TOKEN` in `kh/ops/.env` ein und führ `docker compose -f kh/ops/docker-compose.yml up -d backup` aus. Lösch zuletzt `kh/ops/data/.secret` und starte Mealie neu (`docker compose -f kh/ops/docker-compose.yml restart mealie`); danach melden sich alle einmal neu an. Auch der KI-Schlüssel steckt im Backup: Leg in Google AI Studio einen neuen an, trag ihn unter Gruppen-Einstellungen → KI-Anbieter ein und lösch den alten in AI Studio.
 
 ### Alltag
 
@@ -529,8 +529,8 @@ Was Kochheft nach draußen schickt. Telemetrie gibt es keine.
 |---|---|---|---|
 | Link einlesen | Abruf der Seite und ihres Rezeptbilds | die jeweilige Webseite | – |
 | KI: Text, Foto, Screenshot oder Link ohne Rezeptdaten auslesen; Mealies KI-Zutatenerkennung, wenn man sie wählt | der Text, die Bilder oder der Inhalt der Seite; im Gratis-Angebot darf Google sie nutzen | die eingetragenen KI-Anbieter in der Reihenfolge der Prio-Liste, z. B. Google Gemini; jeder mit eigenen Regeln (D35, D39) | KI-Anbieter in den Gruppen-Einstellungen löschen |
-| Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Kochheft, direkt vom Gerät (D37) | Kurzbefehl löschen; Token unter Profil → API-Tokens löschen |
-| Mitteilungen (Web Push, D75) | verschlüsselte Mitteilung (Titel und Text); der Dienst sieht nur, dass eine Mitteilung an ein Gerät geht, nicht ihren Inhalt | der Push-Dienst von Apple, Google oder Mozilla, je nach Gerät | Schalter unter Mehr → Mitteilungen aus oder Gerät entfernen |
+| Teilen per Kurzbefehl | Link, Text oder Foto, mit dem Schlüssel des Geräts | dein Kochheft, direkt vom Gerät (D37) | Kurzbefehl löschen; Token Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens löschen |
+| Mitteilungen (Web Push, D75) | verschlüsselte Mitteilung (Titel und Text); der Dienst sieht nur, dass eine Mitteilung an ein Gerät geht, nicht ihren Inhalt | der Push-Dienst von Apple, Google oder Mozilla, je nach Gerät | Schalter unter Mehr → Einstellungen → Mitteilungen aus oder Gerät entfernen |
 | Zugang von unterwegs | gesamter Verkehr zur Web-App; Cloudflare kann ihn lesen, weil HTTPS dort endet | Cloudflare (Tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatische Updates | Abruf der Versionsliste und der neuen Images, mit dem Lese-Schlüssel, solange das Repo privat ist; beim Erneuern des Backup-Dienstes das Alpine-Basisimage und Pakete | GitHub (ghcr.io), Docker Hub, Alpine-Paketspiegel (D29) | `kh/ops/auto_update.sh off` |
 | Mealies Versionsprüfung | nur die Frage nach der neuesten Mealie-Version, wenn ein Admin die Verwaltung öffnet | GitHub (api.github.com) | – |
@@ -612,7 +612,7 @@ It then starts everything, creates the key for the backups and shows the first l
 ### 4. First login
 
 1. Open the address shown and log in with the default account that `install.sh` names.
-2. Change e-mail and password right away under **Profile**.
+2. Change e-mail and password right away under **More → Settings → Name, photo, password, e-mail**.
 3. If Mealie's setup wizard appears, leave **Enable public access** off.
 
 **Sign-in and password:** Changing your password signs you out on all devices. Otherwise a sign-in stays valid for up to 30 days (`KH_TOKEN_TIME`, 720 hours), so if a phone is lost, change the password.
@@ -621,7 +621,7 @@ It then starts everything, creates the key for the backups and shows the first l
 
 Each person gets an invite link and creates their own account. Or you create it yourself under **Admin → Users**, also without e-mail; the person then chooses their own password at the first sign-in. Both are in [familienkonten.en.md](familienkonten.en.md).
 
-**Several households:** if someone lives in two households, give them another one under **More → Household access**, also in another group. Cookbook creates a linked account for it; the person switches under **More → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
+**Several households:** if someone lives in two households, give them another one under **More → Settings → Household access**, also in another group. Cookbook creates a linked account for it; the person switches under **More → Settings → Switch household**, without a password. What they add there belongs to that household. Rights are the same everywhere as on the main account (D52).
 
 ### 6. Automatic updates
 
@@ -640,7 +640,7 @@ Every night at 4 am Cookbook fetches the newest stable version and installs it w
 An AI reads photos, screenshots, texts and links without recipe data. Links with recipe data work without it. Cookbook uses Google Gemini with a free key for this (D35). A Google account is enough, no credit card.
 
 1. Sign in to [Google AI Studio](https://aistudio.google.com) and create a key under **Get API key**. Do **not** add a billing account there. Without one nothing costs money; when the daily quota is used up, Cookbook says "The AI quota is used up".
-2. In Cookbook open **Profile → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Cookbook takes the second (step 5).
+2. In Cookbook open **More → Settings → Advanced → Mealie settings → Group Settings → AI Provider Settings → Create Provider** and create two providers with the same key. Every model has its own daily limit: when the first one's is used up, Cookbook takes the second (step 5).
    - **Gemini:** Base URL `https://generativelanguage.googleapis.com/v1beta/openai/`, the API key from AI Studio, model `gemini-3.5-flash-lite`
    - **Gemini Reserve:** the same base URL and key, model `gemini-3.1-flash-lite`
 
@@ -678,7 +678,7 @@ On a phone and an upright iPad there is a bar at the bottom:
 - **Recipes:** search and browse. When drafts wait for a review, a hint shows above.
 - **Intake:** add new recipes and review the drafts; the number shows how many wait.
 - **Shopping list:** the tile page (see "Shopping list with tiles" below).
-- **More** in five groups: **Plan** (meal plan, collections, "What can I cook?"), **Collection** (favorites, categories, tags, tools, timeline, duplicates, nutrition, "I do not tolerate"), **Settings** (a block of its own with one row to the settings page, see "One settings page"), **Help** (introduction, set up Cookbook, news, about Cookbook) and **Account** (log out, delete account). In the simple view, **Settings** shows directly under **More**. Every sub-page has a back arrow at the top left (to **More** when opened directly), because the installed app has no back button; in the side menu from 840 pixels, **Customize** opens the choice of what it shows.
+- **More** in five groups: **Plan** (meal plan, collections, "What can I cook?"), **Browse** (favorites, categories, tags, tools, timeline, duplicates, nutrition, "I do not tolerate"), **Settings** (a block of its own with one row to the settings page, see "One settings page"), **Help** (introduction, set up Cookbook, news, about Cookbook) and **Account** (log out, delete account). In the simple view, **Settings** shows directly under **More**. Every sub-page has a back arrow at the top left (to **More** when opened directly), because the installed app has no back button; in the side menu from 840 pixels, **Customize** opens the choice of what it shows.
 
 On an iPad in landscape and on a computer, the same destinations are in the side menu on the left.
 
@@ -846,7 +846,7 @@ On a phone (touch, shorter screen side under 500 px) a notice covers the app whi
 
 With a shortcut in the share menu, links, texts, photos, PDFs and files from Safari, Instagram, Photos, Files, Notes or Messages arrive straight as drafts (D37, D84). The shortcut sends everything in **one** request; Cookbook itself decides whether it is a photo, a PDF, a text or a link. A PDF with text is read like a text, a scanned PDF through the images in it (the first 20 pages, adjustable with `KH_PDF_MAX_PAGES`); a PDF with a password is skipped.
 
-1. **One key per device:** in Cookbook under **Profile → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
+1. **One key per device:** in Cookbook under **More → Settings → Advanced → Mealie settings → API Tokens** create a token, for example "iPhone Anna", and copy it. If a device gets lost, delete just its token there.
 2. **Build the shortcut** once in the **Shortcuts** app with **+**, named "Import to Cookbook":
    - Under **ⓘ** turn on "Show in Share Sheet", with the types **Text**, **Rich Text**, **Safari web pages**, **URLs**, **Images**, **Files** and **PDFs**. With no input: **Get Clipboard**.
    - A **Text** action with the address, `https://<your-address>` (name it "Address").
@@ -881,30 +881,30 @@ Then "Hey Siri, Add to shopping list" works. Siri reads out, for example: "Milk 
 
 A timer in the app rings only while the app is open. So that it rings on a locked phone, too, the button "Put on the clock" hands it to the Clock app (D42). Each device needs one shortcut for that:
 
-> **iPhone, iPad and Mac only.** The clock timer needs the Shortcuts app (on the Mac in Safari and the Dock app; Chrome on a Mac opens it too). Android has none, and a web page cannot start the Clock app's timer there. On Android and on Windows, **More → Timer** therefore shows only a note; the timer in Cookbook rings there while the app is open.
+> **iPhone, iPad and Mac only.** The clock timer needs the Shortcuts app (on the Mac in Safari and the Dock app; Chrome on a Mac opens it too). Android has none, and a web page cannot start the Clock app's timer there. On Android and on Windows, **More → Settings → Timer** therefore shows only a note; the timer in Cookbook rings there while the app is open.
 
-1. **Set up the shortcut.** Under **More → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
+1. **Set up the shortcut.** Under **More → Settings → Timer** the steps sit right at the switch ("How to set up the shortcut"); if the button "Add shortcut" is there, it is enough. By hand:
    - Open the **Shortcuts** app and tap **+** at the bottom right.
    - Change the name at the top to "Cookbook timer" (or adjust the name in Cookbook).
    - Add the action **Get Numbers from Input**, source **Shortcut Input**.
    - Add the action **Start Timer**, duration = that number, unit **minutes**.
-2. **Turn it on:** in Cookbook under **More → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
+2. **Turn it on:** in Cookbook under **More → Settings → Timer** turn on "Also offer timers in the Clock app". If the shortcut has another name, enter it there. "Try it (1 minute)" starts a test; lock the phone and check that it rings.
 
 Then every running timer gets a "Put on the clock" button. A tap briefly opens the Shortcuts app and starts the Clock timer with the time left, rounded up to whole minutes. The timer in Cookbook keeps running.
 
-**Add shortcut:** Cookbook comes with the ready-made "Kochheft Timer" shortcut (German only for now; English people name their own "Cookbook timer") as an iCloud link. **More → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
+**Add shortcut:** Cookbook comes with the ready-made "Kochheft Timer" shortcut (German only for now; English people name their own "Cookbook timer") as an iCloud link. **More → Settings → Timer** shows the button "Add shortcut" for it; one tap adds it on the device. To use your own instead, share it (Shortcuts → Share → "Copy iCloud Link") and put the link into `.env` as `KH_CLOCK_SHORTCUT_URL` (only `https://www.icloud.com/shortcuts/…`; anything else hides the button).
 
 ### Language of the answers and the shortcuts
 
-Everything the server says out loud or pushes (Siri and share-shortcut answers, push messages, "switched off" refusals) comes in the language of the person: their account's language if they chose one, else the request's `Accept-Language` (German or English), else the installation's language from the first setup, else German (so existing installations stay German). The ready-made iCloud shortcuts exist in German only so far: English people see the manual steps on **More → Set up Cookbook** and build the two shortcuts themselves ("Import to Cookbook", "Add to shopping list" as described above; the share-sheet one also works with the German steps, only the name differs). Once you have shared English versions by iCloud link, put them into `.env` as `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` and `KH_CLOCK_SHORTCUT_URL_EN` (only `https://www.icloud.com/shortcuts/…`); the German ones stay `KH_IMPORT_SHORTCUT_URL`, `KH_SIRI_SHORTCUT_URL` and `KH_CLOCK_SHORTCUT_URL`.
+Everything the server says out loud or pushes (Siri and share-shortcut answers, push messages, "switched off" refusals) comes in the language of the person: their account's language if they chose one, else the request's `Accept-Language` (German or English), else the installation's language from the first setup, else German (so existing installations stay German). The ready-made iCloud shortcuts exist in German only so far: English people see the manual steps on **More → Help → Set up Cookbook** and build the two shortcuts themselves ("Import to Cookbook", "Add to shopping list" as described above; the share-sheet one also works with the German steps, only the name differs). Once you have shared English versions by iCloud link, put them into `.env` as `KH_IMPORT_SHORTCUT_URL_EN`, `KH_SIRI_SHORTCUT_URL_EN` and `KH_CLOCK_SHORTCUT_URL_EN` (only `https://www.icloud.com/shortcuts/…`); the German ones stay `KH_IMPORT_SHORTCUT_URL`, `KH_SIRI_SHORTCUT_URL` and `KH_CLOCK_SHORTCUT_URL`.
 
 ### Set up Cookbook (D68)
 
-Under **More → Set up Cookbook** (address `/aufs-handy`) a page walks through everything a new device needs. It recognizes iPhone, iPad, Android, Mac and other computers and shows their steps; "Device" lets you see the steps of the others. Each card has 2 to 5 short steps and a "Done" tick (kept on this device): Cookbook on the home screen or in the Dock, the shopping list as its own icon (opens `/einkauf` in the browser), a key for shortcuts (an API token "Kurzbefehle <device> <date>", shown once and never stored; delete it under Profile → API tokens if the device is lost; on a Mac you can create your own), importing recipes from other apps and "Hey Siri, Auf die Einkaufsliste" (iPhone, iPad, and the Mac through iCloud sync of Shortcuts; the "Add shortcut" button fetches the built-in shortcuts; your own via `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env`), and the Clock timer (iPhone and iPad). On a new phone, iPad or (in Safari, Chrome, Edge) computer, Cookbook asks once after sign-in: "Yes, show me", "Later" (asks again after 7 days) or "No, thanks" (never on this device). The introduction ends with a "Set up now" button. For the shortcuts, the address and the key the shortcut asks for sit as copy boxes right under "Add shortcut" (create the key there with one click; you can take one key per shortcut and delete it alone) (D86).
+Under **More → Help → Set up Cookbook** (address `/aufs-handy`) a page walks through everything a new device needs. It recognizes iPhone, iPad, Android, Mac and other computers and shows their steps; "Device" lets you see the steps of the others. Each card has 2 to 5 short steps and a "Done" tick (kept on this device): Cookbook on the home screen or in the Dock, the shopping list as its own icon (opens `/einkauf` in the browser), a key for shortcuts (an API token "Kurzbefehle <device> <date>", shown once and never stored; delete it More → Settings → Advanced → Mealie settings → API tokens if the device is lost; on a Mac you can create your own), importing recipes from other apps and "Hey Siri, Auf die Einkaufsliste" (iPhone, iPad, and the Mac through iCloud sync of Shortcuts; the "Add shortcut" button fetches the built-in shortcuts; your own via `KH_IMPORT_SHORTCUT_URL` and `KH_SIRI_SHORTCUT_URL` in `kh/ops/.env`), and the Clock timer (iPhone and iPad). On a new phone, iPad or (in Safari, Chrome, Edge) computer, Cookbook asks once after sign-in: "Yes, show me", "Later" (asks again after 7 days) or "No, thanks" (never on this device). The introduction ends with a "Set up now" button. For the shortcuts, the address and the key the shortcut asks for sit as copy boxes right under "Add shortcut" (create the key there with one click; you can take one key per shortcut and delete it alone) (D86).
 
 ### What's new in Cookbook (D69)
 
-After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
+After an update the start page shows a few cards with the news once (full screen on a phone, a card on iPad and computers). New people get the introduction instead. **More → Help → What's new** shows all versions any time. Developers add the cards in `frontend/kh/app/lib/whats-new.ts` and raise `NEWS_VERSION` in `mealie/kh/onboarding/news.py` before each release with new functions; a test checks that both agree.
 
 ### One settings page
 
@@ -925,11 +925,11 @@ For people who are not at home with apps: under **More → Settings → Simple v
 
 ### Season (D80)
 
-An add-on (off; **More → Settings → More functions → Season**): the start page shows "In season now" with what is in season in Germany (outdoor and storage, a hand-kept list, `frontend/kh/app/lib/season.ts`) and below it up to eight recipes of the family whose ingredients contain such a food (the food's name or plural, as a whole word). Tapping a name searches for it.
+An add-on (off; **More → Settings → Add-ons → Season**): the start page shows "In season now" with what is in season in Germany (outdoor and storage, a hand-kept list, `frontend/kh/app/lib/season.ts`) and below it up to eight recipes of the family whose ingredients contain such a food (the food's name or plural, as a whole word). Tapping a name searches for it.
 
 ### Shopping list by QR code and NFC (D81)
 
-**More → Set up Cookbook** has "For the kitchen": a QR code of the address `…/einkauf` to print (fridge; scan with the camera and the list opens) and for NFC stickers. In Chrome on Android "Write to NFC sticker" writes the address onto an empty sticker. An iPhone can read stickers but a website cannot write them: use the free app "NFC Tools" there, or in Shortcuts → Automation → NFC set a sticker to "Open URL". Stickers are optional and cost about 1 € each.
+**More → Help → Set up Cookbook** has "For the kitchen": a QR code of the address `…/einkauf` to print (fridge; scan with the camera and the list opens) and for NFC stickers. In Chrome on Android "Write to NFC sticker" writes the address onto an empty sticker. An iPhone can read stickers but a website cannot write them: use the free app "NFC Tools" there, or in Shortcuts → Automation → NFC set a sticker to "Open URL". Stickers are optional and cost about 1 € each.
 
 ### Our note on a recipe (D82)
 
@@ -951,14 +951,14 @@ Under **More → Account → Delete account** you delete your own account: you t
 
 ### Notifications (D75)
 
-Under **More → Notifications** each person chooses which push messages they get (web push, no store app). The big switch "Notifications on this device" asks for permission; on iPhone and iPad (16.4 or newer) this only works for Cookbook on the home screen. Six switches: **Meal plan**, **Evening reminder** ("Morgen: Lasagne" at the chosen time with thawing and prepare-the-day-before hints; nothing planned, no message), **Shopping list** (at most one message per list in 15 minutes), **Wishes**, **Inbox** (a recipe is ready for review) and **What's new** (once after an update). The first device switches on meal plan, evening and wishes. Nobody is told about what they did themselves (except "Inbox"), and only the own household counts. "Send test notification" checks the setup; the device list lets you remove devices. The server's VAPID key is made on first use in `<data>/kh/vapid.json` (readable by the app only, included in backups).
+Under **More → Settings → Notifications** each person chooses which push messages they get (web push, no store app). The big switch "Notifications on this device" asks for permission; on iPhone and iPad (16.4 or newer) this only works for Cookbook on the home screen. Six switches: **Meal plan**, **Evening reminder** ("Morgen: Lasagne" at the chosen time with thawing and prepare-the-day-before hints; nothing planned, no message), **Shopping list** (at most one message per list in 15 minutes), **Wishes**, **Inbox** (a recipe is ready for review) and **What's new** (once after an update). The first device switches on meal plan, evening and wishes. Nobody is told about what they did themselves (except "Inbox"), and only the own household counts. "Send test notification" checks the setup; the device list lets you remove devices. The server's VAPID key is made on first use in `<data>/kh/vapid.json` (readable by the app only, included in backups).
 
 ### Set up the Telegram bot
 
 Optional and off by default: if you prefer to send links, texts or photos to a Telegram chat, they arrive as a draft in the **inbox** (P7.1). The bot asks Telegram for messages itself, no port is opened.
 
 1. In Telegram open the chat with **@BotFather**, send `/newbot` and answer the questions. Put the token it gives you into `kh/ops/.env` as `KH_TELEGRAM_TOKEN`.
-2. In Cookbook create a token of its own under **Profile → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
+2. In Cookbook create a token of its own under **More → Settings → Advanced → Mealie settings → API Tokens**, for example "Telegram bot", and enter it as `KH_TELEGRAM_API_TOKEN`.
 3. Start the bot with `docker compose -f kh/ops/docker-compose.yml --profile telegram up -d telegram`, write it a message and put the chat ID it sends back ("Diese Chat-ID ist nicht freigeschaltet: …") into `KH_TELEGRAM_ALLOWED_IDS` (several with commas). Then restart the bot with the same command.
 
 From then on every link, text or photo from an allowed chat becomes a draft; the bot answers "Entwurf angelegt" with the link to the review. For photos the largest size counts, at most `KH_DRAFT_MAX_IMAGE_MB`. Video links (Instagram, TikTok, YouTube, Facebook) are not fetched: send the description as text with it, or a screenshot. In the `lokal` profile the bot does not start. Switch it off: `docker compose -f kh/ops/docker-compose.yml stop telegram`.
@@ -1000,7 +1000,7 @@ With your own recording of about 1 minute it also measures speech recognition: `
   - Bring one back: with a password, `kh/ops/backup_copy.sh decrypt <stick>/Kuechenhelfer-Backups/<backup>.zip.age` asks for it and puts the backup into the backup folder; on a Mac run it in the Terminal on the machine itself, not over SSH. Without a password, copy the `.zip` from the stick into `kh/ops/backups`. Then `restore.sh <backup>.zip` as under "Day to day".
   - A guide next to the backups: the stick and the backup folder hold `LIESMICH.txt` with every step, reinstalling included, and `CLAUDE.md` for Claude: whoever starts Claude Code in that folder gets help with the restore. Both are renewed when the guide changes.
   - Change where the copies go: the same as in step 2, so on a Mac a double-click on `kh/ops/backup-ort-aendern.command`, handy as an alias on the desktop (drag it there in the Finder holding ⌥⌘). The password choice and the key stay, the first copy lands at the new place right away with `LIESMICH.txt` and `CLAUDE.md`, and on a Mac the result shows. The old place keeps its copies. On purpose this works only on the machine itself or over SSH, not on the website.
-  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Cookbook under Profile → API Tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
+  - Lost a stick without a password: whoever has it gets into the app with the backup key inside. Then delete the backup service's token in Cookbook More → Settings → Advanced → Mealie settings → API tokens (`kh-backup` on new installs), create a new one, put it into `kh/ops/.env` as `KH_BACKUP_API_TOKEN` and run `docker compose -f kh/ops/docker-compose.yml up -d backup`. Finally delete `kh/ops/data/.secret` and restart Mealie (`docker compose -f kh/ops/docker-compose.yml restart mealie`); everyone then logs in once more. The AI key is in the backup too: create a new one in Google AI Studio, enter it under Group Settings → AI Providers and delete the old one in AI Studio.
 
 ### Day to day
 
@@ -1029,7 +1029,7 @@ On a Mac, your own background jobs (cron, launchd) need `/usr/local/bin` in PATH
 
 **After every update:**
 
-1. Open Cookbook and check under **More → About Cookbook** that the new version shows.
+1. Open Cookbook and check under **More → Help → About Cookbook** that the new version shows.
 2. Open a recipe and start cooking mode.
 3. Take a backup right now: `docker compose -f kh/ops/docker-compose.yml run --rm --no-deps backup backup.sh`.
 4. If something fails, restore the backup from before the update (see "Day to day").
@@ -1042,8 +1042,8 @@ What Cookbook sends out. There is no telemetry.
 |---|---|---|---|
 | Read a link | fetching the page and its recipe picture | the website in question | – |
 | AI: read a text, photo, screenshot or a link without recipe data; Mealie's AI ingredient parser when chosen | the text, the pictures or the page's content; on the free tier Google may use them | the AI providers entered, in the order of the priority list, e.g. Google Gemini; each with its own rules (D35, D39) | delete the AI provider in the group settings |
-| Share shortcut | link, text or photo, with the device's key | your Cookbook, straight from the device (D37) | delete the shortcut; delete the token under Profile → API Tokens |
-| Notifications (web push, D75) | an encrypted message (title and text); the service only sees that a message goes to a device, not its content | the push service of Apple, Google or Mozilla, depending on the device | switch off under More → Notifications or remove the device |
+| Share shortcut | link, text or photo, with the device's key | your Cookbook, straight from the device (D37) | delete the shortcut; delete the token More → Settings → Advanced → Mealie settings → API tokens |
+| Notifications (web push, D75) | an encrypted message (title and text); the service only sees that a message goes to a device, not its content | the push service of Apple, Google or Mozilla, depending on the device | switch off under More → Settings → Notifications or remove the device |
 | Access from outside | all traffic to the web app; Cloudflare can read it because HTTPS ends there | Cloudflare (tunnel, D27) | `kh/ops/tunnel.sh off` |
 | Automatic updates | requests for the version list and the new images, with the read key while the repo is private; when the backup service is rebuilt, the Alpine base image and packages | GitHub (ghcr.io), Docker Hub, Alpine package mirrors (D29) | `kh/ops/auto_update.sh off` |
 | Mealie's version check | only the question for the newest Mealie version, when an admin opens the admin pages | GitHub (api.github.com) | – |

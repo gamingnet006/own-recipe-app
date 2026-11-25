@@ -171,7 +171,7 @@
       "intake-count": "Intake ({count})",
       "intake-waiting": "Intake, 1 draft waiting | Intake, {count} drafts waiting",
       "plan": "Plan",
-      "collection": "Collection",
+      "collection": "Browse",
       "invite": "Invite family",
       "based-on-mealie": "based on Mealie",
       "source": "Source code (AGPL)",
@@ -999,7 +999,7 @@
       "key": {
         "label": "Your key",
         "create": "Create key",
-        "once": "The key is only visible while this page is open. @:{'kh.app.name'} deliberately does not store it in readable form, so nobody can read it from the server. If you need it again later, just create a new one; delete old ones under Profile → API tokens.",
+        "once": "The key is only visible while this page is open. @:{'kh.app.name'} deliberately does not store it in readable form, so nobody can read it from the server. If you need it again later, just create a new one; delete old ones More → Settings → Advanced → Mealie settings → API tokens.",
         "another": "Create another key",
         "one-each": "You can use a separate key for each shortcut; then you can delete one without touching the others.",
         "ios": {
@@ -1141,7 +1141,7 @@
       "v1-4": {
         "simple": {
           "title": "Simple view",
-          "text": "Larger text and fewer buttons, set for each person. Under More → Account, or set by the admin."
+          "text": "Larger text and fewer buttons, set for each person. Under More → Settings → Simple view, or set by the admin."
         },
         "season": {
           "title": "Season",
@@ -1257,7 +1257,7 @@
       "seed": "Create foods, units and departments (needed for the shopping list tiles)",
       "ai-hint": "Optional. Links with recipe data and @:{'kh.app.name'} files work without AI. For photos, text and speech you need a provider; free keys are listed further down.",
       "addons": {
-        "intro": "What do you need? You can change this any time under More → Add-ons.",
+        "intro": "What do you need? You can change this any time under More → Settings → Add-ons (as admin).",
         "recipes": "Collect and cook recipes, without shopping list and meal plan.",
         "shopping": "Plus the tile shopping list, also in the shop without signal.",
         "planner": "Plus the week plan with wishes and suggestions."
@@ -1271,7 +1271,7 @@
         "remove": "Remove",
         "more": "Another person",
         "create": "Add | Add {n} person | Add {n} people",
-        "invite-hint": "Without mail sending each person gets a temporary password from you. Or create an invite link under Profile.",
+        "invite-hint": "Without mail sending each person gets a temporary password from you. Or create an invite link under More → Settings → Invite family.",
         "created-title": "Added",
         "created-hint": "You only see the password now. Send the text to the person or read it out.",
         "welcome": "Address {origin}, username {username}, temporary password {password} — at the first sign-in {name} chooses their own.",
@@ -1297,6 +1297,8 @@
         "intro": "The most important things at a glance. Nothing is changed here; the full list is under More → Settings → System check."
       },
       "summary": {
+        "language": "Language",
+        "accent": "Colour",
         "addons": "Add-ons",
         "family": "New people",
         "nobody": "Nobody",

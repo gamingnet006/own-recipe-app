@@ -87,6 +87,14 @@ describe("startDialog", () => {
     expect(startDialog({ ...facts, hasNews: false, addressChanged: false, askDevice: false })).toBeNull();
   });
 
+  test("a dialog answered on this page is skipped, so the next one follows at once", () => {
+    const open = { ...status, tour: true, intolerancesAsked: false };
+    // the tour stays flagged in the facts: only `done` moves the chain on
+    expect(startDialog({ ...facts, status: open, done: ["tour"] })).toBe("intolerances");
+    expect(startDialog({ ...facts, status: open, done: ["tour", "intolerances"] })).toBe("news");
+    expect(startDialog({ ...facts, status: open, done: ["tour", "intolerances", "news", "address", "device"] })).toBeNull();
+  });
+
   test("nothing while a first step is open, without a status, or signed out", () => {
     expect(startDialog({ ...facts, status: { ...status, mustChangePassword: true } })).toBeNull();
     expect(startDialog({ ...facts, status: { ...status, needsEmail: true } })).toBeNull();

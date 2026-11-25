@@ -33,12 +33,12 @@ def split_articles(text: str) -> list[str]:
 
 # "bei Rewe", "für Aldi", "auf die dm-Liste", "to the Aldi shopping list" at the end; trailing punctuation is ignored
 STORE_TAIL = re.compile(
-    r"\s+(?:bei|für|aufs|auf|ins|in|zur|zum|zu|at|for|on|to)"
+    r"\s+(?P<prep>bei|für|aufs|auf|ins|in|zur|zum|zu|at|for|on|to)"
     r"(?:\s+(?:die|der|den|dem|das|the|my|our|mein(?:e[nmrs]?)?|unser(?:e[nmrs]?)?))?\s+(?P<name>.+?)[\s.!?,;]*$",
     re.IGNORECASE,
 )
 # what turns a store into a list name when said: "-Liste", " Liste", "-Einkaufsliste", " list", " shopping list"
-LIST_WORD = re.compile(r"(?:[\s-]*(?:einkaufs)?liste|\s+(?:shopping\s+)?list|^(?:shopping\s+)?list)$")
+LIST_WORD = re.compile(r"(?:[\s-]*(?:einkaufs)?liste|\s+(?:shopping\s+)?list|^(?:shopping\s+)?list)$", re.IGNORECASE)
 
 
 # a leading "Setz bitte mir ..." / "please add ..." and a trailing "... drauf" / "... on it" around an article
@@ -72,10 +72,21 @@ def _list_key(name: str) -> str:
     return LIST_WORD.sub("", name.strip().casefold())
 
 
+def _names_unknown_list(match: re.Match[str]) -> str:
+    """The name a tail asks for when it is a named frame ("Aldi-Liste", "Aldi list", "bei/at Aldi"), else "" (plain
+    frame or another preposition: "für Gäste" is no store)."""
+    name = match["name"].strip()
+    if match["prep"].casefold() in ("bei", "at") or LIST_WORD.search(name):
+        return LIST_WORD.sub("", name)
+    return ""
+
+
 def split_store(text: str, list_names: list[str]) -> tuple[str, str | None]:
     """Finds the store said at the end of TEXT ("Milch bei Rewe") when it names one of LIST_NAMES: returns the text
     without that tail and the list's name. The exact name wins over a longer one ("Rewe" before "Rewe City"), else a
-    unique prefix is taken ("Rossmann" for "Rossmann Innenstadt"). Anything else ("Kaffee für Gäste") stays as said."""
+    unique prefix is taken ("Rossmann" for "Rossmann Innenstadt"). A named frame ("Aldi-Liste", "bei Aldi") that matches
+    no list returns its name anyway, so the caller can say there is no such list instead of using the default list.
+    Anything else ("Kaffee für Gäste") stays as said."""
     position = 0
     while match := STORE_TAIL.search(text, position):
         rest, spoken = text[: match.start()].strip(), _list_key(match["name"])
@@ -87,6 +98,8 @@ def split_store(text: str, list_names: list[str]) -> tuple[str, str | None]:
             return rest, found[0]
         if rest and not found and not spoken:  # "auf die Einkaufsliste": no store named, the default list
             return rest, None
+        if rest and not found and (unknown := _names_unknown_list(match)):
+            return rest, unknown  # the caller refuses it: no list has this name
         position = match.start() + 1  # the tail may start at a later preposition ("Milch für Oma bei Rewe")
     return text, None
 
@@ -146,18 +159,21 @@ def spoken_amount_to_digits(article: str) -> str:
     return f"{number} {article[match.end() :]}"
 
 
-def _read_clause(part: str, list_names: list[str]) -> tuple[str, str | None, bool]:
+def _read_clause(part: str, list_names: list[str] | None) -> tuple[str, str | None, bool]:
     """One clause as (article, store, framed): the frame word and the store are cut off; "framed" says whether the
     clause ended with a frame word or named a store, which is what lets its verb be stripped."""
     body, has_frame = split_frame(part)
+    if list_names is None:
+        return body, None, has_frame
     rest, store = split_store(body, list_names)
     return rest, store, has_frame or rest != body
 
 
-def plan_additions(text: str, list_names: list[str]) -> list[tuple[str | None, list[str]]]:
+def plan_additions(text: str, list_names: list[str] | None) -> list[tuple[str | None, list[str]]]:
     """Splits a spoken TEXT into groups of articles per list, in the order the lists were first said: a clause
     without a store takes the store of the next clause that names one ("Butter und Milch bei Aldi" puts both on
-    Aldi), clauses after the last store belong to None, the default list. Pass no LIST_NAMES to ignore stores."""
+    Aldi), clauses after the last store belong to None, the default list. Pass None as LIST_NAMES to ignore stores
+    (a list was given); an empty list means there are no lists, so a named one is reported as missing."""
     read = [_read_clause(part, list_names) for part in split_articles(text)]
     # "Pack Nudeln" may be a pack of noodles: the first clause loses an ambiguous verb only when the sentence ends
     # with a frame word or a store, a later clause only when it does itself

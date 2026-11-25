@@ -88,6 +88,13 @@ def test_the_text_is_split_into_articles(text: str, parts: list[str]):
         ("Butter auf meiner Liste", ["Rewe", "Aldi"], ("Butter", None)),
         ("milk to my shopping list", ["Rewe", "Aldi"], ("milk", None)),
         ("eggs on our Aldi list", ["Rewe", "Aldi"], ("eggs", "Aldi")),
+        # a frame that carries a name no list has gives that name back (the caller says "no such list")
+        ("Butter auf die Lidl-Liste", ["Rewe", "Aldi"], ("Butter", "Lidl")),
+        ("Butter auf die Lidl-Einkaufsliste", ["Rewe", "Aldi"], ("Butter", "Lidl")),
+        ("Butter bei Lidl", ["Rewe", "Aldi"], ("Butter", "Lidl")),
+        ("butter on the Lidl list", ["Rewe", "Aldi"], ("butter", "Lidl")),
+        ("butter on the Lidl shopping list", ["Rewe", "Aldi"], ("butter", "Lidl")),
+        ("butter at Lidl", ["Rewe", "Aldi"], ("butter", "Lidl")),
     ],
 )
 def test_the_store_said_at_the_end_picks_the_list(text: str, names: list[str], expected: tuple[str, str | None]):
@@ -187,7 +194,9 @@ def test_a_trailing_frame_word_is_split_off(clause: str, expected: tuple[str, bo
             ["Rewe", "Aldi"],
             [("Aldi", ["butter", "milk"])],
         ),
-        ("Milch bei Rewe", [], [(None, ["Milch bei Rewe"])]),
+        ("Milch bei Rewe", None, [(None, ["Milch bei Rewe"])]),
+        ("Milch bei Rewe", [], [("Rewe", ["Milch"])]),
+        ("Milch auf die Einkaufsliste", [], [(None, ["Milch"])]),
         ("", ["Rewe"], []),
         # a leading verb is stripped only when the sentence ends with a frame word or a store (else "Pack" is a pack)
         ("Pack Nudeln", ["Aldi"], [(None, ["Pack Nudeln"])]),
@@ -206,7 +215,7 @@ def test_a_trailing_frame_word_is_split_off(clause: str, expected: tuple[str, bo
     ],
 )
 def test_the_clauses_are_grouped_by_the_next_store_said(
-    text: str, names: list[str], groups: list[tuple[str | None, list[str]]]
+    text: str, names: list[str] | None, groups: list[tuple[str | None, list[str]]]
 ):
     assert plan_additions(text, names) == groups
 
@@ -250,6 +259,55 @@ def test_an_unknown_list_name_is_404(api_client: TestClient, unique_user: TestUs
     response = api_client.post(ADD, json={"text": "Brot", "list": "Lidl"}, headers=unique_user.token)
     assert response.status_code == 404
     assert response.json()["message"] == "Die Liste Lidl gibt es nicht."  # D88: Siri reads the top-level message
+
+
+@pytest.mark.parametrize(
+    ("text", "language", "message"),
+    [
+        ("Butter auf die Lidl-Liste", "de-DE", "Die Liste Lidl gibt es nicht."),
+        ("Butter und Milch bei Lidl", "de-DE", "Die Liste Lidl gibt es nicht."),
+        ("butter on the Lidl shopping list", "en-US", "There is no list called Lidl."),
+        ("butter at Lidl", "en-US", "There is no list called Lidl."),
+        # one list exists, one does not: nothing is written (all or nothing)
+        ("Butter auf die Aldi-Liste und Seife auf die Lidl-Liste", "de-DE", "Die Liste Lidl gibt es nicht."),
+        ("butter on the Aldi list and soap on the Lidl list", "en-US", "There is no list called Lidl."),
+    ],
+)
+def test_a_frame_naming_a_missing_list_is_404_and_writes_nothing(
+    api_client: TestClient, unique_user: TestUser, lists, text: str, language: str, message: str
+):
+    headers = {**unique_user.token, "Accept-Language": language}
+    response = api_client.post(ADD, json={"text": text}, headers=headers)
+    assert (response.status_code, response.json()["message"]) == (404, message)
+    assert all(items_of(api_client, unique_user, list_id) == [] for list_id in lists.values())
+
+
+@pytest.mark.parametrize(
+    ("text", "language", "message"),
+    [
+        ("Butter auf die Aldi-Liste", "de-DE", "Die Liste Aldi gibt es nicht."),
+        ("butter at Aldi", "en-US", "There is no list called Aldi."),
+    ],
+)
+def test_without_any_list_a_named_frame_is_404_and_makes_no_list(
+    api_client: TestClient, unique_user: TestUser, text: str, language: str, message: str
+):
+    headers = {**unique_user.token, "Accept-Language": language}
+    response = api_client.post(ADD, json={"text": text}, headers=headers)
+    assert (response.status_code, response.json()["message"]) == (404, message)
+    assert api_client.get(api_routes.households_shopping_lists, headers=unique_user.token).json()["items"] == []
+
+
+def test_without_any_list_a_plain_frame_makes_the_first_list(api_client: TestClient, unique_user: TestUser):
+    response = api_client.post(ADD, json={"text": "Quark auf die Einkaufsliste"}, headers=unique_user.token)
+    assert (response.status_code, response.json()["message"]) == (200, "Quark steht auf der Liste Einkaufsliste.")
+    for made in api_client.get(api_routes.households_shopping_lists, headers=unique_user.token).json()["items"]:
+        api_client.delete(api_routes.households_shopping_lists_item_id(made["id"]), headers=unique_user.token)
+
+
+def test_a_plain_frame_still_goes_to_the_default_list(api_client: TestClient, unique_user: TestUser, lists):
+    response = api_client.post(ADD, json={"text": "Butter auf die Einkaufsliste"}, headers=unique_user.token)
+    assert (response.status_code, response.json()["message"]) == (200, "Butter steht auf der Liste Aldi.")
 
 
 def test_an_open_article_gets_the_amount_and_a_ticked_one_is_put_back(

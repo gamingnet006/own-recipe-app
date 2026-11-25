@@ -11,7 +11,7 @@ const SHOPPING_PAGE = "/einkauf";
 const CLASSIC_SHOPPING = "/shopping-lists";
 
 export type KhNavKey = "recipes" | "intake" | "shopping" | "more" | "mealplan" | "cookbooks" | "finder" | "favorites"
-  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "wizard" | "switch" | "households" | "profileEdit" | "notifications" | "setup" | "people" | "invite" | "household";
+  | "organizers" | "categories" | "tags" | "tools" | "timeline" | "duplicates" | "nutrition" | "tolerance" | "profile" | "data" | "admin" | "about" | "settings" | "system" | "addons" | "wizard" | "switch" | "households" | "profileEdit" | "notifications" | "setup" | "people" | "invite" | "household" | "tagSuggest";
 
 /** The side-menu entries a person may hide (D58), in the menu's order; the server holds the same keys
  * (mealie/kh/navigation/schemas.py). Recipes and More always stay. */
@@ -76,6 +76,7 @@ function allTargets(groupSlug: string, userId: string): Targets {
     invite: target("invite", `${group}/more`, "accountPlusOutline", "kh.nav.invite"),
     switch: target("switch", `${group}/more`, "swapHorizontal", "kh.accounts.switch"),
     households: target("households", `${group}/haushalte`, "household", "kh.nav.households"),
+    tagSuggest: target("tagSuggest", `${group}/schlagworte`, "tags", "kh.tag-suggest.title"), // KH: for people who organize
   };
 }
 
@@ -198,6 +199,7 @@ export function settingsSections(
       ...(admin ? [all.people] : []),
       ...(admin || user.canManageHousehold ? [all.household] : []),
       ...(admin || user.canInvite ? [all.invite] : []),
+      ...(admin || user.canOrganize ? [all.tagSuggest] : []),
       ...(admin ? [all.addons, all.households, all.system, all.wizard] : []),
     ],
     advanced: [

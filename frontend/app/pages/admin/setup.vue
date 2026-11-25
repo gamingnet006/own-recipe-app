@@ -92,6 +92,8 @@
         <v-stepper-window :transition="false" class="stepper-window">
           <!-- LANDING -->
           <v-stepper-window-item :value="Pages.LANDING">
+            <KhSetupLanguage v-model:chosen="languageChosen" :rerun="rerun" /> <!-- KH: language is the very first thing, then the colour (wave 2) -->
+            <KhSetupAccent />
             <v-container class="mb-12">
               <AppLogo />
               <v-card-title class="text-headline-medium my-5 justify-center text-center text-break text-pre-wrap">
@@ -115,15 +117,13 @@
                 rounded
                 variant="outlined"
                 color="grey-lighten-1"
-                class="text-subtitle-2 d-flex mx-auto"
-                style="width: fit-content;"
+                class="text-subtitle-2 d-flex mx-auto text-wrap h-auto py-2"
+                style="width: fit-content; max-width: 100%;"
               >
+                <!-- KH: the long label wraps instead of being clipped at phone width -->
                 {{ $t('admin.setup.already-set-up-bring-to-homepage') }}
               </v-btn>
             </v-container>
-
-            <KhSetupLanguage v-model:chosen="languageChosen" :rerun="rerun" /> <!-- KH: language first (wave 2) -->
-            <KhSetupAccent /> <!-- KH: then the installation's colour (wave 2) -->
 
             <v-stepper-actions
               class="justify-end"

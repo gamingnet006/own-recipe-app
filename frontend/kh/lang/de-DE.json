@@ -171,7 +171,7 @@
       "intake-count": "Eingang ({count})",
       "intake-waiting": "Eingang, 1 Entwurf wartet | Eingang, {count} Entwürfe warten",
       "plan": "Planen",
-      "collection": "Sammlung",
+      "collection": "Stöbern",
       "invite": "Familie einladen",
       "based-on-mealie": "basiert auf Mealie",
       "source": "Quellcode (AGPL)",
@@ -999,7 +999,7 @@
       "key": {
         "label": "Dein Schlüssel",
         "create": "Schlüssel erstellen",
-        "once": "Der Schlüssel ist nur sichtbar, solange diese Seite offen ist. Kochheft speichert ihn absichtlich nicht lesbar, damit ihn niemand vom Server auslesen kann. Brauchst du ihn später noch einmal, erstell einfach einen neuen; alte löschst du unter Profil → API-Tokens.",
+        "once": "Der Schlüssel ist nur sichtbar, solange diese Seite offen ist. Kochheft speichert ihn absichtlich nicht lesbar, damit ihn niemand vom Server auslesen kann. Brauchst du ihn später noch einmal, erstell einfach einen neuen; alte löschst du Mehr → Einstellungen → Erweitert → Mealie-Einstellungen → API-Tokens.",
         "another": "Weiteren Schlüssel erstellen",
         "one-each": "Du kannst für jeden Kurzbefehl einen eigenen Schlüssel nehmen; dann kannst du einen einzeln löschen, ohne die anderen zu ändern.",
         "ios": {
@@ -1141,7 +1141,7 @@
       "v1-4": {
         "simple": {
           "title": "Einfache Ansicht",
-          "text": "Größere Schrift und weniger Knöpfe, für jede Person einzeln. Unter Mehr → Konto, oder vom Admin eingestellt."
+          "text": "Größere Schrift und weniger Knöpfe, für jede Person einzeln. Unter Mehr → Einstellungen → Einfache Ansicht, oder vom Admin eingestellt."
         },
         "season": {
           "title": "Saison",
@@ -1257,7 +1257,7 @@
       "seed": "Deutsche Lebensmittel, Einheiten und Abteilungen anlegen (nötig für die Kacheln der Einkaufsliste)",
       "ai-hint": "Freiwillig. Links mit Rezeptdaten und Kochheft-Dateien gehen auch ohne KI. Für Fotos, Text und Sprache brauchst du einen Anbieter; kostenlose Schlüssel stehen weiter unten.",
       "addons": {
-        "intro": "Was braucht ihr? Das lässt sich jederzeit unter Mehr → Zusatzfunktionen ändern.",
+        "intro": "Was braucht ihr? Das lässt sich jederzeit unter Mehr → Einstellungen → Zusatzfunktionen ändern (als Admin).",
         "recipes": "Rezepte sammeln und kochen, ohne Einkaufsliste und Essensplan.",
         "shopping": "Dazu die Einkaufsliste mit Kacheln, auch im Laden ohne Netz.",
         "planner": "Dazu der Wochenplan mit Wünschen und Vorschlägen."
@@ -1271,7 +1271,7 @@
         "remove": "Entfernen",
         "more": "Weitere Person",
         "create": "Anlegen | {n} Person anlegen | {n} Personen anlegen",
-        "invite-hint": "Ohne Mailversand bekommt jede Person von dir ein vorläufiges Passwort. Alternativ erzeugst du einen Einladungslink unter Profil.",
+        "invite-hint": "Ohne Mailversand bekommt jede Person von dir ein vorläufiges Passwort. Alternativ erzeugst du einen Einladungslink unter Mehr → Einstellungen → Familie einladen.",
         "created-title": "Angelegt",
         "created-hint": "Das Passwort siehst du nur jetzt. Schick den Text der Person oder lies ihn vor.",
         "welcome": "Adresse {origin}, Benutzername {username}, vorläufiges Passwort {password} — beim ersten Anmelden wählt {name} ein eigenes.",
@@ -1297,6 +1297,8 @@
         "intro": "Das Wichtigste auf einen Blick. Hier wird nichts geändert; die ganze Liste steht unter Mehr → Einstellungen → Systemprüfung."
       },
       "summary": {
+        "language": "Sprache",
+        "accent": "Farbe",
         "addons": "Zusatzfunktionen",
         "family": "Neue Personen",
         "nobody": "Niemand",

@@ -16,15 +16,18 @@ export interface KhStartFacts {
   addressChanged: boolean;
   /** This device should be asked about its setup (see shouldAskDevice). */
   askDevice: boolean;
+  /** Dialogs already answered on this page: skipped, so the next one follows at once instead of on the next load. */
+  done?: KhStartDialog[];
 }
 
 /** The dialog to open. Without a status, or while a first step (own password, e-mail address) is open, none. */
 export function startDialog(facts: KhStartFacts): KhStartDialog {
   const { status, signedIn } = facts;
   if (!signedIn || !status || status.mustChangePassword || status.needsEmail) return null;
-  if (shouldShowTour(status, signedIn)) return "tour";
-  if (facts.allergensOn && !status.intolerancesAsked) return "intolerances";
-  if (facts.hasNews) return "news";
-  if (facts.addressChanged) return "address";
-  return facts.askDevice ? "device" : null;
+  const open = (dialog: KhStartDialog) => !facts.done?.includes(dialog);
+  if (open("tour") && shouldShowTour(status, signedIn)) return "tour";
+  if (open("intolerances") && facts.allergensOn && !status.intolerancesAsked) return "intolerances";
+  if (open("news") && facts.hasNews) return "news";
+  if (open("address") && facts.addressChanged) return "address";
+  return open("device") && facts.askDevice ? "device" : null;
 }

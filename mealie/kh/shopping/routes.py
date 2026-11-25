@@ -52,7 +52,7 @@ class KhShoppingController(BaseUserController):
         locale = request_locale(self.session, self.user.id, request)  # the answer is read out in the person's language
         lists = self.repos.group_shopping_lists.get_all()
         # D87: the stores said ("bei Rewe") pick the lists; a list given explicitly wins for everything
-        groups = plan_additions(data.text, [] if data.list else [entry.name or "" for entry in lists])
+        groups = plan_additions(data.text, None if data.list else [entry.name or "" for entry in lists])
         if not groups:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ErrorResponse.respond(say("no_article", locale)))
         group_repos = get_repositories(self.session, group_id=self.group_id, household_id=None)

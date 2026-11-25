@@ -22,7 +22,8 @@ look), "Auf diesem Gerät" (setup, oven, nutrition, timer), "Familie & Verwaltun
           />
           <template v-if="target.key === 'profileEdit'">
             <v-list-item :prepend-icon="$globals.icons.translate" :title="$t('sidebar.language')" @click="languageDialog = true" />
-            <v-list-item :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherNight : $globals.icons.weatherSunny" :title="$t('kh.theme.title')">
+            <!-- KH: the theme buttons sit under the label on narrow screens, so the label stays readable -->
+            <v-list-item class="kh-theme-row" :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherNight : $globals.icons.weatherSunny" :title="$t('kh.theme.title')">
               <template #append>
                 <KhThemeChoice />
               </template>
@@ -241,3 +242,16 @@ function icon(name: string): string {
   return ($globals.icons as Record<string, string>)[name] ?? "";
 }
 </script>
+
+<style scoped>
+@media (max-width: 599px) {
+  .kh-theme-row {
+    grid-template-areas: "prepend content" ". append";
+    grid-template-columns: max-content 1fr;
+  }
+  .kh-theme-row :deep(.v-list-item__append) {
+    justify-self: start;
+    padding-bottom: 8px;
+  }
+}
+</style>

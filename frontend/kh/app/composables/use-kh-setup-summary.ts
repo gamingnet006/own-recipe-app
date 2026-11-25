@@ -1,6 +1,9 @@
-// KH: the lines the wizard's summary adds for Kochheft's own choices (D83): the add-ons preset, the people created, AI.
+// KH: the lines the wizard's summary adds for Kochheft's own choices (D83): language, colour, the add-ons preset, the
+// people created, AI.
 import { currentPreset } from "../lib/addons";
 import { presetLabelKey } from "../lib/setup-wizard";
+import { KH_LOCALES } from "../lib/locale";
+import { khInstallationAccent } from "./use-kh-accent";
 import { khAddons } from "./use-kh-addons";
 import { khFamily } from "./use-kh-setup-family";
 
@@ -8,6 +11,8 @@ import { khFamily } from "./use-kh-setup-family";
 export function useKhSetupSummary(aiProviders: Ref<number>) {
   const i18n = useI18n();
   return computed(() => [
+    { text: i18n.t("kh.wizard.summary.language"), value: KH_LOCALES.find(language => language.value === i18n.locale.value)?.name ?? i18n.locale.value },
+    { text: i18n.t("kh.wizard.summary.accent"), value: i18n.t(`kh.accent.${khInstallationAccent.value ?? "salbei"}`) },
     { text: i18n.t("kh.wizard.summary.addons"), value: i18n.t(presetLabelKey(currentPreset(khAddons.flags))) },
     {
       text: i18n.t("kh.wizard.summary.family"),

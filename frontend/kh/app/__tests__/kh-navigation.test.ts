@@ -76,12 +76,12 @@ describe("destinations", () => {
     const keys = (user: Parameters<typeof settingsSections>[0], on = DEFAULT_ADDONS) =>
       Object.fromEntries(Object.entries(settingsSections(user, "familie", on)).map(([part, list]) => [part, list.map(target => target.key)]));
     expect(keys({})).toEqual({ me: ["profileEdit", "tolerance", "notifications"], device: ["setup"], family: [], advanced: [] });
-    expect(keys({ canOrganize: true })).toMatchObject({ family: [], advanced: ["data"] });
+    expect(keys({ canOrganize: true })).toMatchObject({ family: ["tagSuggest"], advanced: ["data"] });
     expect(keys({ canInvite: true }).family).toEqual(["invite"]);
     expect(keys({ canOrganize: true, admin: true, linked: true })).toEqual({
       me: ["profileEdit", "tolerance", "notifications", "switch"],
       device: ["setup"],
-      family: ["people", "household", "invite", "addons", "households", "system", "wizard"],
+      family: ["people", "household", "invite", "tagSuggest", "addons", "households", "system", "wizard"],
       advanced: ["data", "profile", "admin"],
     });
     expect(keys({}, { ...DEFAULT_ADDONS, allergens: false }).me).not.toContain("tolerance");
@@ -93,9 +93,9 @@ describe("destinations", () => {
       const { family, advanced } = settingsSections(flags(kind), "familie");
       return [family.map(target => target.key), advanced.map(target => target.key)];
     };
-    expect(rows("family")).toEqual([[], ["data"]]);
-    expect(rows("manager")).toEqual([["household", "invite"], ["data"]]);
-    expect(rows("admin")).toEqual([["people", "household", "invite", "addons", "households", "system", "wizard"], ["data", "profile", "admin"]]);
+    expect(rows("family")).toEqual([["tagSuggest"], ["data"]]);
+    expect(rows("manager")).toEqual([["household", "invite", "tagSuggest"], ["data"]]);
+    expect(rows("admin")).toEqual([["people", "household", "invite", "tagSuggest", "addons", "households", "system", "wizard"], ["data", "profile", "admin"]]);
     // an account with its own selection: group management or "advanced" (API tokens) needs the hub
     expect(settingsSections({ canManage: true }, "familie").advanced.map(target => target.key)).toEqual(["profile"]);
     expect(settingsSections({ advanced: true }, "familie").advanced.map(target => target.key)).toEqual(["profile"]);
