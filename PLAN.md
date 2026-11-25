@@ -117,6 +117,13 @@ Ein kostenloses, selbst gehostetes Rezept-System auf Basis eines Mealie-Forks: g
 | D86 | Antworten für den Kurzbefehl am Knopf (20.11.2026, beschlossen): In „Rezepte aus anderen Apps importieren“ und „Hey Siri, Auf die Einkaufsliste“ stehen unter „Kurzbefehl hinzufügen“ die beiden Antworten auf die Fragen des Geräts als Kopierfelder (`KhCopyField.vue`): „Adresse“ (BASE_URL) und „Dein Schlüssel“ (oder „Schlüssel erstellen“, nutzt `makeKey` der Karte „Schlüssel für Kurzbefehle“). Die Schlüssel (mehrere möglich, Namen „… (2)“) gelten für alle Karten der Seite und sind nirgends gespeichert. Nur Oberfläche, keine Migration. [x] |
 | D87 | Laden beim Sprechen (20.11.2026, beschlossen): `POST /api/kh/shopping/add` erkennt am Textende „bei/für/auf/in/zu (die/der/den/dem) <Name>( Liste)“, wenn <Name> zu einer Liste des Haushalts passt (ohne Groß-/Kleinschreibung und ohne „Liste“; genauer Name vor eindeutigem Anfang wie „Rossmann“ für „Rossmann Innenstadt“), und nimmt diese Liste; der Rest wird zerlegt. Passt keine Liste („Kaffee für Gäste“), bleibt der Text. Das Feld `list` hat Vorrang, ohne Laden gilt die zuletzt geänderte Liste. Reine Funktion `split_store` in `mealie/kh/shopping/voice.py`. Ergänzt D64. | beschlossen |
 | D88 | Kurzbefehle lesen Fehler vor (20.11.2026, beschlossen): iOS-Kurzbefehle lesen die Antwort mit „Wörterbuchwert für `message`“. `POST /api/kh/shopping/add` und `POST /api/kh/drafts/share` antworten darum bei **jedem** Fehler (außer 401 durch die Anmeldung, dort auch) mit einem sprechbaren deutschen Satz im obersten Feld `message`, neben dem unveränderten `detail` und Statuscode (ein KH-Fehler-Handler in `mealie/kh/speakable.py`, nur für diese zwei Pfade); `share` meldet auch Erfolg als „Ist im Eingang: 1 Entwurf“. Ergänzt D64, D84, D87. | beschlossen |
+| D89 | Siri mit ganzen Sätzen (24.11.2026, beschlossen): `POST /api/kh/shopping/add` liest Mengen als Wörter („zweimal Butter“, „3-mal“, „3x“, „one“), streicht ein Verb vorn („Setz“, „Schreib“, „put“, „add“) und „drauf“/„on it“ hinten und verteilt mehrere Läden in einem Satz auf ihre Listen; die Antwort nennt jede Liste. Eine genannte Liste, die es nicht gibt, ergibt „Diese Liste gibt es nicht“ statt der Standardliste. Siri kann den Rest des Satzes nicht an einen Kurzbefehl geben, darum bleibt die Frage „Was soll auf die Liste?“. | beschlossen |
+| D90 | Deutsch und Englisch (24.11.2026, beschlossen): Wählbar sind nur Deutsch und English. Die Wahl einer Person liegt am Konto, ohne Wahl gilt die Browsersprache, sonst Englisch. Der erste Start fragt zuerst die Sprache der Installation (Name der Home-Bildschirm-App, Startdaten, Schlagworte). Auf Englisch heißt die App „Cookbook“; Mealies „Kochbücher“ heißen „Sammlungen“/„Collections“. Alles, was der Server sagt (Siri, Kurzbefehle, Mitteilungen, Mails, Kalender), kommt in der Sprache der Person: Konto, dann Browser, dann Installation, dann Deutsch. Englische Kurzbefehl-Links kommen über `KH_*_SHORTCUT_URL_EN`. | beschlossen |
+| D91 | Schlagworte (24.11.2026, beschlossen): 24 Start-Schlagworte je Familie in der Sprache der Installation, eigene und gelöschte bleiben respektiert. Beim Hinzufügen schlagen Regeln ohne KI vorhandene Schlagworte vor (schnell, vegetarisch, vegan, mit Fleisch, mit Fisch). „Schlagworte vorschlagen“ für Rezepte ohne Schlagworte nutzt die KI nur auf Knopfdruck, 10 Rezepte je Anfrage, nur vorhandene Schlagworte, gespeichert wird nur Angehaktes. | beschlossen |
+| D92 | Einstellungen und Kontoarten (24.11.2026, beschlossen): Eine Seite (Mehr → Einstellungen) mit Ich, Auf diesem Gerät, Familie & Verwaltung (Admin) und Erweitert (Mealies Profil-Hub, nur Admin). Kontoarten Familie (Standard), Verwaltung und Admin ersetzen die Haken; Einzelhaken unter „Einzeln festlegen“. Einladungslinks ergeben Familienkonten. Die Frage nach Unverträglichkeiten kommt einmal pro Konto nach der Einführung. Die Gruppe unter Mehr heißt „Stöbern“/„Browse“. | beschlossen |
+| D93 | Farben (24.11.2026, beschlossen): Zehn Akzentfarben (Salbei, Waldgrün, Petrol, Blau, Indigo, Lila, Beere, Tomatenrot, Terrakotta, Senf), in Hell und Dunkel lesbar. Der erste Start wählt die Farbe der Installation (auch Anmeldeseite, App-Symbol, Manifest); jede Person kann am Konto eine eigene wählen, das Logo folgt ihr. | beschlossen |
+| D94 | Offline für alle (24.11.2026, beschlossen): Alle Rezepte des Haushalts (Text, Mengen, ein Hauptfoto klein, höchstens etwa 20 MB, älteste fallen zuerst heraus), Listen, Woche und Wünsche bleiben ohne Verbindung lesbar. Ein Banner zeigt fehlende Verbindung, Änderungen an der Einkaufsliste werden nachgeschickt, „Erstellen“ ist offline gesperrt. Die Zusatzfunktion „Offline-Rezepte“ bleibt zum Abschalten. | beschlossen |
+| D95 | Öffentliches Repo (24./25.11.2026, beschlossen): Die Geschichte nur unserer Commits wurde mit `git-filter-repo` bereinigt (E-Mail → GitHub-noreply, Domain, Familienname, Rechnername → Platzhalter); Mealies Commits und Tags bleiben unverändert, damit der gemeinsame Stand mit Upstream erhalten bleibt (nie über das ganze Repo laufen lassen). README mit Mealie-Hinweis, AGPL, Quellcode-Link unter Mehr → Über, Haftungs- und Allergen-Hinweis, „Built with Claude Code“; `SECURITY.md` mit privater Meldung. Öffentlich schaltet der Besitzer selbst. Versionen heißen vX.Y oder vX.Y.Z und dürfen keinen Mealie-Tag treffen (v1.5.0 ist einer, darum v1.5). | beschlossen |
 | D51 | Seitenmenü ab 840 px (15.11.2026): Am Ende steht „Mehr“. Nur dort liegen die Zusatzfunktionen, Systemprüfung, Über und die Einstellungen für Umluft, Nährwerte und Uhr; ohne den Eintrag waren sie auf iPad quer und Computer nicht erreichbar. Ergänzt D38. | beschlossen |
 
 ---
@@ -291,7 +298,7 @@ Jede Phase ist erst fertig, wenn ihr „Fertig wenn“ erfüllt ist. Die Familie
 
 ### Phase 8 · Betrieb und Veröffentlichung (v1.0)
 
-- [ ] Neuer Name und Logo (nach T7); Mealie-Hinweis, Lizenz und Quellcode-Link in der Oberfläche.
+- [x] Neuer Name und Logo (nach T7); Mealie-Hinweis, Lizenz und Quellcode-Link in der Oberfläche. (Kochheft/Cookbook, Quellcode-Link unter Mehr → Über, D95.)
 - [ ] Erststart-Assistent (Hardware-Test, Profil, KI-Anbindung, Backup-Test) und Systemprüfung.
 - [ ] Häkchen „Automatische Updates“ in den Admin-Einstellungen; schaltet `KH_AUTO_UPDATE` (D29).
 - [ ] Nicht benötigte Mealie-Tabellen per Migration entfernen (Stufe 2 der Fork-Regeln).
@@ -322,6 +329,19 @@ Ideen, umgesetzt am 19.11.2026 (D56–D59):
 - [x] Teilen-Kurzbefehl „In Kochheft importieren“ aus jeder App (z. B. Notizen): öffnet Kochheft mit dem Text; wer nicht angemeldet ist, meldet sich an und landet danach automatisch beim Import.
 - [x] Kurze Einführung beim ersten Anmelden: Der Admin setzt beim Anlegen eines Kontos den Haken „Mit Einführung“; die Person wird dann Schritt für Schritt durch die App geführt, unten links „Überspringen“.
 - [x] Eigene Seitenleiste pro Person: unter Mehr bei jeder Funktion ein Haken „in der Seitenleiste“. Standard wie heute; ohne Haken steht die Funktion nur unter Mehr.
+
+
+### v1.5 (24./25.11.2026)
+
+- [x] Siri mit ganzen Sätzen, mehreren Läden und Zahlwörtern (D89).
+- [x] Kochheft komplett auf Englisch als „Cookbook“, auch Serverantworten, Mails, Startdaten und Nährwertwissen (D90).
+- [x] Schlagworte mit 24 Start-Schlagworten und Vorschlägen (D91).
+- [x] Einstellungsseite, Kontoarten, Frage nach Unverträglichkeiten, Gruppe „Stöbern“ (D92).
+- [x] Akzentfarben (D93) und Offline für alle (D94).
+- [x] Sicherheits-, KI- und Code-Prüfung, Browser-Test einer frischen Installation auf Deutsch und Englisch; Release v1.5, Mac mini aktualisiert, Backup und Restore-Test bestanden.
+- [x] Repo für die Veröffentlichung vorbereitet (D95).
+- [ ] Repo öffentlich schalten, danach Secret Scanning, Push Protection und Dependabot an (macht der Besitzer).
+- [ ] Englische Kurzbefehle: Dateien bauen, iCloud-Links als `KH_*_SHORTCUT_URL_EN` eintragen, kleiner Patch.
 
 ---
 
