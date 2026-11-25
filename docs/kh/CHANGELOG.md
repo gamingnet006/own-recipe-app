@@ -6,7 +6,7 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
-## [v1.5.0] - 2026-11-25
+## [v1.5] - 2026-11-25
 
 Kochheft in German and English (in English: Cookbook), one settings page, own colours, tags, Siri with whole
 sentences and use without a connection. Checked with a security, an AI-usage and a code review and on a fresh install
