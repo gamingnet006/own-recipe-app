@@ -104,8 +104,8 @@ ghcr_login() {
 
 # True if the registry has the image with both platforms (amd64 and arm64).
 has_both_platforms() {  # image
-  out=$(docker buildx imagetools inspect "$1" 2>/dev/null) || return 1
-  printf '%s\n' "$out" | grep -q 'Platform: *linux/amd64' && printf '%s\n' "$out" | grep -q 'Platform: *linux/arm64'
+  out=$(docker manifest inspect "$1" 2>/dev/null) || return 1  # plain docker, no buildx needed on the Mac
+  printf '%s\n' "$out" | grep -q '"architecture": *"amd64"' && printf '%s\n' "$out" | grep -q '"architecture": *"arm64"'
 }
 
 main() {
@@ -129,7 +129,7 @@ main() {
   echo "3/4 Veröffentlichte Tags prüfen"
   ghcr_login
   for arch in amd64 arm64; do
-    docker buildx imagetools inspect "$(image_ref "$SLUG" "$VERSION" "$arch")" >/dev/null 2>&1 \
+    docker manifest inspect "$(image_ref "$SLUG" "$VERSION" "$arch")" >/dev/null 2>&1 \
       || fail "in GHCR fehlt $(image_ref "$SLUG" "$VERSION" "$arch")"
   done
   has_both_platforms "$(image_ref "$SLUG" "$VERSION")" \

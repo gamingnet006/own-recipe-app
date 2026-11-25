@@ -45,9 +45,9 @@ check "image name without architecture is the multi-arch tag" "$(image_ref gamin
 mkdir -p "$tmp/bin"
 printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$FAKE_INSPECT"' > "$tmp/bin/docker"
 chmod +x "$tmp/bin/docker"
-both=$(printf '%s\n' 'Manifests:' '  Platform:    linux/amd64' '  Platform:    linux/arm64')
+both=$(printf '%s\n' '"manifests": [' '{"platform": {"architecture": "amd64", "os": "linux"}},' '{"platform": {"architecture": "arm64", "os": "linux"}}')
 check "both platforms are found" "$(PATH="$tmp/bin:$PATH" FAKE_INSPECT="$both" yes_no has_both_platforms x)" "yes"
-check "one platform is not enough" "$(PATH="$tmp/bin:$PATH" FAKE_INSPECT='  Platform:    linux/amd64' yes_no has_both_platforms x)" "no"
+check "one platform is not enough" "$(PATH="$tmp/bin:$PATH" FAKE_INSPECT='"architecture": "amd64"' yes_no has_both_platforms x)" "no"
 
 # --- CHANGELOG entry ---
 changelog="$tmp/CHANGELOG.md"
