@@ -340,7 +340,7 @@ Ideen, umgesetzt am 19.11.2026 (D56–D59):
 - [x] Akzentfarben (D93) und Offline für alle (D94).
 - [x] Sicherheits-, KI- und Code-Prüfung, Browser-Test einer frischen Installation auf Deutsch und Englisch; Release v1.5, Mac mini aktualisiert, Backup und Restore-Test bestanden.
 - [x] Repo für die Veröffentlichung vorbereitet (D95).
-- [ ] Repo öffentlich schalten, danach Secret Scanning, Push Protection und Dependabot an (macht der Besitzer).
+- [x] Repo öffentlich (25.11.2026), Secret Scanning, Push Protection, Dependabot-Warnungen und private Sicherheitsmeldungen an. Das Paket auf ghcr.io bleibt privat: ältere Images enthalten noch persönliche Daten aus der Zeit vor der Bereinigung.
 - [x] Englische Kurzbefehle als iCloud-Links in `KH_*_SHORTCUT_URL_EN` eingetragen (25.11.2026; vom Besitzer aus den deutschen dupliziert, ohne Schlüssel und Adresse). Kommt mit dem nächsten Release.
 
 ---
