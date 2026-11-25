@@ -42,6 +42,8 @@ def parse(matcher: DataMatcher, line: str, locale: str = "en-US"):
         ("about 200 g flour", 200, None, "gram", "flour"),
         ("3 pieces flour", 3, None, "piece", "flour"),
         ("4 slices flour", 4, None, "slice", "flour"),
+        ("2 cups of flour", 2, None, "cup", "flour"),
+        ("4 slices of flour", 4, None, "slice", "flour"),
     ],
 )
 def test_english_lines(english: DataMatcher, line, quantity, upper, unit, food):

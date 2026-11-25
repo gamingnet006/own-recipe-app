@@ -117,7 +117,7 @@
                 rounded
                 variant="outlined"
                 color="grey-lighten-1"
-                class="text-subtitle-2 d-flex mx-auto text-wrap h-auto py-2"
+                class="text-subtitle-2 d-flex mx-auto h-auto py-2 kh-wrap-btn"
                 style="width: fit-content; max-width: 100%;"
               >
                 <!-- KH: the long label wraps instead of being clipped at phone width -->
@@ -715,6 +715,11 @@ async function onFinish() {
 </script>
 
 <style>
+/* KH: Vuetify keeps a button label on one line; this one wraps at phone width (wave 2) */
+.kh-wrap-btn .v-btn__content {
+  white-space: normal;
+  text-align: center;
+}
 .icon-white {
   fill: white;
 }

@@ -6,6 +6,13 @@ Notable changes per release. Every release is a git tag with the app image in GH
 
 ## [Unreleased]
 
+## [v1.5.0] - 2026-11-25
+
+Kochheft in German and English (in English: Cookbook), one settings page, own colours, tags, Siri with whole
+sentences and use without a connection. Checked with a security, an AI-usage and a code review and on a fresh install
+in both languages.
+
+- English shopping and ingredient lines: "2 slices of cheese" and "2 cups of flour" read the food without the "of".
 - Browser-check fixes: the first setup starts with the language, then the colour; the long "already set up" button wraps
   at phone width; the setup summary shows language and colour; menu paths in texts and the README match the current
   menus; the dialogs of the start page follow one another at once (tour, then the intolerance question); the settings

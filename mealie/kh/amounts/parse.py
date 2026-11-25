@@ -149,6 +149,10 @@ def food_and_note(rest: str, foods: dict[str, IngredientFoodOut]) -> tuple[Ingre
     return food, rest[split.start() :].lstrip(",").strip() if split else ""
 
 
+# The English "of" between a unit and its food ("2 slices of cheese"); German has no such word after a unit
+OF_AFTER_UNIT = re.compile(r"^\s*of\s+", re.IGNORECASE)
+
+
 def parse_ingredient(
     line: str, units: dict[str, IngredientUnitOut], foods: dict[str, IngredientFoodOut], locale: str = DEFAULT_LOCALE
 ) -> ParsedLine:
@@ -166,6 +170,7 @@ def parse_ingredient(
         unit, end = found
         rest = rest[end:]
         fixed = IngredientUnitModel.normalize(unit.name) in FIXED_UNITS
+        rest = OF_AFTER_UNIT.sub("", rest)  # "2 cups of flour", "a pinch of salt": the food is "flour"
     food, note = food_and_note(rest.strip(), foods)
     return ParsedLine(quantity, upper, unit, food, note, fixed)
 
